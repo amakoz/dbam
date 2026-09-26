@@ -34,7 +34,7 @@ No unit/integration suite is configured yet. `npm run smoke` (`@scripts/smoke.mj
 
 ## Commit & Pull Request Guidelines
 
-No commit-message convention is established yet (single scaffold commit). PRs to `master` must pass `.github/workflows/ci.yml`: lint, `astro check`, and build.
+No commit-message convention is established yet (single scaffold commit). PRs to `main` must pass `.github/workflows/ci.yml`: `ci` (lint, `astro check`, build) and `smoke`.
 
 ## Security & Configuration Tips
 

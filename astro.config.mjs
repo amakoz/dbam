@@ -9,11 +9,13 @@ import cloudflare from "@astrojs/cloudflare";
 // https://astro.build/config
 export default defineConfig({
   output: "server",
+  // Sessions and the Images binding are unused; disabling them keeps wrangler from auto-provisioning a KV namespace.
+  session: false,
   integrations: [react(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
   },
-  adapter: cloudflare(),
+  adapter: cloudflare({ imageService: "passthrough" }),
   env: {
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),

@@ -42,18 +42,18 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewl
 
 ## Phase status
 
-| #   | Phase                                             | Owner   | Status                                                |
-| --- | ------------------------------------------------- | ------- | ----------------------------------------------------- |
-| 0   | Findings & decisions                              | 👤      | ✅ done                                               |
-| 1   | Tooling & account prerequisites                   | 👤 + 🤖 | ✅ done (2026-09-26)                                  |
-| 2   | Repo prep (PR) + branch protection                | 🤖 + 👤 | 🟡 in progress: PR #1 green, waiting for merge (2.10) |
-| 3   | Supabase production auth config                   | 👤      | ⬜ not started                                        |
-| 4   | First manual deploy                               | 👤 + 🤖 | ⬜ not started                                        |
-| 5   | Production secrets + auth verification            | 👤 + 🤖 | ⬜ not started                                        |
-| 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ⬜ not started                                        |
-| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started                                        |
-| 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started                                        |
-| 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred                                            |
+| #   | Phase                                             | Owner   | Status               |
+| --- | ------------------------------------------------- | ------- | -------------------- |
+| 0   | Findings & decisions                              | 👤      | ✅ done              |
+| 1   | Tooling & account prerequisites                   | 👤 + 🤖 | ✅ done (2026-09-26) |
+| 2   | Repo prep (PR) + branch protection                | 🤖 + 👤 | ✅ done (2026-09-26) |
+| 3   | Supabase production auth config                   | 👤      | ✅ done (2026-09-26) |
+| 4   | First manual deploy                               | 👤 + 🤖 | 🟡 in progress       |
+| 5   | Production secrets + auth verification            | 👤 + 🤖 | ⬜ not started       |
+| 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ⬜ not started       |
+| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started       |
+| 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started       |
+| 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred           |
 
 Status values: ⬜ not started · 🟡 in progress · ✅ done · ❌ blocked (add a note)
 
@@ -188,7 +188,7 @@ Re-linked 2026-09-26 from the deleted Ireland project (`ypeztjwqxhgqtpmvhcvz`) t
 
 ---
 
-## Phase 2: Repo prep (PR) + branch protection 🤖 + 👤
+## Phase 2: Repo prep (PR) + branch protection 🤖 + 👤 ✅
 
 All changes go on branch `chore/deploy-prep` and reach `main` through a PR. The PR is also the first real CI run (F1).
 
@@ -215,8 +215,8 @@ All changes go on branch `chore/deploy-prep` and reach `main` through a PR. The 
   - [x] `dist/server/wrangler.json` has `"name":"dbam"`, `nodejs_compat` and `global_fetch_strictly_public`
 - [x] 2.8 🤖 `git push -u origin chore/deploy-prep && gh pr create --base main --fill` → [PR #1](https://github.com/amakoz/dbam/pull/1)
 - [x] 2.9 🤖 `gh pr checks --watch` → `ci` (41 s) and `smoke` (2 min) both green on the first CI run ever (2026-09-26). **Exact check names:** `ci` / `smoke` (GitHub Actions app)
-- [ ] 2.10 👤 Merge the PR (`gh pr merge --squash --delete-branch`, or in the UI)
-- [ ] 2.11 🤖 Turn on branch protection (D10), using the names from 2.9:
+- [x] 2.10 👤 Merge the PR (`gh pr merge --squash --delete-branch`, or in the UI) → `f8e94e5` on `main`; the post-merge run on `main` has `ci` + `smoke` green
+- [x] 2.11 👤 Turn on branch protection (D10), using the names from 2.9. **Owner runs this**: the agent's permission classifier blocks repo-settings changes ("CI Bypass"), which is the right boundary.
   ```bash
   gh api -X PUT repos/amakoz/dbam/branches/main/protection --input - <<'JSON'
   {
@@ -229,7 +229,7 @@ All changes go on branch `chore/deploy-prep` and reach `main` through a PR. The 
   }
   JSON
   ```
-- [ ] 2.12 🤖 `gh api repos/amakoz/dbam/branches/main/protection --jq '.required_status_checks.contexts'` → `["ci","smoke"]`
+- [x] 2.12 🤖 `gh api repos/amakoz/dbam/branches/main/protection --jq '.required_status_checks.contexts'` → `["ci","smoke"]`; also 0 reviews, no force-push, no deletion, `enforce_admins: false`, `protected: true`
 
 🩹 `**session: false` rejected by the Astro 7 schema** → remove it, create the namespace yourself (`npx wrangler kv namespace create SESSION`), and put its `id` in `wrangler.jsonc`. CI's `--no-x-provision` still applies.
 🩹 **Dry-run still shows `IMAGES`** → check the `imageService` spelling, and that nothing imports `astro:assets`.
@@ -238,24 +238,24 @@ All changes go on branch `chore/deploy-prep` and reach `main` through a PR. The 
 🩹 **After 2.11, PRs hang on "Expected — Waiting for status"** → the check names don't match (F17). Fix the `contexts` with the same `gh api` call.
 🩹 `**gh api …/protection` returns 403 "Upgrade to GitHub Pro"** → the repo is still private (Phase 1.2).
 
-⛔ **GATE 2**: PR merged with green `ci` + `smoke`. Branch protection is active. A direct `git push` to `main` is now rejected.
+⛔ **GATE 2** ✅: PR merged with green `ci` + `smoke`. Branch protection is active (checked via the API). A direct `git push` to `main` is rejected for everyone **except admins**: with `enforce_admins: false` (D10), your own direct push goes through and GitHub marks it "bypassed rule violations". Don't use that outside emergencies.
 
 ---
 
-## Phase 3: Supabase production auth config 👤
+## Phase 3: Supabase production auth config 👤 ✅
 
 Dashboard only. `supabase config push` would carry the local dev settings over (F14).
 
-- [ ] 3.1 Authentication → URL Configuration → **Site URL** = `https://dbam.amadeuszkozlowski.workers.dev`
-- [ ] 3.2 **Redirect URLs**: add `https://dbam.amadeuszkozlowski.workers.dev/**` and `http://localhost:4321/**`
-- [ ] 3.3 Authentication → Sign In / Providers → Email: **Confirm email = ON** (Supabase's default for hosted projects; the local config has it off)
-- [ ] 3.4 Authentication → Rate Limits: leave the defaults (custom SMTP comes later, D5)
-- [ ] 3.5 Nothing to migrate: `supabase/migrations/` doesn't exist yet (Phase 9)
+- [x] 3.1 Authentication → URL Configuration → **Site URL** = `https://dbam.amadeuszkozlowski.workers.dev`
+- [x] 3.2 **Redirect URLs**: add `https://dbam.amadeuszkozlowski.workers.dev/**` and `http://localhost:4321/**`
+- [x] 3.3 Authentication → Sign In / Providers → Email: **Confirm email = ON** (Supabase's default for hosted projects; the local config has it off)
+- [x] 3.4 Authentication → Rate Limits: leave the defaults (custom SMTP comes later, D5)
+- [x] 3.5 Nothing to migrate: `supabase/migrations/` doesn't exist yet (Phase 9)
 
 🩹 **Free-tier projects pause after about 7 days of inactivity.** Symptom: auth times out or returns 5xx while the Worker is fine. Restore it from the dashboard.
 🩹 **Email never arrives**: before custom SMTP, only team-member addresses get mail, max 2/hour (F5).
 
-⛔ **GATE 3**: Site URL and redirect URLs saved with the real subdomain. Confirm email is ON.
+⛔ **GATE 3** ✅ (owner-confirmed 2026-09-26): Site URL and redirect URLs saved with the real subdomain. Confirm email is ON.
 
 ---
 

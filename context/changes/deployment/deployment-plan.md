@@ -49,7 +49,7 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewl
 | 2   | Repo prep (PR) + branch protection                | 🤖 + 👤 | ✅ done (2026-09-26) |
 | 3   | Supabase production auth config                   | 👤      | ✅ done (2026-09-26) |
 | 4   | First manual deploy                               | 👤 + 🤖 | ✅ done (2026-09-26) |
-| 5   | Production secrets + auth verification            | 👤 + 🤖 | ⬜ not started       |
+| 5   | Production secrets + auth verification            | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ⬜ not started       |
 | 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started       |
 | 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started       |
@@ -280,26 +280,26 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
 
 ---
 
-## Phase 5: Production secrets + auth verification 👤 + 🤖
+## Phase 5: Production secrets + auth verification 👤 + 🤖 ✅
 
-- [ ] 5.1 👤 `! npx wrangler secret put SUPABASE_URL`, then paste the Project URL
-- [ ] 5.2 👤 `! npx wrangler secret put SUPABASE_KEY`, then paste the **publishable** key
+- [x] 5.1 👤 `! npx wrangler secret put SUPABASE_URL`, then paste the Project URL
+- [x] 5.2 👤 `! npx wrangler secret put SUPABASE_KEY`, then paste the **publishable** key
   - Each `secret put` creates **and deploys** a new version right away.
-- [ ] 5.3 🤖 `npx wrangler secret list` shows both names
-- [ ] 5.4 🤖 Read-only production checks (**not** `npm run smoke`, F11):
-  - [ ] `GET /` → `200`, banner **gone**
-  - [ ] `GET /dashboard` → `302`, `Location: /auth/signin`
-  - [ ] `GET /auth/signin`, `GET /auth/signup` → `200`
-  - [ ] `GET /_astro/<asset>` → `200`, `Cache-Control: public, max-age=31536000, immutable`
-  - [ ] `GET /does-not-exist` → `404`
-  - [ ] `GET /sitemap-index.xml` → `200`
-- [ ] 5.5 🤖 `npx wrangler tail dbam --format pretty` running while you do 5.6
-- [ ] 5.6 👤 Browser test with **your own Supabase-account email**:
-  - [ ] Sign up → `/auth/confirm-email`
-  - [ ] The email arrives, and its link points at `dbam.amadeuszkozlowski.workers.dev` (not `localhost`)
-  - [ ] After confirming, sign in → `/`; `/dashboard` renders
-  - [ ] Sign out → `/dashboard` sends you to sign-in again
-- [ ] 5.7 🤖 Tail output: no uncaught exceptions, no `dynamic require` errors
+- [x] 5.3 🤖 `npx wrangler secret list` shows both names
+- [x] 5.4 🤖 Read-only production checks (**not** `npm run smoke`, F11):
+  - [x] `GET /` → `200`, banner **gone**
+  - [x] `GET /dashboard` → `302`, `Location: /auth/signin`
+  - [x] `GET /auth/signin`, `GET /auth/signup` → `200`
+  - [x] `GET /_astro/<asset>` → `200`, `Cache-Control: public, max-age=31536000, immutable`
+  - [x] `GET /does-not-exist` → `404`
+  - [x] `GET /sitemap-index.xml` → `200`
+- [x] 5.5 🤖 `npx wrangler tail dbam --format pretty` running while you do 5.6
+- [x] 5.6 👤 Browser test with **your own Supabase-account email**:
+  - [x] Sign up → `/auth/confirm-email`
+  - [x] The email arrives, and its link points at `dbam.amadeuszkozlowski.workers.dev` (not `localhost`)
+  - [x] After confirming, sign in → `/`; `/dashboard` renders (owner-confirmed 2026-09-26)
+  - [x] Sign out → `/dashboard` sends you to sign-in again
+- [x] 5.7 🤖 Tail output: no uncaught exceptions, no `dynamic require` errors (2026-09-26: signup, confirm-email, `/?code=…` (F8), signin, signout all `Ok`)
 - [ ] 5.8 👤 (Optional) Delete the test user in Authentication → Users
 
 🩹 **Banner still shows** → secret names are case-sensitive and must match `astro.config.mjs`. Check `npx wrangler secret list`, then `wrangler secret delete <WRONG>` and put it again.
@@ -309,7 +309,7 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
 🩹 `**email rate limit exceeded` (429)** → the built-in SMTP cap. Wait an hour.
 🩹 **POST returns 403 "Cross-site POST form submissions are forbidden"** → Astro `checkOrigin` mismatch. Check that `site` matches the URL you're actually on.
 
-⛔ **GATE 5**: all of 5.4 and 5.6 checked, tail is clean. **Milestone: first deploy done.**
+⛔ **GATE 5** ✅ (2026-09-26): all of 5.4 and 5.6 checked, tail is clean. **Milestone: first deploy done.**
 
 ---
 
@@ -399,7 +399,7 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
   - **No surprise resources.** `--no-x-provision` stops CI from ever creating account resources (F3).
   - **Traceable deploys.** `--message` records the trigger and SHA in `wrangler deployments list`.
 - [ ] 7.2 🤖 Push the branch and open a PR → `ci` + `smoke` run, and `**deploy` shows as skipped**
-- [ ] 7.3 👤 Merge. **Auto path:** the run on `main` reaches `deploy` → status "Waiting" → 👤 Actions → run → **Review deployments** → approve `production`
+- [ ] 7.3 🤖 Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` reaches `deploy` → status "Waiting" → 👤 Actions → run → **Review deployments** → approve `production`
 - [ ] 7.4 🤖 `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`
 - [ ] 7.5 **Manual path:** 🤖 `gh workflow run CI --ref main`, then `gh run watch`. 👤 Approve. Result: `workflow_dispatch: <sha>` in `deployments list`. (Or use Actions → CI → **Run workflow** → branch `main`.)
 - [ ] 7.6 **Negative test:** 🤖 `gh workflow run CI --ref <any-other-branch>` → `ci` + `smoke` run, and `deploy` is **skipped**
@@ -459,13 +459,18 @@ Each item has a trigger. Start it when the trigger fires, not before.
 
 ## Human-only actions
 
-Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing the DB password and secret values; creating or rotating the Cloudflare API token; Supabase Auth/SMTP settings; merging PRs; **approving production deploys**; deleting any Worker, KV namespace, secret or Supabase project; DNS / custom domains.
+Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing the DB password and secret values; creating or rotating the Cloudflare API token; Supabase Auth/SMTP settings; **approving production deploys**; deleting any Worker, KV namespace, secret or Supabase project; DNS / custom domains.
+
+## Merging PRs
+
+🤖 The agent may merge a PR to `main` itself (`gh pr merge <n> --squash --delete-branch`) once **both** required checks, `ci` and `smoke`, are green on the PR's latest commit and it has no merge conflicts. Never with `--admin` or any other branch-protection bypass. A red, pending or missing check means stop and report. Merging to `main` does not ship to production on its own: every deploy still waits for 👤 approval of the `production` environment (D6). (Changed 2026-09-26 at the owner's request; previously merging was human-only.)
 
 ## Deployment log
 
 | Date       | Phase | Trigger         | Version ID                             | Message / SHA                                  | Result | Notes                                                                   |
 | ---------- | ----- | --------------- | -------------------------------------- | ---------------------------------------------- | ------ | ----------------------------------------------------------------------- |
 | 2026-09-26 | 4.3   | manual (laptop) | `78ad2a4f-e1e9-4219-a44e-b010a9afc0f7` | `manual: first deploy, no secrets` / `ba03df1` | ✅ 200 | Creates Worker `dbam`; only `ASSETS` binding; banner shown (no secrets) |
+| 2026-09-26 | 5.1–5.2 | `wrangler secret put` ×2 | `8a55721b-3041-4ccf-8435-cfd423217311` | Secret Change / `ba03df1` | ✅ Gate 5 | Current version. Supersedes secret-change versions `6038bd94`, `380029bf`, `d1d36987`, `ca84c8b6`, `37f4c334` |
 
 ## References
 

@@ -51,7 +51,7 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewl
 | 4   | First manual deploy                               | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 5   | Production secrets + auth verification            | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ✅ done (2026-09-26) |
-| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started       |
+| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | 🟡 in progress       |
 | 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started       |
 | 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred           |
 
@@ -357,7 +357,7 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
 
 The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job` → PR.
 
-- [ ] 7.1 🤖 Add to `.github/workflows/ci.yml`:
+- [x] 7.1 🤖 Add to `.github/workflows/ci.yml` (2026-09-26; `--no-x-provision` checked against wrangler 4.131.1 with `deploy --dry-run`: accepted, while an unknown flag errors):
   ```yaml
   deploy:
     needs: [ci, smoke]
@@ -378,14 +378,17 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
       - run: npm ci
       - run: npm run build
       - name: Deploy to Cloudflare Workers
-        run: npx wrangler deploy --no-x-provision --message "${{ github.event_name }}: ${{ github.sha }}"
+        run: npx wrangler deploy --no-x-provision --message "$DEPLOY_MESSAGE"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DEPLOY_MESSAGE: "${{ github.event_name }}: ${{ github.sha }}"
       - name: Post-deploy health check
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
         run: |
           for i in $(seq 1 10); do
-            curl -sf -o /dev/null "${{ vars.PRODUCTION_URL }}/" && exit 0
+            curl -sf -o /dev/null "$PRODUCTION_URL/" && exit 0
             sleep 3
           done
           echo "::error::Health check failed. Roll back with: npx wrangler rollback -m 'health check failed' -y"
@@ -398,6 +401,7 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
   - **Same wrangler as your laptop.** `npx wrangler` runs the version pinned in `package-lock.json`.
   - **No surprise resources.** `--no-x-provision` stops CI from ever creating account resources (F3).
   - **Traceable deploys.** `--message` records the trigger and SHA in `wrangler deployments list`.
+  - **Expressions go through `env:`.** An unquoted `run:` containing `": "` is invalid YAML (the original draft of this snippet failed Prettier), and keeping `${{ }}` out of shell scripts avoids script injection.
 - [ ] 7.2 🤖 Push the branch and open a PR → `ci` + `smoke` run, and `**deploy` shows as skipped**
 - [ ] 7.3 🤖 Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` reaches `deploy` → status "Waiting" → 👤 Actions → run → **Review deployments** → approve `production`
 - [ ] 7.4 🤖 `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`

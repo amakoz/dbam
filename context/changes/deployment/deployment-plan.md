@@ -9,7 +9,7 @@ cloudflare_account_id: fdf3fd78b2ab72e14ddb9d7531aa7f3c
 workers_dev_subdomain: amadeuszkozlowski
 production_url: "https://dbam.amadeuszkozlowski.workers.dev"
 deploy_triggers: [push-to-main, workflow_dispatch]
-deploy_approval: required-reviewer-every-deploy
+deploy_approval: none (auto-deploy when ci + smoke are green on main; D6 changed 2026-09-26)
 sources:
   - context/foundation/infrastructure.md
   - context/foundation/tech-stack.md
@@ -24,7 +24,7 @@ cli_check: 2026-09-26
 
 # First Deployment Plan: Dbam on Cloudflare Workers
 
-Follows `context/foundation/infrastructure.md`: Cloudflare Workers, `wrangler` CLI first, scoped tokens, and a human does anything irreversible. Covers tooling prerequisites, the first manual deploy, and a GitHub Actions deploy that runs **automatically on push to `main`** and **manually through `workflow_dispatch`**. Every deploy waits for approval.
+Follows `context/foundation/infrastructure.md`: Cloudflare Workers, `wrangler` CLI first, scoped tokens, and a human does anything irreversible. Covers tooling prerequisites, the first manual deploy, and a GitHub Actions deploy that runs **automatically on push to `main`** and **manually through `workflow_dispatch`**. A deploy runs only after `ci` + `smoke` pass on that `main` commit, with no approval step (D6, changed 2026-09-26).
 
 workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewlqmoyuobjiwprxszno`, the **Frankfurt** Supabase project (created 2026-09-26).
 
@@ -86,12 +86,13 @@ Re-checked against the working tree on 2026-09-26, before Phase 2: F1, F2, F3 (n
 | F15 | `npx supabase projects api-keys` prints the `service_role` / secret key.                                                                                                                                                                                   | Don't run it with an agent watching. Copy the **publishable** key from the dashboard.                                                                                                                                                     |
 | F16 | On GitHub Free, **private** repos get no environment secrets, required reviewers, deployment-branch rules or branch protection.                                                                                                                            | Repo goes public (D9). Git history scanned 2026-09-26: no secrets. All of `context/` becomes public.                                                                                                                                      |
 | F17 | Required status check names must exactly match job names (`ci`, `smoke`). If they're wrong, PRs wait forever on "Expected".                                                                                                                                | Turn on branch protection only after one PR run shows the real names.                                                                                                                                                                     |
-| F18 | With a required reviewer plus `concurrency`, GitHub keeps only the **newest** pending deploy. A new push cancels an older deploy that's still waiting for approval.                                                                                        | Intended: the latest `main` wins.                                                                                                                                                                                                         |
+| F18 | ~~With a required reviewer plus `concurrency`, GitHub keeps only the newest pending deploy.~~ No longer applies: D6 dropped the reviewer (2026-09-26). | `concurrency` still queues deploys one at a time, never cancelling a running one. |
 | F19 | CLI check on 2026-09-26: the existing Dbam Supabase project (`ypeztjwqxhgqtpmvhcvz`) is in **`eu-west-1` (Ireland)**, not Frankfurt. The org already has 2 active projects (MeelPrep + Dbam), the Free plan maximum.                                       | Owner chose to keep D2: delete the empty Ireland project, **then** create Dbam in Frankfurt, then re-link (Phase 1.4–1.5).                                                                                                                |
 | F20 | `gh` token scopes: `repo`, `read:org`, `gist`, `admin:public_key`. **No `workflow` scope**, but git pushes go over **SSH** (`git@github.com:amakoz/dbam.git`), so pushing `ci.yml` changes isn't affected. `gh workflow run` only needs `repo`.            | No action now. Run `gh auth refresh -s workflow` only if you switch the remote to HTTPS.                                                                                                                                                  |
 | F21 | Cloudflare account is empty: no Workers, no KV namespaces. Subdomain `amadeuszkozlowski` is already claimed.                                                                                                                                               | Nothing to clean up before Phase 4. Any KV namespace that appears later was auto-provisioned (F3).                                                                                                                                        |
 | F22 | `@astrojs/cloudflare` 14.3.x → `@cloudflare/vite-plugin` 1.54.8 pins **exactly** `wrangler@4.131.1`. Bumping only our `wrangler` to 4.141.0 installs two wranglers and two `workerd` runtimes (build ≠ deploy toolchain).                                  | Stay on 4.131.1. Bump `wrangler` only **together with** `@cloudflare/vite-plugin` (latest 1.60.2 pins 4.141.0), in its own PR after the first deploy.                                                                                     |
 | F23 | Supabase CLI **2.118.0** doesn't find the login that 2.117.0 uses (`AccessTokenRequiredError`; it looks for `~/.supabase/profile`). Checked 2026-09-26.                                                                                                    | Stay on 2.117.0. CI `smoke` uses `supabase/setup-cli` `version: latest` = 2.118.0, but only for local `supabase start` (no login needed). `smoke` passed with `latest` on PR #1 (2026-09-26); if it breaks later, pin `version: 2.117.0`. |
+| F24 | Cloudflare **Workers Builds** (dashboard Git integration) was connected to the repo after Phase 6. It deploys every push to `main` straight away, without waiting for GitHub checks, using its own build token and without `--no-x-provision`. On the PR #6 merge it deployed `af3e95fd` (2026-09-26 15:46Z) with no approval. | Owner **disconnected** it on 2026-09-26 (plan A). GitHub Actions `deploy` is the only deploy path. Never reconnect it. |
 
 ### Decisions
 
@@ -100,8 +101,9 @@ Re-checked against the working tree on 2026-09-26, before Phase 2: F1, F2, F3 (n
 - [x] **D3**: Astro sessions + Cloudflare Images binding turned off (F3)
 - [x] **D4**: No custom domain for now; use workers.dev
 - [x] **D5**: Custom SMTP **deferred**. No domain yet (Phase 9). Blocks public signup.
-- [x] **D6**: Every production deploy needs approval through the GitHub `production` environment (you as required reviewer, self-approval allowed)
+- [x] **D6**: ~~Every production deploy needs approval through the GitHub `production` environment~~. **Changed 2026-09-26 (owner):** deploy automatically when `ci` + `smoke` are green on `main`. The `production` environment stays (env-scoped secrets + protected-branches policy) but has **no required reviewer**.
 - [x] **D7**: Manual trigger = `workflow_dispatch`, same full gate (lint/check/build + smoke), deploys **only from `main`**
+- [x] **D11**: One deploy path only: GitHub Actions. Cloudflare Workers Builds disconnected (F24, 2026-09-26).
 - [x] **D8**: One environment only: production. No staging.
 - [x] **D9**: Repo `amakoz/dbam` becomes **public** (F16)
 - [x] **D10**: Branch protection on `main`: PR required, `ci` + `smoke` must pass, 0 approvals, no force-push or deletion, admin bypass allowed
@@ -315,7 +317,7 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
 
 ## Phase 6: GitHub `production` environment + scoped Cloudflare token 👤 + 🤖 ✅
 
-- [x] 6.1 🤖 Create the environment with you as required reviewer (D6), limited to protected branches, which means `main`:
+- [x] 6.1 🤖 Create the environment with you as required reviewer (D6), limited to protected branches, which means `main` (reviewer removed later, see 7.0):
   ```bash
   USER_ID=$(gh api users/amakoz --jq .id)
   gh api -X PUT repos/amakoz/dbam/environments/production --input - <<JSON
@@ -357,6 +359,13 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
 
 The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job` → PR.
 
+- [x] 7.0 👤 (added 2026-09-26, D6 change + F24) Disconnect Workers Builds: Dashboard → Workers → `dbam` → Settings → Build → Git repository → **Disconnect** (done 2026-09-26)
+- [ ] 7.0b 👤 Remove the required reviewer and keep the branch policy:
+  ```
+  ! gh api -X PUT repos/amakoz/dbam/environments/production -F wait_timer=0 -F 'reviewers[]' -F 'deployment_branch_policy[protected_branches]=true' -F 'deployment_branch_policy[custom_branch_policies]=false' --jq '[.protection_rules[].type]'
+  ```
+  Expected output: `["branch_policy"]`. (An agent may not do this: it weakens a protection control.)
+
 - [x] 7.1 🤖 Add to `.github/workflows/ci.yml` (2026-09-26; `--no-x-provision` checked against wrangler 4.131.1 with `deploy --dry-run`: accepted, while an unknown flag errors):
   ```yaml
   deploy:
@@ -397,24 +406,19 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
   Why it's shaped like this:
   - **Two triggers, one gate.** Push to `main` and `workflow_dispatch` both go through `ci` + `smoke` first (D7).
   - **Main only, twice over.** The `if` and the environment's protected-branch policy both block deploys from other branches.
-  - **Always approved.** The `environment: production` key makes every deploy wait for your approval (D6), and it's also what exposes the environment secrets and variables.
+  - **Green means go.** No approval step (D6 as changed). The `environment: production` key exposes the environment secrets and variables, and its protected-branches policy is the second main-only guard.
   - **Same wrangler as your laptop.** `npx wrangler` runs the version pinned in `package-lock.json`.
   - **No surprise resources.** `--no-x-provision` stops CI from ever creating account resources (F3).
   - **Traceable deploys.** `--message` records the trigger and SHA in `wrangler deployments list`.
   - **Expressions go through `env:`.** An unquoted `run:` containing `": "` is invalid YAML (the original draft of this snippet failed Prettier), and keeping `${{ }}` out of shell scripts avoids script injection.
 - [ ] 7.2 🤖 Push the branch and open a PR → `ci` + `smoke` run, and `**deploy` shows as skipped**
-- [ ] 7.3 🤖 Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` reaches `deploy` → status "Waiting" → 👤 Actions → run → **Review deployments** → approve `production`
+- [ ] 7.3 👤 Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` goes `ci` + `smoke` → `deploy` with no wait. (Run 36253051192 from the PR #6 merge was created while the reviewer still existed and sits in "Waiting"; cancel it.)
 - [ ] 7.4 🤖 `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`
-- [ ] 7.5 **Manual path:** 🤖 `gh workflow run CI --ref main`, then `gh run watch`. 👤 Approve. Result: `workflow_dispatch: <sha>` in `deployments list`. (Or use Actions → CI → **Run workflow** → branch `main`.)
+- [ ] 7.5 **Manual path:** 🤖 `gh workflow run CI --ref main`, then `gh run watch`. Result: `workflow_dispatch: <sha>` in `deployments list`. (Or use Actions → CI → **Run workflow** → branch `main`.)
 - [ ] 7.6 **Negative test:** 🤖 `gh workflow run CI --ref <any-other-branch>` → `ci` + `smoke` run, and `deploy` is **skipped**
 
-How to approve a pending deploy:
-
-- Actions UI → the run → **Review deployments** (GitHub also emails and notifies you).
-- Approving is 👤 only. Agents don't approve deploys.
-
-🩹 **Run sits in "Waiting"** → it needs your approval. It expires after 30 days; then re-run with `gh run rerun <id>`.
-🩹 **Your pending deploy disappeared after another merge** → F18: the newer pending deploy replaced it. Approve the newer one.
+🩹 **Run sits in "Waiting"** → the environment still has a required reviewer; redo 7.0b.
+🩹 **Two deploys per merge / a deploy with Message `-`** → Workers Builds was reconnected (F24). Disconnect it again.
 🩹 `**Authentication error` in the deploy step** → the secrets are at repo level, or the job lost its `environment:` key. Check `gh secret list --env production`.
 🩹 **Health check fails right away with an empty URL** → `vars.PRODUCTION_URL` isn't set on the environment (6.6).
 🩹 **Deploy green, health check red** → run `npx wrangler rollback -m "health check failed" -y` locally, then investigate with `npx wrangler tail dbam`.
@@ -422,7 +426,7 @@ How to approve a pending deploy:
 🩹 **Hotfix while `smoke` is broken for reasons outside the app** → fix `smoke` first (pin the Supabase CLI version). As a last resort, deploy from your laptop with `npm run deploy` and write down why in the Deployment log.
 🩹 **"Run workflow" button missing** → `workflow_dispatch` has to be in the workflow file on the **default branch** (`main`), which 2.4 already does.
 
-⛔ **GATE 7**: 7.2–7.6 all behave as described. Automatic and manual deploys both work, both wait for approval, and a non-main branch never deploys.
+⛔ **GATE 7**: 7.2–7.6 all behave as described. Automatic and manual deploys both work without an approval step, only after `ci` + `smoke` are green, and a non-main branch never deploys.
 
 ---
 
@@ -463,11 +467,11 @@ Each item has a trigger. Start it when the trigger fires, not before.
 
 ## Human-only actions
 
-Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing the DB password and secret values; creating or rotating the Cloudflare API token; Supabase Auth/SMTP settings; **approving production deploys**; deleting any Worker, KV namespace, secret or Supabase project; DNS / custom domains.
+Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing the DB password and secret values; creating or rotating the Cloudflare API token; Supabase Auth/SMTP settings; **merging PRs to `main`** (= production deploy); changing `production` environment protection rules; connecting Cloudflare Git integrations (Workers Builds); deleting any Worker, KV namespace, secret or Supabase project; DNS / custom domains.
 
 ## Merging PRs
 
-🤖 The agent may merge a PR to `main` itself (`gh pr merge <n> --squash --delete-branch`) once **both** required checks, `ci` and `smoke`, are green on the PR's latest commit and it has no merge conflicts. Never with `--admin` or any other branch-protection bypass. A red, pending or missing check means stop and report. Merging to `main` does not ship to production on its own: every deploy still waits for 👤 approval of the `production` environment (D6). (Changed 2026-09-26 at the owner's request; previously merging was human-only.)
+👤 **Merging PRs to `main` is human-only** (owner decision, 2026-09-26). A merge ships to production: once `ci` + `smoke` pass on `main`, the `deploy` job runs with no approval (D6 as changed). 🤖 The agent opens PRs, reports `ci` / `smoke` status, and stops; it never runs `gh pr merge`, and never uses `--admin` or any other branch-protection bypass. (History: merging was human-only, then briefly agent-allowed on 2026-09-26 while every deploy still needed approval.)
 
 ## Deployment log
 
@@ -475,6 +479,7 @@ Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing 
 | ---------- | ----- | --------------- | -------------------------------------- | ---------------------------------------------- | ------ | ----------------------------------------------------------------------- |
 | 2026-09-26 | 4.3   | manual (laptop) | `78ad2a4f-e1e9-4219-a44e-b010a9afc0f7` | `manual: first deploy, no secrets` / `ba03df1` | ✅ 200 | Creates Worker `dbam`; only `ASSETS` binding; banner shown (no secrets) |
 | 2026-09-26 | 5.1–5.2 | `wrangler secret put` ×2 | `8a55721b-3041-4ccf-8435-cfd423217311` | Secret Change / `ba03df1` | ✅ Gate 5 | Current version. Supersedes secret-change versions `6038bd94`, `380029bf`, `d1d36987`, `ca84c8b6`, `37f4c334` |
+| 2026-09-26 | 7.3 | Workers Builds (push `a42d1f4`) | `af3e95fd-1428-4b0a-9d31-f4a43f895d02` | `-` / `a42d1f4` | ✅ 200 | **Unplanned**: Cloudflare Git integration deployed with no approval (F24); integration since disconnected. Current version |
 
 ## References
 

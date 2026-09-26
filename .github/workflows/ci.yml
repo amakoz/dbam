@@ -32,7 +32,7 @@ jobs:
           cache: npm
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.118.0 # pinned: `latest` hits the unauthenticated GitHub API rate limit (F23)
       - run: npm ci
       - name: Start local Supabase
         run: |

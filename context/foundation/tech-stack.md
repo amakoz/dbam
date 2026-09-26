@@ -5,7 +5,7 @@ project_name: dbam
 hints:
   language_family: js
   team_size: solo
-  deployment_target: cloudflare-pages
+  deployment_target: cloudflare-workers
   ci_provider: github-actions
   ci_default_flow: auto-deploy-on-merge
   bootstrapper_confidence: first-class
@@ -31,5 +31,8 @@ support long-running background tasks natively, and the PRD's reminder/recurrenc
 logic (FR-007, FR-009, FR-011, FR-012) depends on scheduled triggers — this was
 flagged during selection and the user chose to add it manually (Cloudflare Cron
 Triggers or an external queue such as Upstash QStash/Inngest) rather than switch
-starters. Deployment stays on the starter's own default (Cloudflare Pages); CI runs
-on GitHub Actions with auto-deploy-on-merge, matching a solo/short-timeline profile.
+starters. Deployment stays on the starter's own default (Cloudflare Workers — corrected from an
+earlier "Pages" assumption per `/10x-infra-research`'s findings: `astro.config.mjs` and
+`wrangler.jsonc` already target Workers, and Astro 7's `@astrojs/cloudflare` adapter
+defaults to Workers, not Pages); CI runs on GitHub Actions with auto-deploy-on-merge,
+matching a solo/short-timeline profile.

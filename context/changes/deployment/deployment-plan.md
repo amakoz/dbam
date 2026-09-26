@@ -1,0 +1,475 @@
+---
+project: Dbam
+planned_at: 2026-09-26
+status: approved — executed manually by the owner
+platform: Cloudflare Workers
+environments: [production]
+worker_name: dbam
+cloudflare_account_id: fdf3fd78b2ab72e14ddb9d7531aa7f3c
+workers_dev_subdomain: amadeuszkozlowski
+production_url: "https://dbam.amadeuszkozlowski.workers.dev"
+deploy_triggers: [push-to-main, workflow_dispatch]
+deploy_approval: required-reviewer-every-deploy
+sources:
+  - context/foundation/infrastructure.md
+  - context/foundation/tech-stack.md
+tooling_verified:
+  astro: 7.3.2
+  "@astrojs/cloudflare": 14.3.1
+  wrangler: 4.131.1
+  supabase-cli: 2.117.0
+  gh: 2.101.0
+cli_check: 2026-09-26
+---
+
+# First Deployment Plan: Dbam on Cloudflare Workers
+
+Follows `context/foundation/infrastructure.md`: Cloudflare Workers, `wrangler` CLI first, scoped tokens, and a human does anything irreversible. Covers tooling prerequisites, the first manual deploy, and a GitHub Actions deploy that runs **automatically on push to `main`** and **manually through `workflow_dispatch`**. Every deploy waits for approval.
+
+workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = the ref of the **Frankfurt** Supabase project, known after Phase 1.4.
+
+## Legend
+
+| Marker        | Meaning                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------- |
+| `[ ]` / `[x]` | Step not done / done. Tick it when done.                                                 |
+| 🤖            | An agent (or you) can do this safely: local edits, builds, read-only CLI.                |
+| 👤            | Human only: logins, secret values, dashboards, approvals, visibility, anything deleting. |
+| ⛔ **GATE**   | Stop. Don't start the next phase until every check in the gate passes.                   |
+| 🩹            | Edge case: what to do if this step goes wrong.                                           |
+
+`! <command>` means run it yourself in the Claude Code prompt (or your own terminal), so secrets and browser logins stay out of the transcript.
+
+## Phase status
+
+| #   | Phase                                             | Owner   | Status                                                                                   |
+| --- | ------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
+| 0   | Findings & decisions                              | 👤      | ✅ done                                                                                  |
+| 1   | Tooling & account prerequisites                   | 👤 + 🤖 | 🟡 in progress: CLIs OK; Supabase project must be recreated in Frankfurt (F19), 1.6 open |
+| 2   | Repo prep (PR) + branch protection                | 🤖 + 👤 | ⬜ not started                                                                           |
+| 3   | Supabase production auth config                   | 👤      | ⬜ not started                                                                           |
+| 4   | First manual deploy                               | 👤 + 🤖 | ⬜ not started                                                                           |
+| 5   | Production secrets + auth verification            | 👤 + 🤖 | ⬜ not started                                                                           |
+| 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ⬜ not started                                                                           |
+| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started                                                                           |
+| 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started                                                                           |
+| 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred                                                                               |
+
+Status values: ⬜ not started · 🟡 in progress · ✅ done · ❌ blocked (add a note)
+
+---
+
+## Phase 0: Findings & decisions ✅
+
+### Findings
+
+From checking the repo on 2026-09-26: `astro build`, `wrangler deploy --dry-run`, a git-history secret scan, CLI status checks, and web research.
+
+| #   | Finding                                                                                                                                                                                                                                                    | Effect on plan                                                                                                                                               |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| F1  | **CI has never run.** `ci.yml` triggers on `master`, but the repo only has `main`.                                                                                                                                                                         | Phase 2 switches the triggers to `main`.                                                                                                                     |
+| F2  | The Worker is still named `10x-astro-starter`. Renaming after the first deploy creates a **new** Worker; secrets, URL and token scope stay on the old one.                                                                                                 | Rename to `dbam` before the first deploy (Phase 2).                                                                                                          |
+| F3  | The adapter adds `SESSION` (KV) and `IMAGES` bindings, and `wrangler deploy` **auto-creates** the KV namespace (on by default, hidden flags, cloudflare-docs#32978). A per-Worker token can't create KV. The app uses neither sessions nor `astro:assets`. | Phase 2: `session: false` + `imageService: "passthrough"`. CI deploys with `--no-x-provision`.                                                               |
+| F4  | `@astrojs/sitemap` is skipped because `site` isn't set.                                                                                                                                                                                                    | Set `site` in Phase 4.                                                                                                                                       |
+| F5  | Supabase's built-in SMTP **only sends to project team members**, about 2 emails/hour.                                                                                                                                                                      | Fine for testing with your own email. Custom SMTP blocks public signup (Phase 9).                                                                            |
+| F6  | Supabase env vars are `optional: true`. Without secrets the app still serves, with the "Supabase nie jest skonfigurowany" banner.                                                                                                                          | First deploy goes out without secrets. The banner is the "secrets missing" signal.                                                                           |
+| F7  | `astro:env` secrets (`access: "secret"`) are read **at runtime** from the Worker env, not at build time.                                                                                                                                                   | CI build doesn't need Supabase secrets. Production values live only in Cloudflare.                                                                           |
+| F8  | No `/auth/callback` route; `signUp()` has no `emailRedirectTo`, so the confirmation link goes to the Supabase **Site URL**.                                                                                                                                | Set Site URL (Phase 3). Check that a confirmed user can sign in (Phase 5). Auto-login is deferred (Phase 9).                                                 |
+| F9  | Per-Worker API tokens are GA (2026-09-15), but the Worker **must already exist** to be selected.                                                                                                                                                           | First deploy via `wrangler login` (Phase 4), scoped token afterwards (Phase 6).                                                                              |
+| F10 | `wrangler secret put` fails on a Worker that doesn't exist yet (workers-sdk#14258).                                                                                                                                                                        | Deploy first, then secrets (Phase 4 → 5).                                                                                                                    |
+| F11 | `npm run smoke` creates `smoke-*@example.com` users. Against prod: junk accounts, bounced emails; signed-in steps fail with confirmation on.                                                                                                               | **Never run the full smoke test against production.**                                                                                                        |
+| F12 | Bundle: 2.06 MiB raw / **455 KiB gzip**, under the Free plan's 3 MiB limit.                                                                                                                                                                                | No action. Re-check after adding heavy dependencies.                                                                                                         |
+| F13 | Dbam stores health-adjacent personal data for users in Poland.                                                                                                                                                                                             | Supabase in an EU region (Frankfurt).                                                                                                                        |
+| F14 | Local `supabase/config.toml` has `site_url = "http://127.0.0.1:3000"` and `[auth.email] enable_confirmations = false`.                                                                                                                                     | **Never run `supabase config push` against production.** It would disable email confirmation and point auth at localhost. Auth settings go in the dashboard. |
+| F15 | `npx supabase projects api-keys` prints the `service_role` / secret key.                                                                                                                                                                                   | Don't run it with an agent watching. Copy the **publishable** key from the dashboard.                                                                        |
+| F16 | On GitHub Free, **private** repos get no environment secrets, required reviewers, deployment-branch rules or branch protection.                                                                                                                            | Repo goes public (D9). Git history scanned 2026-09-26: no secrets. All of `context/` becomes public.                                                         |
+| F17 | Required status check names must exactly match job names (`ci`, `smoke`). If they're wrong, PRs wait forever on "Expected".                                                                                                                                | Turn on branch protection only after one PR run shows the real names.                                                                                        |
+| F18 | With a required reviewer plus `concurrency`, GitHub keeps only the **newest** pending deploy. A new push cancels an older deploy that's still waiting for approval.                                                                                        | Intended: the latest `main` wins.                                                                                                                            |
+| F19 | CLI check on 2026-09-26: the existing Dbam Supabase project (`ypeztjwqxhgqtpmvhcvz`) is in **`eu-west-1` (Ireland)**, not Frankfurt. The org already has 2 active projects (MeelPrep + Dbam), the Free plan maximum.                                       | Owner chose to keep D2: delete the empty Ireland project, **then** create Dbam in Frankfurt, then re-link (Phase 1.4–1.5).                                   |
+| F20 | `gh` token scopes: `repo`, `read:org`, `gist`, `admin:public_key`. **No `workflow` scope**, but git pushes go over **SSH** (`git@github.com:amakoz/dbam.git`), so pushing `ci.yml` changes isn't affected. `gh workflow run` only needs `repo`.            | No action now. Run `gh auth refresh -s workflow` only if you switch the remote to HTTPS.                                                                     |
+| F21 | Cloudflare account is empty: no Workers, no KV namespaces. Subdomain `amadeuszkozlowski` is already claimed.                                                                                                                                               | Nothing to clean up before Phase 4. Any KV namespace that appears later was auto-provisioned (F3).                                                           |
+
+### Decisions
+
+- [x] **D1**: Worker name = `dbam` (URL `https://dbam.amadeuszkozlowski.workers.dev`)
+- [x] **D2**: Supabase region = Central EU (Frankfurt, `eu-central-1`). Reconfirmed 2026-09-26 after the existing project turned out to be in Ireland: recreate it (F19).
+- [x] **D3**: Astro sessions + Cloudflare Images binding turned off (F3)
+- [x] **D4**: No custom domain for now; use workers.dev
+- [x] **D5**: Custom SMTP **deferred**. No domain yet (Phase 9). Blocks public signup.
+- [x] **D6**: Every production deploy needs approval through the GitHub `production` environment (you as required reviewer, self-approval allowed)
+- [x] **D7**: Manual trigger = `workflow_dispatch`, same full gate (lint/check/build + smoke), deploys **only from `main`**
+- [x] **D8**: One environment only: production. No staging.
+- [x] **D9**: Repo `amakoz/dbam` becomes **public** (F16)
+- [x] **D10**: Branch protection on `main`: PR required, `ci` + `smoke` must pass, 0 approvals, no force-push or deletion, admin bypass allowed
+
+---
+
+## Phase 1: Tooling & account prerequisites 👤 + 🤖
+
+State checked with the CLIs on 2026-09-26: all three are installed and logged in. `wrangler` 4.131.1 and `supabase` CLI 2.117.0 are **project devDependencies only** (no global binaries on PATH), so always use `npx wrangler` / `npx supabase`, never global installs. What's left: the Supabase project is in the wrong region (F19), and the keys haven't been collected (1.6).
+
+| CLI                    | Check                        | Result on 2026-09-26                                                                                   |
+| ---------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `gh` 2.101.0           | `gh auth status`             | ✅ `amakoz`, keyring; scopes `repo`, `read:org`, `gist`, `admin:public_key`; git over SSH (F20)        |
+| `npx wrangler` 4.131.1 | `npx wrangler whoami`        | ✅ OAuth, one account, `workers_scripts (write)` + `workers_tail (read)`. 4.141.0 available (optional) |
+| `npx supabase` 2.117.0 | `npx supabase projects list` | ✅ logged in; Dbam linked, but region `eu-west-1` ❌ (F19). 2.118.0 available (optional)               |
+
+### 1.1 GitHub CLI ✅
+
+- [x] 👤 `! gh auth login`: logged in as `amakoz` (keyring). Git operations use SSH.
+- [x] 🤖 `gh auth status` shows you logged in
+- [x] 🤖 `gh api repos/amakoz/dbam --jq '{visibility, default_branch}'` → `{"default_branch":"main","visibility":"public"}`
+
+🩹 **Workflow file pushes get rejected** ("refusing to allow an OAuth App to create or update workflow") → only happens over HTTPS; the token has no `workflow` scope (F20). Run `gh auth refresh -s workflow`.
+
+### 1.2 Make the repo public (D9) ✅
+
+- [x] 🤖 History secret scan re-run 2026-09-26: no matches.
+  ```bash
+  git log --all -p | grep -nE "sb_(publishable|secret)_|eyJhbGci|service_role" | grep -v '\${{'
+  ```
+- [x] 👤 `context/` contents checked for publication. The repo was already public when checked.
+- [x] 👤 Repo visibility = `public` (checked via `gh api`)
+- [x] 👤 Fork PR approval = **Require approval for first-time contributors** (`gh api repos/amakoz/dbam/actions/permissions/fork-pr-contributor-approval` → `first_time_contributors`)
+
+🩹 **A later scan finds a real key** → rotate that key right away (Supabase dashboard / Cloudflare). The repo is public, so assume the key is already compromised. Rewriting history alone isn't enough.
+🩹 Fork PRs run `pull_request` workflows **without secrets**. That's fine: `smoke` uses local Supabase, and `deploy` never runs on PRs.
+
+### 1.3 Cloudflare / wrangler ✅
+
+- [x] 👤 `! npx wrangler login` (browser OAuth). Token stored in `~/Library/Preferences/.wrangler/config/default.toml`.
+- [x] 🤖 `npx wrangler whoami` → one account. **Account ID**: `fdf3fd78b2ab72e14ddb9d7531aa7f3c`
+- [x] 👤 workers.dev subdomain already claimed: `amadeuszkozlowski` (checked with `GET /accounts/{id}/workers/subdomain`). The account has no Workers and no KV namespaces yet (F21).
+- [x] 🤖 `npm run build && npx wrangler deploy --dry-run` succeeds: 2066 KiB / gzip 455 KiB. Bindings are still `SESSION` + `IMAGES` + `ASSETS`, as expected until Phase 2.3 removes the first two. Sitemap warning still shows (F4).
+- [ ] 🤖 (Optional) Bump the `wrangler` devDependency from 4.131.1 to 4.141.0 in its own commit, then repeat the dry-run
+
+🩹 **Several accounts in `whoami`** → `export CLOUDFLARE_ACCOUNT_ID=<id>` before every wrangler command, or add `"account_id"` to `wrangler.jsonc`. Account IDs aren't secret.
+🩹 `**Authentication error [code: 10000]**` → `npx wrangler logout && npx wrangler login`.
+🩹 **Browser callback fails** (localhost:8976 blocked by VPN or firewall) → `npx wrangler login --browser=false`, then open the printed URL by hand.
+
+### 1.4 Supabase CLI 🟡 (project has to be recreated)
+
+- [x] 👤 `! npx supabase login`: logged in
+- [x] 🤖 `npx supabase projects list` works. Result: Dbam (`ypeztjwqxhgqtpmvhcvz`) is in **`eu-west-1` (Ireland)** ❌. Owner chose to recreate it in Frankfurt (F19, D2).
+- [ ] 👤 Dashboard → Dbam (`ypeztjwqxhgqtpmvhcvz`) → Project Settings → General → **Delete project**. It's empty, so nothing is lost. This has to come **first**: the org is at the Free plan's 2-active-project limit (MeelPrep + Dbam).
+- [ ] 👤 Dashboard → New project → name `Dbam`, region **Central EU (Frankfurt)**, strong DB password saved in your password manager
+- [ ] 🤖 `npx supabase projects list` → the new Dbam shows `"region": "eu-central-1"`. Ref: `________________`
+- [ ] 🤖 (Optional) Bump the `supabase` devDependency from 2.117.0 to the latest (2.118.0 on 2026-09-26) in its own commit
+
+🩹 **"Maximum limits reached" when creating the project** → the old Dbam isn't deleted yet (or is still being deleted). Wait for it to go away, or pause MeelPrep.
+🩹 **Region isn't Frankfurt** → regions can't be changed. The project is still empty, so 👤 delete it and create it again.
+🩹 `**LegacyPlatformAuthRequiredError**` → the login didn't stick. Set `SUPABASE_ACCESS_TOKEN` in your shell (not in the repo) and retry.
+
+### 1.5 Link the Supabase project 🟡 (re-link after 1.4)
+
+The repo is currently linked to the **old Ireland project** (`supabase/.temp/project-ref` = `ypeztjwqxhgqtpmvhcvz`). The link has to point at the new ref.
+
+- [ ] 👤 `! npx supabase link --project-ref {ref}` with the **new** ref → type the new project's **DB password** into the prompt. This overwrites the old link.
+- [ ] 🤖 `cat supabase/.temp/project-ref` = the new ref, and `npx supabase projects list` shows `"linked": true` on the Frankfurt project
+- [x] 🤖 `supabase/.temp` is gitignored (`supabase/.gitignore:3`), and `git status` doesn't show it
+- [ ] 👤 Read and accept these two rules:
+  - ⚠️ **Never** `npx supabase config push` against production (F14)
+  - ⚠️ **Never** `npx supabase projects api-keys` with an agent watching (F15)
+
+🩹 **Link fails with "password authentication failed"** → reset the DB password (Project Settings → Database). Nothing uses it yet, so this is safe. Then link again.
+🩹 **Link hangs or times out** (e.g. a network without IPv6) → by default the CLI connects through the pooler, which works over IPv4. Don't add `--skip-pooler`: that uses the direct connection, which is IPv6-only on Supabase. Rerun with `--log-level debug` to see where it stalls.
+
+### 1.6 Collect the Supabase values ⬜
+
+- [ ] 👤 From the **new Frankfurt project**: Dashboard → Project Settings → API Keys: copy the **Project URL** and the **publishable** key (`sb_publishable_…`, or the legacy `anon` key) into your password manager. Not needed until Phase 5.1–5.2.
+  - ⚠️ **Never** the `service_role` / `sb_secret_…` key. `SUPABASE_KEY` feeds the cookie-based SSR client that runs on every request.
+  - ⚠️ Don't copy anything from the old Ireland project. Its URL and keys stop working once it's deleted.
+
+⛔ **GATE 1**: ✅ `gh auth status`, `npx wrangler whoami` and `npx supabase projects list` all succeed. ✅ Repo is public. ⬜ Region is Frankfurt. ⬜ The Frankfurt project is linked. ⬜ URL + publishable key are in your password manager, not in chat or the repo.
+
+---
+
+## Phase 2: Repo prep (PR) + branch protection 🤖 + 👤
+
+All changes go on branch `chore/deploy-prep` and reach `main` through a PR. The PR is also the first real CI run (F1).
+
+- [ ] 2.1 🤖 `git switch -c chore/deploy-prep`. Commit the pending docs first as their own commit (`wrangler.jsonc` compat flag, `tech-stack.md`, `infrastructure.md`, `CLAUDE.md`, this plan).
+- [ ] 2.2 🤖 `wrangler.jsonc`: `"name": "10x-astro-starter"` → `"name": "dbam"` (F2)
+- [ ] 2.3 🤖 `astro.config.mjs`: add top-level `session: false` and `adapter: cloudflare({ imageService: "passthrough" })` (F3)
+- [ ] 2.4 🤖 `.github/workflows/ci.yml` triggers:
+  ```yaml
+  on:
+    push:
+      branches: [main]
+    pull_request:
+      branches: [main]
+    workflow_dispatch: {}
+  ```
+  Also change "PRs to `master`" → "PRs to `main`" in `CLAUDE.md`.
+- [ ] 2.5 🤖 `ci.yml` `ci` job: remove the `SUPABASE_URL`/`SUPABASE_KEY` env from the build step (F7)
+- [ ] 2.6 🤖 `package.json`: add `"deploy": "astro build && wrangler deploy"`
+- [ ] 2.7 🤖 Verify locally:
+  - [ ] `npm run lint`
+  - [ ] `npx astro check`
+  - [ ] `npm run build`
+  - [ ] `npx wrangler deploy --dry-run` lists **only** `env.ASSETS` (no `SESSION`, no `IMAGES`)
+  - [ ] `dist/server/wrangler.json` has `"name":"dbam"`, `nodejs_compat` and `global_fetch_strictly_public`
+- [ ] 2.8 🤖 `git push -u origin chore/deploy-prep && gh pr create --base main --fill`
+- [ ] 2.9 🤖 `gh pr checks --watch` → `ci` and `smoke` both green. **Write down the exact check names:** `________` / `________`
+- [ ] 2.10 👤 Merge the PR (`gh pr merge --squash --delete-branch`, or in the UI)
+- [ ] 2.11 🤖 Turn on branch protection (D10), using the names from 2.9:
+  ```bash
+  gh api -X PUT repos/amakoz/dbam/branches/main/protection --input - <<'JSON'
+  {
+    "required_status_checks": { "strict": false, "contexts": ["ci", "smoke"] },
+    "enforce_admins": false,
+    "required_pull_request_reviews": { "required_approving_review_count": 0 },
+    "restrictions": null,
+    "allow_force_pushes": false,
+    "allow_deletions": false
+  }
+  JSON
+  ```
+- [ ] 2.12 🤖 `gh api repos/amakoz/dbam/branches/main/protection --jq '.required_status_checks.contexts'` → `["ci","smoke"]`
+
+🩹 `**session: false` rejected by the Astro 7 schema** → remove it, create the namespace yourself (`npx wrangler kv namespace create SESSION`), and put its `id` in `wrangler.jsonc`. CI's `--no-x-provision` still applies.
+🩹 **Dry-run still shows `IMAGES`** → check the `imageService` spelling, and that nothing imports `astro:assets`.
+🩹 `**smoke` fails on its first ever run** → it has never run in this repo (F1). Fix it in this PR. If `supabase/setup-cli@v1` with `version: latest` is what broke, pin a version. Admin bypass is for emergencies only.
+🩹 **Pre-commit hook fails** (husky → eslint/prettier) → review what it changed, re-stage, commit. Never `--no-verify`.
+🩹 **After 2.11, PRs hang on "Expected — Waiting for status"** → the check names don't match (F17). Fix the `contexts` with the same `gh api` call.
+🩹 `**gh api …/protection` returns 403 "Upgrade to GitHub Pro"** → the repo is still private (Phase 1.2).
+
+⛔ **GATE 2**: PR merged with green `ci` + `smoke`. Branch protection is active. A direct `git push` to `main` is now rejected.
+
+---
+
+## Phase 3: Supabase production auth config 👤
+
+Dashboard only. `supabase config push` would carry the local dev settings over (F14).
+
+- [ ] 3.1 Authentication → URL Configuration → **Site URL** = `https://dbam.amadeuszkozlowski.workers.dev`
+- [ ] 3.2 **Redirect URLs**: add `https://dbam.amadeuszkozlowski.workers.dev/**` and `http://localhost:4321/**`
+- [ ] 3.3 Authentication → Sign In / Providers → Email: **Confirm email = ON** (Supabase's default for hosted projects; the local config has it off)
+- [ ] 3.4 Authentication → Rate Limits: leave the defaults (custom SMTP comes later, D5)
+- [ ] 3.5 Nothing to migrate: `supabase/migrations/` doesn't exist yet (Phase 9)
+
+🩹 **Free-tier projects pause after about 7 days of inactivity.** Symptom: auth times out or returns 5xx while the Worker is fine. Restore it from the dashboard.
+🩹 **Email never arrives**: before custom SMTP, only team-member addresses get mail, max 2/hour (F5).
+
+⛔ **GATE 3**: Site URL and redirect URLs saved with the real subdomain. Confirm email is ON.
+
+---
+
+## Phase 4: First manual deploy 👤 + 🤖
+
+Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped CI token needs it to exist (F9).
+
+- [ ] 4.1 🤖 `git switch main && git pull`. Set `site: "https://dbam.amadeuszkozlowski.workers.dev"` in `astro.config.mjs` (F4) on branch `chore/site-url`, then PR → green → 👤 merge. (Branch protection is on, so this goes through a PR too.)
+- [ ] 4.2 🤖 On an up-to-date `main`: `npm ci && npm run build`, and check the sitemap warning is gone
+- [ ] 4.3 🤖 First deploy, no secrets yet (F6/F10):
+  ```bash
+  npx wrangler deploy --message "manual: first deploy, no secrets"
+  ```
+- [ ] 4.4 🤖 Add the printed URL and version ID to the **Deployment log**
+
+🩹 **"You need to register a workers.dev subdomain"** → finish Phase 1.3, then retry.
+🩹 **Output mentions provisioning a KV namespace** → 2.3 didn't take effect. Fix the config and redeploy; 👤 delete the orphaned namespace in the dashboard.
+🩹 **A Worker named `10x-astro-starter` appears** → 2.2 was skipped. Don't rename it in the dashboard. Deploy as `dbam`, then 👤 delete the stray Worker.
+🩹 `**workers.dev` URL returns 404/1042 for about a minute after the first deploy** → normal first-time propagation. Retry for up to 2 minutes before debugging.
+
+⛔ **GATE 4**: `curl -sI https://dbam.amadeuszkozlowski.workers.dev/` → `200`, and the page shows the "Supabase nie jest skonfigurowany" banner (expected at this point).
+
+---
+
+## Phase 5: Production secrets + auth verification 👤 + 🤖
+
+- [ ] 5.1 👤 `! npx wrangler secret put SUPABASE_URL`, then paste the Project URL
+- [ ] 5.2 👤 `! npx wrangler secret put SUPABASE_KEY`, then paste the **publishable** key
+  - Each `secret put` creates **and deploys** a new version right away.
+- [ ] 5.3 🤖 `npx wrangler secret list` shows both names
+- [ ] 5.4 🤖 Read-only production checks (**not** `npm run smoke`, F11):
+  - [ ] `GET /` → `200`, banner **gone**
+  - [ ] `GET /dashboard` → `302`, `Location: /auth/signin`
+  - [ ] `GET /auth/signin`, `GET /auth/signup` → `200`
+  - [ ] `GET /_astro/<asset>` → `200`, `Cache-Control: public, max-age=31536000, immutable`
+  - [ ] `GET /does-not-exist` → `404`
+  - [ ] `GET /sitemap-index.xml` → `200`
+- [ ] 5.5 🤖 `npx wrangler tail dbam --format pretty` running while you do 5.6
+- [ ] 5.6 👤 Browser test with **your own Supabase-account email**:
+  - [ ] Sign up → `/auth/confirm-email`
+  - [ ] The email arrives, and its link points at `dbam.amadeuszkozlowski.workers.dev` (not `localhost`)
+  - [ ] After confirming, sign in → `/`; `/dashboard` renders
+  - [ ] Sign out → `/dashboard` sends you to sign-in again
+- [ ] 5.7 🤖 Tail output: no uncaught exceptions, no `dynamic require` errors
+- [ ] 5.8 👤 (Optional) Delete the test user in Authentication → Users
+
+🩹 **Banner still shows** → secret names are case-sensitive and must match `astro.config.mjs`. Check `npx wrangler secret list`, then `wrangler secret delete <WRONG>` and put it again.
+🩹 `**dynamic require of "stream" is not supported**` → `nodejs_compat` is missing from the deployed config. Check `dist/server/wrangler.json`.
+🩹 **Email link points at `localhost`/`127.0.0.1`** → Site URL (3.1) wasn't saved. Fix it and sign up again with a plus-address (`you+t2@…`).
+🩹 **You land on `/?code=…` but aren't signed in** → expected (F8). Signing in by hand must still work. If it fails with "Email not confirmed", check `email_confirmed_at` for that user in the dashboard, then move the `/auth/callback` item up from Phase 9.
+🩹 `**email rate limit exceeded` (429)** → the built-in SMTP cap. Wait an hour.
+🩹 **POST returns 403 "Cross-site POST form submissions are forbidden"** → Astro `checkOrigin` mismatch. Check that `site` matches the URL you're actually on.
+
+⛔ **GATE 5**: all of 5.4 and 5.6 checked, tail is clean. **Milestone: first deploy done.**
+
+---
+
+## Phase 6: GitHub `production` environment + scoped Cloudflare token 👤 + 🤖
+
+- [ ] 6.1 🤖 Create the environment with you as required reviewer (D6), limited to protected branches, which means `main`:
+  ```bash
+  USER_ID=$(gh api users/amakoz --jq .id)
+  gh api -X PUT repos/amakoz/dbam/environments/production --input - <<JSON
+  {
+    "reviewers": [{ "type": "User", "id": $USER_ID }],
+    "prevent_self_review": false,
+    "deployment_branch_policy": { "protected_branches": true, "custom_branch_policies": false }
+  }
+  JSON
+  ```
+  `prevent_self_review: false` is required. As a solo dev you're both the one who triggers and the one who approves.
+- [ ] 6.2 👤 Cloudflare dashboard → Manage Account → **Account API Tokens** → Create:
+  - Scope: **Specified Workers** → `dbam`
+  - Role: **Editor** (deploy, versions, secrets, rollback, tail; can't delete the Worker or touch other Workers)
+  - No zone/DNS, billing, or KV/R2/D1 permissions
+  - Expiry: 6 months. Rotation date: `____-__-__` (put it in your calendar)
+- [ ] 6.3 👤 Test the token read-only, straight from the clipboard:
+  ```
+  ! CLOUDFLARE_API_TOKEN=$(pbpaste) npx wrangler deployments list --name dbam
+  ```
+- [ ] 6.4 👤 `! gh secret set CLOUDFLARE_API_TOKEN --env production` → paste at the prompt
+- [ ] 6.5 🤖 `gh secret set CLOUDFLARE_ACCOUNT_ID --env production --body fdf3fd78b2ab72e14ddb9d7531aa7f3c` (not sensitive)
+- [ ] 6.6 🤖 `gh variable set PRODUCTION_URL --env production --body https://dbam.amadeuszkozlowski.workers.dev`
+- [ ] 6.7 🤖 `gh secret list` (repo level) → 👤 delete any `SUPABASE_URL`/`SUPABASE_KEY` there (`gh secret delete <NAME>`). Nothing reads them after 2.5.
+- [ ] 6.8 🤖 Verify:
+  - `gh api repos/amakoz/dbam/environments/production --jq '.protection_rules'` shows a `required_reviewers` rule
+  - `gh secret list --env production` shows both secrets
+  - `gh variable list --env production` shows `PRODUCTION_URL`
+
+🩹 `**dbam` isn't in the "Specified Workers" picker** → Phase 4 isn't done, or it deployed under a different name/account.
+🩹 **6.3 fails with code 10000 / 9109** → you created a _user_ token when it should be an _account_ token, or the account ID doesn't match.
+🩹 **6.1 returns 422 on `protected_branches`** → branch protection (2.11) isn't active yet.
+
+⛔ **GATE 6**: 6.3 lists the Phase 4/5 deployments, and 6.8 shows all three checks.
+
+---
+
+## Phase 7: CI/CD deploy job: auto on push + manual dispatch 🤖 + 👤
+
+The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job` → PR.
+
+- [ ] 7.1 🤖 Add to `.github/workflows/ci.yml`:
+  ```yaml
+  deploy:
+    needs: [ci, smoke]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false # never kill a deploy that's already running
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy --no-x-provision --message "${{ github.event_name }}: ${{ github.sha }}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Post-deploy health check
+        run: |
+          for i in $(seq 1 10); do
+            curl -sf -o /dev/null "${{ vars.PRODUCTION_URL }}/" && exit 0
+            sleep 3
+          done
+          echo "::error::Health check failed. Roll back with: npx wrangler rollback -m 'health check failed' -y"
+          exit 1
+  ```
+  Why it's shaped like this:
+  - **Two triggers, one gate.** Push to `main` and `workflow_dispatch` both go through `ci` + `smoke` first (D7).
+  - **Main only, twice over.** The `if` and the environment's protected-branch policy both block deploys from other branches.
+  - **Always approved.** The `environment: production` key makes every deploy wait for your approval (D6), and it's also what exposes the environment secrets and variables.
+  - **Same wrangler as your laptop.** `npx wrangler` runs the version pinned in `package-lock.json`.
+  - **No surprise resources.** `--no-x-provision` stops CI from ever creating account resources (F3).
+  - **Traceable deploys.** `--message` records the trigger and SHA in `wrangler deployments list`.
+- [ ] 7.2 🤖 Push the branch and open a PR → `ci` + `smoke` run, and `**deploy` shows as skipped**
+- [ ] 7.3 👤 Merge. **Auto path:** the run on `main` reaches `deploy` → status "Waiting" → 👤 Actions → run → **Review deployments** → approve `production`
+- [ ] 7.4 🤖 `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`
+- [ ] 7.5 **Manual path:** 🤖 `gh workflow run CI --ref main`, then `gh run watch`. 👤 Approve. Result: `workflow_dispatch: <sha>` in `deployments list`. (Or use Actions → CI → **Run workflow** → branch `main`.)
+- [ ] 7.6 **Negative test:** 🤖 `gh workflow run CI --ref <any-other-branch>` → `ci` + `smoke` run, and `deploy` is **skipped**
+
+How to approve a pending deploy:
+
+- Actions UI → the run → **Review deployments** (GitHub also emails and notifies you).
+- Approving is 👤 only. Agents don't approve deploys.
+
+🩹 **Run sits in "Waiting"** → it needs your approval. It expires after 30 days; then re-run with `gh run rerun <id>`.
+🩹 **Your pending deploy disappeared after another merge** → F18: the newer pending deploy replaced it. Approve the newer one.
+🩹 `**Authentication error` in the deploy step** → the secrets are at repo level, or the job lost its `environment:` key. Check `gh secret list --env production`.
+🩹 **Health check fails right away with an empty URL** → `vars.PRODUCTION_URL` isn't set on the environment (6.6).
+🩹 **Deploy green, health check red** → run `npx wrangler rollback -m "health check failed" -y` locally, then investigate with `npx wrangler tail dbam`.
+🩹 **Deploy step waits on a prompt / times out** → a new binding needs provisioning, and `--no-x-provision` blocked it. A human creates the resource and puts its ID in `wrangler.jsonc`.
+🩹 **Hotfix while `smoke` is broken for reasons outside the app** → fix `smoke` first (pin the Supabase CLI version). As a last resort, deploy from your laptop with `npm run deploy` and write down why in the Deployment log.
+🩹 **"Run workflow" button missing** → `workflow_dispatch` has to be in the workflow file on the **default branch** (`main`), which 2.4 already does.
+
+⛔ **GATE 7**: 7.2–7.6 all behave as described. Automatic and manual deploys both work, both wait for approval, and a non-main branch never deploys.
+
+---
+
+## Phase 8: Rollback drill + ops check 🤖 + 👤
+
+- [ ] 8.1 🤖 `npx wrangler deployments list` → note the current and previous version IDs in the log
+- [ ] 8.2 🤖 `npx wrangler rollback <previous-version-id> -m "rollback drill" -y` → site still `200`; the rollback appears in `deployments list`
+- [ ] 8.3 🤖 Roll forward: `npx wrangler rollback <current-version-id> -m "roll forward after drill" -y`, or trigger a manual deploy (7.5)
+- [ ] 8.4 🤖 Ops commands work:
+  - [ ] `npx wrangler tail dbam --format pretty`
+  - [ ] Dashboard → Workers → `dbam` → Logs shows events (`observability.enabled: true`)
+  - [ ] `npx wrangler secret list`
+- [ ] 8.5 🤖 Save "never run `npm run smoke` against prod" (F11), "Worker rename = new Worker" (F2) and "never `supabase config push` to prod" (F14) with `/10x-lesson` into `context/foundation/lessons.md`
+
+🩹 **Rolled back to a version from before a secret rotation** → it runs with the old secret value. Run `wrangler secret put` again after the rollback.
+🩹 **The next CI deploy "undoes" your rollback** → expected: `main` is the source of truth. Revert the bad commit in a PR, don't just roll back.
+🩹 Rollback never undoes Supabase schema changes. No migrations exist yet.
+
+⛔ **GATE 8**: drill done, production back on the latest version.
+
+---
+
+## Phase 9: Deferred ⏸
+
+Each item has a trigger. Start it when the trigger fires, not before.
+
+- [ ] **Buy a domain**. Unblocks the next two items (D4 + D5).
+- [ ] **Custom SMTP** (Resend/Postmark/SES + SPF/DKIM, then check the Auth rate limits). Trigger: before any non-team signup. **Blocks public launch.**
+- [ ] **Custom domain** (👤 only: per-Worker tokens don't cover custom domains). After moving, update `site`, the Supabase Site URL/Redirect URLs, and `vars.PRODUCTION_URL`.
+- [ ] `**/auth/callback` route** (`exchangeCodeForSession` + `emailRedirectTo`). Trigger: 5.6 shows confirmed users can't sign in, or you want auto-login after confirming.
+- [ ] **Cron Triggers for reminders** (FR-007/009/011/012). Custom `src/worker.ts` wrapping `@astrojs/cloudflare/handler` with `scheduled()`, then `main` → that file and `triggers.crons` in `wrangler.jsonc`. The Free plan allows **10 ms CPU** per invocation, so plan for Workers Paid ($5/mo) or Queues. Re-check cloudflare-docs#29326 for the cron limit scope.
+- [ ] **Supabase migrations pipeline** (`npx supabase db push` against the linked project, additive-first; a separate approved CI job). Trigger: first table.
+- [ ] **Staging environment + PR previews** (`wrangler versions upload --preview-alias pr-<n>`). Needs its own Supabase project first, since previews would otherwise hit the prod DB with prod secrets (D8).
+- [ ] **Read-only smoke mode** (`SMOKE_READONLY=1`) so the post-deploy check covers more than `GET /`.
+- [ ] **Token rotation** on the date from 6.2 (👤).
+
+---
+
+## Human-only actions
+
+Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing the DB password and secret values; creating or rotating the Cloudflare API token; Supabase Auth/SMTP settings; merging PRs; **approving production deploys**; deleting any Worker, KV namespace, secret or Supabase project; DNS / custom domains.
+
+## Deployment log
+
+| Date | Phase | Trigger | Version ID | Message / SHA | Result | Notes |
+| ---- | ----- | ------- | ---------- | ------------- | ------ | ----- |
+|      |       |         |            |               |        |       |
+
+## References
+
+- `context/foundation/infrastructure.md`: platform decision, risk register, operational story
+- Astro Cloudflare adapter: [https://docs.astro.build/en/guides/integrations-guide/cloudflare/](https://docs.astro.build/en/guides/integrations-guide/cloudflare/)
+- Workers per-Worker token roles: [https://developers.cloudflare.com/workers/authorization/workers/](https://developers.cloudflare.com/workers/authorization/workers/)
+- Automatic resource provisioning: [https://developers.cloudflare.com/changelog/post/2025-10-24-automatic-resource-provisioning/](https://developers.cloudflare.com/changelog/post/2025-10-24-automatic-resource-provisioning/) and [https://github.com/cloudflare/cloudflare-docs/issues/32978](https://github.com/cloudflare/cloudflare-docs/issues/32978)
+- `secret put` on a Worker that doesn't exist yet: [https://github.com/cloudflare/workers-sdk/issues/14258](https://github.com/cloudflare/workers-sdk/issues/14258)
+- Supabase custom SMTP / limits: [https://supabase.com/docs/guides/auth/auth-smtp](https://supabase.com/docs/guides/auth/auth-smtp) and [https://supabase.com/docs/guides/deployment/going-into-prod](https://supabase.com/docs/guides/deployment/going-into-prod)
+- GitHub environments (plan availability, required reviewers): [https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)
+- GitHub protected branches (plan availability): [https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)

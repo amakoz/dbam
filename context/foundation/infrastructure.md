@@ -90,9 +90,9 @@ Six months after launch, Dbam is deployed on Cloudflare Workers and the reminder
 |---|---|---|---|---|
 | Supabase SSR breaks on Workers if `nodejs_compat` is ever removed/misconfigured | Devil's advocate | L (already set in `wrangler.jsonc`) | H | Keep `nodejs_compat` in `compatibility_flags`; add an auth-flow check to `npm run smoke` so a regression fails CI, not production |
 | Free-tier Cron Trigger 10ms CPU cap too tight for the reminder job at scale | Devil's advocate | M | M | Budget for Workers Paid ($5/mo) before the reminder job goes live, or move dispatch onto Cloudflare Queues instead of a synchronous loop |
-| `tech-stack.md` still says `cloudflare-pages`; actual scaffold already targets Workers | Devil's advocate / Research finding | H (exists today) | M | Update `tech-stack.md`'s `deployment_target` hint to `cloudflare-workers` before the next agent run reads it |
+| `tech-stack.md` said `cloudflare-pages`; actual scaffold already targets Workers | Devil's advocate / Research finding | **Resolved 2026-09-24** | M | `deployment_target` hint corrected to `cloudflare-workers` and the "Why this stack" prose updated to match |
 | Cloudflare's docs are inconsistent on cron-trigger limit scope (per-account vs per-worker) | Devil's advocate | M | L | Verify the actual limit in the Cloudflare dashboard before relying on the free-tier ceiling; re-check cloudflare-docs#29326 before the first production cron deploy |
-| `global_fetch_strictly_public` compat flag is missing from the repo's current `wrangler.jsonc` | Unknown unknowns (verified against repo) | H (confirmed absent today) | M | Add `global_fetch_strictly_public` to `compatibility_flags` in `wrangler.jsonc` and confirm SSR fetch behavior with the smoke test before first deploy |
+| `global_fetch_strictly_public` compat flag was missing from the repo's `wrangler.jsonc` | Unknown unknowns (verified against repo) | **Resolved 2026-09-24** | M | Flag added to `compatibility_flags` alongside `nodejs_compat`; still worth exercising via the smoke test before first deploy |
 | "Workers Sites" vs "Workers Static Assets" naming confusion in third-party tutorials | Unknown unknowns | M | M | When following any Cloudflare tutorial, confirm it references "Static Assets" (what `wrangler.jsonc`'s `assets` block already uses), not the deprecated "Workers Sites" mechanism |
 | Cloudflare's remote-MCP tooling is very new (spec dated 2026-07-28), little production track record | Unknown unknowns | L | L | Default to `wrangler` CLI for all production ops per this project's CLI-first posture; treat MCP as optional/experimental until it has more track record |
 | A Worker rollback doesn't undo a Supabase schema migration shipped in the same deploy | Research finding | L | H | Keep Supabase migrations backward-compatible/additive where feasible; never rely on `wrangler rollback` alone to undo a breaking migration |
@@ -100,10 +100,10 @@ Six months after launch, Dbam is deployed on Cloudflare Workers and the reminder
 
 ## Getting Started
 
-The repo is already scaffolded for Cloudflare Workers — `@astrojs/cloudflare@^14.3.1` is installed, `astro.config.mjs` already uses the `cloudflare()` adapter, and `wrangler.jsonc` already exists with `compatibility_date: "2026-05-08"` and `nodejs_compat` set. The remaining steps are the gaps this research found, not a from-scratch setup:
+The repo is already scaffolded for Cloudflare Workers — `@astrojs/cloudflare@^14.3.1` is installed, `astro.config.mjs` already uses the `cloudflare()` adapter, and `wrangler.jsonc` already exists with `compatibility_date: "2026-05-08"`. Both config gaps this research found have already been fixed:
 
-1. Add the missing compatibility flag: edit `wrangler.jsonc` so `compatibility_flags` reads `["nodejs_compat", "global_fetch_strictly_public"]`.
-2. Correct the stale hand-off hint: update `context/foundation/tech-stack.md`'s `deployment_target` from `cloudflare-pages` to `cloudflare-workers` so it matches what's actually deployed.
+1. ~~Add the missing compatibility flag~~ — done: `wrangler.jsonc`'s `compatibility_flags` now reads `["nodejs_compat", "global_fetch_strictly_public"]`.
+2. ~~Correct the stale hand-off hint~~ — done: `context/foundation/tech-stack.md`'s `deployment_target` now reads `cloudflare-workers`, and its prose is updated to match.
 3. Authenticate and do a first manual deploy to confirm the pipeline works end to end: `npx wrangler login`, then `npm run build && npx wrangler deploy`.
 4. Set production secrets (not committed anywhere): `npx wrangler secret put SUPABASE_URL` and `npx wrangler secret put SUPABASE_KEY`.
 5. Create a Cloudflare API token scoped to this Worker only (no DNS, no other projects, no billing) and add it as a `CLOUDFLARE_API_TOKEN` GitHub Actions secret — this unblocks wiring the actual deploy job into CI (the deploy job itself is CI/CD configuration, out of scope for this research; see Plan Mode for the guided first deployment).

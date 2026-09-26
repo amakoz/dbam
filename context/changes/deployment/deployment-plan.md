@@ -52,7 +52,7 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewl
 | 5   | Production secrets + auth verification            | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ✅ done (2026-09-26) |
-| 8   | Rollback drill + ops check                        | 🤖 + 👤 | 🟡 in progress       |
+| 8   | Rollback drill + ops check                        | 🤖 + 👤 | ✅ done (2026-09-26) |
 | 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred           |
 
 Status values: ⬜ not started · 🟡 in progress · ✅ done · ❌ blocked (add a note)
@@ -431,7 +431,7 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
 
 ---
 
-## Phase 8: Rollback drill + ops check 🤖 + 👤
+## Phase 8: Rollback drill + ops check 🤖 + 👤 ✅
 
 2026-09-26: Claude Code's auto-mode classifier blocks the agent from running `wrangler rollback` (treated as a production deploy) and, in the same session, `wrangler tail` / `secret list`. The owner ran 8.1–8.4 by hand; the agent checked the outcome read-only (`deployments list`, `curl`).
 
@@ -442,14 +442,14 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
   - [x] `npx wrangler tail dbam --format pretty`
   - [x] Dashboard → Workers → `dbam` → Logs shows events (`observability.enabled: true`)
   - [x] `npx wrangler secret list`
-- [ ] 8.5 🤖 Save "never run `npm run smoke` against prod" (F11), "Worker rename = new Worker" (F2) and "never `supabase config push` to prod" (F14) with `/10x-lesson` into `context/foundation/lessons.md`
+- [x] 8.5 🤖 (2026-09-26, owner's choice: the two "never run X against prod" rules went into `CLAUDE.md` *Hard rules* instead, because every session loads that file; the Worker-rename trap went into `context/foundation/lessons.md`) Save "never run `npm run smoke` against prod" (F11), "Worker rename = new Worker" (F2) and "never `supabase config push` to prod" (F14) with `/10x-lesson` into `context/foundation/lessons.md`
 
 🩹 **Rollback lands on an unexpected version** (happened in the 8.2 drill: `d1d36987` instead of `0d5e986f`) → always pass the version ID explicitly, copied from `deployments list`, and check `deployments list` right after.
 🩹 **Rolled back to a version from before a secret rotation** → it runs with the old secret value. Run `wrangler secret put` again after the rollback.
 🩹 **The next CI deploy "undoes" your rollback** → expected: `main` is the source of truth. Revert the bad commit in a PR, don't just roll back.
 🩹 Rollback never undoes Supabase schema changes. No migrations exist yet.
 
-⛔ **GATE 8** ✅ (2026-09-26): drill done, production back on the latest version (`06c88cde`). 8.5 (lessons) is still open and doesn't block the gate.
+⛔ **GATE 8** ✅ (2026-09-26): drill done, production back on the latest version (`06c88cde`). 8.5 done the same day.
 
 ---
 

@@ -82,7 +82,10 @@ for (const [name, run, expected] of steps) {
   const actual = await run();
   const ok =
     actual.status === expected.status &&
-    (expected.location === undefined || actual.location.startsWith(expected.location)) &&
+    (expected.location === undefined ||
+      // Same path exactly; the query string only needs the expected prefix (e.g. "?error=").
+      (actual.location.split("?")[0] === expected.location.split("?")[0] &&
+        actual.location.startsWith(expected.location))) &&
     (expected.bodyExcludes === undefined || !actual.body.includes(expected.bodyExcludes));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {

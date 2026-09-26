@@ -51,7 +51,7 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewl
 | 4   | First manual deploy                               | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 5   | Production secrets + auth verification            | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ✅ done (2026-09-26) |
-| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | 🟡 in progress       |
+| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ✅ done (2026-09-26) |
 | 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started       |
 | 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred           |
 
@@ -356,12 +356,12 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
 
 ---
 
-## Phase 7: CI/CD deploy job: auto on push + manual dispatch 🤖 + 👤
+## Phase 7: CI/CD deploy job: auto on push + manual dispatch 🤖 + 👤 ✅
 
 The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job` → PR.
 
 - [x] 7.0 👤 (added 2026-09-26, D6 change + F24) Disconnect Workers Builds: Dashboard → Workers → `dbam` → Settings → Build → Git repository → **Disconnect** (done 2026-09-26)
-- [ ] 7.0b 👤 Remove the required reviewer and keep the branch policy:
+- [x] 7.0b 👤 Remove the required reviewer and keep the branch policy (done 2026-09-26; verified: rules = `branch_policy` only):
   ```
   ! gh api -X PUT repos/amakoz/dbam/environments/production -F wait_timer=0 -F 'reviewers[]' -F 'deployment_branch_policy[protected_branches]=true' -F 'deployment_branch_policy[custom_branch_policies]=false' --jq '[.protection_rules[].type]'
   ```
@@ -412,11 +412,11 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
   - **No surprise resources.** `--no-x-provision` stops CI from ever creating account resources (F3).
   - **Traceable deploys.** `--message` records the trigger and SHA in `wrangler deployments list`.
   - **Expressions go through `env:`.** An unquoted `run:` containing `": "` is invalid YAML (the original draft of this snippet failed Prettier), and keeping `${{ }}` out of shell scripts avoids script injection.
-- [ ] 7.2 🤖 Push the branch and open a PR → `ci` + `smoke` run, and `**deploy` shows as skipped**
-- [ ] 7.3 👤 Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` goes `ci` + `smoke` → `deploy` with no wait. (Run 36253051192 from the PR #6 merge was created while the reviewer still existed and sits in "Waiting"; cancel it.)
-- [ ] 7.4 🤖 (2026-09-26 first try: deployed but job red, see F25) `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`
-- [ ] 7.5 **Manual path:** 🤖 `gh workflow run CI --ref main`, then `gh run watch`. Result: `workflow_dispatch: <sha>` in `deployments list`. (Or use Actions → CI → **Run workflow** → branch `main`.)
-- [ ] 7.6 **Negative test:** 🤖 `gh workflow run CI --ref <any-other-branch>` → `ci` + `smoke` run, and `deploy` is **skipped**
+- [x] 7.2 🤖 (PR #6, 2026-09-26) Push the branch and open a PR → `ci` + `smoke` run, and `**deploy` shows as skipped**
+- [x] 7.3 👤 (PR #6, then #7–#9; fixes F25, F23) Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` goes `ci` + `smoke` → `deploy` with no wait. (Run 36253051192 from the PR #6 merge was created while the reviewer still existed and sits in "Waiting"; cancel it.)
+- [x] 7.4 🤖 (first try deployed but the job went red, F25; first fully green run 36255990813, `3fa3da5` → `f4dc0417`, 2026-09-26) `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`
+- [x] 7.5 (run 36256449423 → `0d5e986f`, 2026-09-26) **Manual path:** 🤖 `gh workflow run CI --ref main`, then `gh run watch`. Result: `workflow_dispatch: <sha>` in `deployments list`. (Or use Actions → CI → **Run workflow** → branch `main`.)
+- [x] 7.6 (run 36256644239 on `docs/record-phase-7`: `ci` + `smoke` ✅, `deploy` skipped, production unchanged, 2026-09-26) **Negative test:** 🤖 `gh workflow run CI --ref <any-other-branch>` → `ci` + `smoke` run, and `deploy` is **skipped**
 
 🩹 **Run sits in "Waiting"** → the environment still has a required reviewer; redo 7.0b.
 🩹 **Two deploys per merge / a deploy with Message `-`** → Workers Builds was reconnected (F24). Disconnect it again.
@@ -427,7 +427,7 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
 🩹 **Hotfix while `smoke` is broken for reasons outside the app** → fix `smoke` first (pin the Supabase CLI version). As a last resort, deploy from your laptop with `npm run deploy` and write down why in the Deployment log.
 🩹 **"Run workflow" button missing** → `workflow_dispatch` has to be in the workflow file on the **default branch** (`main`), which 2.4 already does.
 
-⛔ **GATE 7**: 7.2–7.6 all behave as described. Automatic and manual deploys both work without an approval step, only after `ci` + `smoke` are green, and a non-main branch never deploys.
+⛔ **GATE 7** ✅ (2026-09-26): 7.2–7.6 all behave as described. Automatic and manual deploys both work without an approval step, only after `ci` + `smoke` are green, and a non-main branch never deploys.
 
 ---
 
@@ -481,7 +481,9 @@ Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing 
 | 2026-09-26 | 4.3   | manual (laptop) | `78ad2a4f-e1e9-4219-a44e-b010a9afc0f7` | `manual: first deploy, no secrets` / `ba03df1` | ✅ 200 | Creates Worker `dbam`; only `ASSETS` binding; banner shown (no secrets) |
 | 2026-09-26 | 5.1–5.2 | `wrangler secret put` ×2 | `8a55721b-3041-4ccf-8435-cfd423217311` | Secret Change / `ba03df1` | ✅ Gate 5 | Current version. Supersedes secret-change versions `6038bd94`, `380029bf`, `d1d36987`, `ca84c8b6`, `37f4c334` |
 | 2026-09-26 | 7.3 | Workers Builds (push `a42d1f4`) | `af3e95fd-1428-4b0a-9d31-f4a43f895d02` | `-` / `a42d1f4` | ✅ 200 | **Unplanned**: Cloudflare Git integration deployed with no approval (F24); integration since disconnected. |
-| 2026-09-26 | 7.3 | CI `push` (run 36254599797) | `ff93c7bf-7a28-412d-8b66-6c5ef395afe5` | `push: 7e98bbb…` | ⚠️ live, 200; job ❌ | Deploy went live, then the triggers step failed with code 10000 (F25); health check skipped. Current version |
+| 2026-09-26 | 7.3 | CI `push` (run 36254599797) | `ff93c7bf-7a28-412d-8b66-6c5ef395afe5` | `push: 7e98bbb…` | ⚠️ live, 200; job ❌ | Deploy went live, then the triggers step failed with code 10000 (F25); health check skipped. |
+| 2026-09-26 | 7.4 | CI `push` (run 36255990813) | `f4dc0417-2d30-4328-9b88-e6e1a2eba8b1` | `push: 3fa3da5…` | ✅ 200 | First fully green auto deploy (wrangler 4.141.0, CLI pinned); no approval step |
+| 2026-09-26 | 7.5 | CI `workflow_dispatch` (run 36256449423) | `0d5e986f-8633-4e2b-91ce-3c458fe6f61c` | `workflow_dispatch: 3fa3da5…` | ✅ 200 | Manual path; same commit re-deployed. Current version |
 
 ## References
 

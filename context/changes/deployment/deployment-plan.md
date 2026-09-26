@@ -16,7 +16,7 @@ sources:
 tooling_verified:
   astro: 7.3.2
   "@astrojs/cloudflare": 14.3.1
-  wrangler: 4.131.1
+  wrangler: 4.141.0 # bumped from 4.131.1 on 2026-09-26 (F25)
   supabase-cli: 2.117.0
   gh: 2.101.0
 cli_check: 2026-09-26
@@ -90,9 +90,10 @@ Re-checked against the working tree on 2026-09-26, before Phase 2: F1, F2, F3 (n
 | F19 | CLI check on 2026-09-26: the existing Dbam Supabase project (`ypeztjwqxhgqtpmvhcvz`) is in **`eu-west-1` (Ireland)**, not Frankfurt. The org already has 2 active projects (MeelPrep + Dbam), the Free plan maximum.                                       | Owner chose to keep D2: delete the empty Ireland project, **then** create Dbam in Frankfurt, then re-link (Phase 1.4–1.5).                                                                                                                |
 | F20 | `gh` token scopes: `repo`, `read:org`, `gist`, `admin:public_key`. **No `workflow` scope**, but git pushes go over **SSH** (`git@github.com:amakoz/dbam.git`), so pushing `ci.yml` changes isn't affected. `gh workflow run` only needs `repo`.            | No action now. Run `gh auth refresh -s workflow` only if you switch the remote to HTTPS.                                                                                                                                                  |
 | F21 | Cloudflare account is empty: no Workers, no KV namespaces. Subdomain `amadeuszkozlowski` is already claimed.                                                                                                                                               | Nothing to clean up before Phase 4. Any KV namespace that appears later was auto-provisioned (F3).                                                                                                                                        |
-| F22 | `@astrojs/cloudflare` 14.3.x → `@cloudflare/vite-plugin` 1.54.8 pins **exactly** `wrangler@4.131.1`. Bumping only our `wrangler` to 4.141.0 installs two wranglers and two `workerd` runtimes (build ≠ deploy toolchain).                                  | Stay on 4.131.1. Bump `wrangler` only **together with** `@cloudflare/vite-plugin` (latest 1.60.2 pins 4.141.0), in its own PR after the first deploy.                                                                                     |
+| F22 | `@astrojs/cloudflare` 14.3.x → `@cloudflare/vite-plugin` 1.54.8 pins **exactly** `wrangler@4.131.1`. Bumping only our `wrangler` to 4.141.0 installs two wranglers and two `workerd` runtimes (build ≠ deploy toolchain).                                  | Stay on 4.131.1. Bump `wrangler` only **together with** `@cloudflare/vite-plugin` (latest 1.60.2 pins 4.141.0), in its own PR after the first deploy. **Done 2026-09-26 (F25).**                                                                                     |
 | F23 | Supabase CLI **2.118.0** doesn't find the login that 2.117.0 uses (`AccessTokenRequiredError`; it looks for `~/.supabase/profile`). Checked 2026-09-26.                                                                                                    | Stay on 2.117.0. CI `smoke` uses `supabase/setup-cli` `version: latest` = 2.118.0, but only for local `supabase start` (no login needed). `smoke` passed with `latest` on PR #1 (2026-09-26); if it breaks later, pin `version: 2.117.0`. |
 | F24 | Cloudflare **Workers Builds** (dashboard Git integration) was connected to the repo after Phase 6. It deploys every push to `main` straight away, without waiting for GitHub checks, using its own build token and without `--no-x-provision`. On the PR #6 merge it deployed `af3e95fd` (2026-09-26 15:46Z) with no approval. | Owner **disconnected** it on 2026-09-26 (plan A). GitHub Actions `deploy` is the only deploy path. Never reconnect it. |
+| F25 | First CI deploy (run 36254599797, `7e98bbb`) **went live** as `ff93c7bf`, but the job failed afterwards: wrangler 4.131.1 always calls the **account-level** `GET /accounts/{id}/workers/subdomain` to print the workers.dev URL, and the per-Worker token gets `Authentication error [code: 10000]`. The health check was skipped. wrangler 4.141.0 reads the URL from the per-Worker `/workers/scripts/dbam/subdomain` endpoint first. | Bump `wrangler` 4.141.0 + `@cloudflare/vite-plugin` 1.60.2 together (satisfies F22), on branch `chore/bump-wrangler-4.141`. Don't widen the token instead. |
 
 ### Decisions
 
@@ -413,7 +414,7 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
   - **Expressions go through `env:`.** An unquoted `run:` containing `": "` is invalid YAML (the original draft of this snippet failed Prettier), and keeping `${{ }}` out of shell scripts avoids script injection.
 - [ ] 7.2 🤖 Push the branch and open a PR → `ci` + `smoke` run, and `**deploy` shows as skipped**
 - [ ] 7.3 👤 Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` goes `ci` + `smoke` → `deploy` with no wait. (Run 36253051192 from the PR #6 merge was created while the reviewer still existed and sits in "Waiting"; cancel it.)
-- [ ] 7.4 🤖 `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`
+- [ ] 7.4 🤖 (2026-09-26 first try: deployed but job red, see F25) `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`
 - [ ] 7.5 **Manual path:** 🤖 `gh workflow run CI --ref main`, then `gh run watch`. Result: `workflow_dispatch: <sha>` in `deployments list`. (Or use Actions → CI → **Run workflow** → branch `main`.)
 - [ ] 7.6 **Negative test:** 🤖 `gh workflow run CI --ref <any-other-branch>` → `ci` + `smoke` run, and `deploy` is **skipped**
 
@@ -479,7 +480,8 @@ Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing 
 | ---------- | ----- | --------------- | -------------------------------------- | ---------------------------------------------- | ------ | ----------------------------------------------------------------------- |
 | 2026-09-26 | 4.3   | manual (laptop) | `78ad2a4f-e1e9-4219-a44e-b010a9afc0f7` | `manual: first deploy, no secrets` / `ba03df1` | ✅ 200 | Creates Worker `dbam`; only `ASSETS` binding; banner shown (no secrets) |
 | 2026-09-26 | 5.1–5.2 | `wrangler secret put` ×2 | `8a55721b-3041-4ccf-8435-cfd423217311` | Secret Change / `ba03df1` | ✅ Gate 5 | Current version. Supersedes secret-change versions `6038bd94`, `380029bf`, `d1d36987`, `ca84c8b6`, `37f4c334` |
-| 2026-09-26 | 7.3 | Workers Builds (push `a42d1f4`) | `af3e95fd-1428-4b0a-9d31-f4a43f895d02` | `-` / `a42d1f4` | ✅ 200 | **Unplanned**: Cloudflare Git integration deployed with no approval (F24); integration since disconnected. Current version |
+| 2026-09-26 | 7.3 | Workers Builds (push `a42d1f4`) | `af3e95fd-1428-4b0a-9d31-f4a43f895d02` | `-` / `a42d1f4` | ✅ 200 | **Unplanned**: Cloudflare Git integration deployed with no approval (F24); integration since disconnected. |
+| 2026-09-26 | 7.3 | CI `push` (run 36254599797) | `ff93c7bf-7a28-412d-8b66-6c5ef395afe5` | `push: 7e98bbb…` | ⚠️ live, 200; job ❌ | Deploy went live, then the triggers step failed with code 10000 (F25); health check skipped. Current version |
 
 ## References
 

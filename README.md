@@ -140,12 +140,13 @@ Users can then sign in immediately after sign-up without clicking a confirmation
 
 ### Auth routes
 
-| Route                 | Description                                                             |
-| --------------------- | ----------------------------------------------------------------------- |
-| `/auth/signin`        | Email/password sign-in form                                             |
-| `/auth/signup`        | Email/password sign-up form                                             |
-| `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
-| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
+| Route                 | Description                                                                                                                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/auth/signin`        | Email/password sign-in form                                                                                                                                                                    |
+| `/auth/signup`        | Email/password sign-up form                                                                                                                                                                    |
+| `/auth/confirm-email` | Post-signup "check your inbox" page                                                                                                                                                            |
+| `/api/auth/callback`  | Confirmation-email target: exchanges the PKCE `code` and signs the user in (other browser/device → sign-in page with "email confirmed"). Its URL must be allowed in Supabase **Redirect URLs** |
+| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated)                                                                                                                        |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
 

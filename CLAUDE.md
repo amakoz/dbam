@@ -7,7 +7,7 @@
 - `SUPABASE_URL`/`SUPABASE_KEY` are server-only secrets declared via `astro:env/server` (`astro.config.mjs`) — never read them on the client or pass them through props.
 - Auth API routes (`src/pages/api/auth/*.ts`) respond by redirecting with an `?error=`-encoded query string, not JSON — match this shape for new auth endpoints (`@src/pages/api/auth/signin.ts`).
 - New protected pages: add the path prefix to `PROTECTED_ROUTES` in `src/middleware.ts` instead of hand-rolling an auth check in the page.
-- Merging PRs to `main`: the agent may run `gh pr merge <n> --squash --delete-branch` only when both required checks (`ci`, `smoke`) are green on the latest commit and there are no conflicts; never use `--admin` or bypass branch protection. Production deploys still need human approval.
+- Merging PRs to `main`: the agent may run `gh pr merge <n> --squash --delete-branch` only when both required checks (`ci`, `smoke`) are green on the latest commit and there are no conflicts; never use `--admin` or bypass branch protection. A merge to `main` deploys to production automatically once `ci` + `smoke` pass on `main` (GitHub Actions `deploy` job, no approval step); Cloudflare Workers Builds is disconnected, so never reconnect it.
 
 ## Project Structure & Module Organization
 

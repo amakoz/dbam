@@ -52,7 +52,7 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewl
 | 5   | Production secrets + auth verification            | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ✅ done (2026-09-26) |
-| 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started       |
+| 8   | Rollback drill + ops check                        | 🤖 + 👤 | 🟡 in progress       |
 | 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred           |
 
 Status values: ⬜ not started · 🟡 in progress · ✅ done · ❌ blocked (add a note)
@@ -433,20 +433,23 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
 
 ## Phase 8: Rollback drill + ops check 🤖 + 👤
 
-- [ ] 8.1 🤖 `npx wrangler deployments list` → note the current and previous version IDs in the log
-- [ ] 8.2 🤖 `npx wrangler rollback <previous-version-id> -m "rollback drill" -y` → site still `200`; the rollback appears in `deployments list`
-- [ ] 8.3 🤖 Roll forward: `npx wrangler rollback <current-version-id> -m "roll forward after drill" -y`, or trigger a manual deploy (7.5)
-- [ ] 8.4 🤖 Ops commands work:
-  - [ ] `npx wrangler tail dbam --format pretty`
-  - [ ] Dashboard → Workers → `dbam` → Logs shows events (`observability.enabled: true`)
-  - [ ] `npx wrangler secret list`
+2026-09-26: Claude Code's auto-mode classifier blocks the agent from running `wrangler rollback` (treated as a production deploy) and, in the same session, `wrangler tail` / `secret list`. The owner ran 8.1–8.4 by hand; the agent checked the outcome read-only (`deployments list`, `curl`).
+
+- [x] 8.1 👤 (2026-09-26: current `06c88cde` / `push: de56173`, previous `0d5e986f` / `workflow_dispatch: 3fa3da5`) `npx wrangler deployments list` → note the current and previous version IDs in the log
+- [x] 8.2 👤 (2026-09-26 17:40Z; actually rolled back to `d1d36987`, a Phase 5 secret-change version, not `0d5e986f`; see the log) `npx wrangler rollback <previous-version-id> -m "rollback drill" -y` → site still `200`; the rollback appears in `deployments list`
+- [x] 8.3 👤 (2026-09-26 17:42Z, back on `06c88cde`; `200`, no "not configured" banner) Roll forward: `npx wrangler rollback <current-version-id> -m "roll forward after drill" -y`, or trigger a manual deploy (7.5)
+- [x] 8.4 👤 (checked by hand by the owner, 2026-09-26) Ops commands work:
+  - [x] `npx wrangler tail dbam --format pretty`
+  - [x] Dashboard → Workers → `dbam` → Logs shows events (`observability.enabled: true`)
+  - [x] `npx wrangler secret list`
 - [ ] 8.5 🤖 Save "never run `npm run smoke` against prod" (F11), "Worker rename = new Worker" (F2) and "never `supabase config push` to prod" (F14) with `/10x-lesson` into `context/foundation/lessons.md`
 
+🩹 **Rollback lands on an unexpected version** (happened in the 8.2 drill: `d1d36987` instead of `0d5e986f`) → always pass the version ID explicitly, copied from `deployments list`, and check `deployments list` right after.
 🩹 **Rolled back to a version from before a secret rotation** → it runs with the old secret value. Run `wrangler secret put` again after the rollback.
 🩹 **The next CI deploy "undoes" your rollback** → expected: `main` is the source of truth. Revert the bad commit in a PR, don't just roll back.
 🩹 Rollback never undoes Supabase schema changes. No migrations exist yet.
 
-⛔ **GATE 8**: drill done, production back on the latest version.
+⛔ **GATE 8** ✅ (2026-09-26): drill done, production back on the latest version (`06c88cde`). 8.5 (lessons) is still open and doesn't block the gate.
 
 ---
 
@@ -483,7 +486,10 @@ Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing 
 | 2026-09-26 | 7.3 | Workers Builds (push `a42d1f4`) | `af3e95fd-1428-4b0a-9d31-f4a43f895d02` | `-` / `a42d1f4` | ✅ 200 | **Unplanned**: Cloudflare Git integration deployed with no approval (F24); integration since disconnected. |
 | 2026-09-26 | 7.3 | CI `push` (run 36254599797) | `ff93c7bf-7a28-412d-8b66-6c5ef395afe5` | `push: 7e98bbb…` | ⚠️ live, 200; job ❌ | Deploy went live, then the triggers step failed with code 10000 (F25); health check skipped. |
 | 2026-09-26 | 7.4 | CI `push` (run 36255990813) | `f4dc0417-2d30-4328-9b88-e6e1a2eba8b1` | `push: 3fa3da5…` | ✅ 200 | First fully green auto deploy (wrangler 4.141.0, CLI pinned); no approval step |
-| 2026-09-26 | 7.5 | CI `workflow_dispatch` (run 36256449423) | `0d5e986f-8633-4e2b-91ce-3c458fe6f61c` | `workflow_dispatch: 3fa3da5…` | ✅ 200 | Manual path; same commit re-deployed. Current version |
+| 2026-09-26 | 7.5 | CI `workflow_dispatch` (run 36256449423) | `0d5e986f-8633-4e2b-91ce-3c458fe6f61c` | `workflow_dispatch: 3fa3da5…` | ✅ 200 | Manual path; same commit re-deployed. |
+| 2026-09-26 | 7.x | CI `push` (run 36257587298, PR #10 merge) | `06c88cde-b72a-442c-bf22-749e373e5c2a` | `push: de56173…` | ✅ 200 | Docs-only merge, auto deploy |
+| 2026-09-26 | 8.2 | manual `wrangler rollback` (owner) | `d1d36987-4ede-4143-83eb-ccb1f749649c` | `rollback drill` | ✅ 200 | Drill; landed on a Phase 5 secret-change version, not the intended `0d5e986f` |
+| 2026-09-26 | 8.3 | manual `wrangler rollback` (owner) | `06c88cde-b72a-442c-bf22-749e373e5c2a` | `roll forward after drill` | ✅ 200 | Back on the latest version, no banner. Current version |
 
 ## References
 

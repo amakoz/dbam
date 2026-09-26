@@ -50,7 +50,7 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewl
 | 3   | Supabase production auth config                   | 👤      | ✅ done (2026-09-26) |
 | 4   | First manual deploy                               | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 5   | Production secrets + auth verification            | 👤 + 🤖 | ✅ done (2026-09-26) |
-| 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ⬜ not started       |
+| 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started       |
 | 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started       |
 | 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred           |
@@ -313,9 +313,9 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
 
 ---
 
-## Phase 6: GitHub `production` environment + scoped Cloudflare token 👤 + 🤖
+## Phase 6: GitHub `production` environment + scoped Cloudflare token 👤 + 🤖 ✅
 
-- [ ] 6.1 🤖 Create the environment with you as required reviewer (D6), limited to protected branches, which means `main`:
+- [x] 6.1 🤖 Create the environment with you as required reviewer (D6), limited to protected branches, which means `main`:
   ```bash
   USER_ID=$(gh api users/amakoz --jq .id)
   gh api -X PUT repos/amakoz/dbam/environments/production --input - <<JSON
@@ -327,20 +327,20 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
   JSON
   ```
   `prevent_self_review: false` is required. As a solo dev you're both the one who triggers and the one who approves.
-- [ ] 6.2 👤 Cloudflare dashboard → Manage Account → **Account API Tokens** → Create:
+- [x] 6.2 👤 Cloudflare dashboard → Manage Account → **Account API Tokens** → Create:
   - Scope: **Specified Workers** → `dbam`
   - Role: **Editor** (deploy, versions, secrets, rollback, tail; can't delete the Worker or touch other Workers)
   - No zone/DNS, billing, or KV/R2/D1 permissions
-  - Expiry: 6 months. Rotation date: `____-__-__` (put it in your calendar)
-- [ ] 6.3 👤 Test the token read-only, straight from the clipboard:
+  - Expiry: 6 months. Rotation date: `____-__-__` (created 2026-09-26, so about 2027-03-26; fill in the exact expiry from the dashboard and put it in your calendar)
+- [x] 6.3 👤 Test the token read-only, straight from the clipboard:
   ```
   ! CLOUDFLARE_API_TOKEN=$(pbpaste) npx wrangler deployments list --name dbam
   ```
-- [ ] 6.4 👤 `! gh secret set CLOUDFLARE_API_TOKEN --env production` → paste at the prompt
-- [ ] 6.5 🤖 `gh secret set CLOUDFLARE_ACCOUNT_ID --env production --body fdf3fd78b2ab72e14ddb9d7531aa7f3c` (not sensitive)
-- [ ] 6.6 🤖 `gh variable set PRODUCTION_URL --env production --body https://dbam.amadeuszkozlowski.workers.dev`
-- [ ] 6.7 🤖 `gh secret list` (repo level) → 👤 delete any `SUPABASE_URL`/`SUPABASE_KEY` there (`gh secret delete <NAME>`). Nothing reads them after 2.5.
-- [ ] 6.8 🤖 Verify:
+- [x] 6.4 👤 `! gh secret set CLOUDFLARE_API_TOKEN --env production` → paste at the prompt
+- [x] 6.5 🤖 `gh secret set CLOUDFLARE_ACCOUNT_ID --env production --body fdf3fd78b2ab72e14ddb9d7531aa7f3c` (not sensitive)
+- [x] 6.6 🤖 `gh variable set PRODUCTION_URL --env production --body https://dbam.amadeuszkozlowski.workers.dev`
+- [x] 6.7 🤖 `gh secret list` (repo level) → 👤 delete any `SUPABASE_URL`/`SUPABASE_KEY` there (`gh secret delete <NAME>`). Nothing reads them after 2.5. (2026-09-26: no repo-level secrets, nothing to delete)
+- [x] 6.8 🤖 Verify (2026-09-26: rules `required_reviewers` (`amakoz`, `prevent_self_review: false`) + `branch_policy` (`protected_branches: true`); env secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`; env var `PRODUCTION_URL`):
   - `gh api repos/amakoz/dbam/environments/production --jq '.protection_rules'` shows a `required_reviewers` rule
   - `gh secret list --env production` shows both secrets
   - `gh variable list --env production` shows `PRODUCTION_URL`
@@ -349,7 +349,7 @@ Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped C
 🩹 **6.3 fails with code 10000 / 9109** → you created a _user_ token when it should be an _account_ token, or the account ID doesn't match.
 🩹 **6.1 returns 422 on `protected_branches`** → branch protection (2.11) isn't active yet.
 
-⛔ **GATE 6**: 6.3 lists the Phase 4/5 deployments, and 6.8 shows all three checks.
+⛔ **GATE 6** ✅ (2026-09-26): 6.3 lists the Phase 4/5 deployments, and 6.8 shows all three checks.
 
 ---
 

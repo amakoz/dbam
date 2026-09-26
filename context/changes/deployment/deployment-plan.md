@@ -412,7 +412,7 @@ The triggers were added in 2.4. This phase adds the job on branch `ci/deploy-job
   - **Traceable deploys.** `--message` records the trigger and SHA in `wrangler deployments list`.
   - **Expressions go through `env:`.** An unquoted `run:` containing `": "` is invalid YAML (the original draft of this snippet failed Prettier), and keeping `${{ }}` out of shell scripts avoids script injection.
 - [ ] 7.2 🤖 Push the branch and open a PR → `ci` + `smoke` run, and `**deploy` shows as skipped**
-- [ ] 7.3 🤖 Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` goes `ci` + `smoke` → `deploy` with no wait. (Run 36253051192 from the PR #6 merge was created while the reviewer still existed and sits in "Waiting"; cancel it.)
+- [ ] 7.3 👤 Merge once `ci` + `smoke` are green (see *Merging PRs*). **Auto path:** the run on `main` goes `ci` + `smoke` → `deploy` with no wait. (Run 36253051192 from the PR #6 merge was created while the reviewer still existed and sits in "Waiting"; cancel it.)
 - [ ] 7.4 🤖 `gh run watch` → deploy + health check green. `npx wrangler deployments list` shows `push: <sha>`
 - [ ] 7.5 **Manual path:** 🤖 `gh workflow run CI --ref main`, then `gh run watch`. Result: `workflow_dispatch: <sha>` in `deployments list`. (Or use Actions → CI → **Run workflow** → branch `main`.)
 - [ ] 7.6 **Negative test:** 🤖 `gh workflow run CI --ref <any-other-branch>` → `ci` + `smoke` run, and `deploy` is **skipped**
@@ -467,11 +467,11 @@ Each item has a trigger. Start it when the trigger fires, not before.
 
 ## Human-only actions
 
-Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing the DB password and secret values; creating or rotating the Cloudflare API token; Supabase Auth/SMTP settings; changing `production` environment protection rules; connecting Cloudflare Git integrations (Workers Builds); deleting any Worker, KV namespace, secret or Supabase project; DNS / custom domains.
+Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing the DB password and secret values; creating or rotating the Cloudflare API token; Supabase Auth/SMTP settings; **merging PRs to `main`** (= production deploy); changing `production` environment protection rules; connecting Cloudflare Git integrations (Workers Builds); deleting any Worker, KV namespace, secret or Supabase project; DNS / custom domains.
 
 ## Merging PRs
 
-🤖 The agent may merge a PR to `main` itself (`gh pr merge <n> --squash --delete-branch`) once **both** required checks, `ci` and `smoke`, are green on the PR's latest commit and it has no merge conflicts. Never with `--admin` or any other branch-protection bypass. A red, pending or missing check means stop and report. **Merging to `main` ships to production**: once `ci` + `smoke` pass on `main`, the `deploy` job runs with no approval (D6 as changed 2026-09-26). (Changed 2026-09-26 at the owner's request; previously merging was human-only.)
+👤 **Merging PRs to `main` is human-only** (owner decision, 2026-09-26). A merge ships to production: once `ci` + `smoke` pass on `main`, the `deploy` job runs with no approval (D6 as changed). 🤖 The agent opens PRs, reports `ci` / `smoke` status, and stops; it never runs `gh pr merge`, and never uses `--admin` or any other branch-protection bypass. (History: merging was human-only, then briefly agent-allowed on 2026-09-26 while every deploy still needed approval.)
 
 ## Deployment log
 

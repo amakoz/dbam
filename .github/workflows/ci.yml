@@ -86,3 +86,8 @@ jobs:
           done
           echo "::error::Health check failed. Roll back with: npx wrangler rollback -m 'health check failed' -y"
           exit 1
+      - name: Post-deploy smoke (read-only)
+        env:
+          BASE_URL: ${{ vars.PRODUCTION_URL }}
+          SMOKE_READONLY: "1"
+        run: npm run smoke

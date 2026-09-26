@@ -1,7 +1,17 @@
 // Smoke test: proves the built app, the Cloudflare adapter and the Supabase auth flow still work together.
 // Zero dependencies on purpose. Run against a live server: BASE_URL=http://localhost:4321 node scripts/smoke.mjs
+// SMOKE_READONLY=1 runs only GET checks that create no users and send no email; it is the only mode allowed
+// against a non-local BASE_URL (production), because the full run signs up a real account.
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:4321";
+const READONLY = process.env.SMOKE_READONLY === "1";
+const isLocal = ["localhost", "127.0.0.1"].includes(new URL(BASE_URL).hostname);
+if (!isLocal && !READONLY) {
+  console.error(
+    `Refusing to run the full smoke test against ${BASE_URL}: it creates real users. Set SMOKE_READONLY=1.`,
+  );
+  process.exit(2);
+}
 const email = `smoke-${Date.now()}@example.com`;
 const password = "Smoke-Test-Passw0rd!";
 const jar = new Map();
@@ -32,12 +42,19 @@ async function request(path, { method = "GET", form } = {}) {
     body: form ? new URLSearchParams(form).toString() : undefined,
   });
   storeCookies(response);
-  return { status: response.status, location: response.headers.get("location") ?? "" };
+  return { status: response.status, location: response.headers.get("location") ?? "", body: await response.text() };
 }
 
-const steps = [
-  ["home renders", () => request("/"), { status: 200 }],
+// Read-only steps run in both modes; the rest need a throwaway account and run only against local servers.
+const readonlySteps = [
+  ["home renders without config banner", () => request("/"), { status: 200, bodyExcludes: "nie jest skonfigurowany" }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  ["signin page renders", () => request("/auth/signin"), { status: 200 }],
+  ["signup page renders", () => request("/auth/signup"), { status: 200 }],
+  ["unknown path returns 404", () => request("/does-not-exist"), { status: 404 }],
+];
+
+const accountSteps = [
   [
     "signup creates account",
     () => request("/api/auth/signup", { method: "POST", form: { email, password } }),
@@ -58,12 +75,15 @@ const steps = [
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];
 
+const steps = READONLY ? readonlySteps : [...readonlySteps, ...accountSteps];
+
 let failed = 0;
 for (const [name, run, expected] of steps) {
   const actual = await run();
   const ok =
     actual.status === expected.status &&
-    (expected.location === undefined || actual.location.startsWith(expected.location));
+    (expected.location === undefined || actual.location.startsWith(expected.location)) &&
+    (expected.bodyExcludes === undefined || !actual.body.includes(expected.bodyExcludes));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;
@@ -71,5 +91,5 @@ for (const [name, run, expected] of steps) {
   }
 }
 
-console.log(failed ? `\n${failed} step(s) failed` : "\nAll smoke steps passed");
+console.log(failed ? `\n${failed} step(s) failed` : `\nAll ${READONLY ? "read-only " : ""}smoke steps passed`);
 process.exit(failed ? 1 : 0);

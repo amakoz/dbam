@@ -26,7 +26,7 @@ cli_check: 2026-09-26
 
 Follows `context/foundation/infrastructure.md`: Cloudflare Workers, `wrangler` CLI first, scoped tokens, and a human does anything irreversible. Covers tooling prerequisites, the first manual deploy, and a GitHub Actions deploy that runs **automatically on push to `main`** and **manually through `workflow_dispatch`**. Every deploy waits for approval.
 
-workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = the ref of the **Frankfurt** Supabase project, known after Phase 1.4.
+workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewlqmoyuobjiwprxszno`, the **Frankfurt** Supabase project (created 2026-09-26).
 
 ## Legend
 
@@ -42,18 +42,18 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = the 
 
 ## Phase status
 
-| #   | Phase                                             | Owner   | Status                                                                                   |
-| --- | ------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| 0   | Findings & decisions                              | 👤      | ✅ done                                                                                  |
-| 1   | Tooling & account prerequisites                   | 👤 + 🤖 | 🟡 in progress: CLIs OK; Supabase project must be recreated in Frankfurt (F19), 1.6 open |
-| 2   | Repo prep (PR) + branch protection                | 🤖 + 👤 | ⬜ not started                                                                           |
-| 3   | Supabase production auth config                   | 👤      | ⬜ not started                                                                           |
-| 4   | First manual deploy                               | 👤 + 🤖 | ⬜ not started                                                                           |
-| 5   | Production secrets + auth verification            | 👤 + 🤖 | ⬜ not started                                                                           |
-| 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ⬜ not started                                                                           |
-| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started                                                                           |
-| 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started                                                                           |
-| 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred                                                                               |
+| #   | Phase                                             | Owner   | Status               |
+| --- | ------------------------------------------------- | ------- | -------------------- |
+| 0   | Findings & decisions                              | 👤      | ✅ done              |
+| 1   | Tooling & account prerequisites                   | 👤 + 🤖 | ✅ done (2026-09-26) |
+| 2   | Repo prep (PR) + branch protection                | 🤖 + 👤 | ⬜ not started       |
+| 3   | Supabase production auth config                   | 👤      | ⬜ not started       |
+| 4   | First manual deploy                               | 👤 + 🤖 | ⬜ not started       |
+| 5   | Production secrets + auth verification            | 👤 + 🤖 | ⬜ not started       |
+| 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ⬜ not started       |
+| 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started       |
+| 8   | Rollback drill + ops check                        | 🤖 + 👤 | ⬜ not started       |
+| 9   | Deferred (tracked, not part of this deploy)       | —       | ⏸ deferred           |
 
 Status values: ⬜ not started · 🟡 in progress · ✅ done · ❌ blocked (add a note)
 
@@ -64,6 +64,8 @@ Status values: ⬜ not started · 🟡 in progress · ✅ done · ❌ blocked (a
 ### Findings
 
 From checking the repo on 2026-09-26: `astro build`, `wrangler deploy --dry-run`, a git-history secret scan, CLI status checks, and web research.
+
+Re-checked against the working tree on 2026-09-26, before Phase 2: F1, F2, F3 (no `astro:assets` or session usage in `src/`), F4, F6, F7, F8, F11, F12, F14 and F17 (jobs `ci` + `smoke`) all still hold. F13 is resolved by D2 + F19.
 
 | #   | Finding                                                                                                                                                                                                                                                    | Effect on plan                                                                                                                                               |
 | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -104,7 +106,7 @@ From checking the repo on 2026-09-26: `astro build`, `wrangler deploy --dry-run`
 
 ---
 
-## Phase 1: Tooling & account prerequisites 👤 + 🤖
+## Phase 1: Tooling & account prerequisites 👤 + 🤖 ✅
 
 State checked with the CLIs on 2026-09-26: all three are installed and logged in. `wrangler` 4.131.1 and `supabase` CLI 2.117.0 are **project devDependencies only** (no global binaries on PATH), so always use `npx wrangler` / `npx supabase`, never global installs. What's left: the Supabase project is in the wrong region (F19), and the keys haven't been collected (1.6).
 
@@ -147,40 +149,40 @@ State checked with the CLIs on 2026-09-26: all three are installed and logged in
 🩹 `**Authentication error [code: 10000]**` → `npx wrangler logout && npx wrangler login`.
 🩹 **Browser callback fails** (localhost:8976 blocked by VPN or firewall) → `npx wrangler login --browser=false`, then open the printed URL by hand.
 
-### 1.4 Supabase CLI 🟡 (project has to be recreated)
+### 1.4 Supabase CLI ✅
 
 - [x] 👤 `! npx supabase login`: logged in
 - [x] 🤖 `npx supabase projects list` works. Result: Dbam (`ypeztjwqxhgqtpmvhcvz`) is in **`eu-west-1` (Ireland)** ❌. Owner chose to recreate it in Frankfurt (F19, D2).
-- [ ] 👤 Dashboard → Dbam (`ypeztjwqxhgqtpmvhcvz`) → Project Settings → General → **Delete project**. It's empty, so nothing is lost. This has to come **first**: the org is at the Free plan's 2-active-project limit (MeelPrep + Dbam).
-- [ ] 👤 Dashboard → New project → name `Dbam`, region **Central EU (Frankfurt)**, strong DB password saved in your password manager
-- [ ] 🤖 `npx supabase projects list` → the new Dbam shows `"region": "eu-central-1"`. Ref: `________________`
+- [x] 👤 Dashboard → Dbam (`ypeztjwqxhgqtpmvhcvz`) → Project Settings → General → **Delete project**. Gone from `projects list` as of 2026-09-26. It's empty, so nothing is lost. This has to come **first**: the org is at the Free plan's 2-active-project limit (MeelPrep + Dbam).
+- [x] 👤 Dashboard → New project → name `Dbam`, region **Central EU (Frankfurt)**, strong DB password saved in your password manager
+- [x] 🤖 `npx supabase projects list` → the new Dbam shows `"region": "eu-central-1"`, `ACTIVE_HEALTHY`. Ref: `ewlqmoyuobjiwprxszno`
 - [ ] 🤖 (Optional) Bump the `supabase` devDependency from 2.117.0 to the latest (2.118.0 on 2026-09-26) in its own commit
 
 🩹 **"Maximum limits reached" when creating the project** → the old Dbam isn't deleted yet (or is still being deleted). Wait for it to go away, or pause MeelPrep.
 🩹 **Region isn't Frankfurt** → regions can't be changed. The project is still empty, so 👤 delete it and create it again.
 🩹 `**LegacyPlatformAuthRequiredError**` → the login didn't stick. Set `SUPABASE_ACCESS_TOKEN` in your shell (not in the repo) and retry.
 
-### 1.5 Link the Supabase project 🟡 (re-link after 1.4)
+### 1.5 Link the Supabase project ✅
 
-The repo is currently linked to the **old Ireland project** (`supabase/.temp/project-ref` = `ypeztjwqxhgqtpmvhcvz`). The link has to point at the new ref.
+Re-linked 2026-09-26 from the deleted Ireland project (`ypeztjwqxhgqtpmvhcvz`) to the Frankfurt one.
 
-- [ ] 👤 `! npx supabase link --project-ref {ref}` with the **new** ref → type the new project's **DB password** into the prompt. This overwrites the old link.
-- [ ] 🤖 `cat supabase/.temp/project-ref` = the new ref, and `npx supabase projects list` shows `"linked": true` on the Frankfurt project
+- [x] 👤 `! npx supabase link --project-ref ewlqmoyuobjiwprxszno` → type the new project's **DB password** into the prompt. This overwrites the old link.
+- [x] 🤖 `cat supabase/.temp/project-ref` = `ewlqmoyuobjiwprxszno`, `npx supabase projects list` shows `"linked": true` on the Frankfurt project, and the pooler host is `aws-0-eu-central-1.pooler.supabase.com`
 - [x] 🤖 `supabase/.temp` is gitignored (`supabase/.gitignore:3`), and `git status` doesn't show it
-- [ ] 👤 Read and accept these two rules:
+- [x] 👤 Read and accept these two rules (owner accepted 2026-09-26):
   - ⚠️ **Never** `npx supabase config push` against production (F14)
   - ⚠️ **Never** `npx supabase projects api-keys` with an agent watching (F15)
 
 🩹 **Link fails with "password authentication failed"** → reset the DB password (Project Settings → Database). Nothing uses it yet, so this is safe. Then link again.
 🩹 **Link hangs or times out** (e.g. a network without IPv6) → by default the CLI connects through the pooler, which works over IPv4. Don't add `--skip-pooler`: that uses the direct connection, which is IPv6-only on Supabase. Rerun with `--log-level debug` to see where it stalls.
 
-### 1.6 Collect the Supabase values ⬜
+### 1.6 Collect the Supabase values ✅
 
-- [ ] 👤 From the **new Frankfurt project**: Dashboard → Project Settings → API Keys: copy the **Project URL** and the **publishable** key (`sb_publishable_…`, or the legacy `anon` key) into your password manager. Not needed until Phase 5.1–5.2.
+- [x] 👤 (owner-confirmed 2026-09-26) From the **new Frankfurt project**: Dashboard → Project Settings → API Keys: copy the **Project URL** and the **publishable** key (`sb_publishable_…`, or the legacy `anon` key) into your password manager. Not needed until Phase 5.1–5.2.
   - ⚠️ **Never** the `service_role` / `sb_secret_…` key. `SUPABASE_KEY` feeds the cookie-based SSR client that runs on every request.
   - ⚠️ Don't copy anything from the old Ireland project. Its URL and keys stop working once it's deleted.
 
-⛔ **GATE 1**: ✅ `gh auth status`, `npx wrangler whoami` and `npx supabase projects list` all succeed. ✅ Repo is public. ⬜ Region is Frankfurt. ⬜ The Frankfurt project is linked. ⬜ URL + publishable key are in your password manager, not in chat or the repo.
+⛔ **GATE 1**: ✅ `gh auth status`, `npx wrangler whoami` and `npx supabase projects list` all succeed. ✅ Repo is public. ✅ Region is Frankfurt. ✅ The Frankfurt project is linked. ✅ URL + publishable key are in your password manager, not in chat or the repo.
 
 ---
 

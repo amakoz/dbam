@@ -8,6 +8,8 @@
 - Auth API routes (`src/pages/api/auth/*.ts`) respond by redirecting with an `?error=`-encoded query string, not JSON — match this shape for new auth endpoints (`@src/pages/api/auth/signin.ts`).
 - New protected pages: add the path prefix to `PROTECTED_ROUTES` in `src/middleware.ts` instead of hand-rolling an auth check in the page.
 - Merging PRs to `main` is human-only: never run `gh pr merge`. Open the PR, report check status, and stop. A merge to `main` deploys to production automatically once `ci` + `smoke` pass on `main` (GitHub Actions `deploy` job, no approval step); Cloudflare Workers Builds is disconnected, so never reconnect it.
+- Never run `npm run smoke` against production: `BASE_URL` must point at a local or CI server. Against prod it signs up real `smoke-*@example.com` users in Supabase and sends confirmation emails that bounce.
+- Never run `supabase config push` against the production project: local `supabase/config.toml` has `enable_confirmations = false` and `site_url = "http://127.0.0.1:3000"`. Change production auth settings in the Supabase dashboard only.
 
 ## Project Structure & Module Organization
 

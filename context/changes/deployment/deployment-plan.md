@@ -48,7 +48,7 @@ workers.dev subdomain = `amadeuszkozlowski` (checked 2026-09-26). `{ref}` = `ewl
 | 1   | Tooling & account prerequisites                   | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 2   | Repo prep (PR) + branch protection                | 🤖 + 👤 | ✅ done (2026-09-26) |
 | 3   | Supabase production auth config                   | 👤      | ✅ done (2026-09-26) |
-| 4   | First manual deploy                               | 👤 + 🤖 | 🟡 in progress       |
+| 4   | First manual deploy                               | 👤 + 🤖 | ✅ done (2026-09-26) |
 | 5   | Production secrets + auth verification            | 👤 + 🤖 | ⬜ not started       |
 | 6   | GitHub `production` environment + scoped CF token | 👤 + 🤖 | ⬜ not started       |
 | 7   | CI/CD deploy job: auto on push + manual dispatch  | 🤖 + 👤 | ⬜ not started       |
@@ -259,24 +259,24 @@ Dashboard only. `supabase config push` would carry the local dev settings over (
 
 ---
 
-## Phase 4: First manual deploy 👤 + 🤖
+## Phase 4: First manual deploy 👤 + 🤖 ✅
 
 Deploying from your laptop (OAuth login) creates the `dbam` Worker. The scoped CI token needs it to exist (F9).
 
-- [ ] 4.1 🤖 `git switch main && git pull`. Set `site: "https://dbam.amadeuszkozlowski.workers.dev"` in `astro.config.mjs` (F4) on branch `chore/site-url`, then PR → green → 👤 merge. (Branch protection is on, so this goes through a PR too.)
-- [ ] 4.2 🤖 On an up-to-date `main`: `npm ci && npm run build`, and check the sitemap warning is gone
-- [ ] 4.3 🤖 First deploy, no secrets yet (F6/F10):
+- [x] 4.1 🤖 `git switch main && git pull`. Set `site: "https://dbam.amadeuszkozlowski.workers.dev"` in `astro.config.mjs` (F4) on branch `chore/site-url`, then PR → green → 👤 merge. (Branch protection is on, so this goes through a PR too.) → [PR #2](https://github.com/amakoz/dbam/pull/2), `ba03df1` on `main`
+- [x] 4.2 🤖 On an up-to-date `main`: `npm ci && npm run build`, and check the sitemap warning is gone. `sitemap-index.xml` created; dry-run lists only `env.ASSETS`, 2038 KiB / gzip 448 KiB
+- [x] 4.3 👤 First deploy, no secrets yet (F6/F10). **Owner runs this**: the agent's permission classifier blocks production deploys, same boundary as 2.11.
   ```bash
   npx wrangler deploy --message "manual: first deploy, no secrets"
   ```
-- [ ] 4.4 🤖 Add the printed URL and version ID to the **Deployment log**
+- [x] 4.4 🤖 Add the printed URL and version ID to the **Deployment log**
 
 🩹 **"You need to register a workers.dev subdomain"** → finish Phase 1.3, then retry.
 🩹 **Output mentions provisioning a KV namespace** → 2.3 didn't take effect. Fix the config and redeploy; 👤 delete the orphaned namespace in the dashboard.
 🩹 **A Worker named `10x-astro-starter` appears** → 2.2 was skipped. Don't rename it in the dashboard. Deploy as `dbam`, then 👤 delete the stray Worker.
 🩹 `**workers.dev` URL returns 404/1042 for about a minute after the first deploy** → normal first-time propagation. Retry for up to 2 minutes before debugging.
 
-⛔ **GATE 4**: `curl -sI https://dbam.amadeuszkozlowski.workers.dev/` → `200`, and the page shows the "Supabase nie jest skonfigurowany" banner (expected at this point).
+⛔ **GATE 4** ✅ (2026-09-26, first try, no propagation delay; also `/sitemap-index.xml` 200, `/does-not-exist` 404, `/auth/signin` 200, `wrangler kv namespace list` → `[]`): `curl -sI https://dbam.amadeuszkozlowski.workers.dev/` → `200`, and the page shows the "Supabase nie jest skonfigurowany" banner (expected at this point).
 
 ---
 
@@ -463,9 +463,9 @@ Browser logins (`gh`, `wrangler`, `supabase`); changing repo visibility; typing 
 
 ## Deployment log
 
-| Date | Phase | Trigger | Version ID | Message / SHA | Result | Notes |
-| ---- | ----- | ------- | ---------- | ------------- | ------ | ----- |
-|      |       |         |            |               |        |       |
+| Date       | Phase | Trigger         | Version ID                             | Message / SHA                                  | Result | Notes                                                                   |
+| ---------- | ----- | --------------- | -------------------------------------- | ---------------------------------------------- | ------ | ----------------------------------------------------------------------- |
+| 2026-09-26 | 4.3   | manual (laptop) | `78ad2a4f-e1e9-4219-a44e-b010a9afc0f7` | `manual: first deploy, no secrets` / `ba03df1` | ✅ 200 | Creates Worker `dbam`; only `ASSETS` binding; banner shown (no secrets) |
 
 ## References
 

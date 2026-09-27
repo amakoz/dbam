@@ -1,10 +1,10 @@
 ---
 project: Dbam
-version: 2
+version: 3
 status: draft
 created: 2026-09-26
-updated: 2026-09-26
-prd_version: 1
+updated: 2026-09-27
+prd_version: 2
 main_goal: speed
 top_blocker: decisions
 milestone_id: first-screening-loop
@@ -23,7 +23,7 @@ milestone_status: open
 **M-01: First screening loop** — Status: open
 
 - **Intent:** A user can sign up, complete onboarding, see screenings due for their profile, record and confirm an exam, and get opt-in email reminders that keep the exam cycle going — the PRD's primary success criterion, end to end.
-- **Source materials:** `context/foundation/prd.md` (v1); catalog and compliance research in `context/foundation/screening-catalog-research.md` (resolves the catalog-source and AI-consent decisions)
+- **Source materials:** `context/foundation/prd.md` (v2); catalog and compliance research in `context/foundation/screening-catalog-research.md` (resolves the catalog-source and AI-consent decisions)
 - **Done when:** every F-NN and S-NN below is `done`.
 - **Scope anchors:** FR-001–FR-009, FR-011, FR-012 (all must-have FRs); US-01, US-02, US-03. FR-010 (nice-to-have) is parked.
 
@@ -72,7 +72,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Auth:** present — Supabase email/password sign-up, sign-in, sign-out; route protection via `PROTECTED_ROUTES` in `src/middleware.ts`. Confirmation-email callback (`src/pages/api/auth/callback.ts`) merged to `main` (#14).
 - **Deploy / infra:** present — Cloudflare Workers (`wrangler.jsonc`); CI runs lint, check, build, smoke, and auto-deploys green `main` (`.github/workflows/ci.yml`). Scheduled triggers: absent (no `triggers` in `wrangler.jsonc`).
 - **Observability:** partial — Workers observability enabled (`wrangler.jsonc`), `wrangler tail`, post-deploy health check and read-only smoke; no error tracking.
-- **Other:** AI integration absent and not needed at runtime in this milestone (recommendations are rule-based; AI only drafts catalog entries offline); outbound user email outside auth absent.
+- **Other:** AI integration absent and not needed at runtime in this milestone (recommendations are rule-based); a scheduled AI job that keeps the screening catalog current is planned but not part of this milestone; outbound user email outside auth absent.
 
 ## Foundations
 
@@ -212,6 +212,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 1. **What's the insight/differentiator?** Why hasn't a personal screening-nudge + NFZ-queue-watcher been built already? — Owner: user. Block: none (positioning only; from PRD Open Questions).
 2. **What must be in place before public launch?** A medical reviewer signs off the catalog, a data-protection impact assessment (DPIA) covers server-stored health data, and a short memo records why the app is informational, not a medical device. — Owner: user. Block: none (launch gate, not a planning gate).
+
+3. **When and how does the automated AI catalog update run?** The plan is an AI job that periodically updates the screening catalog. The PRD has no requirement for it yet, and its updates must not reach users before medical review (they should land as drafts pending sign-off). — Owner: user. Block: none (not in this milestone's scope; needs a PRD requirement before it can become a slice).
 
 ## Parked
 

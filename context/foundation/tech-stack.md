@@ -36,3 +36,10 @@ earlier "Pages" assumption per `/10x-infra-research`'s findings: `astro.config.m
 `wrangler.jsonc` already target Workers, and Astro 7's `@astrojs/cloudflare` adapter
 defaults to Workers, not Pages); CI runs on GitHub Actions with auto-deploy-on-merge,
 matching a solo/short-timeline profile.
+
+**AI's role (updated 2026-09-27):** AI is not in the per-user recommendation path —
+recommendations are deterministic rules over a curated screening catalog, and user
+profile data is never sent to an AI model (PRD v2 NFRs). `has_ai: true` stands for a
+planned scheduled AI job that keeps that catalog current, writing its updates as
+drafts that go live only after review (see `screening-catalog-research.md`). It reuses
+the scheduled-work path above; the AI provider is not chosen yet.

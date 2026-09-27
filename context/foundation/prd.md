@@ -1,6 +1,6 @@
 ---
 project: "Dbam"
-version: 1
+version: 2
 status: draft
 created: 2026-09-23
 context_type: greenfield
@@ -110,7 +110,7 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
 - FR-009: Confirming an exam was executed automatically schedules the
   next recurrence reminder, if that exam has a repeat interval.
   Priority: must-have
-  > Socrates: Counter-argument considered: "this assumes a canonical, correct repeat interval per exam type exists — unclear where that data comes from or how it's validated." Resolution: revised — repeat intervals are sourced from a static curated table for v1 (a guideline fact), kept separate from the AI-driven logic that decides which exam to recommend.
+  > Socrates: Counter-argument considered: "this assumes a canonical, correct repeat interval per exam type exists — unclear where that data comes from or how it's validated." Resolution: revised — repeat intervals are sourced from a static curated table for v1 (a guideline fact). Revised 2026-09-27: which exams to recommend is also decided by deterministic rules over that curated catalog, not by AI; AI only helps maintain catalog entries, which go live after review (see `context/foundation/screening-catalog-research.md`).
 - FR-010: User can optionally provide additional profile data after
   seeing their first recommendations, to refine future recommendations.
   Priority: nice-to-have
@@ -123,6 +123,8 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
 ## Non-Functional Requirements
 
 - A user's health/profile data is never shared with or exposed to any other user or third party without explicit consent.
+- A user's health/profile data (profile answers and exam dates) is stored only after the user gives explicit, separate consent to health-data processing, which they can withdraw.
+- A user's health/profile data is never sent to an AI model; recommendations are computed by deterministic rules over the curated catalog.
 - The product is accessible entirely through a web browser, with no dedicated native app installation required.
 - The product remains usable on the latest two major versions of mainstream desktop and mobile browsers.
 - The interface remains fully usable on mobile-sized screens, with no loss of core functionality compared to desktop.

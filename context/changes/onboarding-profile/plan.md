@@ -244,6 +244,10 @@ Wire the post-login path through consent and the profile form to the dashboard.
   - `smoking_years + years_since_quitting ≤ age`
   - fields not relevant to the chosen status are set to null
 - `consent.ts` exports `HEALTH_DATA_CONSENT_VERSION` (a date-like string, with a comment saying to bump it when the text changes) and `getOnboardingState(supabase)`, which returns `{ state: "needs_consent" | "needs_profile" | "complete"; profile: Profile | null }`.
+- **Addendum (impl-review phase 1, F3):**
+  - Field errors from `parseProfileForm` are typed `MessageKey`, not `string`.
+  - Non-auth `?error=` codes (`consent_required`, `invalid_profile`, `save_failed`, `withdraw_confirm_required`, `withdraw_failed`) live under a shared `errors.<code>` namespace with `errors.unknown`, and pages translate them through a generic `errorMessageKey(code)`.
+  - The auth helpers in `src/lib/auth-errors.ts` become thin wrappers around it, rather than a parallel copy of the helper.
 
 #### 2. Onboarding page and profile form
 
@@ -368,6 +372,20 @@ Let the user correct their profile and withdraw consent, which deletes their hea
   5. `/dashboard` → 302 `/onboarding`
 - The sign-out steps stay last.
 
+#### 4. Remove the user-visible Supabase config banner (addendum from impl-review phase 1, F4)
+
+**File**: `src/layouts/Layout.astro`, `src/lib/config-status.ts`, `src/pages/api/health.ts`, `src/i18n/{pl,en}.ts`, `scripts/smoke.mjs`, `.github/workflows/ci.yml`, `README.md`
+
+**Intent**: The config banner was a starter template helper and must never reach users. Replace it with an operator-only signal, so a deploy with missing secrets is still caught.
+
+**Contract**:
+- Layout no longer renders config banners.
+- The `config.*` dictionary keys are removed. `errors.auth.not_configured` stops naming Supabase and reads as a generic "temporarily unavailable" message.
+- `GET /api/health` returns 200 `{"status":"ok"}` when `SUPABASE_URL`/`SUPABASE_KEY` are set, otherwise 503 `{"status":"misconfigured"}`. It exposes nothing else, and `config-status.ts` stays server-only.
+- The read-only smoke step "home renders without config banner" is replaced by "health endpoint reports ok" (`/api/health` → 200).
+- The CI post-deploy health check curls `$PRODUCTION_URL/api/health` instead of `/`.
+- README's read-only smoke description is updated to match.
+
 ### Success Criteria:
 
 #### Automated Verification:
@@ -376,6 +394,7 @@ Let the user correct their profile and withdraw consent, which deletes their hea
 - RLS tests pass: `npx supabase test db`
 - Full local smoke passes with the edit and withdraw steps: `BASE_URL=http://localhost:4321 npm run smoke`
 - PR checks `ci` and `smoke` are green
+- Read-only smoke passes with the health-endpoint step: `SMOKE_READONLY=1 BASE_URL=http://localhost:4321 npm run smoke`
 
 #### Manual Verification:
 
@@ -383,6 +402,7 @@ Let the user correct their profile and withdraw consent, which deletes their hea
 - Withdrawing without ticking the confirmation shows a translated error. With it ticked, the user lands on `/onboarding` with a "data deleted" notice.
 - After withdrawal, in Supabase Studio (local) the profile row is gone and the consent row has `withdrawn_at` set. Granting consent again creates a new row.
 - After merge, a production walkthrough with the owner's own account completes onboarding, edit and withdraw (no smoke run against prod beyond `SMOKE_READONLY=1`)
+- With the Supabase secrets removed locally, no page shows a config banner and `/api/health` returns 503
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase. Phase blocks use plain bullets — the corresponding `- [ ]` checkboxes for these items live in the `## Progress` section at the bottom of the plan.
 
@@ -488,6 +508,7 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 - [ ] 4.2 RLS tests pass: `npx supabase test db`
 - [ ] 4.3 Full local smoke passes with the edit and withdraw steps: `BASE_URL=http://localhost:4321 npm run smoke`
 - [ ] 4.4 PR checks `ci` and `smoke` are green
+- [ ] 4.9 Read-only smoke passes with the health-endpoint step: `SMOKE_READONLY=1 BASE_URL=http://localhost:4321 npm run smoke`
 
 #### Manual
 
@@ -495,3 +516,4 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 - [ ] 4.6 Withdrawing without ticking the confirmation shows a translated error. With it ticked, the user lands on `/onboarding` with a "data deleted" notice.
 - [ ] 4.7 After withdrawal, in Supabase Studio (local) the profile row is gone and the consent row has `withdrawn_at` set. Granting consent again creates a new row.
 - [ ] 4.8 After merge, a production walkthrough with the owner's own account completes onboarding, edit and withdraw (no smoke run against prod beyond `SMOKE_READONLY=1`)
+- [ ] 4.10 With the Supabase secrets removed locally, no page shows a config banner and `/api/health` returns 503

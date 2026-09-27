@@ -37,7 +37,9 @@ function interpolate(message: string, params?: MessageParams): string {
   );
 }
 
-export function createT(locale: Locale): Translate {
+export function createT(requested: Locale): Translate {
+  // Re-resolve: `Astro.locals.locale` is undefined when a page renders without the middleware (e.g. prerendered).
+  const locale = resolveLocale(requested);
   const dictionary = dictionaries[locale];
   const pluralRules = new Intl.PluralRules(locale);
 

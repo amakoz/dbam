@@ -92,4 +92,9 @@ export const en: Record<MessageKey, string> = {
   "errors.auth.over_email_send_rate_limit": "We've sent too many emails. Wait a moment and try again.",
   "errors.auth.over_request_rate_limit": "Too many attempts. Wait a moment and try again.",
   "errors.auth.validation_failed": "Check that your email address and password are valid.",
+  "errors.auth.email_address_invalid": "This email address is invalid or not accepted. Use a different one.",
+  "errors.auth.email_exists": "An account with this email already exists. Sign in instead.",
+  "errors.auth.signup_disabled": "Sign-ups are currently disabled.",
+  "errors.auth.email_address_not_authorized":
+    "We can't send email to this address right now. Use a different address or try again later.",
 };

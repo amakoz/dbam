@@ -89,8 +89,13 @@ export const pl = {
   "errors.auth.email_not_confirmed":
     "Adres e-mail nie został jeszcze potwierdzony. Kliknij link w wiadomości, którą wysłaliśmy.",
   "errors.auth.user_already_exists": "Konto z tym adresem e-mail już istnieje. Zaloguj się.",
-  "errors.auth.weak_password": "Hasło jest zbyt słabe. Wybierz dłuższe lub trudniejsze do odgadnięcia.",
+  "errors.auth.weak_password": "Hasło jest zbyt słabe. Wybierz dłuższe lub trudniejsze do odgadnięcia hasło.",
   "errors.auth.over_email_send_rate_limit": "Wysłaliśmy zbyt wiele wiadomości. Odczekaj chwilę i spróbuj ponownie.",
   "errors.auth.over_request_rate_limit": "Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.",
   "errors.auth.validation_failed": "Sprawdź, czy adres e-mail i hasło są poprawne.",
+  "errors.auth.email_address_invalid": "Ten adres e-mail jest nieprawidłowy lub nieakceptowany. Użyj innego.",
+  "errors.auth.email_exists": "Konto z tym adresem e-mail już istnieje. Zaloguj się.",
+  "errors.auth.signup_disabled": "Rejestracja nowych kont jest obecnie wyłączona.",
+  "errors.auth.email_address_not_authorized":
+    "Nie możemy teraz wysłać wiadomości na ten adres e-mail. Użyj innego adresu lub spróbuj później.",
 } satisfies Record<string, string>;

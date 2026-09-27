@@ -28,7 +28,7 @@ Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}` and `pr
 
 - `@/*` path alias resolves to `./src/*`.
 - Astro components for static layout; React components only where interactivity is needed.
-- Merge conditional Tailwind classes with `cn()` (`@src/lib/utils.ts`) — do not concatenate class strings manually.
+- Merge conditional Tailwind classes with `cn()` (`@src/lib/utils.ts`) in React/TS, and with Astro's `class:list` in `.astro` files (lint rule `astro/prefer-class-list-directive`). Do not concatenate class strings manually.
 - User-facing strings go through `src/i18n` (Polish default, `lang` cookie): add the key to `pl.ts` and `en.ts`, then use `createT(Astro.locals.locale)` in Astro or pass `locale` to islands. Plurals use `_one`/`_few`/`_many`/`_other` keys with `t.plural()`.
 - shadcn/ui components live in `src/components/ui/` ("new-york" style, see `@components.json`); add new ones with `npx shadcn@latest add <name>`.
 

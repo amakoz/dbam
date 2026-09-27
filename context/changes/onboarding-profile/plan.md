@@ -433,17 +433,17 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 
 #### Automated
 
-- [x] 1.1 Lint passes: `npm run lint`
-- [x] 1.2 Type check passes, including EN dictionary completeness: `npx astro check`
-- [x] 1.3 Build passes: `npm run build`
-- [x] 1.4 Full local smoke passes against `npm run preview` with local Supabase: `BASE_URL=http://localhost:4321 npm run smoke`
+- [x] 1.1 Lint passes: `npm run lint` — ad3b864
+- [x] 1.2 Type check passes, including EN dictionary completeness: `npx astro check` — ad3b864
+- [x] 1.3 Build passes: `npm run build` — ad3b864
+- [x] 1.4 Full local smoke passes against `npm run preview` with local Supabase: `BASE_URL=http://localhost:4321 npm run smoke` — ad3b864
 
 #### Manual
 
-- [x] 1.5 A fresh browser (no `lang` cookie) shows home, sign-in, sign-up, confirm-email and dashboard in Polish with `<html lang="pl">`
-- [x] 1.6 The switcher toggles every page to English and back, keeps the current page, and survives reload
-- [x] 1.7 Wrong password, existing email, and a broken callback link each show a translated message in both languages
-- [x] 1.8 The sign-up password hint uses correct Polish plural forms (1 znak / 2 znaki / 5 znaków)
+- [x] 1.5 A fresh browser (no `lang` cookie) shows home, sign-in, sign-up, confirm-email and dashboard in Polish with `<html lang="pl">` — ad3b864
+- [x] 1.6 The switcher toggles every page to English and back, keeps the current page, and survives reload — ad3b864
+- [x] 1.7 Wrong password, existing email, and a broken callback link each show a translated message in both languages — ad3b864
+- [x] 1.8 The sign-up password hint uses correct Polish plural forms (1 znak / 2 znaki / 5 znaków) — ad3b864
 
 ### Phase 2: Health-data schema, RLS, and migration delivery
 

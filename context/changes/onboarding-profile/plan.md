@@ -489,7 +489,7 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 - [x] 3.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — d2b0f43
 - [x] 3.2 RLS tests still pass: `npx supabase test db` — d2b0f43
 - [x] 3.3 Full local smoke passes with the new onboarding steps: `BASE_URL=http://localhost:4321 npm run smoke` — d2b0f43
-- [ ] 3.4 PR checks `ci` and `smoke` are green
+- [x] 3.4 PR checks `ci` and `smoke` are green — 86bfbb4
 
 #### Manual
 
@@ -504,16 +504,16 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 
 #### Automated
 
-- [x] 4.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build`
-- [x] 4.2 RLS tests pass: `npx supabase test db`
-- [x] 4.3 Full local smoke passes with the edit and withdraw steps: `BASE_URL=http://localhost:4321 npm run smoke`
-- [ ] 4.4 PR checks `ci` and `smoke` are green
-- [x] 4.9 Read-only smoke passes with the health-endpoint step: `SMOKE_READONLY=1 BASE_URL=http://localhost:4321 npm run smoke`
+- [x] 4.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — 86bfbb4
+- [x] 4.2 RLS tests pass: `npx supabase test db` — 86bfbb4
+- [x] 4.3 Full local smoke passes with the edit and withdraw steps: `BASE_URL=http://localhost:4321 npm run smoke` — 86bfbb4
+- [x] 4.4 PR checks `ci` and `smoke` are green — 86bfbb4
+- [x] 4.9 Read-only smoke passes with the health-endpoint step: `SMOKE_READONLY=1 BASE_URL=http://localhost:4321 npm run smoke` — 86bfbb4
 
 #### Manual
 
-- [x] 4.5 `/profile` is prefilled. Changing smoking status from former to never clears the smoking fields after saving.
-- [x] 4.6 Withdrawing without ticking the confirmation shows a translated error. With it ticked, the user lands on `/onboarding` with a "data deleted" notice.
-- [x] 4.7 After withdrawal, in Supabase Studio (local) the profile row is gone and the consent row has `withdrawn_at` set. Granting consent again creates a new row.
+- [x] 4.5 `/profile` is prefilled. Changing smoking status from former to never clears the smoking fields after saving. — 86bfbb4
+- [x] 4.6 Withdrawing without ticking the confirmation shows a translated error. With it ticked, the user lands on `/onboarding` with a "data deleted" notice. — 86bfbb4
+- [x] 4.7 After withdrawal, in Supabase Studio (local) the profile row is gone and the consent row has `withdrawn_at` set. Granting consent again creates a new row. — 86bfbb4
 - [ ] 4.8 After merge, a production walkthrough with the owner's own account completes onboarding, edit and withdraw (no smoke run against prod beyond `SMOKE_READONLY=1`)
-- [x] 4.10 With the Supabase secrets removed locally, no page shows a config banner and `/api/health` returns 503
+- [x] 4.10 With the Supabase secrets removed locally, no page shows a config banner and `/api/health` returns 503 — 86bfbb4

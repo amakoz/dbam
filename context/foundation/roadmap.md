@@ -14,7 +14,7 @@ milestone_status: open
 
 # Roadmap: Dbam
 
-> Derived from `context/foundation/prd.md` (v1) + auto-researched codebase baseline.
+> Derived from `context/foundation/prd.md` (v2) + auto-researched codebase baseline.
 > Edit-in-place; archive when superseded.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
 
@@ -128,7 +128,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Prerequisites:** S-01, F-01
 - **Parallel with:** F-02
 - **Blockers:** —
-- **Unknowns:**
+- **Unknowns:** —
 - **Risk:** This is the north star. Resolved: recommendations are rule-based over the F-01 catalog and the profile is never sent to an AI model. Output must stay informational (which screenings you are eligible for and when), not individual risk scoring, so the product stays outside medical-device rules.
 - **Status:** proposed
 
@@ -196,24 +196,24 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                   | Suggested issue title                                           | Ready for `/10x-plan` | Notes                                  |
-| ---------- | --------------------------- | --------------------------------------------------------------- | --------------------- | -------------------------------------- |
-| F-01       | screening-catalog-v1        | Curate v1 screening catalog (eligibility, importance, interval) | yes                   | Run `/10x-plan screening-catalog-v1`   |
-| F-02       | reminder-dispatch-path      | Prove scheduled email delivery on Workers in production         | yes                   | Run `/10x-plan reminder-dispatch-path` |
-| S-01       | onboarding-profile          | Onboarding: health-data consent and minimal profile             | yes                   | Run `/10x-plan onboarding-profile`     |
-| S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | no                    | Needs S-01, F-01                       |
-| S-03       | record-appointment-date     | Record an appointment date for a recommended exam               | no                    | Needs S-02                             |
-| S-04       | appointment-reminder        | Reminder opt-in and appointment-approaching email               | no                    | Needs S-03, F-02                       |
-| S-05       | confirm-exam-and-recurrence | Confirm or mark exam done and schedule next due date            | no                    | Needs S-03, F-01                       |
-| S-06       | due-screening-reminder      | Email when a screening becomes due again                        | no                    | Needs S-04, S-05                       |
-| S-07       | follow-up-nudges            | Nudges for missing dates and unconfirmed appointments           | no                    | Needs S-04, S-05                       |
+| Roadmap ID | Change ID                   | Suggested issue title                                           | Ready for `/10x-plan` | Notes                                        |
+| ---------- | --------------------------- | --------------------------------------------------------------- | --------------------- | -------------------------------------------- |
+| F-01       | screening-catalog-v1        | Curate v1 screening catalog (eligibility, importance, interval) | yes                   | #17 · Run `/10x-plan screening-catalog-v1`   |
+| F-02       | reminder-dispatch-path      | Prove scheduled email delivery on Workers in production         | yes                   | #18 · Run `/10x-plan reminder-dispatch-path` |
+| S-01       | onboarding-profile          | Onboarding: health-data consent and minimal profile             | yes                   | #19 · Run `/10x-plan onboarding-profile`     |
+| S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | no                    | #20 · Needs S-01, F-01                       |
+| S-03       | record-appointment-date     | Record an appointment date for a recommended exam               | no                    | #21 · Needs S-02                             |
+| S-04       | appointment-reminder        | Reminder opt-in and appointment-approaching email               | no                    | #22 · Needs S-03, F-02                       |
+| S-05       | confirm-exam-and-recurrence | Confirm or mark exam done and schedule next due date            | no                    | #23 · Needs S-03, F-01                       |
+| S-06       | due-screening-reminder      | Email when a screening becomes due again                        | no                    | #24 · Needs S-04, S-05                       |
+| S-07       | follow-up-nudges            | Nudges for missing dates and unconfirmed appointments           | no                    | #25 · Needs S-04, S-05                       |
 
 ## Open Roadmap Questions
 
-1. **What's the insight/differentiator?** Why hasn't a personal screening-nudge + NFZ-queue-watcher been built already? — Owner: user. Block: none (positioning only; from PRD Open Questions).
-2. **What must be in place before public launch?** A medical reviewer signs off the catalog, a data-protection impact assessment (DPIA) covers server-stored health data, and a short memo records why the app is informational, not a medical device. — Owner: user. Block: none (launch gate, not a planning gate).
+1. **What's the insight/differentiator?** (#26) Why hasn't a personal screening-nudge + NFZ-queue-watcher been built already? — Owner: user. Block: none (positioning only; from PRD Open Questions).
+2. **What must be in place before public launch?** (#27) A medical reviewer signs off the catalog, a data-protection impact assessment (DPIA) covers server-stored health data, and a short memo records why the app is informational, not a medical device. — Owner: user. Block: none (launch gate, not a planning gate).
 
-3. **When and how does the automated AI catalog update run?** The plan is an AI job that periodically updates the screening catalog. The PRD has no requirement for it yet, and its updates must not reach users before medical review (they should land as drafts pending sign-off). — Owner: user. Block: none (not in this milestone's scope; needs a PRD requirement before it can become a slice).
+3. **When and how does the automated AI catalog update run?** (#28) The plan is an AI job that periodically updates the screening catalog. The PRD has no requirement for it yet, and its updates must not reach users before medical review (they should land as drafts pending sign-off). — Owner: user. Block: none (not in this milestone's scope; needs a PRD requirement before it can become a slice).
 
 ## Parked
 

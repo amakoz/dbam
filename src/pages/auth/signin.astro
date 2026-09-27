@@ -1,27 +1,32 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import SignInForm from "@/components/auth/SignInForm";
+import { createT } from "@/i18n";
+import { authErrorMessageKey } from "@/lib/auth-errors";
 
-const error = Astro.url.searchParams.get("error");
+const { locale } = Astro.locals;
+const t = createT(locale);
+const errorCode = Astro.url.searchParams.get("error");
+const serverError = errorCode ? t(authErrorMessageKey(errorCode)) : null;
 const confirmed = Astro.url.searchParams.has("confirmed");
 ---
 
-<Layout title="Sign in">
+<Layout title={t("auth.signin.title")}>
   <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
     <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
       <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
-        Sign in
+        {t("auth.signin.title")}
       </h1>
       {confirmed && (
         <p class="mb-4 rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200">
-          Your email is confirmed. Sign in to continue.
+          {t("auth.signin.confirmed")}
         </p>
       )}
-      <SignInForm serverError={error} client:load />
+      <SignInForm locale={locale} serverError={serverError} client:load />
       <p class="mt-4 text-center text-sm text-blue-100/60">
-        Don't have an account?{" "}
+        {t("auth.signin.noAccount")}{" "}
         <a href="/auth/signup" class="text-purple-300 hover:underline">
-          Sign up
+          {t("auth.signin.signupLink")}
         </a>
       </p>
     </div>

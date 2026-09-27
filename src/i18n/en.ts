@@ -1,0 +1,100 @@
+import type { MessageKey } from "@/i18n";
+
+// Typed against the Polish keys, so a missing or misspelled key fails the type check. English plurals only use
+// `_one` and `_other`, but every suffix defined in Polish must exist here too.
+export const en: Record<MessageKey, string> = {
+  "meta.title": "10x Astro Starter",
+
+  "language.switcher": "Language",
+  "language.pl": "Polski",
+  "language.en": "English",
+
+  "config.warning": "Warning:",
+  "config.docs": "Documentation",
+  "config.supabase.missing": "Supabase is not configured — authentication features are disabled.",
+  "config.supabase.docsLabel": "See the setup guide",
+
+  "nav.dashboard": "Dashboard",
+  "nav.signin": "Sign in",
+  "nav.signup": "Sign up",
+  "nav.signout": "Sign out",
+  "nav.notSignedIn": "Not signed in",
+
+  "home.title": "10x Astro Starter",
+  "home.subtitle": "A production-ready starter with authentication, modern tooling, and a cosmic developer experience.",
+  "home.features.auth.title": "Authentication Ready",
+  "home.features.auth.description":
+    "Built-in Supabase auth with sign in, sign up, and protected routes out of the box.",
+  "home.features.stack.title": "Modern Stack",
+  "home.features.stack.description": "Astro 7, React 19, Tailwind 4, and TypeScript — the latest tools, ready to go.",
+  "home.features.dx.title": "Developer Experience",
+  "home.features.dx.description": "ESLint, Prettier, and pre-commit hooks keep your codebase clean from day one.",
+
+  "dashboard.title": "Dashboard",
+  "dashboard.greeting": "Welcome,",
+  "dashboard.description": "This page is only for authenticated users.",
+
+  "auth.signin.title": "Sign in",
+  "auth.signin.submit": "Sign in",
+  "auth.signin.pending": "Signing in…",
+  "auth.signin.confirmed": "Your email is confirmed. Sign in to continue.",
+  "auth.signin.noAccount": "Don't have an account?",
+  "auth.signin.signupLink": "Sign up",
+
+  "auth.signup.title": "Sign up",
+  "auth.signup.submit": "Create account",
+  "auth.signup.pending": "Creating account…",
+  "auth.signup.hasAccount": "Already have an account?",
+  "auth.signup.signinLink": "Sign in",
+
+  "auth.confirm.success.title": "Registration successful",
+  "auth.confirm.success.description": "Your account has been created. You can now sign in.",
+  "auth.confirm.success.link": "Go to sign in",
+  "auth.confirm.pending.title": "Check your email",
+  "auth.confirm.pending.description":
+    "We've sent a confirmation link to your email address. Click it to activate your account.",
+  "auth.confirm.pending.link": "Back to sign in",
+
+  "auth.form.email": "Email",
+  "auth.form.emailPlaceholder": "you@example.com",
+  "auth.form.emailRequired": "Email is required",
+  "auth.form.emailInvalid": "Enter a valid email address",
+  "auth.form.password": "Password",
+  "auth.form.passwordPlaceholder": "Your password",
+  "auth.form.passwordRequired": "Password is required",
+  "auth.form.passwordMinPlaceholder_one": "Min. {count} character",
+  "auth.form.passwordMinPlaceholder_few": "Min. {count} characters",
+  "auth.form.passwordMinPlaceholder_many": "Min. {count} characters",
+  "auth.form.passwordMinPlaceholder_other": "Min. {count} characters",
+  "auth.form.passwordTooShort_one": "Password must be at least {count} character",
+  "auth.form.passwordTooShort_few": "Password must be at least {count} characters",
+  "auth.form.passwordTooShort_many": "Password must be at least {count} characters",
+  "auth.form.passwordTooShort_other": "Password must be at least {count} characters",
+  "auth.form.passwordRemaining_one": "{count} more character needed",
+  "auth.form.passwordRemaining_few": "{count} more characters needed",
+  "auth.form.passwordRemaining_many": "{count} more characters needed",
+  "auth.form.passwordRemaining_other": "{count} more characters needed",
+  "auth.form.confirmPassword": "Confirm password",
+  "auth.form.confirmPasswordPlaceholder": "Re-enter your password",
+  "auth.form.confirmPasswordRequired": "Please confirm your password",
+  "auth.form.passwordMismatch": "Passwords do not match",
+  "auth.form.showPassword": "Show password",
+  "auth.form.hidePassword": "Hide password",
+
+  "errors.auth.unknown": "Something went wrong. Please try again.",
+  "errors.auth.not_configured": "Sign-in is temporarily unavailable: Supabase is missing its configuration.",
+  "errors.auth.missing_code": "The confirmation link is incomplete. Open it again from the email.",
+  "errors.auth.link_invalid": "The confirmation link is invalid or has expired. Try signing in.",
+  "errors.auth.invalid_credentials": "Invalid email or password.",
+  "errors.auth.email_not_confirmed": "Your email address isn't confirmed yet. Click the link in the email we sent you.",
+  "errors.auth.user_already_exists": "An account with this email already exists. Sign in instead.",
+  "errors.auth.weak_password": "This password is too weak. Choose a longer or harder-to-guess one.",
+  "errors.auth.over_email_send_rate_limit": "We've sent too many emails. Wait a moment and try again.",
+  "errors.auth.over_request_rate_limit": "Too many attempts. Wait a moment and try again.",
+  "errors.auth.validation_failed": "Check that your email address and password are valid.",
+  "errors.auth.email_address_invalid": "This email address is invalid or not accepted. Use a different one.",
+  "errors.auth.email_exists": "An account with this email already exists. Sign in instead.",
+  "errors.auth.signup_disabled": "Sign-ups are currently disabled.",
+  "errors.auth.email_address_not_authorized":
+    "We can't send email to this address right now. Use a different address or try again later.",
+};

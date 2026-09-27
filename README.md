@@ -56,6 +56,7 @@ npm run dev
 - `npm run lint:fix` - Auto-fix ESLint issues
 - `npm run format` - Run Prettier
 - `npm run smoke` - Smoke test the auth flow against a running server (`BASE_URL`, defaults to `http://localhost:4321`)
+- `npm run db:types` - Regenerate `src/lib/database.types.ts` from the local database
 
 ## Project Structure
 
@@ -112,7 +113,14 @@ npx supabase stop
 
 The local Studio UI is available at `http://localhost:54323`.
 
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
+### Database
+
+The schema lives in `supabase/migrations/` (`health_data_consents` and `profiles`, both with row-level security so users only ever see their own rows). `npx supabase start` applies migrations; `npx supabase db reset` re-applies them from scratch.
+
+- New migration: `npx supabase migration new <name>`. Keep migrations additive — a Worker rollback never undoes a schema change.
+- After a schema change, regenerate the typed client: `npm run db:types` (writes `src/lib/database.types.ts`; commit it).
+- Access rules are tested with pgTAP: `npx supabase test db` (`supabase/tests/`).
+- Production gets migrations only from the CI `migrate` job (see [CI](#ci)); never run `supabase db push` against production by hand.
 
 ### Using a cloud Supabase project instead
 
@@ -149,6 +157,15 @@ Users can then sign in immediately after sign-up without clicking a confirmation
 | `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated)                                                                                                                        |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
+
+## Translations
+
+The UI is in Polish by default, with English as a second language. The locale comes from the `lang` cookie (set by the PL/EN switcher in `src/layouts/Layout.astro` through `POST /api/locale`); URLs are not prefixed.
+
+- Strings live in typed dictionaries in `src/i18n/`: `pl.ts` defines the keys, and `en.ts` must define every one of them (a missing key fails `astro check`).
+- Astro pages and components translate with `createT(Astro.locals.locale)`; React islands receive `locale` as a prop and call `createT(locale)` themselves.
+- Plurals use `_one`/`_few`/`_many`/`_other` key suffixes and `t.plural(baseKey, count)`, which picks the form with `Intl.PluralRules`.
+- Auth endpoints redirect with `?error=<code>`, and pages show the matching `errors.auth.<code>` message (unknown codes show a generic one).
 
 ## Deployment
 
@@ -192,8 +209,9 @@ SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smo
 GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`, and on manual `workflow_dispatch`:
 
 - **ci** — lint, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
-- **smoke** — starts a local Supabase via the Supabase CLI, builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
-- **deploy** — `main` only, after `ci` + `smoke` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check and the read-only smoke test against production.
+- **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
+- **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).
+- **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check and the read-only smoke test against production.
 
 ## License
 

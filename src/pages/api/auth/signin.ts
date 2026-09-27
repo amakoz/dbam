@@ -17,5 +17,5 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`/auth/signin?error=${encodeURIComponent(authErrorCode(error))}`);
   }
 
-  return context.redirect("/");
+  return context.redirect("/dashboard");
 };

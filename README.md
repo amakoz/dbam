@@ -196,7 +196,7 @@ BASE_URL=http://localhost:4321 npm run smoke
 
 It needs a reachable Supabase instance (local or cloud) with email confirmation disabled.
 
-The full run signs up a real `smoke-*@example.com` account, so the script refuses any non-local `BASE_URL` unless `SMOKE_READONLY=1` is set. Read-only mode only sends `GET` requests (home page without the "not configured" banner, the auth redirect, the sign-in/sign-up pages, a 404) and is what the deploy job runs against production:
+The full run signs up a real `smoke-*@example.com` account, so the script refuses any non-local `BASE_URL` unless `SMOKE_READONLY=1` is set. Read-only mode only sends `GET` requests (`/api/health` reporting that the Supabase secrets are set, the auth redirects, the sign-in/sign-up pages, a 404) and is what the deploy job runs against production:
 
 ```bash
 SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smoke
@@ -211,7 +211,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`,
 - **ci** — lint, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).
-- **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check and the read-only smoke test against production.
+- **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check (`GET /api/health`: 200 `{"status":"ok"}`, or 503 `{"status":"misconfigured"}` when the Supabase secrets are missing) and the read-only smoke test against production.
 
 ## License
 

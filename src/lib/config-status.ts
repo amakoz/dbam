@@ -1,22 +1,8 @@
 import { SUPABASE_URL, SUPABASE_KEY } from "astro:env/server";
-import type { MessageKey } from "@/i18n";
 
-export interface ConfigStatus {
-  name: string;
-  configured: boolean;
-  messageKey: MessageKey;
-  docsUrl?: string;
-  docsLabelKey?: MessageKey;
+// Operator-only signal read by `GET /api/health`. Server-only: never render it, and never expose the values themselves.
+
+/** Whether the Supabase secrets are set on the server. */
+export function isSupabaseConfigured(): boolean {
+  return Boolean(SUPABASE_URL && SUPABASE_KEY);
 }
-
-export const configStatuses: ConfigStatus[] = [
-  {
-    name: "Supabase",
-    configured: Boolean(SUPABASE_URL && SUPABASE_KEY),
-    messageKey: "config.supabase.missing",
-    docsUrl: "https://github.com/przeprogramowani/10x-astro-starter#supabase-configuration",
-    docsLabelKey: "config.supabase.docsLabel",
-  },
-];
-
-export const missingConfigs = configStatuses.filter((s) => !s.configured);

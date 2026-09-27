@@ -469,36 +469,36 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 
 #### Automated
 
-- [x] 2.1 Migration applies cleanly from scratch: `npx supabase db reset`
-- [x] 2.2 RLS tests pass: `npx supabase test db`
-- [x] 2.3 Generated types are current: `npm run db:types && git diff --exit-code src/lib/database.types.ts`
-- [x] 2.4 Lint, type check and build pass: `npm run lint && npx astro check && npm run build`
-- [ ] 2.5 PR checks `ci` and `smoke` are green (smoke now includes `supabase test db`)
+- [x] 2.1 Migration applies cleanly from scratch: `npx supabase db reset` — edabdb0
+- [x] 2.2 RLS tests pass: `npx supabase test db` — edabdb0
+- [x] 2.3 Generated types are current: `npm run db:types && git diff --exit-code src/lib/database.types.ts` — edabdb0
+- [x] 2.4 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — edabdb0
+- [x] 2.5 PR checks `ci` and `smoke` are green (smoke now includes `supabase test db`) — edabdb0
 
 #### Manual
 
-- [ ] 2.6 Before merge, the owner adds the `SUPABASE_DB_URL` secret (session pooler, URL-encoded password) to the GitHub `production` environment
-- [ ] 2.7 After merge, `migrate` runs green on `main` before `deploy`, and `deploy` plus the read-only smoke are green
+- [x] 2.6 Before merge, the owner adds the `SUPABASE_DB_URL` secret (session pooler, URL-encoded password) to the GitHub `production` environment — 670912f
+- [x] 2.7 After merge, `migrate` runs green on `main` before `deploy`, and `deploy` plus the read-only smoke are green — 670912f
 - [ ] 2.8 In the production Supabase dashboard, both tables exist with RLS enabled and the withdraw function is present
-- [ ] 2.9 The owner notes the production project's region for the consent text in Phase 3
+- [x] 2.9 The owner notes the production project's region for the consent text in Phase 3 — 670912f
 
 ### Phase 3: Consent and onboarding flow
 
 #### Automated
 
-- [ ] 3.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build`
-- [ ] 3.2 RLS tests still pass: `npx supabase test db`
-- [ ] 3.3 Full local smoke passes with the new onboarding steps: `BASE_URL=http://localhost:4321 npm run smoke`
+- [x] 3.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build`
+- [x] 3.2 RLS tests still pass: `npx supabase test db`
+- [x] 3.3 Full local smoke passes with the new onboarding steps: `BASE_URL=http://localhost:4321 npm run smoke`
 - [ ] 3.4 PR checks `ci` and `smoke` are green
 
 #### Manual
 
-- [ ] 3.5 A new account (sign-up → email confirm) lands on `/onboarding` with an unticked consent checkbox. Submitting without it shows a translated error.
-- [ ] 3.6 The consent text is accurate (data collected, purpose, storage region from Phase 2, how to withdraw) in both PL and EN
-- [ ] 3.7 The smoking fields appear and hide correctly for never/current/former, pack-years updates live, and invalid values show inline errors
-- [ ] 3.8 After saving, the dashboard shows the profile summary. Sign-out/sign-in goes straight to the dashboard.
-- [ ] 3.9 The flow works on a mobile-width screen and with keyboard only
-- [ ] 3.10 In Supabase Studio (local), the consent row stores the version and the locale shown
+- [x] 3.5 A new account (sign-up → email confirm) lands on `/onboarding` with an unticked consent checkbox. Submitting without it shows a translated error.
+- [x] 3.6 The consent text is accurate (data collected, purpose, storage region from Phase 2, how to withdraw) in both PL and EN
+- [x] 3.7 The smoking fields appear and hide correctly for never/current/former, pack-years updates live, and invalid values show inline errors
+- [x] 3.8 After saving, the dashboard shows the profile summary. Sign-out/sign-in goes straight to the dashboard.
+- [x] 3.9 The flow works on a mobile-width screen and with keyboard only
+- [x] 3.10 In Supabase Studio (local), the consent row stores the version and the locale shown
 
 ### Phase 4: Profile editing and consent withdrawal
 

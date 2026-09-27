@@ -32,7 +32,72 @@ export const en: Record<MessageKey, string> = {
 
   "dashboard.title": "Dashboard",
   "dashboard.greeting": "Welcome,",
-  "dashboard.description": "This page is only for authenticated users.",
+
+  "dashboard.profile.heading": "Your profile",
+  "dashboard.profile.birthYear": "Year of birth",
+  "dashboard.profile.sex": "Sex at birth",
+  "dashboard.profile.smoking": "Smoking",
+  "dashboard.profile.packYears": "Pack-years",
+  "dashboard.recommendations.heading": "Your screenings",
+  "dashboard.recommendations.placeholder": "Soon you'll see the preventive screenings that are due for you here.",
+
+  "onboarding.title": "Your health profile",
+  "onboarding.withdrawn": "Your consent has been withdrawn and your health data deleted.",
+  "onboarding.consent.heading": "Consent to storing your health data",
+  "onboarding.consent.intro":
+    "To show you the preventive screenings you're eligible for, Dbam needs to store a few details about your health. This is special-category data (GDPR Art. 9), so we need your explicit consent.",
+  "onboarding.consent.dataHeading": "What data",
+  "onboarding.consent.data": "Your year of birth, sex at birth and smoking history.",
+  "onboarding.consent.purposeHeading": "What for",
+  "onboarding.consent.purpose":
+    "Only to show which screening tests you're eligible for and when. The app does not diagnose anything. We don't share this data with other users or third parties, and we never send it to AI models.",
+  "onboarding.consent.storageHeading": "Where it's stored",
+  "onboarding.consent.storage": "In a Supabase database on servers in the European Union (Frankfurt, Germany).",
+  "onboarding.consent.withdrawHeading": "Withdrawing consent",
+  "onboarding.consent.withdraw":
+    'You can withdraw your consent at any time on the "Your profile" page. Your health data is then deleted; we keep only a record of when consent was given and withdrawn.',
+  "onboarding.consent.voluntary": "Consent is voluntary, but without it we can't prepare your list of screenings.",
+  "onboarding.consent.checkbox":
+    "I explicitly consent to the storage and processing of my health data to show me the preventive screenings that are due for me.",
+  "onboarding.consent.submit": "I consent — continue",
+  "onboarding.profile.heading": "A few questions about you",
+  "onboarding.profile.intro":
+    "We use your answers to match preventive screenings to your age, sex and smoking history.",
+
+  "profile.form.birthYear": "Year of birth",
+  "profile.form.birthYearPlaceholder": "e.g. 1980",
+  "profile.form.birthYearHint":
+    "Polish NFZ programs count age by year of birth, so we don't need your full birth date.",
+  "profile.form.sex": "Sex at birth",
+  "profile.form.sexHint": "Used only to match screenings for specific organs.",
+  "profile.form.sex.female": "Female",
+  "profile.form.sex.male": "Male",
+  "profile.form.smokingStatus": "Smoking",
+  "profile.form.smokingStatus.never": "No, never",
+  "profile.form.smokingStatus.current": "Yes, currently",
+  "profile.form.smokingStatus.former": "In the past",
+  "profile.form.packsPerDay": "How many packs a day (on average)?",
+  "profile.form.packsPerDayPlaceholder": "e.g. 0.5",
+  "profile.form.packsPerDayHint": "1 pack = 20 cigarettes, so 0.5 means 10 cigarettes a day.",
+  "profile.form.smokingYears": "For how many years in total?",
+  "profile.form.smokingYearsPlaceholder": "e.g. 15",
+  "profile.form.yearsSinceQuitting": "How many years ago did you quit?",
+  "profile.form.yearsSinceQuittingPlaceholder": "e.g. 3",
+  "profile.form.yearsSinceQuittingHint": "Enter 0 if you quit this year.",
+  "profile.form.packYears": "Pack-years: {value}",
+  "profile.form.packYearsHint": "Packs a day × years smoked — how doctors measure exposure to tobacco smoke.",
+  "profile.form.submit.onboarding": "Save and go to dashboard",
+  "profile.form.submit.profile": "Save changes",
+  "profile.form.pending": "Saving…",
+  "profile.errors.birthYearRequired": "Enter your year of birth",
+  "profile.errors.birthYearInvalid": "Enter a valid year of birth (4 digits)",
+  "profile.errors.birthYearTooYoung": "Dbam is for adults (18+)",
+  "profile.errors.sexRequired": "Choose your sex at birth",
+  "profile.errors.smokingStatusRequired": "Choose one of the answers",
+  "profile.errors.packsPerDayInvalid": "Enter a number of packs above 0 and at most 10",
+  "profile.errors.smokingYearsInvalid": "Enter a number of years from 1 up to your age",
+  "profile.errors.yearsSinceQuittingInvalid": "Enter a number of years from 0 up to your age",
+  "profile.errors.smokingLongerThanAge": "Years smoked plus years since quitting can't exceed your age",
 
   "auth.signin.title": "Sign in",
   "auth.signin.submit": "Sign in",
@@ -81,7 +146,6 @@ export const en: Record<MessageKey, string> = {
   "auth.form.showPassword": "Show password",
   "auth.form.hidePassword": "Hide password",
 
-  "errors.auth.unknown": "Something went wrong. Please try again.",
   "errors.auth.not_configured": "Sign-in is temporarily unavailable: Supabase is missing its configuration.",
   "errors.auth.missing_code": "The confirmation link is incomplete. Open it again from the email.",
   "errors.auth.link_invalid": "The confirmation link is invalid or has expired. Try signing in.",
@@ -97,4 +161,9 @@ export const en: Record<MessageKey, string> = {
   "errors.auth.signup_disabled": "Sign-ups are currently disabled.",
   "errors.auth.email_address_not_authorized":
     "We can't send email to this address right now. Use a different address or try again later.",
+
+  "errors.unknown": "Something went wrong. Please try again.",
+  "errors.consent_required": "To continue, tick the box to consent to storing your health data.",
+  "errors.invalid_profile": "Check the details in the form and try again.",
+  "errors.save_failed": "We couldn't save your data. Please try again.",
 };

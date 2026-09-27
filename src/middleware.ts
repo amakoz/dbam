@@ -2,7 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import { LOCALE_COOKIE, resolveLocale } from "@/i18n";
 import { createClient } from "@/lib/supabase";
 
-const PROTECTED_ROUTES = ["/dashboard"];
+const PROTECTED_ROUTES = ["/dashboard", "/onboarding", "/profile", "/api/profile", "/api/consent"];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.locale = resolveLocale(context.cookies.get(LOCALE_COOKIE)?.value);

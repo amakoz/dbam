@@ -14,6 +14,16 @@ if (!isLocal && !READONLY) {
 }
 const email = `smoke-${Date.now()}@example.com`;
 const password = "Smoke-Test-Passw0rd!";
+// A former smoker, so the conditional smoking fields are exercised too.
+const profile = {
+  mode: "onboarding",
+  birth_year: "1970",
+  sex: "female",
+  smoking_status: "former",
+  packs_per_day: "0,5",
+  smoking_years: "20",
+  years_since_quitting: "5",
+};
 const jar = new Map();
 
 function cookieHeader() {
@@ -49,6 +59,7 @@ async function request(path, { method = "GET", form } = {}) {
 const readonlySteps = [
   ["home renders without config banner", () => request("/"), { status: 200, bodyExcludes: "nie jest skonfigurowany" }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  ["onboarding redirects anonymous user", () => request("/onboarding"), { status: 302, location: "/auth/signin" }],
   ["signin page renders", () => request("/auth/signin"), { status: 200 }],
   ["signup page renders", () => request("/auth/signup"), { status: 200 }],
   ["unknown path returns 404", () => request("/does-not-exist"), { status: 404 }],
@@ -68,9 +79,42 @@ const accountSteps = [
   [
     "signin accepts correct password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/" },
+    { status: 302, location: "/dashboard" },
   ],
-  ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
+  // Onboarding: consent first, then the profile, then the dashboard.
+  ["dashboard sends new user to onboarding", () => request("/dashboard"), { status: 302, location: "/onboarding" }],
+  ["onboarding renders consent step", () => request("/onboarding"), { status: 200 }],
+  [
+    "profile is refused without consent",
+    () => request("/api/profile", { method: "POST", form: profile }),
+    { status: 302, location: "/onboarding" },
+  ],
+  [
+    "consent requires the checkbox",
+    () => request("/api/consent/grant", { method: "POST", form: {} }),
+    { status: 302, location: "/onboarding?error=" },
+  ],
+  [
+    "consent is recorded",
+    () => request("/api/consent/grant", { method: "POST", form: { consent: "yes" } }),
+    { status: 302, location: "/onboarding" },
+  ],
+  [
+    "profile rejects a minor",
+    () => request("/api/profile", { method: "POST", form: { ...profile, birth_year: "2020" } }),
+    { status: 302, location: "/onboarding?error=" },
+  ],
+  [
+    "profile is saved",
+    () => request("/api/profile", { method: "POST", form: profile }),
+    { status: 302, location: "/dashboard" },
+  ],
+  ["dashboard renders for onboarded user", () => request("/dashboard"), { status: 200 }],
+  [
+    "onboarding sends onboarded user to dashboard",
+    () => request("/onboarding"),
+    { status: 302, location: "/dashboard" },
+  ],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];

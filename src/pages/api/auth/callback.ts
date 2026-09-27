@@ -27,5 +27,5 @@ export const GET: APIRoute = async (context) => {
     return context.redirect("/auth/signin?confirmed=1");
   }
 
-  return context.redirect("/");
+  return context.redirect("/dashboard");
 };

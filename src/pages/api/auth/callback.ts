@@ -8,13 +8,16 @@ export const GET: APIRoute = async (context) => {
   const code = params.get("code");
   const linkError = params.get("error_description") ?? params.get("error");
 
-  if (linkError || !code) {
-    return context.redirect(`/auth/signin?error=${encodeURIComponent(linkError ?? "Missing confirmation code")}`);
+  if (linkError) {
+    return context.redirect("/auth/signin?error=link_invalid");
+  }
+  if (!code) {
+    return context.redirect("/auth/signin?error=missing_code");
   }
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
-    return context.redirect(`/auth/signin?error=${encodeURIComponent("Supabase is not configured")}`);
+    return context.redirect("/auth/signin?error=not_configured");
   }
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 

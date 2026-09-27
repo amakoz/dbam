@@ -5,7 +5,7 @@
 ## Hard rules
 
 - `SUPABASE_URL`/`SUPABASE_KEY` are server-only secrets declared via `astro:env/server` (`astro.config.mjs`) — never read them on the client or pass them through props.
-- Auth API routes (`src/pages/api/auth/*.ts`) respond by redirecting with an `?error=`-encoded query string, not JSON — match this shape for new auth endpoints (`@src/pages/api/auth/signin.ts`).
+- Auth API routes (`src/pages/api/auth/*.ts`) respond by redirecting with `?error=<code>`, not JSON — the code is translatable (`errors.auth.<code>` in `src/i18n`, mapped by `@src/lib/auth-errors.ts`), never raw error text. Match this shape for new auth endpoints (`@src/pages/api/auth/signin.ts`).
 - New protected pages: add the path prefix to `PROTECTED_ROUTES` in `src/middleware.ts` instead of hand-rolling an auth check in the page.
 - Merging PRs to `main` is human-only: never run `gh pr merge`. Open the PR, report check status, and stop. A merge to `main` deploys to production automatically once `ci` + `smoke` pass on `main` (GitHub Actions `deploy` job, no approval step); Cloudflare Workers Builds is disconnected, so never reconnect it.
 - Against production, run `npm run smoke` only with `SMOKE_READONLY=1`: the full run signs up real `smoke-*@example.com` users in Supabase and sends confirmation emails that bounce. `scripts/smoke.mjs` refuses a non-local `BASE_URL` without it — never work around that guard.
@@ -29,6 +29,7 @@ Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}` and `pr
 - `@/*` path alias resolves to `./src/*`.
 - Astro components for static layout; React components only where interactivity is needed.
 - Merge conditional Tailwind classes with `cn()` (`@src/lib/utils.ts`) — do not concatenate class strings manually.
+- User-facing strings go through `src/i18n` (Polish default, `lang` cookie): add the key to `pl.ts` and `en.ts`, then use `createT(Astro.locals.locale)` in Astro or pass `locale` to islands. Plurals use `_one`/`_few`/`_many`/`_other` keys with `t.plural()`.
 - shadcn/ui components live in `src/components/ui/` ("new-york" style, see `@components.json`); add new ones with `npx shadcn@latest add <name>`.
 
 ## Testing Guidelines

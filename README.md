@@ -150,6 +150,15 @@ Users can then sign in immediately after sign-up without clicking a confirmation
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
 
+## Translations
+
+The UI is in Polish by default, with English as a second language. The locale comes from the `lang` cookie (set by the PL/EN switcher in `src/layouts/Layout.astro` through `POST /api/locale`); URLs are not prefixed.
+
+- Strings live in typed dictionaries in `src/i18n/`: `pl.ts` defines the keys, and `en.ts` must define every one of them (a missing key fails `astro check`).
+- Astro pages and components translate with `createT(Astro.locals.locale)`; React islands receive `locale` as a prop and call `createT(locale)` themselves.
+- Plurals use `_one`/`_few`/`_many`/`_other` key suffixes and `t.plural(baseKey, count)`, which picks the form with `Intl.PluralRules`.
+- Auth endpoints redirect with `?error=<code>`, and pages show the matching `errors.auth.<code>` message (unknown codes show a generic one).
+
 ## Deployment
 
 This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).

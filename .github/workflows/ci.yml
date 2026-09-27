@@ -111,8 +111,19 @@ jobs:
           done
           echo "::error::Health check failed. Roll back with: npx wrangler rollback -m 'health check failed' -y"
           exit 1
+      # A new Worker version takes up to a minute to reach every edge location, so right after `wrangler deploy` some
+      # requests still hit the previous version (a route added by this deploy can 404). Retry before failing.
       - name: Post-deploy smoke (read-only)
         env:
           BASE_URL: ${{ vars.PRODUCTION_URL }}
           SMOKE_READONLY: "1"
-        run: npm run smoke
+        run: |
+          for attempt in 1 2 3; do
+            npm run smoke && exit 0
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::Read-only smoke failed (attempt $attempt/3), likely rollout propagation; retrying in 20 s"
+              sleep 20
+            fi
+          done
+          echo "::error::Read-only smoke failed 3 times. Roll back with: npx wrangler rollback -m 'post-deploy smoke failed' -y"
+          exit 1

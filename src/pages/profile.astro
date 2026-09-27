@@ -1,0 +1,107 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ProfileForm from "@/components/profile/ProfileForm";
+import { createT } from "@/i18n";
+import { getOnboardingState } from "@/lib/consent";
+import { errorMessageKey } from "@/lib/errors";
+import type { ProfileInput, Sex, SmokingStatus } from "@/lib/profile";
+import { createClient } from "@/lib/supabase";
+
+const { user, locale } = Astro.locals;
+const t = createT(locale);
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase || !user) {
+  return Astro.redirect("/auth/signin");
+}
+
+// Editing needs both an active consent and a stored profile; anyone else finishes onboarding first.
+const { state, profile } = await getOnboardingState(supabase, user.id);
+if (state !== "complete" || !profile) {
+  return Astro.redirect("/onboarding");
+}
+
+const initial: ProfileInput = {
+  birth_year: profile.birth_year,
+  sex: profile.sex as Sex,
+  smoking_status: profile.smoking_status as SmokingStatus,
+  packs_per_day: profile.packs_per_day,
+  smoking_years: profile.smoking_years,
+  years_since_quitting: profile.years_since_quitting,
+};
+
+// Both forms on this page redirect back with `?error=`; withdraw codes are shown in the withdraw section.
+const errorCode = Astro.url.searchParams.get("error");
+const errorText = errorCode ? t(errorMessageKey(errorCode)) : null;
+const isWithdrawError = errorCode?.startsWith("withdraw_") ?? false;
+const profileError = isWithdrawError ? null : errorText;
+const withdrawError = isWithdrawError ? errorText : null;
+const saved = Astro.url.searchParams.has("saved");
+---
+
+<Layout title={t("profile.title")}>
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-lg space-y-8 rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
+      <section aria-labelledby="profile-heading">
+        <h1
+          id="profile-heading"
+          class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent"
+        >
+          {t("profile.title")}
+        </h1>
+        <p class="mb-6 text-sm text-blue-100/80">{t("profile.intro")}</p>
+
+        {saved && (
+          <p
+            class="mb-4 rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200"
+            role="status"
+          >
+            {t("profile.saved")}
+          </p>
+        )}
+
+        <ProfileForm locale={locale} mode="profile" initial={initial} serverError={profileError} client:load />
+      </section>
+
+      <section aria-labelledby="withdraw-heading" class="border-t border-white/10 pt-6">
+        <form method="POST" action="/api/consent/withdraw" class="space-y-4">
+          <h2 id="withdraw-heading" class="text-lg font-semibold">
+            {t("profile.withdraw.heading")}
+          </h2>
+          <p class="text-sm text-blue-100/80">{t("profile.withdraw.intro")}</p>
+          <p class="text-sm text-blue-100/80">{t("profile.withdraw.deleted")}</p>
+          <p class="text-sm text-blue-100/60">{t("profile.withdraw.kept")}</p>
+
+          <label class="flex items-start gap-3 rounded-lg border border-white/20 bg-white/5 p-3 text-sm">
+            <input type="checkbox" name="confirm" value="yes" class="mt-0.5 size-4 shrink-0 accent-red-500" />
+            <span>{t("profile.withdraw.checkbox")}</span>
+          </label>
+
+          {withdrawError && (
+            <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
+              {withdrawError}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            class="w-full rounded-lg border border-red-500/40 bg-red-900/40 px-4 py-2 font-medium text-red-100 transition-colors hover:bg-red-800/60"
+          >
+            {t("profile.withdraw.submit")}
+          </button>
+        </form>
+      </section>
+
+      <div class="flex items-center justify-between gap-4 text-sm">
+        <a href="/dashboard" class="text-purple-300 hover:underline">
+          {t("profile.back")}
+        </a>
+        <form method="POST" action="/api/auth/signout">
+          <button type="submit" class="text-purple-300 hover:underline">
+            {t("nav.signout")}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>

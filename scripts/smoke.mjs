@@ -24,6 +24,8 @@ const profile = {
   smoking_years: "20",
   years_since_quitting: "5",
 };
+// The edit turns them into a never-smoker, so saving also has to clear the smoking fields.
+const profileEdit = { mode: "profile", birth_year: "1971", sex: "female", smoking_status: "never" };
 const jar = new Map();
 
 function cookieHeader() {
@@ -57,9 +59,10 @@ async function request(path, { method = "GET", form } = {}) {
 
 // Read-only steps run in both modes; the rest need a throwaway account and run only against local servers.
 const readonlySteps = [
-  ["home renders without config banner", () => request("/"), { status: 200, bodyExcludes: "nie jest skonfigurowany" }],
+  ["health endpoint reports ok", () => request("/api/health"), { status: 200 }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   ["onboarding redirects anonymous user", () => request("/onboarding"), { status: 302, location: "/auth/signin" }],
+  ["profile redirects anonymous user", () => request("/profile"), { status: 302, location: "/auth/signin" }],
   ["signin page renders", () => request("/auth/signin"), { status: 200 }],
   ["signup page renders", () => request("/auth/signup"), { status: 200 }],
   ["unknown path returns 404", () => request("/does-not-exist"), { status: 404 }],
@@ -115,6 +118,28 @@ const accountSteps = [
     () => request("/onboarding"),
     { status: 302, location: "/dashboard" },
   ],
+  // Profile editing and consent withdrawal, which deletes the health data.
+  ["profile page renders", () => request("/profile"), { status: 200 }],
+  [
+    "profile edit is saved",
+    () => request("/api/profile", { method: "POST", form: profileEdit }),
+    { status: 302, location: "/profile?saved=1" },
+  ],
+  [
+    "withdraw requires confirmation",
+    () => request("/api/consent/withdraw", { method: "POST", form: {} }),
+    { status: 302, location: "/profile?error=" },
+  ],
+  [
+    "withdraw deletes health data",
+    () => request("/api/consent/withdraw", { method: "POST", form: { confirm: "yes" } }),
+    { status: 302, location: "/onboarding?withdrawn=1" },
+  ],
+  [
+    "dashboard sends withdrawn user to onboarding",
+    () => request("/dashboard"),
+    { status: 302, location: "/onboarding" },
+  ],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];
@@ -129,8 +154,7 @@ for (const [name, run, expected] of steps) {
     (expected.location === undefined ||
       // Same path exactly; the query string only needs the expected prefix (e.g. "?error=").
       (actual.location.split("?")[0] === expected.location.split("?")[0] &&
-        actual.location.startsWith(expected.location))) &&
-    (expected.bodyExcludes === undefined || !actual.body.includes(expected.bodyExcludes));
+        actual.location.startsWith(expected.location)));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;

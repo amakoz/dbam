@@ -106,7 +106,7 @@ jobs:
           PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
         run: |
           for i in $(seq 1 10); do
-            curl -sf -o /dev/null "$PRODUCTION_URL/" && exit 0
+            curl -sf -o /dev/null "$PRODUCTION_URL/api/health" && exit 0
             sleep 3
           done
           echo "::error::Health check failed. Roll back with: npx wrangler rollback -m 'health check failed' -y"

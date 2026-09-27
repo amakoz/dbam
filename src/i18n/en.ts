@@ -9,11 +9,6 @@ export const en: Record<MessageKey, string> = {
   "language.pl": "Polski",
   "language.en": "English",
 
-  "config.warning": "Warning:",
-  "config.docs": "Documentation",
-  "config.supabase.missing": "Supabase is not configured — authentication features are disabled.",
-  "config.supabase.docsLabel": "See the setup guide",
-
   "nav.dashboard": "Dashboard",
   "nav.signin": "Sign in",
   "nav.signup": "Sign up",
@@ -38,6 +33,7 @@ export const en: Record<MessageKey, string> = {
   "dashboard.profile.sex": "Sex at birth",
   "dashboard.profile.smoking": "Smoking",
   "dashboard.profile.packYears": "Pack-years",
+  "dashboard.profile.edit": "Edit profile and consent",
   "dashboard.recommendations.heading": "Your screenings",
   "dashboard.recommendations.placeholder": "Soon you'll see the preventive screenings that are due for you here.",
 
@@ -63,6 +59,19 @@ export const en: Record<MessageKey, string> = {
   "onboarding.profile.heading": "A few questions about you",
   "onboarding.profile.intro":
     "We use your answers to match preventive screenings to your age, sex and smoking history.",
+
+  "profile.title": "Your profile",
+  "profile.intro": "Update your details if anything has changed — we use them to match your screenings.",
+  "profile.saved": "Your changes have been saved.",
+  "profile.back": "Back to dashboard",
+  "profile.withdraw.heading": "Withdrawing consent",
+  "profile.withdraw.intro": "You can withdraw your consent to storing your health data at any time.",
+  "profile.withdraw.deleted":
+    "We will then immediately and permanently delete your health profile: your year of birth, sex at birth and smoking history.",
+  "profile.withdraw.kept":
+    "We keep only a record of when consent was given and withdrawn, as proof that we processed your data lawfully. Your account stays active.",
+  "profile.withdraw.checkbox": "I understand that my health data will be permanently deleted.",
+  "profile.withdraw.submit": "Withdraw consent and delete data",
 
   "profile.form.birthYear": "Year of birth",
   "profile.form.birthYearPlaceholder": "e.g. 1980",
@@ -146,7 +155,7 @@ export const en: Record<MessageKey, string> = {
   "auth.form.showPassword": "Show password",
   "auth.form.hidePassword": "Hide password",
 
-  "errors.auth.not_configured": "Sign-in is temporarily unavailable: Supabase is missing its configuration.",
+  "errors.auth.not_configured": "Sign-in is temporarily unavailable. Please try again later.",
   "errors.auth.missing_code": "The confirmation link is incomplete. Open it again from the email.",
   "errors.auth.link_invalid": "The confirmation link is invalid or has expired. Try signing in.",
   "errors.auth.invalid_credentials": "Invalid email or password.",
@@ -166,4 +175,6 @@ export const en: Record<MessageKey, string> = {
   "errors.consent_required": "To continue, tick the box to consent to storing your health data.",
   "errors.invalid_profile": "Check the details in the form and try again.",
   "errors.save_failed": "We couldn't save your data. Please try again.",
+  "errors.withdraw_confirm_required": "To withdraw your consent, tick the box confirming your data will be deleted.",
+  "errors.withdraw_failed": "We couldn't withdraw your consent. Your data hasn't changed — please try again.",
 };

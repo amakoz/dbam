@@ -1,9 +1,7 @@
 ---
 import "../styles/global.css";
-import Banner from "@/components/Banner.astro";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import { createT } from "@/i18n";
-import { missingConfigs } from "@/lib/config-status";
 
 interface Props {
   title?: string;
@@ -23,20 +21,6 @@ const { title = t("meta.title") } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    {missingConfigs.map((cfg) => (
-      <Banner variant="error">
-        <strong>{t("config.warning")}</strong> {t(cfg.messageKey)}
-        {cfg.docsUrl && (
-          <>
-            {" "}
-            <a href={cfg.docsUrl} target="_blank" rel="noopener noreferrer">
-              {t(cfg.docsLabelKey ?? "config.docs")}
-            </a>
-            .
-          </>
-        )}
-      </Banner>
-    ))}
     <slot />
     <LanguageSwitcher />
   </body>

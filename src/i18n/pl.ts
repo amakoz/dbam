@@ -7,11 +7,6 @@ export const pl = {
   "language.pl": "Polski",
   "language.en": "English",
 
-  "config.warning": "Uwaga:",
-  "config.docs": "Dokumentacja",
-  "config.supabase.missing": "Supabase nie jest skonfigurowany — funkcje uwierzytelniania są wyłączone.",
-  "config.supabase.docsLabel": "Zobacz instrukcję konfiguracji",
-
   "nav.dashboard": "Panel",
   "nav.signin": "Zaloguj się",
   "nav.signup": "Zarejestruj się",
@@ -38,6 +33,7 @@ export const pl = {
   "dashboard.profile.sex": "Płeć przy urodzeniu",
   "dashboard.profile.smoking": "Palenie papierosów",
   "dashboard.profile.packYears": "Paczkolata",
+  "dashboard.profile.edit": "Edytuj profil i zgodę",
   "dashboard.recommendations.heading": "Twoje badania",
   "dashboard.recommendations.placeholder": "Wkrótce pokażemy tu badania profilaktyczne, które są dla Ciebie należne.",
 
@@ -63,6 +59,19 @@ export const pl = {
   "onboarding.profile.heading": "Kilka pytań o Ciebie",
   "onboarding.profile.intro":
     "Na tej podstawie dobierzemy badania profilaktyczne do Twojego wieku, płci i historii palenia.",
+
+  "profile.title": "Twój profil",
+  "profile.intro": "Popraw swoje dane, jeśli coś się zmieniło — na ich podstawie dobieramy badania.",
+  "profile.saved": "Zmiany zostały zapisane.",
+  "profile.back": "Wróć do panelu",
+  "profile.withdraw.heading": "Wycofanie zgody",
+  "profile.withdraw.intro": "Możesz w każdej chwili wycofać zgodę na przechowywanie danych o zdrowiu.",
+  "profile.withdraw.deleted":
+    "Usuniemy wtedy od razu i bezpowrotnie Twój profil zdrowotny: rok urodzenia, płeć przy urodzeniu i historię palenia papierosów.",
+  "profile.withdraw.kept":
+    "Zachowamy jedynie informację o tym, kiedy zgoda została udzielona i wycofana — jako dowód, że przetwarzaliśmy dane zgodnie z prawem. Twoje konto pozostanie aktywne.",
+  "profile.withdraw.checkbox": "Rozumiem, że moje dane o zdrowiu zostaną trwale usunięte.",
+  "profile.withdraw.submit": "Wycofaj zgodę i usuń dane",
 
   "profile.form.birthYear": "Rok urodzenia",
   "profile.form.birthYearPlaceholder": "np. 1980",
@@ -145,7 +154,7 @@ export const pl = {
   "auth.form.showPassword": "Pokaż hasło",
   "auth.form.hidePassword": "Ukryj hasło",
 
-  "errors.auth.not_configured": "Logowanie jest chwilowo niedostępne: brak konfiguracji Supabase.",
+  "errors.auth.not_configured": "Logowanie jest chwilowo niedostępne. Spróbuj ponownie później.",
   "errors.auth.missing_code": "Link potwierdzający jest niekompletny. Otwórz go ponownie z wiadomości e-mail.",
   "errors.auth.link_invalid": "Link potwierdzający jest nieprawidłowy lub wygasł. Spróbuj się zalogować.",
   "errors.auth.invalid_credentials": "Nieprawidłowy adres e-mail lub hasło.",
@@ -166,4 +175,6 @@ export const pl = {
   "errors.consent_required": "Aby kontynuować, zaznacz zgodę na przechowywanie danych o zdrowiu.",
   "errors.invalid_profile": "Sprawdź dane w formularzu i spróbuj ponownie.",
   "errors.save_failed": "Nie udało się zapisać danych. Spróbuj ponownie.",
+  "errors.withdraw_confirm_required": "Aby wycofać zgodę, zaznacz, że rozumiesz, iż Twoje dane zostaną usunięte.",
+  "errors.withdraw_failed": "Nie udało się wycofać zgody. Twoje dane nie zostały zmienione — spróbuj ponownie.",
 } satisfies Record<string, string>;

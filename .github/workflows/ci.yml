@@ -38,6 +38,8 @@ jobs:
         run: |
           supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,realtime,storage-api,postgres-meta,supavisor
           supabase status -o env | grep -E '^(API_URL|ANON_KEY)=' > supabase.env
+      - name: Test database access rules (pgTAP)
+        run: supabase test db
       - name: Configure secrets for build and preview
         run: |
           source supabase.env
@@ -52,8 +54,31 @@ jobs:
       - if: always()
         run: supabase stop --no-backup
 
-  deploy:
+  # Applies supabase/migrations to production before any deploy that may depend on them. A Worker rollback never
+  # undoes a migration, so migrations stay additive-first. Never run `supabase db push` against production by hand.
+  migrate:
     needs: [ci, smoke]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    concurrency:
+      group: production-migrate
+      cancel-in-progress: false # never kill a migration that's already running
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0 # pinned: `latest` hits the unauthenticated GitHub API rate limit (F23)
+      # Session-pooler URL (runners are IPv4-only), password percent-encoded. --skip-vault: never overwrite
+      # production vault secrets from config.toml. No --include-seed / --include-roles, and never `config push`.
+      - name: Apply migrations to production
+        run: supabase db push --db-url "$SUPABASE_DB_URL" --skip-vault --yes
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
+  deploy:
+    needs: [ci, smoke, migrate]
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     environment:

@@ -469,10 +469,10 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 
 #### Automated
 
-- [ ] 2.1 Migration applies cleanly from scratch: `npx supabase db reset`
-- [ ] 2.2 RLS tests pass: `npx supabase test db`
-- [ ] 2.3 Generated types are current: `npm run db:types && git diff --exit-code src/lib/database.types.ts`
-- [ ] 2.4 Lint, type check and build pass: `npm run lint && npx astro check && npm run build`
+- [x] 2.1 Migration applies cleanly from scratch: `npx supabase db reset`
+- [x] 2.2 RLS tests pass: `npx supabase test db`
+- [x] 2.3 Generated types are current: `npm run db:types && git diff --exit-code src/lib/database.types.ts`
+- [x] 2.4 Lint, type check and build pass: `npm run lint && npx astro check && npm run build`
 - [ ] 2.5 PR checks `ci` and `smoke` are green (smoke now includes `supabase test db`)
 
 #### Manual

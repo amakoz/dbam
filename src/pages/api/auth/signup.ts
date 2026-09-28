@@ -1,9 +1,13 @@
 import type { APIRoute } from "astro";
 import { authErrorCode } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase";
+import { readForm } from "@/lib/forms";
 
 export const POST: APIRoute = async (context) => {
-  const form = await context.request.formData();
+  const form = await readForm(context.request);
+  if (!form) {
+    return context.redirect("/auth/signup?error=validation_failed");
+  }
   const email = form.get("email") as string;
   const password = form.get("password") as string;
 

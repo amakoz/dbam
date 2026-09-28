@@ -1,0 +1,34 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { createT } from "@/i18n";
+
+// Rendered by Astro for any uncaught error, e.g. Supabase being briefly unreachable while /dashboard loads the
+// onboarding state. Deliberately shows no error details.
+const t = createT(Astro.locals.locale);
+const retry = Astro.url.pathname + Astro.url.search;
+---
+
+<Layout title={t("errorPage.title")}>
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <div
+      class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl"
+      role="alert"
+    >
+      <h1 class="mb-3 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+        {t("errorPage.title")}
+      </h1>
+      <p class="mb-6 text-blue-100/80">{t("errorPage.message")}</p>
+      <div class="flex flex-col items-center gap-3">
+        <a
+          href={retry}
+          class="w-full rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500"
+        >
+          {t("errorPage.retry")}
+        </a>
+        <a href="/" class="text-sm text-purple-300 hover:underline">
+          {t("errorPage.home")}
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>

@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { LOCALE_COOKIE, isLocale } from "@/i18n";
+import { readForm } from "@/lib/forms";
 
 const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
 
@@ -12,7 +13,10 @@ function safeNext(next: FormDataEntryValue | null, base: URL): string {
 }
 
 export const POST: APIRoute = async (context) => {
-  const form = await context.request.formData();
+  const form = await readForm(context.request);
+  if (!form) {
+    return context.redirect("/");
+  }
   const lang = form.get("lang");
 
   // A missing or unknown `lang` keeps the current preference instead of resetting it to the default.

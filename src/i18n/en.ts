@@ -51,7 +51,7 @@ export const en: Record<MessageKey, string> = {
   "onboarding.consent.storage": "In a Supabase database on servers in the European Union (Frankfurt, Germany).",
   "onboarding.consent.withdrawHeading": "Withdrawing consent",
   "onboarding.consent.withdraw":
-    'You can withdraw your consent at any time on the "Your profile" page. Your health data is then deleted; we keep only a record of when consent was given and withdrawn.',
+    'You can withdraw your consent at any time on the "Your profile" page (or on this page, before you complete your profile). Your health data is then deleted; we keep only a record of when, under which version and in which language consent was given and withdrawn.',
   "onboarding.consent.voluntary": "Consent is voluntary, but without it we can't prepare your list of screenings.",
   "onboarding.consent.checkbox":
     "I explicitly consent to the storage and processing of my health data to show me the preventive screenings that are due for me.",
@@ -67,10 +67,10 @@ export const en: Record<MessageKey, string> = {
   "profile.withdraw.heading": "Withdrawing consent",
   "profile.withdraw.intro": "You can withdraw your consent to storing your health data at any time.",
   "profile.withdraw.deleted":
-    "We will then immediately and permanently delete your health profile: your year of birth, sex at birth and smoking history.",
+    "We then immediately delete your health profile: your year of birth, sex at birth and smoking history. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
   "profile.withdraw.kept":
-    "We keep only a record of when consent was given and withdrawn, as proof that we processed your data lawfully. Your account stays active.",
-  "profile.withdraw.checkbox": "I understand that my health data will be permanently deleted.",
+    "We keep only a record of when, under which version and in which language consent was given and withdrawn, as proof that we processed your data lawfully. Your account stays active.",
+  "profile.withdraw.checkbox": "I understand that my health data will be deleted.",
   "profile.withdraw.submit": "Withdraw consent and delete data",
 
   "profile.form.birthYear": "Year of birth",
@@ -177,4 +177,10 @@ export const en: Record<MessageKey, string> = {
   "errors.save_failed": "We couldn't save your data. Please try again.",
   "errors.withdraw_confirm_required": "To withdraw your consent, tick the box confirming your data will be deleted.",
   "errors.withdraw_failed": "We couldn't withdraw your consent. Your data hasn't changed — please try again.",
+  "errors.invalid_request": "We couldn't read the form. Refresh the page and try again.",
+  "errors.consent_outdated": "The consent text has been updated. Please read it again and confirm.",
+  "errorPage.title": "Something went wrong",
+  "errorPage.message": "We couldn't load this page right now. Please try again in a moment.",
+  "errorPage.retry": "Try again",
+  "errorPage.home": "Home",
 };

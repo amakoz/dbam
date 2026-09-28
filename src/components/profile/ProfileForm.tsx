@@ -52,7 +52,11 @@ function ChoiceGroup({ name, legend, hint, options, value, onChange, error }: Ch
   const hintId = `${name}-hint`;
   const errorId = `${name}-error`;
   return (
-    <fieldset aria-describedby={cn(hint && hintId, error && errorId) || undefined}>
+    <fieldset
+      aria-describedby={
+        [hint ? hintId : null, error ? errorId : null].filter((id) => id !== null).join(" ") || undefined
+      }
+    >
       <legend className="mb-1 block text-sm text-blue-100/80">{legend}</legend>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (

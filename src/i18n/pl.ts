@@ -51,7 +51,7 @@ export const pl = {
   "onboarding.consent.storage": "W bazie danych Supabase na serwerach w Unii Europejskiej (Frankfurt, Niemcy).",
   "onboarding.consent.withdrawHeading": "Wycofanie zgody",
   "onboarding.consent.withdraw":
-    "Zgodę możesz wycofać w każdej chwili na stronie „Twój profil”. Twoje dane o zdrowiu zostaną wtedy usunięte; zachowamy jedynie informację o tym, kiedy zgoda została udzielona i wycofana.",
+    "Zgodę możesz wycofać w każdej chwili na stronie „Twój profil” (a zanim uzupełnisz profil — na tej stronie). Twoje dane o zdrowiu zostaną wtedy usunięte; zachowamy jedynie informację o tym, kiedy, w jakiej wersji i w jakim języku zgoda została udzielona i wycofana.",
   "onboarding.consent.voluntary": "Zgoda jest dobrowolna, ale bez niej nie możemy przygotować dla Ciebie listy badań.",
   "onboarding.consent.checkbox":
     "Wyrażam wyraźną zgodę na przechowywanie i przetwarzanie moich danych o zdrowiu w celu wskazania należnych mi badań profilaktycznych.",
@@ -67,10 +67,10 @@ export const pl = {
   "profile.withdraw.heading": "Wycofanie zgody",
   "profile.withdraw.intro": "Możesz w każdej chwili wycofać zgodę na przechowywanie danych o zdrowiu.",
   "profile.withdraw.deleted":
-    "Usuniemy wtedy od razu i bezpowrotnie Twój profil zdrowotny: rok urodzenia, płeć przy urodzeniu i historię palenia papierosów.",
+    "Usuniemy wtedy od razu Twój profil zdrowotny: rok urodzenia, płeć przy urodzeniu i historię palenia papierosów. Przez ograniczony czas dane mogą jeszcze pozostawać w kopiach zapasowych bazy danych, z których znikną automatycznie.",
   "profile.withdraw.kept":
-    "Zachowamy jedynie informację o tym, kiedy zgoda została udzielona i wycofana — jako dowód, że przetwarzaliśmy dane zgodnie z prawem. Twoje konto pozostanie aktywne.",
-  "profile.withdraw.checkbox": "Rozumiem, że moje dane o zdrowiu zostaną trwale usunięte.",
+    "Zachowamy jedynie informację o tym, kiedy, w jakiej wersji i w jakim języku zgoda została udzielona i wycofana — jako dowód, że przetwarzaliśmy dane zgodnie z prawem. Twoje konto pozostanie aktywne.",
+  "profile.withdraw.checkbox": "Rozumiem, że moje dane o zdrowiu zostaną usunięte.",
   "profile.withdraw.submit": "Wycofaj zgodę i usuń dane",
 
   "profile.form.birthYear": "Rok urodzenia",
@@ -177,4 +177,10 @@ export const pl = {
   "errors.save_failed": "Nie udało się zapisać danych. Spróbuj ponownie.",
   "errors.withdraw_confirm_required": "Aby wycofać zgodę, zaznacz, że rozumiesz, iż Twoje dane zostaną usunięte.",
   "errors.withdraw_failed": "Nie udało się wycofać zgody. Twoje dane nie zostały zmienione — spróbuj ponownie.",
+  "errors.invalid_request": "Nie udało się odczytać formularza. Odśwież stronę i spróbuj ponownie.",
+  "errors.consent_outdated": "Treść zgody została zaktualizowana. Przeczytaj ją ponownie i potwierdź.",
+  "errorPage.title": "Chwilowy problem",
+  "errorPage.message": "Nie udało się teraz wczytać tej strony. Spróbuj ponownie za chwilę.",
+  "errorPage.retry": "Spróbuj ponownie",
+  "errorPage.home": "Strona główna",
 } satisfies Record<string, string>;

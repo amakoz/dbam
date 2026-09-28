@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import ProfileForm from "@/components/profile/ProfileForm";
+import WithdrawConsentForm from "@/components/profile/WithdrawConsentForm.astro";
 import { createT } from "@/i18n";
 import { getOnboardingState } from "@/lib/consent";
 import { errorMessageKey } from "@/lib/errors";
@@ -63,34 +64,7 @@ const saved = Astro.url.searchParams.has("saved");
         <ProfileForm locale={locale} mode="profile" initial={initial} serverError={profileError} client:load />
       </section>
 
-      <section aria-labelledby="withdraw-heading" class="border-t border-white/10 pt-6">
-        <form method="POST" action="/api/consent/withdraw" class="space-y-4">
-          <h2 id="withdraw-heading" class="text-lg font-semibold">
-            {t("profile.withdraw.heading")}
-          </h2>
-          <p class="text-sm text-blue-100/80">{t("profile.withdraw.intro")}</p>
-          <p class="text-sm text-blue-100/80">{t("profile.withdraw.deleted")}</p>
-          <p class="text-sm text-blue-100/60">{t("profile.withdraw.kept")}</p>
-
-          <label class="flex items-start gap-3 rounded-lg border border-white/20 bg-white/5 p-3 text-sm">
-            <input type="checkbox" name="confirm" value="yes" class="mt-0.5 size-4 shrink-0 accent-red-500" />
-            <span>{t("profile.withdraw.checkbox")}</span>
-          </label>
-
-          {withdrawError && (
-            <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
-              {withdrawError}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            class="w-full rounded-lg border border-red-500/40 bg-red-900/40 px-4 py-2 font-medium text-red-100 transition-colors hover:bg-red-800/60"
-          >
-            {t("profile.withdraw.submit")}
-          </button>
-        </form>
-      </section>
+      <WithdrawConsentForm from="profile" error={withdrawError} />
 
       <div class="flex items-center justify-between gap-4 text-sm">
         <a href="/dashboard" class="text-purple-300 hover:underline">

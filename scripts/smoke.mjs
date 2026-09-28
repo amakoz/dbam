@@ -57,6 +57,14 @@ async function request(path, { method = "GET", form } = {}) {
   return { status: response.status, location: response.headers.get("location") ?? "", body: await response.text() };
 }
 
+// The consent form carries the version of the text it shows; read it from the page like a browser would submit it.
+let consentVersion = "";
+async function readConsentVersion() {
+  const response = await request("/onboarding");
+  consentVersion = /name="version" value="([^"]+)"/.exec(response.body)?.[1] ?? "";
+  return response;
+}
+
 // Read-only steps run in both modes; the rest need a throwaway account and run only against local servers.
 const readonlySteps = [
   ["health endpoint reports ok", () => request("/api/health"), { status: 200 }],
@@ -86,7 +94,7 @@ const accountSteps = [
   ],
   // Onboarding: consent first, then the profile, then the dashboard.
   ["dashboard sends new user to onboarding", () => request("/dashboard"), { status: 302, location: "/onboarding" }],
-  ["onboarding renders consent step", () => request("/onboarding"), { status: 200 }],
+  ["onboarding renders consent step", readConsentVersion, { status: 200, bodyIncludes: 'name="version"' }],
   [
     "profile is refused without consent",
     () => request("/api/profile", { method: "POST", form: profile }),
@@ -98,8 +106,13 @@ const accountSteps = [
     { status: 302, location: "/onboarding?error=" },
   ],
   [
+    "consent rejects an outdated text version",
+    () => request("/api/consent/grant", { method: "POST", form: { consent: "yes", version: "outdated" } }),
+    { status: 302, location: "/onboarding?error=consent_outdated" },
+  ],
+  [
     "consent is recorded",
-    () => request("/api/consent/grant", { method: "POST", form: { consent: "yes" } }),
+    () => request("/api/consent/grant", { method: "POST", form: { consent: "yes", version: consentVersion } }),
     { status: 302, location: "/onboarding" },
   ],
   [
@@ -140,6 +153,27 @@ const accountSteps = [
     () => request("/dashboard"),
     { status: 302, location: "/onboarding" },
   ],
+  // Withdrawal must also work after consenting but before a profile exists (GDPR Art. 7(3)).
+  [
+    "consent is recorded again",
+    () => request("/api/consent/grant", { method: "POST", form: { consent: "yes", version: consentVersion } }),
+    { status: 302, location: "/onboarding" },
+  ],
+  [
+    "onboarding offers withdrawal before a profile exists",
+    () => request("/onboarding"),
+    { status: 200, bodyIncludes: 'action="/api/consent/withdraw"' },
+  ],
+  [
+    "withdraw from onboarding requires confirmation",
+    () => request("/api/consent/withdraw", { method: "POST", form: { from: "onboarding" } }),
+    { status: 302, location: "/onboarding?error=withdraw_confirm_required" },
+  ],
+  [
+    "withdraw from onboarding",
+    () => request("/api/consent/withdraw", { method: "POST", form: { from: "onboarding", confirm: "yes" } }),
+    { status: 302, location: "/onboarding?withdrawn=1" },
+  ],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];
@@ -154,7 +188,8 @@ for (const [name, run, expected] of steps) {
     (expected.location === undefined ||
       // Same path exactly; the query string only needs the expected prefix (e.g. "?error=").
       (actual.location.split("?")[0] === expected.location.split("?")[0] &&
-        actual.location.startsWith(expected.location)));
+        actual.location.startsWith(expected.location))) &&
+    (expected.bodyIncludes === undefined || actual.body.includes(expected.bodyIncludes));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;

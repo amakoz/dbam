@@ -165,7 +165,7 @@ The UI is in Polish by default, with English as a second language. The locale co
 - Strings live in typed dictionaries in `src/i18n/`: `pl.ts` defines the keys, and `en.ts` must define every one of them (a missing key fails `astro check`).
 - Astro pages and components translate with `createT(Astro.locals.locale)`; React islands receive `locale` as a prop and call `createT(locale)` themselves.
 - Plurals use `_one`/`_few`/`_many`/`_other` key suffixes and `t.plural(baseKey, count)`, which picks the form with `Intl.PluralRules`.
-- Auth endpoints redirect with `?error=<code>`, and pages show the matching `errors.auth.<code>` message (unknown codes show a generic one).
+- Endpoints redirect with `?error=<code>`, and pages show the matching message: `errors.auth.<code>` for auth endpoints (`src/lib/auth-errors.ts`), `errors.<code>` for the others (`errorMessageKey()` in `src/lib/errors.ts`). Unknown codes show a generic message.
 
 ## Deployment
 

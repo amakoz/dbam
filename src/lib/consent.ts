@@ -4,7 +4,8 @@ import type { Profile } from "@/lib/profile";
 
 // Bump whenever the consent text (`onboarding.consent.*` in src/i18n/pl.ts or en.ts) changes: every consent row
 // records the version and the locale it was given under, as proof of what the user agreed to (GDPR Art. 7(1)).
-export const HEALTH_DATA_CONSENT_VERSION = "2026-09-27";
+// Format: the change date; add a `.N` suffix for a second change on the same day.
+export const HEALTH_DATA_CONSENT_VERSION = "2026-09-28";
 
 export type OnboardingState = "needs_consent" | "needs_profile" | "complete";
 

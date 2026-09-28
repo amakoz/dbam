@@ -2,7 +2,7 @@
 -- Run with `npx supabase test db`. Everything happens in one transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(29);
+select plan(33);
 
 -- Two users, created as postgres. A = 1111…, B = 2222….
 insert into auth.users (id, email) values
@@ -65,6 +65,16 @@ select throws_ok(
   '42501', null, 'A cannot rewrite server-owned timestamps'
 );
 
+select throws_ok(
+  $$ update public.profiles set user_id = '22222222-2222-2222-2222-222222222222' $$,
+  '42501', null, 'A cannot move their profile to another user'
+);
+
+select throws_ok(
+  $$ update public.health_data_consents set withdrawn_at = '2099-01-01' $$,
+  '42501', null, 'A cannot withdraw (or forge the timestamp) by updating the consent directly'
+);
+
 -- --- As user B -------------------------------------------------------------------------------------------------
 select set_config('request.jwt.claims', '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
 
@@ -79,10 +89,10 @@ select lives_ok(
   $$ delete from public.profiles where user_id = '11111111-1111-1111-1111-111111111111' $$,
   'B''s delete of A''s profile runs but matches no rows'
 );
-select lives_ok(
+select throws_ok(
   $$ update public.health_data_consents set withdrawn_at = now()
      where user_id = '11111111-1111-1111-1111-111111111111' $$,
-  'B''s withdrawal of A''s consent runs but matches no rows'
+  '42501', null, 'B cannot withdraw A''s consent'
 );
 
 select throws_ok(
@@ -114,6 +124,16 @@ select is(
   1::bigint, 'A''s consent is still active after B'
 );
 
+-- TRUNCATE ignores RLS, so clients must not hold it (nor TRIGGER/REFERENCES).
+select ok(
+  not has_table_privilege('authenticated', 'public.profiles', 'TRUNCATE, TRIGGER, REFERENCES'),
+  'authenticated holds no TRUNCATE/TRIGGER/REFERENCES on profiles'
+);
+select ok(
+  not has_table_privilege('authenticated', 'public.health_data_consents', 'TRUNCATE, TRIGGER, REFERENCES'),
+  'authenticated holds no TRUNCATE/TRIGGER/REFERENCES on consents'
+);
+
 -- --- A withdraws ------------------------------------------------------------------------------------------------
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
@@ -130,9 +150,9 @@ select throws_ok(
   '42501', null, 'A cannot create a profile after withdrawing'
 );
 
-select lives_ok(
+select throws_ok(
   $$ update public.health_data_consents set withdrawn_at = null $$,
-  'reviving a withdrawn consent runs but matches no rows'
+  '42501', null, 'A cannot revive a withdrawn consent'
 );
 
 reset role;

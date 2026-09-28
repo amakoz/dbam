@@ -5,7 +5,7 @@
 ## Hard rules
 
 - `SUPABASE_URL`/`SUPABASE_KEY` are server-only secrets declared via `astro:env/server` (`astro.config.mjs`) — never read them on the client or pass them through props.
-- Auth API routes (`src/pages/api/auth/*.ts`) respond by redirecting with `?error=<code>`, not JSON — the code is translatable (`errors.auth.<code>` in `src/i18n`, mapped by `@src/lib/auth-errors.ts`), never raw error text. Match this shape for new auth endpoints (`@src/pages/api/auth/signin.ts`).
+- Auth API routes (`src/pages/api/auth/*.ts`) respond by redirecting with `?error=<code>`, not JSON — the code is translatable (`errors.auth.<code>` in `src/i18n`, mapped by `@src/lib/auth-errors.ts`), never raw error text. Match this shape for new auth endpoints (`@src/pages/api/auth/signin.ts`). Non-auth endpoints use the same shape with `errors.<code>` keys, translated by `errorMessageKey()` (`@src/lib/errors.ts`), and read forms with `readForm()` (`@src/lib/forms.ts`).
 - New protected pages: add the path prefix to `PROTECTED_ROUTES` in `src/middleware.ts` instead of hand-rolling an auth check in the page.
 - Merging PRs to `main` is human-only: never run `gh pr merge`. Open the PR, report check status, and stop. A merge to `main` deploys to production automatically once `ci` + `smoke` pass on `main` (GitHub Actions `migrate` then `deploy` jobs, no approval step); Cloudflare Workers Builds is disconnected, so never reconnect it.
 - Against production, run `npm run smoke` only with `SMOKE_READONLY=1`: the full run signs up real `smoke-*@example.com` users in Supabase and sends confirmation emails that bounce. `scripts/smoke.mjs` refuses a non-local `BASE_URL` without it — never work around that guard.
@@ -21,7 +21,8 @@
 - `npm run dev` / `build` / `preview` — Cloudflare workerd runtime.
 - `npm run lint` / `lint:fix` — ESLint with type-checked rules.
 - `npm run format` — Prettier.
-- `npm run smoke` — auth-flow smoke test against a running server (`BASE_URL` env), see `@scripts/smoke.mjs`.
+- `npm run smoke` — smoke test of auth, onboarding, profile edit and withdrawal against a running server (`BASE_URL` env), see `@scripts/smoke.mjs`.
+- `npx supabase test db` — pgTAP tests for database access rules (`supabase/tests/`).
 
 Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --write` on `*.{json,css,md}`.
 
@@ -35,7 +36,7 @@ Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}` and `pr
 
 ## Testing Guidelines
 
-No unit/integration suite is configured yet. `npm run smoke` (`@scripts/smoke.mjs`) is a build-sanity check for the auth flow, not a substitute for real tests — see `@README.md`.
+No unit suite is configured yet. Database access rules (RLS, grants, the withdraw function) are covered by pgTAP tests in `supabase/tests/` (`npx supabase test db`, run in CI's `smoke` job); add a case there for every new policy or grant. `npm run smoke` (`@scripts/smoke.mjs`) is an HTTP-level check of the auth and onboarding flows, not a substitute for unit tests — see `@README.md`.
 
 ## Commit & Pull Request Guidelines
 

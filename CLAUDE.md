@@ -11,6 +11,7 @@
 - Against production, run `npm run smoke` only with `SMOKE_READONLY=1`: the full run signs up real `smoke-*@example.com` users in Supabase and sends confirmation emails that bounce. `scripts/smoke.mjs` refuses a non-local `BASE_URL` without it — never work around that guard.
 - Never run `supabase config push` against the production project: local `supabase/config.toml` has `enable_confirmations = false` and `site_url = "http://127.0.0.1:3000"`. Change production auth settings in the Supabase dashboard only.
 - Migrations reach production only through the CI `migrate` job (`supabase db push`, runs before `deploy`) — never run `supabase db push` against production by hand. Keep migrations additive-first: a Worker rollback never undoes a schema change. After a schema change run `npm run db:types` and commit `src/lib/database.types.ts`.
+- Screening catalog rows change only through `catalog/entries/<slug>.json` + `npm run catalog:migration` (checked by `npm run catalog:check` in CI, see `@catalog/README.md`) — never hand-edit a `*_screening_catalog_snapshot.sql`, and never delete an entry: set `"status": "retired"`.
 
 ## Project Structure & Module Organization
 

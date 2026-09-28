@@ -453,27 +453,27 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 
 #### Automated
 
-- [x] 1.1 Lint passes: `npm run lint` — ad3b864
-- [x] 1.2 Type check passes, including EN dictionary completeness: `npx astro check` — ad3b864
-- [x] 1.3 Build passes: `npm run build` — ad3b864
-- [x] 1.4 Full local smoke passes against `npm run preview` with local Supabase: `BASE_URL=http://localhost:4321 npm run smoke` — ad3b864
+- [x] 1.1 Lint passes: `npm run lint` — 670912f
+- [x] 1.2 Type check passes, including EN dictionary completeness: `npx astro check` — 670912f
+- [x] 1.3 Build passes: `npm run build` — 670912f
+- [x] 1.4 Full local smoke passes against `npm run preview` with local Supabase: `BASE_URL=http://localhost:4321 npm run smoke` — 670912f
 
 #### Manual
 
-- [x] 1.5 A fresh browser (no `lang` cookie) shows home, sign-in, sign-up, confirm-email and dashboard in Polish with `<html lang="pl">` — ad3b864
-- [x] 1.6 The switcher toggles every page to English and back, keeps the current page, and survives reload — ad3b864
-- [x] 1.7 Wrong password, existing email, and a broken callback link each show a translated message in both languages — ad3b864
-- [x] 1.8 The sign-up password hint uses correct Polish plural forms (1 znak / 2 znaki / 5 znaków) — ad3b864
+- [x] 1.5 A fresh browser (no `lang` cookie) shows home, sign-in, sign-up, confirm-email and dashboard in Polish with `<html lang="pl">` — 670912f
+- [x] 1.6 The switcher toggles every page to English and back, keeps the current page, and survives reload — 670912f
+- [x] 1.7 Wrong password, existing email, and a broken callback link each show a translated message in both languages — 670912f
+- [x] 1.8 The sign-up password hint uses correct Polish plural forms (1 znak / 2 znaki / 5 znaków) — 670912f
 
 ### Phase 2: Health-data schema, RLS, and migration delivery
 
 #### Automated
 
-- [x] 2.1 Migration applies cleanly from scratch: `npx supabase db reset` — edabdb0
-- [x] 2.2 RLS tests pass: `npx supabase test db` — edabdb0
-- [x] 2.3 Generated types are current: `npm run db:types && git diff --exit-code src/lib/database.types.ts` — edabdb0
-- [x] 2.4 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — edabdb0
-- [x] 2.5 PR checks `ci` and `smoke` are green (smoke now includes `supabase test db`) — edabdb0
+- [x] 2.1 Migration applies cleanly from scratch: `npx supabase db reset` — 670912f
+- [x] 2.2 RLS tests pass: `npx supabase test db` — 670912f
+- [x] 2.3 Generated types are current: `npm run db:types && git diff --exit-code src/lib/database.types.ts` — 670912f
+- [x] 2.4 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — 670912f
+- [x] 2.5 PR checks `ci` and `smoke` are green (smoke now includes `supabase test db`) — 670912f
 
 #### Manual
 
@@ -486,34 +486,34 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 
 #### Automated
 
-- [x] 3.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — d2b0f43
-- [x] 3.2 RLS tests still pass: `npx supabase test db` — d2b0f43
-- [x] 3.3 Full local smoke passes with the new onboarding steps: `BASE_URL=http://localhost:4321 npm run smoke` — d2b0f43
-- [x] 3.4 PR checks `ci` and `smoke` are green — 86bfbb4
+- [x] 3.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — 6f1a980
+- [x] 3.2 RLS tests still pass: `npx supabase test db` — 6f1a980
+- [x] 3.3 Full local smoke passes with the new onboarding steps: `BASE_URL=http://localhost:4321 npm run smoke` — 6f1a980
+- [x] 3.4 PR checks `ci` and `smoke` are green — 6f1a980
 
 #### Manual
 
-- [x] 3.5 A new account (sign-up → email confirm) lands on `/onboarding` with an unticked consent checkbox. Submitting without it shows a translated error. — d2b0f43
-- [x] 3.6 The consent text is accurate (data collected, purpose, storage region from Phase 2, how to withdraw) in both PL and EN — d2b0f43
-- [x] 3.7 The smoking fields appear and hide correctly for never/current/former, pack-years updates live, and invalid values show inline errors — d2b0f43
-- [x] 3.8 After saving, the dashboard shows the profile summary. Sign-out/sign-in goes straight to the dashboard. — d2b0f43
-- [x] 3.9 The flow works on a mobile-width screen and with keyboard only — d2b0f43
-- [x] 3.10 In Supabase Studio (local), the consent row stores the version and the locale shown — d2b0f43
+- [x] 3.5 A new account (sign-up → email confirm) lands on `/onboarding` with an unticked consent checkbox. Submitting without it shows a translated error. — 6f1a980
+- [x] 3.6 The consent text is accurate (data collected, purpose, storage region from Phase 2, how to withdraw) in both PL and EN — 6f1a980
+- [x] 3.7 The smoking fields appear and hide correctly for never/current/former, pack-years updates live, and invalid values show inline errors — 6f1a980
+- [x] 3.8 After saving, the dashboard shows the profile summary. Sign-out/sign-in goes straight to the dashboard. — 6f1a980
+- [x] 3.9 The flow works on a mobile-width screen and with keyboard only — 6f1a980
+- [x] 3.10 In Supabase Studio (local), the consent row stores the version and the locale shown — 6f1a980
 
 ### Phase 4: Profile editing and consent withdrawal
 
 #### Automated
 
-- [x] 4.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — 86bfbb4
-- [x] 4.2 RLS tests pass: `npx supabase test db` — 86bfbb4
-- [x] 4.3 Full local smoke passes with the edit and withdraw steps: `BASE_URL=http://localhost:4321 npm run smoke` — 86bfbb4
-- [x] 4.4 PR checks `ci` and `smoke` are green — 86bfbb4
-- [x] 4.9 Read-only smoke passes with the health-endpoint step: `SMOKE_READONLY=1 BASE_URL=http://localhost:4321 npm run smoke` — 86bfbb4
+- [x] 4.1 Lint, type check and build pass: `npm run lint && npx astro check && npm run build` — 6f1a980
+- [x] 4.2 RLS tests pass: `npx supabase test db` — 6f1a980
+- [x] 4.3 Full local smoke passes with the edit and withdraw steps: `BASE_URL=http://localhost:4321 npm run smoke` — 6f1a980
+- [x] 4.4 PR checks `ci` and `smoke` are green — 6f1a980
+- [x] 4.9 Read-only smoke passes with the health-endpoint step: `SMOKE_READONLY=1 BASE_URL=http://localhost:4321 npm run smoke` — 6f1a980
 
 #### Manual
 
-- [x] 4.5 `/profile` is prefilled. Changing smoking status from former to never clears the smoking fields after saving. — 86bfbb4
-- [x] 4.6 Withdrawing without ticking the confirmation shows a translated error. With it ticked, the user lands on `/onboarding` with a "data deleted" notice. — 86bfbb4
-- [x] 4.7 After withdrawal, in Supabase Studio (local) the profile row is gone and the consent row has `withdrawn_at` set. Granting consent again creates a new row. — 86bfbb4
-- [ ] 4.8 After merge, a production walkthrough with the owner's own account completes onboarding, edit and withdraw (no smoke run against prod beyond `SMOKE_READONLY=1`)
-- [x] 4.10 With the Supabase secrets removed locally, no page shows a config banner and `/api/health` returns 503 — 86bfbb4
+- [x] 4.5 `/profile` is prefilled. Changing smoking status from former to never clears the smoking fields after saving. — 6f1a980
+- [x] 4.6 Withdrawing without ticking the confirmation shows a translated error. With it ticked, the user lands on `/onboarding` with a "data deleted" notice. — 6f1a980
+- [x] 4.7 After withdrawal, in Supabase Studio (local) the profile row is gone and the consent row has `withdrawn_at` set. Granting consent again creates a new row. — 6f1a980
+- [x] 4.8 After merge, a production walkthrough with the owner's own account completes onboarding, edit and withdraw (no smoke run against prod beyond `SMOKE_READONLY=1`) — 6f1a980
+- [x] 4.10 With the Supabase secrets removed locally, no page shows a config banner and `/api/health` returns 503 — 6f1a980

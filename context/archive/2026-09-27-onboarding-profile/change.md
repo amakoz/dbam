@@ -1,10 +1,10 @@
 ---
 change_id: onboarding-profile
 title: Onboarding profile
-status: impl_reviewed
+status: archived
 created: 2026-09-27
-updated: 2026-09-27
-archived_at: null
+updated: 2026-09-28
+archived_at: 2026-09-28T06:36:34Z
 ---
 
 ## Notes

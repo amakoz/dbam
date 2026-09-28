@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { hasActiveConsent } from "@/lib/consent";
 import { parseProfileForm } from "@/lib/profile";
 import { createClient } from "@/lib/supabase";
+import { readForm } from "@/lib/forms";
 
 // Where each form lives, and where a successful save goes.
 const MODES = {
@@ -10,7 +11,10 @@ const MODES = {
 } as const;
 
 export const POST: APIRoute = async (context) => {
-  const form = await context.request.formData();
+  const form = await readForm(context.request);
+  if (!form) {
+    return context.redirect("/onboarding?error=invalid_request");
+  }
   const mode = MODES[form.get("mode") === "profile" ? "profile" : "onboarding"];
 
   const supabase = createClient(context.request.headers, context.cookies);

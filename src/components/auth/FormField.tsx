@@ -32,6 +32,7 @@ export function FormField({
   icon,
   endContent,
 }: FormFieldProps) {
+  const descriptionId = `${id}-description`;
   return (
     <div>
       <label htmlFor={id} className="mb-1 block text-sm text-blue-100/80">
@@ -48,6 +49,8 @@ export function FormField({
             onChange(e.target.value);
           }}
           placeholder={placeholder}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error || hint ? descriptionId : undefined}
           className={cn(
             inputBase,
             error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
@@ -55,14 +58,16 @@ export function FormField({
         />
         {endContent}
       </div>
-      {error ? (
-        <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
-          <CircleAlert className="size-3" />
-          {error}
-        </p>
-      ) : (
-        hint
-      )}
+      <div id={descriptionId}>
+        {error ? (
+          <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
+            <CircleAlert className="size-3" />
+            {error}
+          </p>
+        ) : (
+          hint
+        )}
+      </div>
     </div>
   );
 }

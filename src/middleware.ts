@@ -18,11 +18,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.user = null;
   }
 
-  if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
-    if (!context.locals.user) {
-      return context.redirect("/auth/signin");
-    }
+  if (!PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
+    return next();
+  }
+  if (!context.locals.user) {
+    return context.redirect("/auth/signin");
   }
 
-  return next();
+  // Protected pages show health data: keep them out of shared caches and the back/forward cache, so signing out on a
+  // shared device doesn't leave the data one Back press away.
+  const response = await next();
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
 });

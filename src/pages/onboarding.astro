@@ -1,8 +1,9 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import ProfileForm from "@/components/profile/ProfileForm";
+import WithdrawConsentForm from "@/components/profile/WithdrawConsentForm.astro";
 import { createT } from "@/i18n";
-import { getOnboardingState } from "@/lib/consent";
+import { HEALTH_DATA_CONSENT_VERSION, getOnboardingState } from "@/lib/consent";
 import { errorMessageKey } from "@/lib/errors";
 import { createClient } from "@/lib/supabase";
 
@@ -20,8 +21,12 @@ if (state === "complete") {
   return Astro.redirect("/dashboard");
 }
 
+// Consent and profile errors show next to their form; `withdraw_*` codes show in the withdraw section.
 const errorCode = Astro.url.searchParams.get("error");
-const serverError = errorCode ? t(errorMessageKey(errorCode)) : null;
+const errorText = errorCode ? t(errorMessageKey(errorCode)) : null;
+const isWithdrawError = errorCode?.startsWith("withdraw_") ?? false;
+const serverError = isWithdrawError ? null : errorText;
+const withdrawError = isWithdrawError ? errorText : null;
 const withdrawn = Astro.url.searchParams.has("withdrawn");
 
 const consentSections = [
@@ -46,6 +51,7 @@ const consentSections = [
 
       {state === "needs_consent" ? (
         <form method="POST" action="/api/consent/grant" class="space-y-4">
+          <input type="hidden" name="version" value={HEALTH_DATA_CONSENT_VERSION} />
           <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
             {t("onboarding.consent.heading")}
           </h1>
@@ -91,6 +97,10 @@ const consentSections = [
           </h1>
           <p class="mb-6 text-sm text-blue-100/80">{t("onboarding.profile.intro")}</p>
           <ProfileForm locale={locale} mode="onboarding" serverError={serverError} client:load />
+          {/* Consent is active from here on, so withdrawing it must be possible before a profile exists (Art. 7(3)). */}
+          <div class="mt-8">
+            <WithdrawConsentForm from="onboarding" error={withdrawError} />
+          </div>
         </>
       )}
 

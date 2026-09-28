@@ -515,5 +515,5 @@ The migration is purely additive (new tables and a function), so a Worker rollba
 - [x] 4.5 `/profile` is prefilled. Changing smoking status from former to never clears the smoking fields after saving. — 86bfbb4
 - [x] 4.6 Withdrawing without ticking the confirmation shows a translated error. With it ticked, the user lands on `/onboarding` with a "data deleted" notice. — 86bfbb4
 - [x] 4.7 After withdrawal, in Supabase Studio (local) the profile row is gone and the consent row has `withdrawn_at` set. Granting consent again creates a new row. — 86bfbb4
-- [ ] 4.8 After merge, a production walkthrough with the owner's own account completes onboarding, edit and withdraw (no smoke run against prod beyond `SMOKE_READONLY=1`)
+- [x] 4.8 After merge, a production walkthrough with the owner's own account completes onboarding, edit and withdraw (no smoke run against prod beyond `SMOKE_READONLY=1`) — 6f1a980
 - [x] 4.10 With the Supabase secrets removed locally, no page shows a config banner and `/api/health` returns 503 — 86bfbb4

@@ -1,0 +1,72 @@
+{
+  "slug": "osteoporosis-bone-density",
+  "status": "active",
+  "name_pl": "Densytometria (DXA) w kierunku osteoporozy",
+  "name_en": "Bone density scan (DXA) for osteoporosis",
+  "summary_pl": "Badanie gęstości mineralnej kości metodą DXA w kierunku osteoporozy. USPSTF zaleca badanie przesiewowe wszystkim kobietom w wieku 65 lat i starszym; młodsze kobiety po menopauzie ze zwiększonym ryzykiem złamań kwalifikuje lekarz na podstawie oceny ryzyka.",
+  "summary_en": "A DXA bone mineral density scan to check for osteoporosis. The USPSTF recommends screening for all women aged 65 and over; a doctor assesses younger postmenopausal women with an increased fracture risk.",
+  "how_to_access_pl": "W ramach umowy z NFZ badanie wymaga skierowania od lekarza specjalisty; bez skierowania jest płatne. Lekarz POZ może skierować do poradni specjalistycznej, jeśli uzna, że potrzebujesz leczenia specjalistycznego. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "Under an NFZ contract the scan needs a referral from a specialist doctor; without a referral it is paid. A POZ doctor can refer you to a specialist clinic if they judge that you need specialist care. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "sex": "female",
+      "age_min": 65,
+      "requires": []
+    }
+  ],
+  "interval_kind": "no_known_interval",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 3,
+  "evidence_source": "USPSTF grade B (2025)",
+  "burden_weight": 3,
+  "nfz_funded": true,
+  "referral_required": true,
+  "sources": [
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/osteoporosis-screening",
+      "title": "Recommendation: Osteoporosis to Prevent Fractures: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "The USPSTF recommends screening for osteoporosis to prevent osteoporotic fractures in women 65 years or older.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/osteoporosis-screening",
+      "title": "Recommendation: Osteoporosis to Prevent Fractures: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "Screen women 65 years or older with DXA BMD, with or without fracture risk assessment.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/osteoporosis-screening",
+      "title": "Recommendation: Osteoporosis to Prevent Fractures: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "The USPSTF recommends screening for osteoporosis to prevent osteoporotic fractures in postmenopausal women younger than 65 years who are at increased risk for an osteoporotic fracture as estimated by clinical risk assessment.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/osteoporosis-screening",
+      "title": "Recommendation: Osteoporosis to Prevent Fractures: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "In response, the USPSTF notes that the evidence related to screening intervals for osteoporosis is limited; what is known that could be helpful is discussed in the Practice Considerations section, and the USPSTF calls for more research to help inform appropriate screening intervals.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/spzoz-mswia-szczecin/badanie-densytometryczne",
+      "title": "Badanie Densytometryczne",
+      "publisher": "SP ZOZ MSWiA w Szczecinie (gov.pl)",
+      "quote": "Potrzebne jest skierowanie od lekarza specjalisty w ramach umowy zawartej z NFZ, bez skierowania- odpłatnie według cennika.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/artykul/skierowanie-do-specjalisty",
+      "title": "Skierowanie do specjalisty",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Jeśli lekarz ubezpieczenia zdrowotnego uzna, że potrzebujesz leczenia specjalistycznego, wypisze Ci skierowanie do specjalisty",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

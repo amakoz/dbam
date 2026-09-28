@@ -1,0 +1,79 @@
+{
+  "slug": "hiv-screening-test",
+  "status": "active",
+  "name_pl": "Test w kierunku HIV",
+  "name_en": "HIV screening test",
+  "summary_pl": "Badanie krwi w kierunku zakażenia HIV. USPSTF zaleca badanie przesiewowe młodzieży i dorosłym w wieku 15–65 lat; starsze osoby ze zwiększonym ryzykiem zakażenia kwalifikuje lekarz.",
+  "summary_en": "A blood test for HIV infection. The USPSTF recommends screening for adolescents and adults aged 15 to 65; a doctor assesses older people at increased risk of infection.",
+  "how_to_access_pl": "Test można wykonać bezpłatnie, anonimowo i bez skierowania w punkcie konsultacyjno-diagnostycznym (PKD); w każdym województwie jest co najmniej jeden taki punkt. W publicznych placówkach medycznych test jest finansowany przez NFZ, ale wymaga skierowania, np. od lekarza POZ. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "You can take the test free of charge, anonymously and without a referral at a consultation and diagnostic point (PKD); every voivodeship has at least one. In public healthcare facilities the test is funded by the NFZ but needs a referral, e.g. from your POZ doctor. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 18,
+      "age_max": 65,
+      "requires": []
+    }
+  ],
+  "interval_kind": "no_known_interval",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 3,
+  "evidence_source": "USPSTF grade A (2019)",
+  "burden_weight": 1,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/human-immunodeficiency-virus-hiv-infection-screening",
+      "title": "Recommendation: Human Immunodeficiency Virus (HIV) Infection: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "The USPSTF recommends that clinicians screen for HIV infection in adolescents and adults aged 15 to 65 years. Younger adolescents and older adults who are at increased risk of infection should also be screened.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/human-immunodeficiency-virus-hiv-infection-screening",
+      "title": "Recommendation: Human Immunodeficiency Virus (HIV) Infection: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "The USPSTF found insufficient evidence to determine appropriate or optimal time intervals or strategies for repeat HIV screening.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://jedynytakitest.aids.gov.pl/gdzie-mozna-wykonac-test-na-hiv/",
+      "title": "Gdzie można wykonać test na HIV?",
+      "publisher": "Krajowe Centrum ds. AIDS",
+      "quote": "Test na HIV można wykonać bezpłatnie, anonimowo i bez skierowania, w jednym z punktów konsultacyjno-diagnostycznych (PKD).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://jedynytakitest.aids.gov.pl/gdzie-mozna-wykonac-test-na-hiv/",
+      "title": "Gdzie można wykonać test na HIV?",
+      "publisher": "Krajowe Centrum ds. AIDS",
+      "quote": "W każdym województwie funkcjonuje co najmniej jeden taki punkt.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://jedynytakitest.aids.gov.pl/gdzie-mozna-wykonac-test-na-hiv/",
+      "title": "Gdzie można wykonać test na HIV?",
+      "publisher": "Krajowe Centrum ds. AIDS",
+      "quote": "w publicznych placówkach medycznych: wymagają skierowania, są imienne i finansowane przez NFZ;",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/zdrowie/rozmawiaj-o-hiv-zrob-test-na-hiv",
+      "title": "Rozmawiaj o HIV. Zrób test na HIV",
+      "publisher": "Ministerstwo Zdrowia (gov.pl)",
+      "quote": "Zachęcamy do zrobienia testu na obecność wirusa HIV. Bezpłatne i anonimowe badania można wykonać w Punktach Konsultacyjno-Diagnostycznych w całym kraju.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/jakie-badania-moze-zlecic-lekarz-poz",
+      "title": "Jakie badania może zlecić lekarz POZ",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "HIV test przesiewowy (przeciwciała przeciwko anty-HIV i antygen p24",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

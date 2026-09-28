@@ -1,0 +1,151 @@
+{
+  "slug": "lung-ldct-nfz-program",
+  "status": "draft",
+  "name_pl": "Niskodawkowa tomografia komputerowa (NDTK) w programie badań przesiewowych raka płuca",
+  "name_en": "Low-dose CT (LDCT) in the lung cancer screening program",
+  "summary_pl": "Bezpłatne badanie niskodawkową tomografią komputerową klatki piersiowej (NDTK) w ramach Programu badań przesiewowych raka płuca finansowanego przez NFZ. Program obejmuje osoby w wieku 55–74 lat z historią palenia co najmniej 20 paczkolat, które palą lub rzuciły palenie nie dawniej niż 15 lat temu, a w wieku 50–54 lat — przy tej samej historii palenia i dodatkowym czynniku ryzyka określonym w rozporządzeniu.",
+  "summary_en": "A free low-dose chest CT (LDCT) in the NFZ-funded lung cancer screening program. The program covers people aged 55–74 with a smoking history of at least 20 pack-years who still smoke or quit no more than 15 years ago, and people aged 50–54 with the same smoking history plus an additional risk factor listed in the regulation.",
+  "how_to_access_pl": "Skierowanie nie jest potrzebne. O udziale decyduje lekarz podczas wizyty kwalifikującej w placówce, która ma umowę z NFZ na realizację programu; umowy obowiązują nie wcześniej niż od 1 października 2026 r. U osób w wieku 50–54 lat lekarz ocenia też inne czynniki ryzyka wymienione w rozporządzeniu, m.in. ekspozycję na radon, przebyte niektóre nowotwory, raka płuca u krewnych pierwszego stopnia lub POChP. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "No referral is needed. A doctor decides on participation during a qualifying visit at a facility with an NFZ contract for the program; contracts start no earlier than 1 October 2026. For people aged 50–54 the doctor also considers other risk factors listed in the regulation, such as radon exposure, certain past cancers, lung cancer in a first-degree relative, or COPD. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 55,
+      "age_max": 74,
+      "requires": [
+        {
+          "factor": "smoking_status",
+          "op": "eq",
+          "value": "current"
+        },
+        {
+          "factor": "pack_years",
+          "op": "gte",
+          "value": 20
+        }
+      ]
+    },
+    {
+      "age_min": 55,
+      "age_max": 74,
+      "requires": [
+        {
+          "factor": "smoking_status",
+          "op": "eq",
+          "value": "former"
+        },
+        {
+          "factor": "pack_years",
+          "op": "gte",
+          "value": 20
+        },
+        {
+          "factor": "years_since_quitting",
+          "op": "lte",
+          "value": 15
+        }
+      ]
+    },
+    {
+      "age_min": 50,
+      "age_max": 54,
+      "requires": [
+        {
+          "factor": "smoking_status",
+          "op": "eq",
+          "value": "current"
+        },
+        {
+          "factor": "pack_years",
+          "op": "gte",
+          "value": 20
+        },
+        {
+          "factor": "occupational_carcinogen_exposure",
+          "op": "eq",
+          "value": true
+        }
+      ]
+    },
+    {
+      "age_min": 50,
+      "age_max": 54,
+      "requires": [
+        {
+          "factor": "smoking_status",
+          "op": "eq",
+          "value": "former"
+        },
+        {
+          "factor": "pack_years",
+          "op": "gte",
+          "value": 20
+        },
+        {
+          "factor": "years_since_quitting",
+          "op": "lte",
+          "value": 15
+        },
+        {
+          "factor": "occupational_carcinogen_exposure",
+          "op": "eq",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 12,
+  "interval_overrides": [],
+  "evidence_level": 3,
+  "evidence_source": "NFZ program (Program badań przesiewowych raka płuca, Dz.U. 2026 poz. 976); EU Council Rec. 2022",
+  "burden_weight": 5,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://www.dziennikustaw.gov.pl/D2026000097601.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 14 lipca 2026 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu programów zdrowotnych (Dz. U. 2026 poz. 976)",
+      "publisher": "Dziennik Ustaw Rzeczypospolitej Polskiej",
+      "quote": "1) co 12 miesięcy u osób w wieku 55–74 lat z konsumpcją tytoniu większą lub równą 20 paczkolat, z okresem abstynencji tytoniowej niedłuższym niż 15 lat;",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.dziennikustaw.gov.pl/D2026000097601.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 14 lipca 2026 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu programów zdrowotnych (Dz. U. 2026 poz. 976)",
+      "publisher": "Dziennik Ustaw Rzeczypospolitej Polskiej",
+      "quote": "2) co 12 miesięcy u osób w wieku 50–54 lat z konsumpcją tytoniu większą lub równą 20 paczkolat, okresem abstynencji tytoniowej niedłuższym niż 15 lat, u których stwierdza się co najmniej jeden z czynników ryzyka: a) co najmniej 2-letnia ekspozycja zawodowa na minimum jeden z czynników środowiskowych: krzemionkę, beryl, nikiel, chrom, kadm, azbest, związki arsenu, spaliny silników diesla, dym ze spalania węgla kamiennego, sadza,",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.dziennikustaw.gov.pl/D2026000097601.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 14 lipca 2026 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu programów zdrowotnych (Dz. U. 2026 poz. 976)",
+      "publisher": "Dziennik Ustaw Rzeczypospolitej Polskiej",
+      "quote": "Kwalifikacja do badania następuje podczas wizyty kwalifikującej.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.dziennikustaw.gov.pl/D2026000097601.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 14 lipca 2026 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu programów zdrowotnych (Dz. U. 2026 poz. 976)",
+      "publisher": "Dziennik Ustaw Rzeczypospolitej Polskiej",
+      "quote": "§ 2. Umowy o udzielanie świadczeń opieki zdrowotnej dotyczące świadczeń gwarantowanych określonych w lp. 9 załącznika do rozporządzenia, o którym mowa w § 1, w brzmieniu określonym w załączniku do niniejszego rozporządzenia, zawiera się na okres rozpoczynający się niewcześniej niż z dniem 1 października 2026 r.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/aktualnosci/aktualnosci-centrali/oglosilismy-konkursy-do-programu-profilaktyki-raka-pluca-czym-jest-badanie-ndtk,9011.html",
+      "title": "Ogłosiliśmy konkursy do programu profilaktyki raka płuca. Czym jest badanie NDTK?",
+      "publisher": "Narodowy Fundusz Zdrowia",
+      "quote": "Bezpłatna profilaktyka dla palaczy: Program jest finansowany przez NFZ i nie wymaga skierowania.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/aktualnosci/aktualnosci-centrali/oglosilismy-konkursy-do-programu-profilaktyki-raka-pluca-czym-jest-badanie-ndtk,9011.html",
+      "title": "Ogłosiliśmy konkursy do programu profilaktyki raka płuca. Czym jest badanie NDTK?",
+      "publisher": "Narodowy Fundusz Zdrowia",
+      "quote": "Nie, do badania NDTK w ramach programu profilaktycznego NFZ nie jest potrzebne skierowanie od lekarza. Wystarczy zgłosić się bezpośrednio do placówki medycznej posiadającej umowę z NFZ na realizację tego programu.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

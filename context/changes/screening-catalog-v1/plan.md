@@ -561,8 +561,8 @@ The catalog is small (tens of rows), and no request path reads it in this change
 
 #### Automated
 
-- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
-- [x] 3.2 `@anthropic-ai/sdk` is not imported anywhere under `src/`: `grep -r "@anthropic-ai/sdk" src/` finds nothing
+- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — ae4a0d4
+- [x] 3.2 `@anthropic-ai/sdk` is not imported anywhere under `src/`: `grep -r "@anthropic-ai/sdk" src/` finds nothing — ae4a0d4
 
 #### Manual
 
@@ -572,13 +572,13 @@ The catalog is small (tens of rows), and no request path reads it in this change
 
 #### Automated
 
-- [ ] 4.1 Catalog is valid and matches the newest snapshot: `npm run catalog:check`
-- [ ] 4.2 Local database applies the snapshot: `npx supabase db reset`
-- [ ] 4.3 pgTAP suites pass, including the data sanity checks: `npx supabase test db`
-- [ ] 4.4 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
+- [x] 4.1 Catalog is valid and matches the newest snapshot: `npm run catalog:check`
+- [x] 4.2 Local database applies the snapshot: `npx supabase db reset`
+- [x] 4.3 pgTAP suites pass, including the data sanity checks: `npx supabase test db`
+- [x] 4.4 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
 
 #### Manual
 
-- [ ] 4.5 The owner has reviewed every `active` entry against its cited sources, per the `catalog/README.md` checklist
-- [ ] 4.6 A local REST read with the publishable key returns only active and retired entries, with PL and EN text and sources present
+- [x] 4.5 The owner has reviewed every `active` entry against its cited sources, per the `catalog/README.md` checklist
+- [x] 4.6 A local REST read with the publishable key returns only active and retired entries, with PL and EN text and sources present
 - [ ] 4.7 After merge, CI `migrate` succeeds, and the production REST endpoint returns the active entries with the publishable key

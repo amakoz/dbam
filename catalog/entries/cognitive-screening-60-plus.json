@@ -1,0 +1,57 @@
+{
+  "slug": "cognitive-screening-60-plus",
+  "status": "active",
+  "name_pl": "Ocena funkcji poznawczych (mini-COG)",
+  "name_en": "Cognitive screening (mini-COG)",
+  "summary_pl": "Krótki test przesiewowy funkcji poznawczych (skala mini-COG) wykonywany podczas wizyty podsumowującej program Moje Zdrowie u osób od 60. roku życia, u których ankieta wskaże ryzyko zaburzeń funkcji poznawczych.",
+  "summary_en": "A short cognitive screening test (the mini-COG scale) done at the Moje Zdrowie summary visit for people from age 60 whose questionnaire indicates a risk of cognitive impairment.",
+  "how_to_access_pl": "Ocena odbywa się podczas wizyty podsumowującej bilans zdrowia Moje Zdrowie; o jej wykonaniu decyduje personel POZ na podstawie ankiety. Wypełnij ankietę programu Moje Zdrowie na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w swojej przychodni POZ; przychodnia wystawia na jej podstawie zlecenie na badania, więc skierowanie nie jest potrzebne. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "The assessment takes place at the Moje Zdrowie summary visit; POZ staff decide whether it applies based on the questionnaire. Fill in the Moje Zdrowie questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic; the clinic issues the test order based on it, so no referral is needed. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 60,
+      "requires": []
+    }
+  ],
+  "interval_kind": "per_program",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 2,
+  "evidence_source": "Moje Zdrowie summary visit (Dz.U. 2025 poz. 584)",
+  "burden_weight": 3,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://dziennikustaw.gov.pl/D2025000058401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 30 kwietnia 2025 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu podstawowej opieki zdrowotnej (Dz.U. 2025 poz. 584)",
+      "publisher": "Dziennik Ustaw RP (Minister Zdrowia)",
+      "quote": "6) ocenę funkcji poznawczych wykorzystującą skalę mini-COG u osób od 60 roku życia, u których zostało stwierdzone ryzyko występowania zaburzeń funkcji poznawczych;",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "W jej trakcie pracownik medyczny przeanalizuje Twoje wyniki, zmierzy ciśnienie, tętno, wagę i wzrost, a także oceni funkcje poznawcze, jeśli masz 60 lub więcej lat.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Przychodnia POZ wystawi zlecenie (nie skierowanie) na badania na podstawie wypełnionej przez Ciebie ankiety.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

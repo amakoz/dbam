@@ -1,0 +1,133 @@
+{
+  "slug": "diabetes-screening-glucose",
+  "status": "active",
+  "name_pl": "Badanie w kierunku cukrzycy (glukoza na czczo, HbA1c lub OGTT)",
+  "name_en": "Diabetes screening (fasting glucose, HbA1c or OGTT)",
+  "summary_pl": "Badanie krwi w kierunku cukrzycy typu 2: oznaczenie glukozy na czczo, hemoglobiny glikowanej (HbA1c) lub doustny test obciążenia glukozą (OGTT). Zalecenia Polskiego Towarzystwa Diabetologicznego obejmują każdą osobę powyżej 45. roku życia (raz na 3 lata), a niezależnie od wieku osoby z co najmniej jednym czynnikiem ryzyka cukrzycy typu 2, np. nadwagą, nadciśnieniem tętniczym lub dyslipidemią (raz w roku).",
+  "summary_en": "A blood test for type 2 diabetes: fasting glucose, glycated haemoglobin (HbA1c) or an oral glucose tolerance test (OGTT). The Polish Diabetes Society guidance covers everyone over 45 (every 3 years) and, at any age, people with at least one type 2 diabetes risk factor such as overweight, hypertension or dyslipidaemia (every year).",
+  "how_to_access_pl": "Glukoza jest w podstawowym zakresie badań bezpłatnego programu Moje Zdrowie: wypełnij ankietę na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w przychodni POZ, a przychodnia wystawi na jej podstawie zlecenie na badania, bez skierowania. Glukozę, HbA1c i test obciążenia glukozą może też bezpłatnie zlecić lekarz POZ, jeśli uzna, że są wskazania medyczne. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "Glucose is in the basic panel of the free Moje Zdrowie program: fill in the questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic, and the clinic issues the test order based on it, without a referral. A POZ doctor can also order glucose, HbA1c and a glucose tolerance test free of charge when there is a medical indication. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 45,
+      "requires": []
+    },
+    {
+      "age_min": 18,
+      "requires": [{ "factor": "bmi", "op": "gte", "value": 25 }]
+    },
+    {
+      "age_min": 18,
+      "requires": [{ "factor": "hypertension", "op": "eq", "value": true }]
+    },
+    {
+      "age_min": 18,
+      "requires": [{ "factor": "dyslipidemia", "op": "eq", "value": true }]
+    },
+    {
+      "age_min": 18,
+      "requires": [{ "factor": "cardiovascular_disease", "op": "eq", "value": true }]
+    },
+    {
+      "age_min": 18,
+      "requires": [{ "factor": "fatty_liver", "op": "eq", "value": true }]
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 36,
+  "interval_overrides": [
+    {
+      "when": { "requires": [{ "factor": "bmi", "op": "gte", "value": 25 }] },
+      "months": 12
+    },
+    {
+      "when": { "requires": [{ "factor": "hypertension", "op": "eq", "value": true }] },
+      "months": 12
+    },
+    {
+      "when": { "requires": [{ "factor": "dyslipidemia", "op": "eq", "value": true }] },
+      "months": 12
+    },
+    {
+      "when": { "requires": [{ "factor": "cardiovascular_disease", "op": "eq", "value": true }] },
+      "months": 12
+    },
+    {
+      "when": { "requires": [{ "factor": "fatty_liver", "op": "eq", "value": true }] },
+      "months": 12
+    }
+  ],
+  "evidence_level": 2,
+  "evidence_source": "PTD 2026 clinical recommendations (Polish Diabetes Society)",
+  "burden_weight": 4,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://ptdiab.pl/images/docs/zalecenia/2026/Zalecenia-PTD-2026-02-04-2026.pdf",
+      "title": "Zalecenia kliniczne dotyczące postępowania u osób z cukrzycą 2026. Stanowisko Polskiego Towarzystwa Diabetologicznego",
+      "publisher": "Polskie Towarzystwo Diabetologiczne (Current Topics in Diabetes 2026; 6(1))",
+      "quote": "badanie w kierunku cukrzycy należy przeprowadzać raz na 3 lata u każdej osoby powyżej 45. roku życia; niezależnie od wieku, należy takie badanie przeprowadzać raz w roku u wszystkich osób, u których występuje co najmniej jeden czynnik ryzyka cukrzycy typu 2 (tabela 1.2).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://ptdiab.pl/images/docs/zalecenia/2026/Zalecenia-PTD-2026-02-04-2026.pdf",
+      "title": "Zalecenia kliniczne dotyczące postępowania u osób z cukrzycą 2026. Stanowisko Polskiego Towarzystwa Diabetologicznego",
+      "publisher": "Polskie Towarzystwo Diabetologiczne (Current Topics in Diabetes 2026; 6(1))",
+      "quote": "Tabela 1.2. Czynniki ryzyka cukrzycy typu 2 • nadwaga lub otyłość (BMI ≥ 25 kg/m2 i/lub obwód w talii ≥ 80 cm u kobiet albo ≥ 94 cm u mężczyzn) • choroby układu sercowo-naczyniowego • cukrzyca występująca w rodzinie (rodzice bądź rodzeństwo) • stan przedcukrzycowy • przebyta cukrzyca ciążowa • nadciśnienie tętnicze • dyslipidemia • stłuszczeniowa choroba wątroby",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://ptdiab.pl/images/docs/zalecenia/2026/Zalecenia-PTD-2026-02-04-2026.pdf",
+      "title": "Zalecenia kliniczne dotyczące postępowania u osób z cukrzycą 2026. Stanowisko Polskiego Towarzystwa Diabetologicznego",
+      "publisher": "Polskie Towarzystwo Diabetologiczne (Current Topics in Diabetes 2026; 6(1))",
+      "quote": "Badanie przesiewowe przeprowadza się, oznaczając glikemię na czczo, wykonując OGTT lub oznaczając HbA1c. [C]",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Podstawowe badania w ramach programu obejmą morfologię krwi, poziom glukozy, kreatyninę, lipidogram, TSH, a także lipoproteinę A.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Przychodnia POZ wystawi zlecenie (nie skierowanie) na badania na podstawie wypełnionej przez Ciebie ankiety.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/jakie-badania-moze-zlecic-lekarz-poz",
+      "title": "Jakie badania może zlecić lekarz POZ",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Lekarz podstawowej opieki zdrowotnej, w związku z prowadzonym leczeniem, może skierować Cię na bezpłatne badania diagnostyczne",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/jakie-badania-moze-zlecic-lekarz-poz",
+      "title": "Jakie badania może zlecić lekarz POZ",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "stężenie hemoglobiny glikowanej (HbAlc) mocznik kreatynina glukoza test obciążenia glukozą",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/jakie-badania-moze-zlecic-lekarz-poz",
+      "title": "Jakie badania może zlecić lekarz POZ",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Decyzje o konieczności badań diagnostycznych lekarz podejmuje na podstawie wskazań medycznych, a nie na żądanie pacjenta.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

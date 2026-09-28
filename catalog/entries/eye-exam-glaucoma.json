@@ -1,0 +1,83 @@
+{
+  "slug": "eye-exam-glaucoma",
+  "status": "active",
+  "name_pl": "Badanie okulistyczne w kierunku jaskry",
+  "name_en": "Eye examination for glaucoma",
+  "summary_pl": "Profilaktyczne badanie okulistyczne w kierunku jaskry: pomiar ciśnienia wewnątrzgałkowego, oftalmoskopia, badanie pola widzenia i badanie obrazowe nerwu wzrokowego. Wytyczne Polskiego Towarzystwa Okulistycznego obejmują osoby powyżej 40. roku życia (co 2 lata), a osoby z czynnikami ryzyka rozwoju jaskry, np. z cukrzycą, co rok.",
+  "summary_en": "A preventive eye examination for glaucoma: eye pressure measurement, ophthalmoscopy, a visual field test and optic nerve imaging. The Polish Ophthalmological Society guidelines cover people over 40 (every 2 years), and people with glaucoma risk factors, such as diabetes, every year.",
+  "how_to_access_pl": "Badanie wykonuje okulista. W ramach NFZ do poradni okulistycznej potrzebne jest skierowanie: może je wystawić lekarz POZ, a od 17 września 2025 r. także optometrysta w placówce z umową z NFZ, do którego skierowanie nie jest potrzebne. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "The examination is done by an ophthalmologist. Under the NFZ an ophthalmology clinic needs a referral: your POZ doctor can issue one, and since 17 September 2025 so can an optometrist at a facility with an NFZ contract, whom you can see without a referral. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 40,
+      "requires": []
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 24,
+  "interval_overrides": [
+    {
+      "when": { "requires": [{ "factor": "diabetes", "op": "eq", "value": true }] },
+      "months": 12
+    }
+  ],
+  "evidence_level": 2,
+  "evidence_source": "PTO glaucoma guidelines, 2022 update (Polish Ophthalmological Society)",
+  "burden_weight": 2,
+  "nfz_funded": true,
+  "referral_required": true,
+  "sources": [
+    {
+      "url": "https://pto.com.pl/wp-content/uploads/2022/05/Wytyczne-diagnostyki-i-leczenia-jaskry-aktualizacja-2022.pdf",
+      "title": "Wytyczne diagnostyki i leczenia jaskry (aktualizacja 2022)",
+      "publisher": "Polskie Towarzystwo Okulistyczne",
+      "quote": "U osób powyżej 40 roku życia, u których nie stwierdza się jaskry badania profilaktyczne (pomiar CWG, oftalmoskopia, badanie pola widzenia, badanie obrazowe tarczy n. II lub RNFL lub GCC wykonane tą samą techniką) należy wykonywać co 2 lata, a u osób z czynnikami ryzyka rozwoju jaskry co rok.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pto.com.pl/wp-content/uploads/2022/05/Wytyczne-diagnostyki-i-leczenia-jaskry-aktualizacja-2022.pdf",
+      "title": "Wytyczne diagnostyki i leczenia jaskry (aktualizacja 2022)",
+      "publisher": "Polskie Towarzystwo Okulistyczne",
+      "quote": "do innych czynników ryzyka należy zaliczyć: cienką rogówkę, dodatni wywiad rodzinny, krótkowzroczność powyżej -3.0D, cukrzycę, nadciśnienie, niedociśnienie, zespół Raynaud, migrenę.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/rpp/nowa-lista-lekarzy-specjalistow-dostepnych-bez-skierowania-od-17-wrzesnia-2025-r",
+      "title": "Nowa lista lekarzy specjalistów dostępnych bez skierowania od 17 września 2025 r.",
+      "publisher": "Rzecznik Praw Pacjenta (gov.pl)",
+      "quote": "Optometrysta ma prawo wystawić skierowanie do okulisty, jeśli podczas badania wykryje niepokojące objawy wymagające specjalistycznej konsultacji.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/rpp/nowa-lista-lekarzy-specjalistow-dostepnych-bez-skierowania-od-17-wrzesnia-2025-r",
+      "title": "Nowa lista lekarzy specjalistów dostępnych bez skierowania od 17 września 2025 r.",
+      "publisher": "Rzecznik Praw Pacjenta (gov.pl)",
+      "quote": "Pacjent może zarejestrować się bezpośrednio do optometrysty, psychologa lub lekarza medycyny sportowej, w placówce mającej kontrakt z NFZ, bez konieczności wcześniej odwiedzenia lekarza rodzinnego.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/rpp/nowa-lista-lekarzy-specjalistow-dostepnych-bez-skierowania-od-17-wrzesnia-2025-r",
+      "title": "Nowa lista lekarzy specjalistów dostępnych bez skierowania od 17 września 2025 r.",
+      "publisher": "Rzecznik Praw Pacjenta (gov.pl)",
+      "quote": "Przypomnijmy, że skierowanie nie jest wymagane również w przypadku wizyty u: psychiatry ginekologa i położnika onkologa wenerologa dentysty.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/artykul/skierowanie-do-specjalisty",
+      "title": "Skierowanie do specjalisty",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Jeśli lekarz ubezpieczenia zdrowotnego uzna, że potrzebujesz leczenia specjalistycznego, wypisze Ci skierowanie do specjalisty",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/artykul/skierowanie-do-specjalisty",
+      "title": "Skierowanie do specjalisty",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Po otrzymaniu skierowania masz prawo zdecydować, do której poradni specjalistycznej się udać. Musisz wybrać spośród tych, które zawarły umowę z NFZ.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

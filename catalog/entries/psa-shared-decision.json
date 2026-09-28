@@ -1,0 +1,72 @@
+{
+  "slug": "psa-shared-decision",
+  "status": "active",
+  "name_pl": "PSA – decyzja podejmowana z lekarzem",
+  "name_en": "PSA test – a shared decision",
+  "summary_pl": "Badanie krwi oznaczające stężenie antygenu swoistego dla prostaty (PSA). W programie Moje Zdrowie należy do rozszerzonego zakresu badań dla mężczyzn po 50. roku życia. Badanie przesiewowe PSA ma zarówno możliwe korzyści, jak i szkody, dlatego zalecenia międzynarodowe mówią o indywidualnej decyzji podjętej po rozmowie z lekarzem.",
+  "summary_en": "A blood test measuring prostate-specific antigen (PSA). In the Moje Zdrowie program it belongs to the extended panel for men over 50. PSA screening has possible benefits and harms, so international guidance calls for an individual decision after talking with a clinician.",
+  "how_to_access_pl": "PSA może zostać zlecone w ramach bilansu zdrowia Moje Zdrowie. Wypełnij ankietę programu Moje Zdrowie na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w swojej przychodni POZ; przychodnia wystawia na jej podstawie zlecenie na badania, więc skierowanie nie jest potrzebne. Przed badaniem omów z lekarzem jego możliwe korzyści i szkody. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "PSA may be ordered as part of the Moje Zdrowie health check. Fill in the Moje Zdrowie questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic; the clinic issues the test order based on it, so no referral is needed. Before testing, discuss its possible benefits and harms with a doctor. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "sex": "male",
+      "age_min": 50,
+      "requires": []
+    }
+  ],
+  "interval_kind": "shared_decision",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 1,
+  "evidence_source": "Moje Zdrowie extended panel; USPSTF 2018 grade C (55–69), D (70+)",
+  "burden_weight": 3,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://dziennikustaw.gov.pl/D2025000058401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 30 kwietnia 2025 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu podstawowej opieki zdrowotnej (Dz.U. 2025 poz. 584)",
+      "publisher": "Dziennik Ustaw RP (Minister Zdrowia)",
+      "quote": "4) stężenie całkowite antygenu specyficznego dla prostaty (PSA) we krwi u mężczyzn powyżej 50 roku życia;",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Mężczyźni po 50 roku życia – otrzymają pakiet podstawowy i PSA.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/prostate-cancer-screening",
+      "title": "Prostate Cancer: Screening (Final Recommendation Statement, 2018)",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "For men aged 55 to 69 years, the decision to undergo periodic prostate-specific antigen (PSA)-based screening for prostate cancer should be an individual one. Before deciding whether to be screened, men should have an opportunity to discuss the potential benefits and harms of screening with their clinician and to incorporate their values and preferences in the decision.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/prostate-cancer-screening",
+      "title": "Prostate Cancer: Screening (Final Recommendation Statement, 2018)",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "The USPSTF recommends against PSA-based screening for prostate cancer in men 70 years and older.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Przychodnia POZ wystawi zlecenie (nie skierowanie) na badania na podstawie wypełnionej przez Ciebie ankiety.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

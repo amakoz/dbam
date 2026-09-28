@@ -1,0 +1,76 @@
+{
+  "slug": "blood-pressure-measurement",
+  "status": "active",
+  "name_pl": "Pomiar ciśnienia tętniczego",
+  "name_en": "Blood pressure measurement",
+  "summary_pl": "Gabinetowy pomiar ciśnienia tętniczego w kierunku nadciśnienia. USPSTF zaleca takie badanie przesiewowe u wszystkich dorosłych, a wytyczne ESC 2024 w polskiej wersji Polskiego Towarzystwa Kardiologicznego zalecają rozważenie pomiaru co najmniej raz na 3 lata u dorosłych poniżej 40 lat i co najmniej raz w roku od 40. roku życia.",
+  "summary_en": "An office blood pressure measurement to check for hypertension. The USPSTF recommends this screening for all adults, and the ESC 2024 guidelines, published in Polish by the Polish Cardiac Society, advise considering a measurement at least every 3 years for adults under 40 and at least once a year from age 40.",
+  "how_to_access_pl": "Pomiar ciśnienia jest częścią wizyty podsumowującej w bezpłatnym programie Moje Zdrowie, do którego zgłaszasz się, wypełniając ankietę na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w przychodni POZ, bez skierowania. Ciśnienie można też zmierzyć podczas wizyty u lekarza POZ. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "A blood pressure measurement is part of the summary visit in the free Moje Zdrowie program, which you join by filling in the questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic, without a referral. Your blood pressure can also be measured during a visit to your POZ doctor. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 18,
+      "requires": []
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 36,
+  "interval_overrides": [
+    {
+      "when": { "age_min": 40 },
+      "months": 12
+    }
+  ],
+  "evidence_level": 3,
+  "evidence_source": "USPSTF grade A (2021); ESC 2024 class IIa (Polish version, Polish Cardiac Society)",
+  "burden_weight": 5,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://ptkardio.pl/resources/data/wytyczne/1/ze_kp_2024_23_02.pdf",
+      "title": "Wytyczne ESC 2024 dotyczące postępowania w podwyższonym ciśnieniu tętniczym i nadciśnieniu tętniczym",
+      "publisher": "Polskie Towarzystwo Kardiologiczne (Kardiologia Polska, Zeszyty Edukacyjne 2–3/2024)",
+      "quote": "Należy rozważyć oportunistyczne badania przesiewowe w kierunku podwyższonego BP i nadciśnienia: Co najmniej raz na 3 lata u osób dorosłych w wieku <40 lat Co najmniej raz w roku u osób dorosłych w wieku ≥40 lat",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/hypertension-in-adults-screening",
+      "title": "Recommendation: Hypertension in Adults: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "The USPSTF recommends screening for hypertension in adults 18 years or older with office blood pressure measurement (OBPM).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/hypertension-in-adults-screening",
+      "title": "Recommendation: Hypertension in Adults: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "Screen adults for hypertension. Grade: A",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "W jej trakcie pracownik medyczny przeanalizuje Twoje wyniki, zmierzy ciśnienie, tętno, wagę i wzrost, a także oceni funkcje poznawcze, jeśli masz 60 lub więcej lat.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Skorzystanie z niego jest proste: wypełnij ankietę, zbadaj się i uzyskaj indywidualny plan zdrowotny (IPZ).",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

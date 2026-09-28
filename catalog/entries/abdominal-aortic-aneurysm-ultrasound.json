@@ -1,0 +1,80 @@
+{
+  "slug": "abdominal-aortic-aneurysm-ultrasound",
+  "status": "active",
+  "name_pl": "USG w kierunku tętniaka aorty brzusznej",
+  "name_en": "Abdominal aortic aneurysm ultrasound",
+  "summary_pl": "Jednorazowe badanie ultrasonograficzne aorty brzusznej w kierunku tętniaka. USPSTF zaleca je mężczyznom w wieku 65–75 lat, którzy kiedykolwiek palili tytoń, a wytyczne ESC 2024 w polskiej wersji Polskiego Towarzystwa Kardiologicznego – mężczyznom w wieku 65 lat i starszym z wywiadem palenia tytoniu.",
+  "summary_en": "A one-time ultrasound of the abdominal aorta to check for an aneurysm. The USPSTF recommends it for men aged 65 to 75 who have ever smoked, and the ESC 2024 guidelines, published in Polish by the Polish Cardiac Society, for men aged 65 and over with a history of smoking.",
+  "how_to_access_pl": "Lekarz POZ może bezpłatnie skierować na USG brzucha i przestrzeni zaotrzewnowej, jeśli uzna, że są do tego wskazania medyczne. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "A POZ doctor can refer you free of charge for an ultrasound of the abdomen and retroperitoneum when they judge there is a medical indication. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "sex": "male",
+      "age_min": 65,
+      "age_max": 75,
+      "requires": [{ "factor": "smoking_status", "op": "in", "value": ["current", "former"] }]
+    }
+  ],
+  "interval_kind": "no_known_interval",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 3,
+  "evidence_source": "USPSTF grade B (2019); ESC 2024 class I (Polish version, Polish Cardiac Society)",
+  "burden_weight": 2,
+  "nfz_funded": true,
+  "referral_required": true,
+  "sources": [
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/abdominal-aortic-aneurysm-screening",
+      "title": "Recommendation: Abdominal Aortic Aneurysm: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "The USPSTF recommends 1-time screening for abdominal aortic aneurysm (AAA) with ultrasonography in men aged 65 to 75 years who have ever smoked.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/abdominal-aortic-aneurysm-screening",
+      "title": "Recommendation: Abdominal Aortic Aneurysm: Screening",
+      "publisher": "U.S. Preventive Services Task Force",
+      "quote": "For men aged 65 to 75 years who have ever smoked: Grade B",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://ptkardio.pl/resources/data/wytyczne/-1/02_ze_kp_2024_4_wytyczne_paad.pdf",
+      "title": "Wytyczne ESC 2024 dotyczące postępowania w chorobach tętnic obwodowych i aorty",
+      "publisher": "Polskie Towarzystwo Kardiologiczne (Kardiologia Polska, Zeszyty Edukacyjne 4/2024)",
+      "quote": "Przesiewowe wykrywanie AAA za pomocą DUS zaleca się u mężczyzn w wieku ≥65 lat z wywiadami palenia tytoniu w celu zmniejszenia ryzyka zgonu z powodu pękniętego AAA",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://ptkardio.pl/resources/data/wytyczne/-1/02_ze_kp_2024_4_wytyczne_paad.pdf",
+      "title": "Wytyczne ESC 2024 dotyczące postępowania w chorobach tętnic obwodowych i aorty",
+      "publisher": "Polskie Towarzystwo Kardiologiczne (Kardiologia Polska, Zeszyty Edukacyjne 4/2024)",
+      "quote": "Palenie tytoniu definiuje się jako wypalenie w ciągu całego życia >100 papierosów lub równoważną ekspozycję w innej postaci.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/jakie-badania-moze-zlecic-lekarz-poz",
+      "title": "Jakie badania może zlecić lekarz POZ",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Lekarz podstawowej opieki zdrowotnej, w związku z prowadzonym leczeniem, może skierować Cię na bezpłatne badania diagnostyczne",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/jakie-badania-moze-zlecic-lekarz-poz",
+      "title": "Jakie badania może zlecić lekarz POZ",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "USG brzucha i przestrzeni zaotrzewnowej, w tym wstępnej oceny gruczołu krokowego",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/jakie-badania-moze-zlecic-lekarz-poz",
+      "title": "Jakie badania może zlecić lekarz POZ",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Decyzje o konieczności badań diagnostycznych lekarz podejmuje na podstawie wskazań medycznych, a nie na żądanie pacjenta.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

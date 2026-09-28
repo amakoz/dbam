@@ -1,0 +1,90 @@
+{
+  "slug": "colonoscopy-nfz-program",
+  "status": "active",
+  "name_pl": "Kolonoskopia w programie badań przesiewowych raka jelita grubego",
+  "name_en": "Colonoscopy in the colorectal cancer screening program",
+  "summary_pl": "Bezpłatna przesiewowa kolonoskopia w ramach Programu badań przesiewowych raka jelita grubego finansowanego przez NFZ. Program obejmuje osoby w wieku 50–65 lat oraz osoby w wieku 40–49 lat, u których krewnego pierwszego stopnia rozpoznano raka jelita grubego, jeśli nie miały kolonoskopii w ciągu ostatnich 10 lat.",
+  "summary_en": "A free screening colonoscopy in the NFZ-funded colorectal cancer screening program. The program covers people aged 50–65, and people aged 40–49 whose first-degree relative was diagnosed with colorectal cancer, if they have not had a colonoscopy in the last 10 years.",
+  "how_to_access_pl": "Skierowanie nie jest potrzebne. Wystarczy zgłosić się do placówki realizującej program (lista na stronie NFZ); o udziale decyduje ankieta kwalifikacyjna wypełniana w placówce. Program nie obejmuje osób z objawami sugerującymi nowotwór jelita grubego — takie osoby kwalifikuje lekarz poza programem. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "No referral is needed. Go to a facility that runs the program (listed on the NFZ website); eligibility is confirmed with a questionnaire at the facility. The program does not cover people with symptoms suggesting colorectal cancer; a doctor assesses them outside the program. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 50,
+      "age_max": 65,
+      "requires": []
+    },
+    {
+      "age_min": 40,
+      "age_max": 49,
+      "requires": [
+        {
+          "factor": "family_history_crc_first_degree",
+          "op": "eq",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 120,
+  "interval_overrides": [],
+  "evidence_level": 3,
+  "evidence_source": "NFZ program (Program badań przesiewowych raka jelita grubego); EU Council Rec. 2022",
+  "burden_weight": 5,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/kolonoskopia-badanie-ktore-ratuje-zycie",
+      "title": "Kolonoskopia – badanie, które ratuje życie",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "Możesz wziąć udział w programie przesiewowych badań w kierunku wczesnego wykrywania zmian w jelicie grubym, finansowanym przez NFZ, jeśli:",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/kolonoskopia-badanie-ktore-ratuje-zycie",
+      "title": "Kolonoskopia – badanie, które ratuje życie",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "nie miałeś wykonanej kolonoskopii w ciągu ostatnich 10 lat",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/kolonoskopia-badanie-ktore-ratuje-zycie",
+      "title": "Kolonoskopia – badanie, które ratuje życie",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "50-65 lat",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/kolonoskopia-badanie-ktore-ratuje-zycie",
+      "title": "Kolonoskopia – badanie, które ratuje życie",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "40-49 lat – jeśli Twój krewny pierwszego stopnia miał diagnozę nowotworu jelita grubego.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/kolonoskopia-badanie-ktore-ratuje-zycie",
+      "title": "Kolonoskopia – badanie, które ratuje życie",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "Nie potrzebujesz skierowania. Możesz wybrać dogodną dla Ciebie placówkę, która realizuje program przesiewowy. W niej dowiesz się o szczegółach badania i wypełnisz ankietę.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/dla-pacjenta/programy-profilaktyczne/program-badan-przesiewowych-raka-jelita-grubego/",
+      "title": "Program badań przesiewowych raka jelita grubego",
+      "publisher": "Narodowy Fundusz Zdrowia",
+      "quote": "które nie miały wykonywanej kolonoskopii w ciągu ostatnich 10 lat.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/dla-pacjenta/programy-profilaktyczne/program-badan-przesiewowych-raka-jelita-grubego/",
+      "title": "Program badań przesiewowych raka jelita grubego",
+      "publisher": "Narodowy Fundusz Zdrowia",
+      "quote": "Do udziału w programie nie jest potrzebne skierowanie. Wystarczy, że pacjent jest w grupie wiekowej, która kwalifikuje się do wykonania przesiewowej kolonoskopii i zgłosi się do placówki realizującej program.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

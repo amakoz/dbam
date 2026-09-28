@@ -2,7 +2,7 @@
 -- Run with `npx supabase test db`. Everything happens in one transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(18);
+select plan(21);
 
 -- Fixtures, inserted as postgres: one row per status. updated_at starts in the past so the trigger test can see
 -- it move (now() is constant within this transaction).
@@ -23,8 +23,10 @@ insert into public.screening_catalog (
 set local role anon;
 select set_config('request.jwt.claims', '{"role":"anon"}', true);
 
+-- Scoped to the fixtures: real catalog rows shipped by snapshot migrations are visible too.
 select is(
-  array(select slug from public.screening_catalog order by slug), array['test-active', 'test-retired'],
+  array(select slug from public.screening_catalog where slug like 'test-%' order by slug),
+  array['test-active', 'test-retired'],
   'anon sees active and retired entries, never drafts'
 );
 
@@ -42,12 +44,23 @@ select throws_ok(
   $$ delete from public.screening_catalog $$, '42501', null, 'anon cannot delete catalog entries'
 );
 
+-- Shipped catalog data (snapshot migrations): something is published, and no draft ever leaks.
+select ok(
+  (select count(*) from public.screening_catalog where status = 'active' and slug not like 'test-%') >= 1,
+  'anon sees at least one active catalog entry'
+);
+select is(
+  (select count(*) from public.screening_catalog where status = 'draft'), 0::bigint,
+  'anon sees no draft catalog entries'
+);
+
 -- --- As an authenticated user -----------------------------------------------------------------------------------
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
 
 select is(
-  array(select slug from public.screening_catalog order by slug), array['test-active', 'test-retired'],
+  array(select slug from public.screening_catalog where slug like 'test-%' order by slug),
+  array['test-active', 'test-retired'],
   'authenticated sees active and retired entries, never drafts'
 );
 
@@ -79,6 +92,11 @@ select ok(
     'authenticated', 'public.screening_catalog', 'INSERT, UPDATE, DELETE, TRUNCATE, TRIGGER, REFERENCES'
   ),
   'authenticated holds no INSERT/UPDATE/DELETE/TRUNCATE/TRIGGER/REFERENCES on the catalog'
+);
+
+select is(
+  (select count(*) from public.screening_catalog where jsonb_array_length(sources) < 1), 0::bigint,
+  'every catalog row cites at least one source'
 );
 
 -- --- As postgres: constraints ----------------------------------------------------------------------------------

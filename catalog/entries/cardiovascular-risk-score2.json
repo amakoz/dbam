@@ -1,0 +1,64 @@
+{
+  "slug": "cardiovascular-risk-score2",
+  "status": "active",
+  "name_pl": "Ocena ryzyka sercowo-naczyniowego (SCORE2)",
+  "name_en": "Cardiovascular risk assessment (SCORE2)",
+  "summary_pl": "Ocena ryzyka chorób serca i naczyń prowadzona przez personel POZ skalą SCORE2, SCORE2-OP lub SCORE2-Diabetes. W programie Moje Zdrowie dotyczy osób od 40. roku życia; skala SCORE2 jest przeznaczona dla osób w wieku 40–69 lat, a SCORE2-OP od 70 lat. Aplikacja nie oblicza ryzyka – robi to lekarz, pielęgniarka lub położna POZ.",
+  "summary_en": "A cardiovascular risk assessment done by POZ staff with the SCORE2, SCORE2-OP or SCORE2-Diabetes scale. In the Moje Zdrowie program it covers people from age 40; SCORE2 is meant for ages 40–69 and SCORE2-OP from age 70. This app does not calculate risk – the POZ doctor, nurse or midwife does.",
+  "how_to_access_pl": "Ocena odbywa się podczas wizyty podsumowującej bilans zdrowia Moje Zdrowie; o jej wykonaniu i wyborze skali decyduje personel POZ. Wypełnij ankietę programu Moje Zdrowie na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w swojej przychodni POZ; przychodnia wystawia na jej podstawie zlecenie na badania, więc skierowanie nie jest potrzebne. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "The assessment takes place at the Moje Zdrowie summary visit; POZ staff decide whether it applies and which scale to use. Fill in the Moje Zdrowie questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic; the clinic issues the test order based on it, so no referral is needed. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 40,
+      "requires": []
+    }
+  ],
+  "interval_kind": "per_program",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 2,
+  "evidence_source": "Moje Zdrowie summary visit; ESC SCORE2/SCORE2-OP (per PTMR)",
+  "burden_weight": 4,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Osoby po 40 roku życia – jeśli będą mieć stwierdzoną ocenę ryzyka sercowo-naczyniowego, będą mieli wykonaną skalę SCORE2, SCORE2OP lub SCORE2 Diabetes",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://mojezdrowiewpoz.pl/score2/",
+      "title": "SCORE2, SCORE2-OP, SCORE2-DIABETES – Moje Zdrowie",
+      "publisher": "Polskie Towarzystwo Medycyny Rodzinnej (PTMR)",
+      "quote": "SCORE2 to zaktualizowany algorytm opracowany przez Europejskie Towarzystwo Kardiologiczne (ESC) służący do oceny 10-letniego ryzyka pierwszego epizodu sercowo-naczyniowego (zarówno zakończonego, jak i niezakończonego zgonem) u pozornie zdrowych dorosłych w wieku 40–69 lat bez rozpoznanej choroby sercowo-naczyniowej, cukrzycy, przewlekłej choroby nerek oraz genetycznych zaburzeń lipidowych lub nadciśnienia tętniczego.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://mojezdrowiewpoz.pl/score2/",
+      "title": "SCORE2, SCORE2-OP, SCORE2-DIABETES – Moje Zdrowie",
+      "publisher": "Polskie Towarzystwo Medycyny Rodzinnej (PTMR)",
+      "quote": "To wersja algorytmu SCORE2 dla osób w wieku ≥70 lat.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Przychodnia POZ wystawi zlecenie (nie skierowanie) na badania na podstawie wypełnionej przez Ciebie ankiety.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

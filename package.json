@@ -14,6 +14,7 @@
     "deploy": "astro build && wrangler deploy",
     "db:types": "supabase gen types --lang=typescript --local > src/lib/database.types.ts && prettier --write src/lib/database.types.ts",
     "catalog:check": "tsx scripts/catalog/check.ts",
+    "catalog:draft": "tsx scripts/catalog/draft.ts",
     "catalog:migration": "tsx scripts/catalog/migration.ts",
     "catalog:schema": "tsx scripts/catalog/schema.ts"
   },
@@ -41,6 +42,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "@eslint/compat": "^2.1.1",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.10.0",

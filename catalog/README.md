@@ -4,7 +4,7 @@ The curated catalog of screening checks behind `public.screening_catalog`. Each 
 
 - **Entry schema:** `src/lib/catalog/schema.ts` (Zod) is the single source of truth. It defines the validator, the TS types and the published JSON Schema, [`entry.schema.json`](entry.schema.json) (regenerate with `npm run catalog:schema`; never edit it by hand).
 - **Factor vocabulary:** `src/lib/catalog/factors.ts`.
-- **Tooling:** `scripts/catalog/` (`npm run catalog:check`, `catalog:migration`, `catalog:schema`).
+- **Tooling:** `scripts/catalog/` (`npm run catalog:check`, `catalog:migration`, `catalog:schema`, `catalog:draft`).
 
 ## Lifecycle
 
@@ -82,6 +82,48 @@ Age and sex are branch fields, not factors. The closed list of factors lives in 
 | `pregnancy`                        | boolean                            | no                           |
 | `prior_cancer`                     | boolean                            | no                           |
 | `hysterectomy`                     | boolean                            | no                           |
+
+## Drafting with Claude
+
+`npm run catalog:draft` asks Claude Opus 5 to research a topic on the live web and draft new entries. It writes only entries that pass the same validator as hand-written ones and have a new slug. Every drafted file is `"status": "draft"` with null review fields, so nothing reaches users until you review it.
+
+### Credentials
+
+Run `ant auth login` once, or export `ANTHROPIC_API_KEY` in the shell you run the script from. The script never reads `.env` or `.dev.vars`. Never add the key there, to `.env.example`, or as a Cloudflare or GitHub secret: the drafter runs only on your machine.
+
+### Running it
+
+```sh
+# Try a small batch first, without writing entry files:
+npm run catalog:draft -- --topic "mammografia NFZ" --max 2 --dry-run
+
+# Draft up to 5 entries, with the research report as background:
+npm run catalog:draft -- --topic "badania przesiewowe raka NFZ" \
+  --source context/foundation/screening-catalog-research.md --max 5
+```
+
+- **Options:**
+  - `--topic` (required);
+  - `--source <path>`: a background document, included in the prompt as leads only;
+  - `--max <n>`: at most n entries, default 5;
+  - `--max-searches <n>`: web search cap, default 20;
+  - `--dry-run`: validate and report without writing entry files.
+- **Output:** the script prints each valid entry with its sources and quotes, skips slugs that already exist (as a file or in a shipped snapshot), and lists invalid entries with their errors.
+- **Audit:** every raw response, with the request and token usage, is saved to `catalog/.draft-runs/<timestamp>.json` (gitignored), even when the run fails.
+- **Cost:** every run is billed: Opus 5 input and output tokens, plus a fee per web search. A run with the research report as `--source` sends a large prompt, and every `pause_turn` continuation re-sends it. The script prints the token and search counts at the end. Start with `--max 5` or less.
+
+### Review checklist
+
+Open every drafted file and, for each entry:
+
+1. Open every `sources[].url` and confirm that the `quote` appears on the page verbatim.
+2. Check `eligibility` (ages, sex, `requires`), `interval_kind`, `interval_months` and `interval_overrides` against the quotes. Remember that ages count by birth year. An unsourced interval must not be `fixed`.
+3. Check `nfz_funded`, `referral_required` and `evidence_level` against the sources.
+4. Read the PL and EN text. It must be informational only: no diagnosis, no risk scores, and a pointer to a POZ doctor.
+5. Fix what is wrong. If the entry cannot be sourced, discard the new file: a draft that was never committed or shipped in a snapshot is not yet part of the catalog, so the never-delete rule does not apply to it.
+6. Set `"status": "active"` on entries that pass. Leave `reviewed_by`, `last_reviewed` and `next_review_due` as `null` until a POZ doctor signs off.
+
+Then continue with [Shipping changes](#shipping-changes).
 
 ## Shipping changes
 

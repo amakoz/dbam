@@ -548,21 +548,21 @@ The catalog is small (tens of rows), and no request path reads it in this change
 
 #### Automated
 
-- [x] 2.1 Catalog check passes on the empty catalog: `npm run catalog:check`
-- [x] 2.2 Published JSON Schema is current: `npm run catalog:schema` leaves `git diff --exit-code catalog/entry.schema.json` clean
-- [x] 2.3 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
-- [x] 2.4 Worker bundle stays under the Free plan limit, with no Anthropic SDK or tsx in it: `npx wrangler deploy --dry-run` reports < 3 MiB
+- [x] 2.1 Catalog check passes on the empty catalog: `npm run catalog:check` — 09059ed
+- [x] 2.2 Published JSON Schema is current: `npm run catalog:schema` leaves `git diff --exit-code catalog/entry.schema.json` clean — 09059ed
+- [x] 2.3 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 09059ed
+- [x] 2.4 Worker bundle stays under the Free plan limit, with no Anthropic SDK or tsx in it: `npx wrangler deploy --dry-run` reports < 3 MiB — 09059ed
 
 #### Manual
 
-- [x] 2.5 A deliberately broken sample entry makes `npm run catalog:check` print messages that point to the file and field, and the checks pass again once it is removed
+- [x] 2.5 A deliberately broken sample entry makes `npm run catalog:check` print messages that point to the file and field, and the checks pass again once it is removed — 09059ed
 
 ### Phase 3: LLM drafting script
 
 #### Automated
 
-- [ ] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
-- [ ] 3.2 `@anthropic-ai/sdk` is not imported anywhere under `src/`: `grep -r "@anthropic-ai/sdk" src/` finds nothing
+- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
+- [x] 3.2 `@anthropic-ai/sdk` is not imported anywhere under `src/`: `grep -r "@anthropic-ai/sdk" src/` finds nothing
 
 #### Manual
 

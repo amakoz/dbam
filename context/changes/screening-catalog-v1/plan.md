@@ -572,13 +572,13 @@ The catalog is small (tens of rows), and no request path reads it in this change
 
 #### Automated
 
-- [x] 4.1 Catalog is valid and matches the newest snapshot: `npm run catalog:check`
-- [x] 4.2 Local database applies the snapshot: `npx supabase db reset`
-- [x] 4.3 pgTAP suites pass, including the data sanity checks: `npx supabase test db`
-- [x] 4.4 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
+- [x] 4.1 Catalog is valid and matches the newest snapshot: `npm run catalog:check` — 5e8b85c
+- [x] 4.2 Local database applies the snapshot: `npx supabase db reset` — 5e8b85c
+- [x] 4.3 pgTAP suites pass, including the data sanity checks: `npx supabase test db` — 5e8b85c
+- [x] 4.4 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 5e8b85c
 
 #### Manual
 
-- [x] 4.5 The owner has reviewed every `active` entry against its cited sources, per the `catalog/README.md` checklist
-- [x] 4.6 A local REST read with the publishable key returns only active and retired entries, with PL and EN text and sources present
+- [x] 4.5 The owner has reviewed every `active` entry against its cited sources, per the `catalog/README.md` checklist — 5e8b85c
+- [x] 4.6 A local REST read with the publishable key returns only active and retired entries, with PL and EN text and sources present — 5e8b85c
 - [ ] 4.7 After merge, CI `migrate` succeeds, and the production REST endpoint returns the active entries with the publishable key

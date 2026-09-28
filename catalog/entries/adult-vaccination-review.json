@@ -1,0 +1,78 @@
+{
+  "slug": "adult-vaccination-review",
+  "status": "active",
+  "name_pl": "Przegląd szczepień osoby dorosłej",
+  "name_en": "Adult vaccination review",
+  "summary_pl": "Sprawdzenie z lekarzem, które szczepienia są wskazane w dorosłym wieku. Dla dorosłych zalecane są szczepienia m.in. przeciw WZW typu B, grypie, krztuścowi, COVID-19, pneumokokom, półpaścowi i RSV, a kalendarze szczepień dorosłych uwzględniają wiek, stan zdrowia, zawód i styl życia.",
+  "summary_en": "A review with a doctor of which vaccinations are advisable in adulthood. Vaccinations recommended for adults include hepatitis B, influenza, pertussis, COVID-19, pneumococcal, shingles and RSV, and the adult vaccination calendars take age, health, occupation and lifestyle into account.",
+  "how_to_access_pl": "W bezpłatnym programie Moje Zdrowie przychodnia POZ przygotowuje indywidualny plan zdrowotny z listą zalecanych szczepień; do programu zgłaszasz się, wypełniając ankietę na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w przychodni POZ. Decyzję o szczepieniu podejmuje lekarz, który wystawia receptę na szczepionkę. Kalendarze szczepień dorosłych znajdziesz na stronie szczepienia.info. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "In the free Moje Zdrowie program your POZ clinic prepares an individual health plan with a list of recommended vaccinations; you join the program by filling in the questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic. A doctor decides on each vaccination and writes the prescription for the vaccine. The adult vaccination calendars are published on szczepienia.info. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 18,
+      "requires": []
+    }
+  ],
+  "interval_kind": "no_known_interval",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 2,
+  "evidence_source": "Moje Zdrowie individual health plan (IPZ) item; adult vaccination calendars (pacjent.gov.pl, szczepienia.info)",
+  "burden_weight": 3,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://pacjent.gov.pl/aktualnosc/kalendarze-szczepien-dla-doroslych",
+      "title": "Kalendarze szczepień dla dorosłych",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Dla dorosłych zalecane są szczepienia przeciw: wirusowemu zapaleniu wątroby typu B grypie krztuścowi Covid-19 pneumokokom półpaścowi syncytialnemu wirusowi oddechowemu (RSV).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/aktualnosc/kalendarze-szczepien-dla-doroslych",
+      "title": "Kalendarze szczepień dla dorosłych",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Kalendarze szczepień dla dorosłych przedstawiają zalecenia dostosowane do wieku, stanu zdrowia, zawodu i stylu życia.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/aktualnosc/kalendarze-szczepien-dla-doroslych",
+      "title": "Kalendarze szczepień dla dorosłych",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Decyzję o szczepieniu podejmuje lekarz, który zna stan Twojego zdrowia – potrzebujesz jego opinii i recepty na szczepionkę",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "W zależności od wieku, w indywidualnym planie zdrowotnym – pacjent otrzyma kalendarz badań profilaktycznych w profilaktyce onkologicznej i listę zalecanych szczepień ochronnych.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "W ramach programu pacjent otrzyma propozycję rekomendowanych szczepień, w zależności od jego historii szczepień, wieku i stanu zdrowia, czyli tzw. indywidualny kalendarz szczepień.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Skorzystanie z niego jest proste: wypełnij ankietę, zbadaj się i uzyskaj indywidualny plan zdrowotny (IPZ).",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

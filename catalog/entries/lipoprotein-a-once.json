@@ -1,0 +1,65 @@
+{
+  "slug": "lipoprotein-a-once",
+  "status": "active",
+  "name_pl": "Lipoproteina (a) – jednorazowo",
+  "name_en": "Lipoprotein(a) – once",
+  "summary_pl": "Badanie krwi oznaczające stężenie lipoproteiny (a). W programie Moje Zdrowie wykonuje się je tylko raz w życiu, u osób między 20. a 40. rokiem życia.",
+  "summary_en": "A blood test measuring lipoprotein(a). In the Moje Zdrowie program it is done only once in a lifetime, for people aged 20 to 40.",
+  "how_to_access_pl": "Badanie jest częścią rozszerzonego zakresu bilansu zdrowia Moje Zdrowie. Wypełnij ankietę programu Moje Zdrowie na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w swojej przychodni POZ; przychodnia wystawia na jej podstawie zlecenie na badania, więc skierowanie nie jest potrzebne. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "The test is part of the extended panel of the Moje Zdrowie health check. Fill in the Moje Zdrowie questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic; the clinic issues the test order based on it, so no referral is needed. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 20,
+      "age_max": 40,
+      "requires": []
+    }
+  ],
+  "interval_kind": "per_program",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 2,
+  "evidence_source": "Moje Zdrowie extended panel (Dz.U. 2025 poz. 584)",
+  "burden_weight": 2,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://dziennikustaw.gov.pl/D2025000058401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 30 kwietnia 2025 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu podstawowej opieki zdrowotnej (Dz.U. 2025 poz. 584)",
+      "publisher": "Dziennik Ustaw RP (Minister Zdrowia)",
+      "quote": "6) stężenie lipoproteiny (a) we krwi – wykonywane w ramach Bilansu tylko raz w życiu między 20 a 40 rokiem życia.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Osoby pomiędzy 20 a 40 rokiem życia – otrzymają dodatkowo badania na lipoproteinę A.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "lipoproteina (a) (wykonywana w ramach programu raz w życiu).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Przychodnia POZ wystawi zlecenie (nie skierowanie) na badania na podstawie wypełnionej przez Ciebie ankiety.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

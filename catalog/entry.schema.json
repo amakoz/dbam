@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "slug": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Immutable id; the file name is <slug>.json."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "active", "retired"],
+      "description": "draft (hidden from users), active (shown) or retired (hidden from new recommendations)."
+    },
+    "name_pl": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "name_en": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "summary_pl": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "summary_en": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "how_to_access_pl": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "how_to_access_en": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "eligibility": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sex": {
+            "description": "Absent means any sex.",
+            "type": "string",
+            "enum": ["female", "male"]
+          },
+          "age_min": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120,
+            "description": "Inclusive lower age bound; age = current year − birth year."
+          },
+          "age_max": {
+            "description": "Inclusive upper age bound; absent means no upper bound.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "factor": {
+                  "type": "string",
+                  "enum": [
+                    "smoking_status",
+                    "pack_years",
+                    "years_since_quitting",
+                    "family_history_crc_first_degree",
+                    "family_history_breast_ovarian",
+                    "occupational_carcinogen_exposure",
+                    "bmi",
+                    "hypertension",
+                    "dyslipidemia",
+                    "diabetes",
+                    "cardiovascular_disease",
+                    "fatty_liver",
+                    "hiv_or_immunosuppression",
+                    "pregnancy",
+                    "prior_cancer",
+                    "hysterectomy"
+                  ],
+                  "description": "A factor id from the closed vocabulary in src/lib/catalog/factors.ts."
+                },
+                "op": {
+                  "type": "string",
+                  "enum": ["eq", "in", "gte", "lte"],
+                  "description": "number factors: eq, gte or lte; boolean factors: eq; enum factors: eq or in."
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ],
+                  "description": "Compared with the profile value; its type must match the factor kind (an array only for op in)."
+                }
+              },
+              "required": ["factor", "op", "value"],
+              "additionalProperties": false,
+              "description": "A condition on one risk factor. A condition on an uncollected factor makes its branch unknown."
+            },
+            "description": "Every condition must hold; empty means no extra conditions."
+          }
+        },
+        "required": ["age_min", "requires"],
+        "additionalProperties": false,
+        "description": "One way to be eligible: sex, an age range and risk-factor conditions, all of which must hold."
+      },
+      "description": "Eligible when ANY branch matches."
+    },
+    "interval_kind": {
+      "type": "string",
+      "enum": ["fixed", "no_known_interval", "shared_decision", "per_program"],
+      "description": "fixed has interval_months; the other kinds have no computable next due date."
+    },
+    "interval_months": {
+      "description": "Required when interval_kind is fixed, absent or null otherwise.",
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 240
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "interval_overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "when": {
+            "type": "object",
+            "properties": {
+              "age_min": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 120
+              },
+              "age_max": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 120
+              },
+              "requires": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "factor": {
+                      "type": "string",
+                      "enum": [
+                        "smoking_status",
+                        "pack_years",
+                        "years_since_quitting",
+                        "family_history_crc_first_degree",
+                        "family_history_breast_ovarian",
+                        "occupational_carcinogen_exposure",
+                        "bmi",
+                        "hypertension",
+                        "dyslipidemia",
+                        "diabetes",
+                        "cardiovascular_disease",
+                        "fatty_liver",
+                        "hiv_or_immunosuppression",
+                        "pregnancy",
+                        "prior_cancer",
+                        "hysterectomy"
+                      ],
+                      "description": "A factor id from the closed vocabulary in src/lib/catalog/factors.ts."
+                    },
+                    "op": {
+                      "type": "string",
+                      "enum": ["eq", "in", "gte", "lte"],
+                      "description": "number factors: eq, gte or lte; boolean factors: eq; enum factors: eq or in."
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ],
+                      "description": "Compared with the profile value; its type must match the factor kind (an array only for op in)."
+                    }
+                  },
+                  "required": ["factor", "op", "value"],
+                  "additionalProperties": false,
+                  "description": "A condition on one risk factor. A condition on an uncollected factor makes its branch unknown."
+                }
+              }
+            },
+            "additionalProperties": false,
+            "description": "Matches like a branch (without sex); absent fields do not restrict."
+          },
+          "months": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 240,
+            "description": "Replaces interval_months when this override is the first one that matches."
+          }
+        },
+        "required": ["when", "months"],
+        "additionalProperties": false,
+        "description": "A conditional interval for a fixed-interval entry."
+      },
+      "description": "The first override whose `when` matches replaces interval_months."
+    },
+    "evidence_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3,
+      "description": "3 = organised NFZ program, EU core cancer screening or USPSTF A/B; 2 = Polish society recommendation or Moje Zdrowie item; 1 = shared decision, USPSTF C/I or pilot."
+    },
+    "evidence_source": {
+      "type": "string",
+      "pattern": "\\S",
+      "description": "Who backs the evidence level, e.g. NFZ program; EU Council Rec. 2022."
+    },
+    "burden_weight": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "Disease burden in Poland, 0–5; a tie-breaker only."
+    },
+    "nfz_funded": {
+      "type": "boolean"
+    },
+    "referral_required": {
+      "type": "boolean"
+    },
+    "sources": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "publisher": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "quote": {
+            "type": "string",
+            "pattern": "\\S",
+            "description": "A verbatim quote from the source that supports the entry's rules."
+          },
+          "accessed": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+            "description": "The date the source was read, YYYY-MM-DD."
+          }
+        },
+        "required": ["url", "title", "publisher", "quote", "accessed"],
+        "additionalProperties": false,
+        "description": "A cited source, with a verbatim supporting quote."
+      }
+    },
+    "reviewed_by": {
+      "description": "The reviewing doctor; null until medical sign-off.",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_reviewed": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "next_review_due": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "slug",
+    "status",
+    "name_pl",
+    "name_en",
+    "summary_pl",
+    "summary_en",
+    "how_to_access_pl",
+    "how_to_access_en",
+    "eligibility",
+    "interval_kind",
+    "interval_overrides",
+    "evidence_level",
+    "evidence_source",
+    "burden_weight",
+    "nfz_funded",
+    "referral_required",
+    "sources"
+  ],
+  "additionalProperties": false,
+  "description": "A screening catalog entry: one row of public.screening_catalog."
+}

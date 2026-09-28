@@ -1,0 +1,57 @@
+{
+  "slug": "dental-check-up",
+  "status": "active",
+  "name_pl": "Przegląd stomatologiczny",
+  "name_en": "Dental check-up",
+  "summary_pl": "Kontrolna wizyta u dentysty w ramach profilaktyki próchnicy i chorób jamy ustnej. NFZ zaleca regularne wizyty kontrolne raz na pół roku, bez względu na wiek, i finansuje m.in. badanie stomatologiczne z instruktażem higieny raz w roku, kontrolne badanie trzy razy w roku oraz usunięcie kamienia nazębnego raz w roku.",
+  "summary_en": "A check-up visit to the dentist to prevent tooth decay and oral disease. The NFZ advises regular check-ups every six months at any age and funds, among others, a dental examination with oral hygiene instruction once a year, a follow-up examination three times a year and scaling once a year.",
+  "how_to_access_pl": "Do dentysty nie potrzebujesz skierowania. Zarejestruj się w gabinecie stomatologicznym, który ma umowę z NFZ; świadczenia profilaktyczne są bezpłatne dla osób mających prawo do świadczeń zdrowotnych. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "You do not need a referral to see a dentist. Book a visit at a dental practice with an NFZ contract; the preventive services are free for people entitled to publicly funded care. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 18,
+      "requires": []
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 6,
+  "interval_overrides": [],
+  "evidence_level": 2,
+  "evidence_source": "NFZ guaranteed dental benefits and NFZ patient guidance",
+  "burden_weight": 3,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://www.nfz.gov.pl/aktualnosci/aktualnosci-centrali/poradnik-pacjenta-stomatolog-na-nfz-co-ci-przysluguje,8573.html",
+      "title": "Poradnik Pacjenta: Stomatolog na NFZ – co Ci przysługuje?",
+      "publisher": "Narodowy Fundusz Zdrowia (Centrala NFZ)",
+      "quote": "Jednym z jej elementów są regularne wizyty kontrolne u stomatologa. Bez względu na wiek pacjenta powinny odbywać się raz na pół roku.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/aktualnosci/aktualnosci-centrali/poradnik-pacjenta-stomatolog-na-nfz-co-ci-przysluguje,8573.html",
+      "title": "Poradnik Pacjenta: Stomatolog na NFZ – co Ci przysługuje?",
+      "publisher": "Narodowy Fundusz Zdrowia (Centrala NFZ)",
+      "quote": "badanie stomatologiczne wraz z instruktażem higieny jamy ustnej - raz w roku kontrolne badanie stomatologiczne - trzy razy w roku usunięcie kamienia nazębnego tzw. skaling - raz w roku. Wszystkie te świadczenia są dostępne dla Ciebie bezpłatnie. Koszty pokrywa Narodowy Fundusz Zdrowia.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/aktualnosci/aktualnosci-centrali/poradnik-pacjenta-stomatolog-na-nfz-co-ci-przysluguje,8573.html",
+      "title": "Poradnik Pacjenta: Stomatolog na NFZ – co Ci przysługuje?",
+      "publisher": "Narodowy Fundusz Zdrowia (Centrala NFZ)",
+      "quote": "Do dentysty nie potrzebujesz skierowania. Bezpłatna opieka stomatologiczna przysługuje każdej osobie, która ma prawo do świadczeń zdrowotnych.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/rpp/nowa-lista-lekarzy-specjalistow-dostepnych-bez-skierowania-od-17-wrzesnia-2025-r",
+      "title": "Nowa lista lekarzy specjalistów dostępnych bez skierowania od 17 września 2025 r.",
+      "publisher": "Rzecznik Praw Pacjenta (gov.pl)",
+      "quote": "Przypomnijmy, że skierowanie nie jest wymagane również w przypadku wizyty u: psychiatry ginekologa i położnika onkologa wenerologa dentysty.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

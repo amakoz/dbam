@@ -1,0 +1,85 @@
+{
+  "slug": "moje-zdrowie-health-check",
+  "status": "active",
+  "name_pl": "Moje Zdrowie – bilans zdrowia osoby dorosłej",
+  "name_en": "Moje Zdrowie – adult health check",
+  "summary_pl": "Bezpłatny bilans zdrowia w przychodni POZ dla osób ubezpieczonych w NFZ od 20. roku życia: ankieta, podstawowe badania laboratoryjne i wizyta podsumowująca z indywidualnym planem zdrowotnym (IPZ). Program przewiduje bilans nie częściej niż co 5 lat w wieku 20–49 lat i co 3 lata od 50. roku życia (wiek liczony rocznikowo). Po badaniach w programie „Profilaktyka 40 PLUS” z bilansu można skorzystać po upływie 12 miesięcy.",
+  "summary_en": "A free health check at the POZ (primary care) clinic for people insured by NFZ from age 20: a questionnaire, basic lab tests and a summary visit with an individual health plan (IPZ). The program offers the check no more often than every 5 years at ages 20–49 and every 3 years from age 50 (age counted by birth year). After tests in the former “Profilaktyka 40 PLUS” program, the check is available once 12 months have passed.",
+  "how_to_access_pl": "Wypełnij ankietę programu Moje Zdrowie na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w swojej przychodni POZ; przychodnia wystawia na jej podstawie zlecenie na badania, więc skierowanie nie jest potrzebne. Przychodnia kontaktuje się w ciągu 30 dni od wypełnienia ankiety; potrzebny jest wybrany lekarz POZ. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "Fill in the Moje Zdrowie questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic; the clinic issues the test order based on it, so no referral is needed. The clinic contacts you within 30 days of the questionnaire; you need a chosen POZ doctor. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 20,
+      "requires": []
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 60,
+  "interval_overrides": [
+    {
+      "when": {
+        "age_min": 50
+      },
+      "months": 36
+    }
+  ],
+  "evidence_level": 3,
+  "evidence_source": "NFZ-funded POZ program (Dz.U. 2025 poz. 584)",
+  "burden_weight": 4,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Każda osoba, która rozpoczęła 20 rok życia i jest ubezpieczona w NFZ, może z niego skorzystać:",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://dziennikustaw.gov.pl/D2025000058401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 30 kwietnia 2025 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu podstawowej opieki zdrowotnej (Dz.U. 2025 poz. 584)",
+      "publisher": "Dziennik Ustaw RP (Minister Zdrowia)",
+      "quote": "Świadczenie „Moje zdrowie – bilans zdrowia osoby dorosłej” (Bilans) jest udzielane: 1) nie częściej niż: a) co 5 lat – u osób od 20 do 49 roku życia, b) co 3 lata – u osób powyżej 49 roku życia – przy czym przy określaniu wieku należy uwzględnić wyłącznie rok urodzenia; 2) po upływie 12 miesięcy od ostatniego badania wykonywanego w ramach programu pilotażowego „Profilaktyka 40 PLUS”, o którym mowa w przepisach wydanych na podstawie art. 48e ust. 5 ustawy z dnia 27 sierpnia 2004 r. o świadczeniach opieki zdrowotnej finansowanych ze środków publicznych.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/zdrowie/moje-zdrowie-bilans-zdrowia-osoby-doroslej",
+      "title": "Moje Zdrowie - bilans zdrowia osoby dorosłej",
+      "publisher": "Ministerstwo Zdrowia (gov.pl)",
+      "quote": "Osoby w wieku 20 - 49 lat mogą wykonać badania profilaktyczne bilansowe raz na 5 lat.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/zdrowie/moje-zdrowie-bilans-zdrowia-osoby-doroslej",
+      "title": "Moje Zdrowie - bilans zdrowia osoby dorosłej",
+      "publisher": "Ministerstwo Zdrowia (gov.pl)",
+      "quote": "Pacjenci powyżej 49 roku życia otrzymają dostęp do badań bilansowych raz na 3 lata.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/zdrowie/jak-zglosic-sie-na-badanie2",
+      "title": "Moje Zdrowie: Jak zgłosić się na badanie",
+      "publisher": "Ministerstwo Zdrowia (gov.pl)",
+      "quote": "Podstawą do wykonania badań jest wypełnienie ankiety.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Przychodnia POZ wystawi zlecenie (nie skierowanie) na badania na podstawie wypełnionej przez Ciebie ankiety.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

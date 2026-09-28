@@ -1,0 +1,107 @@
+{
+  "slug": "cervical-screening-nfz-program",
+  "status": "active",
+  "name_pl": "Test HPV HR w programie profilaktyki raka szyjki macicy",
+  "name_en": "HPV HR test in the cervical cancer screening program",
+  "summary_pl": "Bezpłatny test HPV HR z genotypowaniem w ramach Programu profilaktyki raka szyjki macicy NFZ; przy dodatnim wyniku z tego samego pobrania wykonuje się cytologię na podłożu płynnym (LBC). Program obejmuje kobiety w wieku 25–64 lat (wiek liczony według roku urodzenia). Od 1 sierpnia 2026 r. test HPV HR zastępuje w programie klasyczną cytologię.",
+  "summary_en": "A free HPV HR test with genotyping in the NFZ cervical cancer screening program; if it is positive, liquid-based cytology (LBC) is done on the same sample. The program covers women aged 25–64 (age counted by birth year). Since 1 August 2026 the HPV HR test has replaced classic cytology in the program.",
+  "how_to_access_pl": "Skierowanie nie jest potrzebne. Na test można zapisać się przez centralną e-rejestrację na Internetowym Koncie Pacjenta (IKP) lub w aplikacji mojeIKP, w poradni położniczo-ginekologicznej z umową z NFZ albo w wybranej przychodni POZ realizującej program. Termin kolejnego badania zależy od wyniku i ustala go lekarz; pierwszy test HPV HR po cytologii w programie wykonuje się po 36 miesiącach od niej. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "No referral is needed. You can book through the central e-registration in the Internet Patient Account (IKP) or the mojeIKP app, at an obstetrics and gynaecology clinic with an NFZ contract, or at a participating POZ clinic. The next test date depends on the result and is set by a doctor; the first HPV HR test after a program cytology is done 36 months after it. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "sex": "female",
+      "age_min": 25,
+      "age_max": 64,
+      "requires": []
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 60,
+  "interval_overrides": [
+    {
+      "when": {
+        "requires": [
+          {
+            "factor": "hiv_or_immunosuppression",
+            "op": "eq",
+            "value": true
+          }
+        ]
+      },
+      "months": 12
+    }
+  ],
+  "evidence_level": 3,
+  "evidence_source": "NFZ program (Program profilaktyki raka szyjki macicy, Dz.U. 2026 poz. 754); EU Council Rec. 2022",
+  "burden_weight": 3,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://dziennikustaw.gov.pl/D2026000075401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 3 czerwca 2026 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu programów zdrowotnych (Dz. U. 2026 poz. 754)",
+      "publisher": "Dziennik Ustaw Rzeczypospolitej Polskiej",
+      "quote": "Badanie wykonuje się u kobiet w wieku od 25 do 64 lat (przy określaniu wieku należy wziąć pod uwagę rok urodzenia):",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://dziennikustaw.gov.pl/D2026000075401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 3 czerwca 2026 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu programów zdrowotnych (Dz. U. 2026 poz. 754)",
+      "publisher": "Dziennik Ustaw Rzeczypospolitej Polskiej",
+      "quote": "2) co 5 lat dla ujemnego wyniku testu HPV HR, bez czynników ryzyka w wywiadzie;",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://dziennikustaw.gov.pl/D2026000075401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 3 czerwca 2026 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu programów zdrowotnych (Dz. U. 2026 poz. 754)",
+      "publisher": "Dziennik Ustaw Rzeczypospolitej Polskiej",
+      "quote": "3) co 12 miesięcy dla kobiet obciążonych czynnikami ryzyka (zakażonych wirusem HIV, przyjmujących leki immunosupresyjne);",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://dziennikustaw.gov.pl/D2026000075401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 3 czerwca 2026 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu programów zdrowotnych (Dz. U. 2026 poz. 754)",
+      "publisher": "Dziennik Ustaw Rzeczypospolitej Polskiej",
+      "quote": "1) po 36 miesiącach od ostatniego przesiewowego badania cytologicznego w ramach Programu profilaktyki raka szyjki macicy;",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/aktualnosci/aktualnosci-centrali/wczesniej-niedostepny-teraz-zrobisz-go-na-nfz-test-hpv-hr-skuteczniejsza-profilaktyka-raka-szyjki-macicy,8841.html",
+      "title": "Wcześniej niedostępny, teraz zrobisz go na NFZ. Test HPV HR – skuteczniejsza profilaktyka raka szyjki macicy",
+      "publisher": "Narodowy Fundusz Zdrowia",
+      "quote": "Od 1 sierpnia 2026 r. bezpłatny test HPV HR zastępuje tradycyjną cytologię.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/aktualnosci/aktualnosci-centrali/wczesniej-niedostepny-teraz-zrobisz-go-na-nfz-test-hpv-hr-skuteczniejsza-profilaktyka-raka-szyjki-macicy,8841.html",
+      "title": "Wcześniej niedostępny, teraz zrobisz go na NFZ. Test HPV HR – skuteczniejsza profilaktyka raka szyjki macicy",
+      "publisher": "Narodowy Fundusz Zdrowia",
+      "quote": "Z darmowego testu HPV HR mogą skorzystać kobiety w wieku od 25 do 64 lat. Badanie finansuje Narodowy Fundusz Zdrowia.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.nfz.gov.pl/aktualnosci/aktualnosci-centrali/wczesniej-niedostepny-teraz-zrobisz-go-na-nfz-test-hpv-hr-skuteczniejsza-profilaktyka-raka-szyjki-macicy,8841.html",
+      "title": "Wcześniej niedostępny, teraz zrobisz go na NFZ. Test HPV HR – skuteczniejsza profilaktyka raka szyjki macicy",
+      "publisher": "Narodowy Fundusz Zdrowia",
+      "quote": "Do udziału w programie profilaktyki raka szyjki macicy nie musisz mieć skierowania. Wystarczy, że umówisz się w poradni, która realizuje badania profilaktyczne w ramach NFZ.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/profilaktyka-raka-szyjki-macicy",
+      "title": "Profilaktyka raka szyjki macicy",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "Aby wziąć udział w programie, nie musisz mieć skierowania.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://profilaktykaraka.nio.gov.pl/zmiany-w-programie-profilaktyki-raka-szyjki-macicy-od-1-sierpnia-2026-r/",
+      "title": "Zmiany w Programie Profilaktyki Raka Szyjki Macicy od 1 sierpnia 2026 r.",
+      "publisher": "Centralny Ośrodek Koordynujący, Narodowy Instytut Onkologii im. Marii Skłodowskiej-Curie",
+      "quote": "Zgodnie z nowymi przepisami z wykazu świadczeń gwarantowanych zostaje usunięty schemat oparty na cytologii klasycznej, obejmujący zarówno etap pobrania materiału do badania cytologicznego, jak i jego ocenę diagnostyczną.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

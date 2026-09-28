@@ -1,0 +1,73 @@
+{
+  "slug": "mammography-nfz-program",
+  "status": "active",
+  "name_pl": "Mammografia w programie profilaktyki raka piersi",
+  "name_en": "Mammography in the breast cancer screening program",
+  "summary_pl": "Bezpłatna mammografia w ramach Programu profilaktyki raka piersi NFZ. Program obejmuje kobiety w wieku 45–74 lat (wiek liczony według roku urodzenia), które nie miały mammografii w programie w ciągu ostatnich 2 lat.",
+  "summary_en": "Free mammography in the NFZ breast cancer screening program. The program covers women aged 45–74 (age counted by birth year) who have not had a program mammogram in the last 2 years.",
+  "how_to_access_pl": "Skierowanie nie jest potrzebne. Na badanie można zapisać się przez centralną e-rejestrację na Internetowym Koncie Pacjenta (IKP), w aplikacji mojeIKP albo bezpośrednio w placówce lub mammobusie, które mają umowę z NFZ. Po zakończonym leczeniu raka piersi program przewiduje inny odstęp między badaniami — ustala go lekarz. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "No referral is needed. You can book through the central e-registration in the Internet Patient Account (IKP), the mojeIKP app, or directly at a clinic or mammobus with an NFZ contract. After breast cancer treatment the program sets a different interval, decided by a doctor. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "sex": "female",
+      "age_min": 45,
+      "age_max": 74,
+      "requires": []
+    }
+  ],
+  "interval_kind": "fixed",
+  "interval_months": 24,
+  "interval_overrides": [],
+  "evidence_level": 3,
+  "evidence_source": "NFZ program (Program profilaktyki raka piersi); EU Council Rec. 2022",
+  "burden_weight": 4,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/profilaktyka-raka-piersi",
+      "title": "Profilaktyka raka piersi",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "W ramach profilaktyki raka piersi NFZ zaprasza wszystkie kobiety pomiędzy 45–74 rokiem życia na bezpłatne badania mammograficzne.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/profilaktyka-raka-piersi",
+      "title": "Profilaktyka raka piersi",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "w ciągu ostatnich 2 lat nie miałaś mammografii w ramach profilaktyki zdrowotnej (przy określaniu wieku należy wziąć pod uwagę rok urodzenia)",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/profilaktyka-raka-piersi",
+      "title": "Profilaktyka raka piersi",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "Jeżeli Twój wynik będzie prawidłowy, możesz ponownie wziąć udział w badaniu za 2 lata.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-profilaktyczny/profilaktyka-raka-piersi",
+      "title": "Profilaktyka raka piersi",
+      "publisher": "pacjent.gov.pl (Ministerstwo Zdrowia, Narodowy Fundusz Zdrowia)",
+      "quote": "Na badanie możesz się zgłosić bez skierowania.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/zdrowie/program-profilaktyki-raka-piersi-mammografia-",
+      "title": "Program profilaktyki raka piersi (mammografia)",
+      "publisher": "Ministerstwo Zdrowia",
+      "quote": "Program skierowany jest do kobiet wieku 45–74 lat, które są najbardziej zagrożone zachorowaniem na raka piersi.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://www.gov.pl/web/zdrowie/program-profilaktyki-raka-piersi-mammografia-",
+      "title": "Program profilaktyki raka piersi (mammografia)",
+      "publisher": "Ministerstwo Zdrowia",
+      "quote": "Możesz zrobić badanie w ramach programu bezpłatnie, jeśli jesteś uprawniona do świadczeń opieki zdrowotnej.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

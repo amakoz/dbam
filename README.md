@@ -57,6 +57,9 @@ npm run dev
 - `npm run format` - Run Prettier
 - `npm run smoke` - Smoke test the auth flow against a running server (`BASE_URL`, defaults to `http://localhost:4321`)
 - `npm run db:types` - Regenerate `src/lib/database.types.ts` from the local database
+- `npm run catalog:check` - Validate the screening catalog entries and check they match the newest snapshot migration
+- `npm run catalog:migration` - Generate a snapshot migration from `catalog/entries/`
+- `npm run catalog:schema` - Regenerate `catalog/entry.schema.json` from the entry schema
 
 ## Project Structure
 
@@ -158,6 +161,10 @@ Users can then sign in immediately after sign-up without clicking a confirmation
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
 
+## Screening catalog
+
+The screening catalog (`public.screening_catalog`) is filled from reviewed JSON files in `catalog/entries/`, never by hand: `npm run catalog:check` validates them (CI runs it), and `npm run catalog:migration` turns them into a generated snapshot migration. See [`catalog/README.md`](catalog/README.md) for the entry format, the lifecycle and the ship workflow.
+
 ## Translations
 
 The UI is in Polish by default, with English as a second language. The locale comes from the `lang` cookie (set by the PL/EN switcher in `src/layouts/Layout.astro` through `POST /api/locale`); URLs are not prefixed.
@@ -208,7 +215,7 @@ SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smo
 
 GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`, and on manual `workflow_dispatch`:
 
-- **ci** — lint, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
+- **ci** — `catalog:check`, lint, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).
 - **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check (`GET /api/health`: 200 `{"status":"ok"}`, or 503 `{"status":"misconfigured"}` when the Supabase secrets are missing) and the read-only smoke test against production (retried up to 3 times, 20 s apart, because a new Worker version takes up to a minute to reach every edge location).

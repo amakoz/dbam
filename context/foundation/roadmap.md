@@ -39,17 +39,17 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 ## At a glance
 
-| ID   | Change ID                   | Outcome (user can …)                                                                                      | Prerequisites | PRD refs                                          | Status   |
-| ---- | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------- | -------- |
-| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | ready    |
-| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | ready    |
-| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)      | done     |
-| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)           | proposed |
-| S-03 | record-appointment-date     | user picks a recommended exam and records an appointment date booked elsewhere                            | S-02          | US-02, FR-005                                     | proposed |
-| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                           | S-03, F-02    | US-02, FR-006, FR-007                             | proposed |
-| S-05 | confirm-exam-and-recurrence | user confirms an exam happened (or marks one already done) and sees its next due date                     | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary) | proposed |
-| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)         | proposed |
-| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                      | S-04, S-05    | FR-011, FR-012                                    | proposed |
+| ID   | Change ID                   | Outcome (user can …)                                                                                      | Prerequisites | PRD refs                                          | Status      |
+| ---- | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------- | ----------- |
+| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | in-progress |
+| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | ready       |
+| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)      | done        |
+| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)           | proposed    |
+| S-03 | record-appointment-date     | user picks a recommended exam and records an appointment date booked elsewhere                            | S-02          | US-02, FR-005                                     | proposed    |
+| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                           | S-03, F-02    | US-02, FR-006, FR-007                             | proposed    |
+| S-05 | confirm-exam-and-recurrence | user confirms an exam happened (or marks one already done) and sees its next due date                     | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary) | proposed    |
+| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)         | proposed    |
+| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                      | S-04, S-05    | FR-011, FR-012                                    | proposed    |
 
 ## Streams
 
@@ -89,7 +89,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Resolved: sources are the NFZ / Ministry of Health programs (breast, cervical, colorectal, lung LDCT) plus "Moje Zdrowie", Polish society guidelines (PTD, PTNT/PTK) for other checks, and USPSTF / EU Council 2022 as the evidence layer — see `context/foundation/screening-catalog-research.md`.
   - A family-medicine (POZ) doctor must sign off each entry before public launch; not needed to plan or build. — Owner: user. Block: no.
 - **Risk:** Sequenced first because both the north star and recurrence read from it; Polish programs changed in 2025–2026, so entries must cite current sources, not older summaries.
-- **Status:** ready
+- **Status:** in-progress
 
 ### F-02: Reminder dispatch path
 

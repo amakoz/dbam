@@ -1,0 +1,64 @@
+{
+  "slug": "fecal-occult-blood-test",
+  "status": "active",
+  "name_pl": "Test na krew utajoną w kale (FIT)",
+  "name_en": "Fecal immunochemical test (FIT)",
+  "summary_pl": "Immunochemiczny test na krew utajoną w kale (FIT-OC). W programie Moje Zdrowie może być zalecony w indywidualnym planie zdrowotnym osobom powyżej 50. roku życia, stosownie do potrzeb zdrowotnych określonych w bilansie. Nie zastępuje programu przesiewowej kolonoskopii NFZ.",
+  "summary_en": "A fecal immunochemical test for hidden blood in stool (FIT-OC). In the Moje Zdrowie program it may be recommended in the individual health plan for people over 50, depending on the health needs identified in the check. It does not replace the NFZ screening colonoscopy program.",
+  "how_to_access_pl": "Test może zostać zalecony przez personel POZ po bilansie zdrowia Moje Zdrowie, w ramach interwencji prozdrowotnych. Wypełnij ankietę programu Moje Zdrowie na Internetowym Koncie Pacjenta, w aplikacji mojeIKP lub w swojej przychodni POZ; przychodnia wystawia na jej podstawie zlecenie na badania, więc skierowanie nie jest potrzebne. Skonsultuj się z lekarzem POZ.",
+  "how_to_access_en": "POZ staff may recommend the test after the Moje Zdrowie health check, as a health intervention. Fill in the Moje Zdrowie questionnaire in the Internetowe Konto Pacjenta (IKP), the mojeIKP app or at your POZ clinic; the clinic issues the test order based on it, so no referral is needed. Consult your POZ (primary care) doctor.",
+  "eligibility": [
+    {
+      "age_min": 50,
+      "requires": []
+    }
+  ],
+  "interval_kind": "per_program",
+  "interval_months": null,
+  "interval_overrides": [],
+  "evidence_level": 2,
+  "evidence_source": "Moje Zdrowie health intervention (Dz.U. 2025 poz. 584)",
+  "burden_weight": 4,
+  "nfz_funded": true,
+  "referral_required": false,
+  "sources": [
+    {
+      "url": "https://dziennikustaw.gov.pl/D2025000058401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 30 kwietnia 2025 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu podstawowej opieki zdrowotnej (Dz.U. 2025 poz. 584)",
+      "publisher": "Dziennik Ustaw RP (Minister Zdrowia)",
+      "quote": "Test na krew utajoną w kale metodą immunochemiczną (FIT-OC) – dla osób powyżej 50 roku życia.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://dziennikustaw.gov.pl/D2025000058401.pdf",
+      "title": "Rozporządzenie Ministra Zdrowia z dnia 30 kwietnia 2025 r. zmieniające rozporządzenie w sprawie świadczeń gwarantowanych z zakresu podstawowej opieki zdrowotnej (Dz.U. 2025 poz. 584)",
+      "publisher": "Dziennik Ustaw RP (Minister Zdrowia)",
+      "quote": "5) zalecane interwencje prozdrowotne, w tym stosownie do określonych w Bilansie potrzeb zdrowotnych – porady edukacyjne lub test FIT-OC.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Osobom starszym w zależności od wyników ankiety, mogą zostać zlecone dodatkowe badania, takie jak próby wątrobowe, PSA (u mężczyzn), anty-HCV czy badanie kału na krew utajoną.",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Ten bezpłatny program jest dla Ciebie od 20. roku życia. Obejmuje diagnostykę, porady zdrowotne oraz profilaktykę. Realizowany jest przez przychodnie podstawowej opieki zdrowotnej (POZ).",
+      "accessed": "2026-09-28"
+    },
+    {
+      "url": "https://pacjent.gov.pl/program-moje-zdrowie",
+      "title": "Program Moje Zdrowie",
+      "publisher": "pacjent.gov.pl (Centrum e-Zdrowia)",
+      "quote": "Przychodnia POZ wystawi zlecenie (nie skierowanie) na badania na podstawie wypełnionej przez Ciebie ankiety.",
+      "accessed": "2026-09-28"
+    }
+  ],
+  "reviewed_by": null,
+  "last_reviewed": null,
+  "next_review_due": null
+}

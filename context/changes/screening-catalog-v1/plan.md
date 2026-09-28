@@ -535,14 +535,14 @@ The catalog is small (tens of rows), and no request path reads it in this change
 
 #### Automated
 
-- [ ] 1.1 Local database rebuilds from migrations: `npx supabase db reset`
-- [ ] 1.2 pgTAP suites pass, including the new file: `npx supabase test db`
-- [ ] 1.3 Generated types are current: `npm run db:types` leaves `git diff --exit-code src/lib/database.types.ts` clean
-- [ ] 1.4 Lint and type checks pass: `npm run lint` and `npx astro check`
+- [x] 1.1 Local database rebuilds from migrations: `npx supabase db reset`
+- [x] 1.2 pgTAP suites pass, including the new file: `npx supabase test db`
+- [x] 1.3 Generated types are current: `npm run db:types` leaves `git diff --exit-code src/lib/database.types.ts` clean
+- [x] 1.4 Lint and type checks pass: `npm run lint` and `npx astro check`
 
 #### Manual
 
-- [ ] 1.5 A REST read with the local publishable key returns `[]` against the empty table, not a permission error
+- [x] 1.5 A REST read with the local publishable key returns `[]` against the empty table, not a permission error
 
 ### Phase 2: Entry schema, validator and migration generator
 

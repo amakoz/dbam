@@ -107,7 +107,7 @@ npm run catalog:draft -- --topic "badania przesiewowe raka NFZ" \
   - `--topic` (required);
   - `--source <path>`: a background document, included in the prompt as leads only;
   - `--max <n>`: at most n entries, default 5;
-  - `--max-searches <n>`: web search cap, default 20;
+  - `--max-searches <n>`: cap on web searches, and separately on web fetches, for the whole run (including `pause_turn` continuations), default 20;
   - `--dry-run`: validate and report without writing entry files.
 - **Output:** the script prints each valid entry with its sources and quotes, skips slugs that already exist (as a file or in a shipped snapshot), and lists invalid entries with their errors.
 - **Audit:** every raw response, with the request and token usage, is saved to `catalog/.draft-runs/<timestamp>.json` (gitignored), even when the run fails.

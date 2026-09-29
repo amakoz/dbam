@@ -467,7 +467,7 @@ About 20 catalog rows, fetched once per dashboard request alongside the onboardi
 #### Manual
 
 - [x] 1.7 A local REST read with the publishable key shows all 19 active entries with `reviewed_by = "owner (non-medical review)"` and the two dates, and the LDCT draft stays hidden — b488b11
-- [ ] 1.8 After merge, CI `migrate` succeeds, and the production REST endpoint returns the stamped entries
+- [x] 1.8 After merge, CI `migrate` succeeds, and the production REST endpoint returns the stamped entries — ed1c052
 
 ### Phase 2: Rule module and tiered dashboard list
 

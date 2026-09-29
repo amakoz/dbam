@@ -457,55 +457,55 @@ About 20 catalog rows, fetched once per dashboard request alongside the onboardi
 
 #### Automated
 
-- [x] 1.1 Catalog validates and matches the newest snapshot: `npm run catalog:check` — b488b11
-- [x] 1.2 Published JSON Schema is current: `npm run catalog:schema` leaves `git diff --exit-code catalog/entry.schema.json` clean — b488b11
-- [x] 1.3 A temporary copy of an active entry with `reviewed_by: null` makes `npm run catalog:check` fail, pointing at `reviewed_by` — b488b11
-- [x] 1.4 Local database applies the snapshot: `npx supabase db reset` — b488b11
-- [x] 1.5 pgTAP suites pass, including the new stamp check: `npx supabase test db` — b488b11
-- [x] 1.6 Lint and type checks pass: `npm run lint` and `npx astro check` — b488b11
+- [x] 1.1 Catalog validates and matches the newest snapshot: `npm run catalog:check` — ed1c052
+- [x] 1.2 Published JSON Schema is current: `npm run catalog:schema` leaves `git diff --exit-code catalog/entry.schema.json` clean — ed1c052
+- [x] 1.3 A temporary copy of an active entry with `reviewed_by: null` makes `npm run catalog:check` fail, pointing at `reviewed_by` — ed1c052
+- [x] 1.4 Local database applies the snapshot: `npx supabase db reset` — ed1c052
+- [x] 1.5 pgTAP suites pass, including the new stamp check: `npx supabase test db` — ed1c052
+- [x] 1.6 Lint and type checks pass: `npm run lint` and `npx astro check` — ed1c052
 
 #### Manual
 
-- [x] 1.7 A local REST read with the publishable key shows all 19 active entries with `reviewed_by = "owner (non-medical review)"` and the two dates, and the LDCT draft stays hidden — b488b11
+- [x] 1.7 A local REST read with the publishable key shows all 19 active entries with `reviewed_by = "owner (non-medical review)"` and the two dates, and the LDCT draft stays hidden — ed1c052
 - [x] 1.8 After merge, CI `migrate` succeeds, and the production REST endpoint returns the stamped entries — ed1c052
 
 ### Phase 2: Rule module and tiered dashboard list
 
 #### Automated
 
-- [x] 2.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 4fc4e3e
-- [x] 2.2 Worker bundle stays under the Free plan limit with Zod now included: `npx wrangler deploy --dry-run` reports < 3 MiB — 4fc4e3e
-- [x] 2.3 Full smoke passes against a local preview, including the new dashboard body assertions — 4fc4e3e
+- [x] 2.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — ed1c052
+- [x] 2.2 Worker bundle stays under the Free plan limit with Zod now included: `npx wrangler deploy --dry-run` reports < 3 MiB — ed1c052
+- [x] 2.3 Full smoke passes against a local preview, including the new dashboard body assertions — ed1c052
 
 #### Manual
 
-- [x] 2.4 Smoke profile in PL and EN shows the expected tier 1 and tier 2 entries and none of the ineligible ones — 4fc4e3e
-- [x] 2.5 Male 1958 current smoker sees PSA in tier 3 with the benefits/harms note and AAA in tier 1 — 4fc4e3e
-- [x] 2.6 Item details open by keyboard, the "why" line states age by birth year and the matched rule, and sources and reviewed date show — 4fc4e3e
-- [x] 2.7 Disclaimer is visible above the tiers and no copy states or implies a diagnosis — 4fc4e3e
-- [x] 2.8 With local Supabase stopped, `/dashboard` renders the translated 500 page — 4fc4e3e
+- [x] 2.4 Smoke profile in PL and EN shows the expected tier 1 and tier 2 entries and none of the ineligible ones — ed1c052
+- [x] 2.5 Male 1958 current smoker sees PSA in tier 3 with the benefits/harms note and AAA in tier 1 — ed1c052
+- [x] 2.6 Item details open by keyboard, the "why" line states age by birth year and the matched rule, and sources and reviewed date show — ed1c052
+- [x] 2.7 Disclaimer is visible above the tiers and no copy states or implies a diagnosis — ed1c052
+- [x] 2.8 With local Supabase stopped, `/dashboard` renders the translated 500 page — ed1c052
 
 ### Phase 3: "May apply to you" section
 
 #### Automated
 
-- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — ac9a280
-- [x] 3.2 Full smoke passes against a local preview, including the "may apply" assertion — ac9a280
+- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — ed1c052
+- [x] 3.2 Full smoke passes against a local preview, including the "may apply" assertion — ed1c052
 
 #### Manual
 
-- [x] 3.3 Smoke profile sees the stool blood test and hepatitis C under "may apply", with no tier entries repeated there — ac9a280
-- [x] 3.4 A profile born 1981 who never smoked sees colonoscopy under "may apply" and diabetes screening in tier 2 — ac9a280
-- [x] 3.5 A profile born 1996 sees diabetes screening under "may apply" with its conditions joined by "or" — ac9a280
-- [x] 3.6 A never-smoker aged 52 does not see LDCT anywhere — ac9a280
+- [x] 3.3 Smoke profile sees the stool blood test and hepatitis C under "may apply", with no tier entries repeated there — ed1c052
+- [x] 3.4 A profile born 1981 who never smoked sees colonoscopy under "may apply" and diabetes screening in tier 2 — ed1c052
+- [x] 3.5 A profile born 1996 sees diabetes screening under "may apply" with its conditions joined by "or" — ed1c052
+- [x] 3.6 A never-smoker aged 52 does not see LDCT anywhere — ed1c052
 
 ### Phase 4: Docs sync — F-03 unit-test foundation, PRD and roadmap
 
 #### Automated
 
-- [x] 4.1 Docs are formatted: `npx prettier --check context/foundation/roadmap.md context/foundation/prd.md` — 63f3977
+- [x] 4.1 Docs are formatted: `npx prettier --check context/foundation/roadmap.md context/foundation/prd.md` — ed1c052
 
 #### Manual
 
-- [x] 4.2 Roadmap F-03 row matches its Foundations body and appears once in Backlog Handoff with its issue number — 63f3977
-- [x] 4.3 F-03 GitHub issue exists with the `foundation` label and M-01 milestone, and #27 has the launch-gate comment — 63f3977
+- [x] 4.2 Roadmap F-03 row matches its Foundations body and appears once in Backlog Handoff with its issue number — ed1c052
+- [x] 4.3 F-03 GitHub issue exists with the `foundation` label and M-01 milestone, and #27 has the launch-gate comment — ed1c052

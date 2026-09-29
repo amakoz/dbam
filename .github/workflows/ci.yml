@@ -44,7 +44,7 @@ jobs:
       - name: Configure secrets for build and preview
         run: |
           source supabase.env
-          printf 'SUPABASE_URL=%s\nSUPABASE_KEY=%s\n' "$API_URL" "$ANON_KEY" > .env
+          printf 'SUPABASE_URL=%s\nSUPABASE_KEY=%s\nEMAIL_DRY_RUN=true\n' "$API_URL" "$ANON_KEY" > .env
           cp .env .dev.vars
       - run: npm run build
       - name: Run smoke test against production preview
@@ -52,6 +52,21 @@ jobs:
           npm run preview -- --port 4321 &
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:4321/ && break; sleep 1; done
           BASE_URL=http://localhost:4321 npm run smoke
+      # Runs the Worker's scheduled() for both heartbeat crons on the preview started above, so a lost `scheduled`
+      # export, a broken src/worker.ts entry or broken env wiring fails the PR. EMAIL_DRY_RUN=true: nothing is sent.
+      # The daily cron is pinned to 2026-10-01T08:00Z (10:00 in Warsaw), so it takes the send path, not a clock-dependent skip.
+      - name: Exercise scheduled handler (dry run)
+        run: |
+          status=0
+          for cron in '*%2F30+*+*+*+*' '0+8%2C9+*+*+*&time=1790841600000'; do
+            body=$(curl -sS "http://localhost:4321/cdn-cgi/local/scheduled?cron=$cron&format=json" || true)
+            echo "cron=$cron -> $body"
+            if ! printf '%s' "$body" | grep -q '"outcome":"ok"'; then
+              echo "::error::Scheduled handler failed for cron=$cron (expected \"outcome\":\"ok\")"
+              status=1
+            fi
+          done
+          exit $status
       - if: always()
         run: supabase stop --no-backup
 

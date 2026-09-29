@@ -57,6 +57,7 @@ npm run dev
 - `npm run format` - Run Prettier
 - `npm run smoke` - Smoke test the auth flow against a running server (`BASE_URL`, defaults to `http://localhost:4321`)
 - `npm run db:types` - Regenerate `src/lib/database.types.ts` from the local database
+- `npm run cf:types` - Regenerate `worker-configuration.d.ts` (Worker runtime types and `Env`) from `wrangler.jsonc` and `.dev.vars` (commit it)
 - `npm run catalog:check` - Validate the screening catalog entries and check they match the newest snapshot migration
 - `npm run catalog:migration` - Generate a snapshot migration from `catalog/entries/`
 - `npm run catalog:schema` - Regenerate `catalog/entry.schema.json` from the entry schema
@@ -192,6 +193,35 @@ npx wrangler deploy
 
 Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
 
+The scheduled heartbeat email (see [Scheduled jobs](#scheduled-jobs)) needs two more secrets:
+
+```bash
+npx wrangler secret put RESEND_API_KEY     # Resend API key with sending-only permission
+npx wrangler secret put REMINDER_TEST_TO   # heartbeat recipient
+```
+
+Mail is sent from Resend's test sender `onboarding@resend.dev`, which delivers only to the Resend account owner's address, so the Resend account must be registered on the `REMINDER_TEST_TO` address. Leave `EMAIL_DRY_RUN` unset in production (it defaults to `false`).
+
+### Scheduled jobs
+
+`src/worker.ts` is the Worker entry (`main` in `wrangler.jsonc`): HTTP requests go to the Astro adapter, and Cron Triggers (`triggers.crons`) run `scheduled()`, which sends the heartbeat email from `src/lib/heartbeat.ts` through `src/lib/email.ts`. Cron runs in UTC. `*/30 * * * *` sends on every run; `0 8,9 * * *` sends only on the run that is 10:00 in Europe/Warsaw, so it stays at 10:00 across daylight saving time. Any other cron string fails the run.
+
+Run it locally against `npm run dev` or `npm run build && npm run preview`. With `EMAIL_DRY_RUN=true` (the `.env.example` default) it only logs a `dry-run` line and sends nothing:
+
+```bash
+curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=*%2F30+*+*+*+*&format=json'
+# daily cron at a given time (epoch ms): 2026-10-01T08:00Z is 10:00 in Warsaw, so it sends
+curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=0+8%2C9+*+*+*&time=1790841600000&format=json'
+```
+
+For one real send, put a real `RESEND_API_KEY` and `REMINDER_TEST_TO` plus `EMAIL_DRY_RUN=false` in `.dev.vars`, restart the server and call the first `curl` again. Set `EMAIL_DRY_RUN=true` back afterwards.
+
+In production:
+
+- **Runs:** Cloudflare dashboard → Workers → `dbam` → Settings → Trigger Events (the last 100 invocations), and Workers Logs (one `heartbeat` JSON line per run with its outcome; no recipient or key). A cron change takes up to 15 minutes to take effect after a deploy.
+- **Free-plan limits:** 10 ms CPU per cron run (waiting on the network doesn't count), 50 subrequests per run, and 5 Cron Triggers per account. Resend's free tier allows 100 emails a day and 3,000 a month.
+- **Stopping the cron:** deploy `"triggers": { "crons": [] }`. Removing or commenting out the `crons` key leaves the deployed schedule running, and `wrangler rollback` is not known to restore trigger settings.
+
 ## Smoke test
 
 `scripts/smoke.mjs` is a dependency-free Node script that walks the whole auth flow (sign-up, sign-in, protected page, sign-out) over HTTP. Run it against the dev server or the production preview after dependency upgrades:
@@ -217,6 +247,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`,
 
 - **ci** — `catalog:check`, lint, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
+  It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for both heartbeat crons with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"` (see [Scheduled jobs](#scheduled-jobs)).
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).
 - **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check (`GET /api/health`: 200 `{"status":"ok"}`, or 503 `{"status":"misconfigured"}` when the Supabase secrets are missing) and the read-only smoke test against production (retried up to 3 times, 20 s apart, because a new Worker version takes up to a minute to reach every edge location).
 

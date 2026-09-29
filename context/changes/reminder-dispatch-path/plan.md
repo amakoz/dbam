@@ -407,12 +407,12 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 
 #### Automated
 
-- [ ] 2.1 Workflow lints as valid YAML and the PR's `ci` and `smoke` jobs pass
-- [ ] 2.2 The `smoke` job log shows both dry-run scheduled calls returning `"outcome":"ok"`
+- [x] 2.1 Workflow lints as valid YAML and the PR's `ci` and `smoke` jobs pass — ed48804
+- [x] 2.2 The `smoke` job log shows both dry-run scheduled calls returning `"outcome":"ok"` — ed48804
 
 #### Manual
 
-- [x] 2.3 Removing `scheduled` on a scratch branch makes the new CI step fail
+- [x] 2.3 Removing `scheduled` on a scratch branch makes the new CI step fail — ed48804
 
 ### Phase 3: Production rollout
 

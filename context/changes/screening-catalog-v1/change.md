@@ -3,7 +3,7 @@ change_id: screening-catalog-v1
 title: Screening catalog v1
 status: impl_reviewed
 created: 2026-09-28
-updated: 2026-09-28
+updated: 2026-09-29
 archived_at: null
 ---
 

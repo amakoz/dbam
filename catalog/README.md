@@ -82,6 +82,7 @@ Age and sex are branch fields, not factors. The closed list of factors lives in 
 | `pregnancy`                        | boolean                            | no                           |
 | `prior_cancer`                     | boolean                            | no                           |
 | `hysterectomy`                     | boolean                            | no                           |
+| `questionnaire_flags_risk`         | boolean                            | no                           |
 
 ## Drafting with Claude
 

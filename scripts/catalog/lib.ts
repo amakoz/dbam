@@ -184,7 +184,16 @@ export function renderSnapshotSql(entries: readonly CatalogEntry[]): string {
     values.push("now()");
     return `  (\n${values.map((v) => `    ${v}`).join(",\n")}\n  )`;
   });
-  const updates = columns.filter((column) => column !== "slug").map((column) => `  ${column} = excluded.${column}`);
+  const contentColumns = ENTRY_COLUMNS.filter((column) => column !== "slug");
+  const updates = [...contentColumns, "updated_at"].map((column) => `  ${column} = excluded.${column}`);
+  // Unchanged rows are left alone, so updated_at keeps meaning "this entry's content changed".
+  const guard = [
+    "where (",
+    contentColumns.map((column) => `  screening_catalog.${column}`).join(",\n"),
+    ") is distinct from (",
+    contentColumns.map((column) => `  excluded.${column}`).join(",\n"),
+    ");",
+  ];
 
   return [
     ...SNAPSHOT_HEADER,
@@ -195,7 +204,8 @@ export function renderSnapshotSql(entries: readonly CatalogEntry[]): string {
     ") values",
     rows.join(",\n"),
     "on conflict (slug) do update set",
-    `${updates.join(",\n")};`,
+    updates.join(",\n"),
+    ...guard,
     "",
   ].join("\n");
 }

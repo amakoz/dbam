@@ -503,9 +503,9 @@ About 20 catalog rows, fetched once per dashboard request alongside the onboardi
 
 #### Automated
 
-- [x] 4.1 Docs are formatted: `npx prettier --check context/foundation/roadmap.md context/foundation/prd.md`
+- [x] 4.1 Docs are formatted: `npx prettier --check context/foundation/roadmap.md context/foundation/prd.md` — 63f3977
 
 #### Manual
 
-- [x] 4.2 Roadmap F-03 row matches its Foundations body and appears once in Backlog Handoff with its issue number
-- [x] 4.3 F-03 GitHub issue exists with the `foundation` label and M-01 milestone, and #27 has the launch-gate comment
+- [x] 4.2 Roadmap F-03 row matches its Foundations body and appears once in Backlog Handoff with its issue number — 63f3977
+- [x] 4.3 F-03 GitHub issue exists with the `foundation` label and M-01 milestone, and #27 has the launch-gate comment — 63f3977

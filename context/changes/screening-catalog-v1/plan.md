@@ -581,4 +581,4 @@ The catalog is small (tens of rows), and no request path reads it in this change
 
 - [x] 4.5 The owner has reviewed every `active` entry against its cited sources, per the `catalog/README.md` checklist — 5e8b85c
 - [x] 4.6 A local REST read with the publishable key returns only active and retired entries, with PL and EN text and sources present — 5e8b85c
-- [x] 4.7 After merge, CI `migrate` succeeds, and the production REST endpoint returns the active entries with the publishable key
+- [x] 4.7 After merge, CI `migrate` succeeds, and the production REST endpoint returns the active entries with the publishable key — 421ffff

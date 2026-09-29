@@ -489,23 +489,23 @@ About 20 catalog rows, fetched once per dashboard request alongside the onboardi
 
 #### Automated
 
-- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
-- [x] 3.2 Full smoke passes against a local preview, including the "may apply" assertion
+- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — ac9a280
+- [x] 3.2 Full smoke passes against a local preview, including the "may apply" assertion — ac9a280
 
 #### Manual
 
-- [x] 3.3 Smoke profile sees the stool blood test and hepatitis C under "may apply", with no tier entries repeated there
-- [x] 3.4 A profile born 1981 who never smoked sees colonoscopy under "may apply" and diabetes screening in tier 2
-- [x] 3.5 A profile born 1996 sees diabetes screening under "may apply" with its conditions joined by "or"
-- [x] 3.6 A never-smoker aged 52 does not see LDCT anywhere
+- [x] 3.3 Smoke profile sees the stool blood test and hepatitis C under "may apply", with no tier entries repeated there — ac9a280
+- [x] 3.4 A profile born 1981 who never smoked sees colonoscopy under "may apply" and diabetes screening in tier 2 — ac9a280
+- [x] 3.5 A profile born 1996 sees diabetes screening under "may apply" with its conditions joined by "or" — ac9a280
+- [x] 3.6 A never-smoker aged 52 does not see LDCT anywhere — ac9a280
 
 ### Phase 4: Docs sync — F-03 unit-test foundation, PRD and roadmap
 
 #### Automated
 
-- [ ] 4.1 Docs are formatted: `npx prettier --check context/foundation/roadmap.md context/foundation/prd.md`
+- [x] 4.1 Docs are formatted: `npx prettier --check context/foundation/roadmap.md context/foundation/prd.md`
 
 #### Manual
 
-- [ ] 4.2 Roadmap F-03 row matches its Foundations body and appears once in Backlog Handoff with its issue number
-- [ ] 4.3 F-03 GitHub issue exists with the `foundation` label and M-01 milestone, and #27 has the launch-gate comment
+- [x] 4.2 Roadmap F-03 row matches its Foundations body and appears once in Backlog Handoff with its issue number
+- [x] 4.3 F-03 GitHub issue exists with the `foundation` label and M-01 milestone, and #27 has the launch-gate comment

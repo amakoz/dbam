@@ -4,7 +4,7 @@ version: 3
 status: draft
 created: 2026-09-26
 updated: 2026-09-29
-prd_version: 2
+prd_version: 3
 main_goal: speed
 top_blocker: decisions
 milestone_id: first-screening-loop
@@ -14,7 +14,7 @@ milestone_status: open
 
 # Roadmap: Dbam
 
-> Derived from `context/foundation/prd.md` (v2) + auto-researched codebase baseline.
+> Derived from `context/foundation/prd.md` (v3) + auto-researched codebase baseline.
 > Edit-in-place; archive when superseded.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
 
@@ -23,7 +23,7 @@ milestone_status: open
 **M-01: First screening loop** — Status: open
 
 - **Intent:** A user can sign up, complete onboarding, see screenings due for their profile, record and confirm an exam, and get opt-in email reminders that keep the exam cycle going — the PRD's primary success criterion, end to end.
-- **Source materials:** `context/foundation/prd.md` (v2); catalog and compliance research in `context/foundation/screening-catalog-research.md` (resolves the catalog-source and AI-consent decisions)
+- **Source materials:** `context/foundation/prd.md` (v3); catalog and compliance research in `context/foundation/screening-catalog-research.md` (resolves the catalog-source and AI-consent decisions)
 - **Done when:** every F-NN and S-NN below is `done`.
 - **Scope anchors:** FR-001–FR-009, FR-011, FR-012 (all must-have FRs); US-01, US-02, US-03. FR-010 (nice-to-have) is parked.
 
@@ -43,6 +43,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | ---- | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------- | ----------- |
 | F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | done        |
 | F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | ready       |
+| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules    | S-02          | FR-004, FR-009, NFR (testing)                     | proposed    |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)      | done        |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)           | in-progress |
 | S-03 | record-appointment-date     | user picks a recommended exam and records an appointment date booked elsewhere                            | S-02          | US-02, FR-005                                     | proposed    |
@@ -55,11 +56,11 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme                       | Chain                             | Note                                                                                            |
-| ------ | --------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------- |
-| A      | Profile and recommendations | `S-01` → `S-02` → `S-03`          | Shortest path to the north star; `S-02` also joins Stream B at `F-01`.                          |
-| B      | Catalog and recurrence      | `F-01` → `S-05`                   | Catalog built from Polish NFZ programs and society guidelines; `S-05` joins Stream A at `S-03`. |
-| C      | Reminders                   | `F-02` → `S-04` → `S-06` / `S-07` | Proves the delivery path early; `S-04` joins A at `S-03`, `S-06`/`S-07` join B at `S-05`.       |
+| Stream | Theme                       | Chain                             | Note                                                                                                                                                      |
+| ------ | --------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A      | Profile and recommendations | `S-01` → `S-02` → `S-03`          | Shortest path to the north star; `S-02` also joins Stream B at `F-01`.                                                                                    |
+| B      | Catalog and recurrence      | `F-01` → `S-05`; `F-03`           | Catalog built from Polish NFZ programs and society guidelines; `S-05` joins Stream A at `S-03`; `F-03` (unit tests for the catalog rules) follows `S-02`. |
+| C      | Reminders                   | `F-02` → `S-04` → `S-06` / `S-07` | Proves the delivery path early; `S-04` joins A at `S-03`, `S-06`/`S-07` join B at `S-05`.                                                                 |
 
 ## Baseline
 
@@ -105,6 +106,19 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Cron-trigger limit scope (per account vs per Worker) is inconsistently documented — verify in the dashboard. — Owner: team. Block: no.
 - **Risk:** The starter has no scheduled work and `tech-stack.md` flags it as the known gap; proving it early and in isolation keeps S-04 from carrying infrastructure risk and product logic at once.
 - **Status:** ready
+
+### F-03: Unit test suite
+
+- **Outcome:** (foundation) a unit-test runner (Vitest) runs in CI and covers the catalog eligibility, tier and interval rules (`src/lib/catalog/recommend.ts`, `wording.ts`).
+- **Change ID:** unit-test-suite
+- **PRD refs:** FR-004, FR-009, NFR (testing)
+- **Unlocks:** safer changes to S-05's recurrence logic
+- **Prerequisites:** S-02
+- **Parallel with:** S-03, F-02
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** S-02 ships its rule engine without unit tests (owner decision), so until F-03 lands the branch-evaluation edge cases rely on smoke, pgTAP and manual test profiles. Added during S-02 planning; first cases are listed in `context/changes/screening-recommendations/plan.md` §Testing Strategy.
+- **Status:** proposed
 
 ## Slices
 
@@ -200,6 +214,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | ---------- | --------------------------- | --------------------------------------------------------------- | --------------------- | ----------------------------------------------- |
 | F-01       | screening-catalog-v1        | Curate v1 screening catalog (eligibility, importance, interval) | yes                   | #17 · Done; drafter live run (3.3) → #42        |
 | F-02       | reminder-dispatch-path      | Prove scheduled email delivery on Workers in production         | yes                   | #18 · Run `/10x-plan reminder-dispatch-path`    |
+| F-03       | unit-test-suite             | Unit test suite for catalog rules                               | no                    | #49 · Needs S-02                                |
 | S-01       | onboarding-profile          | Onboarding: health-data consent and minimal profile             | yes                   | #19 · Run `/10x-plan onboarding-profile`        |
 | S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | yes                   | #20 · Run `/10x-plan screening-recommendations` |
 | S-03       | record-appointment-date     | Record an appointment date for a recommended exam               | no                    | #21 · Needs S-02                                |
@@ -211,7 +226,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Open Roadmap Questions
 
 1. **What's the insight/differentiator?** (#26) Why hasn't a personal screening-nudge + NFZ-queue-watcher been built already? — Owner: user. Block: none (positioning only; from PRD Open Questions).
-2. **What must be in place before public launch?** (#27) A medical reviewer signs off the catalog, a data-protection impact assessment (DPIA) covers server-stored health data, and a short memo records why the app is informational, not a medical device. Until then the catalog's 19 active entries are unreviewed (`reviewed_by` null); S-02 must enforce the gate at render time (see `context/changes/screening-recommendations/change.md`). — Owner: user. Block: none (launch gate, not a planning gate).
+2. **What must be in place before public launch?** (#27) A medical reviewer signs off the catalog, a data-protection impact assessment (DPIA) covers server-stored health data, and a short memo records why the app is informational, not a medical device. Until then the catalog's 19 active entries carry the owner's non-medical review stamp (`reviewed_by = "owner (non-medical review)"`, 2026-09-29), which is not medical sign-off; S-02 shows only stamped entries, and `catalog:check` + pgTAP reject an active entry without a stamp (see `context/changes/screening-recommendations/change.md`). A POZ doctor's sign-off is still required before public launch. — Owner: user. Block: none (launch gate, not a planning gate).
 
 3. **When and how does the automated AI catalog update run?** (#28) The plan is an AI job that periodically updates the screening catalog. The PRD has no requirement for it yet, and its updates must not reach users before medical review (they should land as drafts pending sign-off). — Owner: user. Block: none (not in this milestone's scope; needs a PRD requirement before it can become a slice).
 

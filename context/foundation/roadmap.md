@@ -211,7 +211,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Open Roadmap Questions
 
 1. **What's the insight/differentiator?** (#26) Why hasn't a personal screening-nudge + NFZ-queue-watcher been built already? — Owner: user. Block: none (positioning only; from PRD Open Questions).
-2. **What must be in place before public launch?** (#27) A medical reviewer signs off the catalog, a data-protection impact assessment (DPIA) covers server-stored health data, and a short memo records why the app is informational, not a medical device. — Owner: user. Block: none (launch gate, not a planning gate).
+2. **What must be in place before public launch?** (#27) A medical reviewer signs off the catalog, a data-protection impact assessment (DPIA) covers server-stored health data, and a short memo records why the app is informational, not a medical device. Until then the catalog's 19 active entries are unreviewed (`reviewed_by` null); S-02 must enforce the gate at render time (see `context/changes/screening-recommendations/change.md`). — Owner: user. Block: none (launch gate, not a planning gate).
 
 3. **When and how does the automated AI catalog update run?** (#28) The plan is an AI job that periodically updates the screening catalog. The PRD has no requirement for it yet, and its updates must not reach users before medical review (they should land as drafts pending sign-off). — Owner: user. Block: none (not in this milestone's scope; needs a PRD requirement before it can become a slice).
 

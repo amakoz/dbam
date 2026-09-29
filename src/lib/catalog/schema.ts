@@ -16,7 +16,21 @@ export const CONDITION_OPS = ["eq", "in", "gte", "lte"] as const;
 
 const MAX_INTERVAL_MONTHS = 240;
 
-const Text = z.string().regex(/\S/, { error: "must not be blank" });
+/** C0 control characters and DEL, except tab and newline: Postgres can't store NUL, and none belong in catalog text. */
+function hasControlCharacter(text: string): boolean {
+  for (const char of text) {
+    const code = char.charCodeAt(0);
+    if ((code < 0x20 && char !== "\t" && char !== "\n") || code === 0x7f) return true;
+  }
+  return false;
+}
+
+const Text = z
+  .string()
+  .regex(/\S/, { error: "must not be blank" })
+  .refine((text) => !hasControlCharacter(text), {
+    error: "must not contain control characters (other than tab and newline)",
+  });
 const IsoDate = z.iso.date({ error: "must be a date in YYYY-MM-DD format" });
 const Age = z.int().min(0).max(MAX_AGE);
 const Months = z.int().min(1).max(MAX_INTERVAL_MONTHS);

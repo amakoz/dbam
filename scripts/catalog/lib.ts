@@ -200,9 +200,13 @@ export function renderSnapshotSql(entries: readonly CatalogEntry[]): string {
   ].join("\n");
 }
 
-/** The slugs listed in a snapshot's `-- catalog-slug:` manifest, or null when it has none. */
+/**
+ * The slugs listed in a snapshot's `-- catalog-slug:` manifest, or null when it has none. Only the header (before
+ * `insert into`) is read, so entry text that happens to contain a manifest-like line can't add a slug.
+ */
 export function parseSnapshotSlugs(sql: string): string[] | null {
-  const slugs = [...sql.matchAll(MANIFEST_LINE)].map((match) => match[1]);
+  const header = sql.split(/^insert into /m)[0];
+  const slugs = [...header.matchAll(MANIFEST_LINE)].map((match) => match[1]);
   return slugs.length > 0 ? slugs : null;
 }
 

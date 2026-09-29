@@ -111,6 +111,10 @@ export const pl = {
   "dashboard.recommendations.factor.hysterectomy": "masz za sobą usunięcie macicy (histerektomię)",
   "dashboard.recommendations.factor.questionnaire_flags_risk":
     "ankieta programu (np. Moje Zdrowie) wskaże, że to badanie jest dla Ciebie",
+  "dashboard.recommendations.maybe.heading": "Może Cię dotyczyć – zapytaj lekarza POZ",
+  "dashboard.recommendations.maybe.intro":
+    "Te badania zależą od informacji, o które nie pytamy. Jeśli warunek przy badaniu Cię dotyczy, zapytaj o nie lekarza POZ.",
+  "dashboard.recommendations.maybe.if": "Jeśli {conditions}.",
 
   "onboarding.title": "Twój profil zdrowotny",
   "onboarding.withdrawn": "Twoja zgoda została wycofana, a dane o zdrowiu usunięte.",

@@ -1,4 +1,5 @@
 ---
+import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
 import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
 import Layout from "@/layouts/Layout.astro";
 import { createT, type MessageKey } from "@/i18n";
@@ -24,7 +25,7 @@ if (state !== "complete" || !profile) {
 
 // A database error throws and renders the 500 page, so an outage never looks like "nothing is due".
 const catalog = await getActiveCatalog(supabase);
-const { tiers, age } = recommend(catalog, profile, new Date().getFullYear(), locale);
+const { tiers, maybe, age } = recommend(catalog, profile, new Date().getFullYear(), locale);
 const TIER_HEADING_KEYS = {
   1: "dashboard.recommendations.tier.1",
   2: "dashboard.recommendations.tier.2",
@@ -83,6 +84,19 @@ const summary = [
               </ul>
             </section>
           ))
+        )}
+        {maybe.length > 0 && (
+          <section aria-labelledby="maybe-heading" class="space-y-2">
+            <h3 id="maybe-heading" class="font-semibold text-blue-100">
+              {t("dashboard.recommendations.maybe.heading")}
+            </h3>
+            <p class="text-sm text-blue-100/70">{t("dashboard.recommendations.maybe.intro")}</p>
+            <ul class="space-y-2">
+              {maybe.map((recommendation) => (
+                <MaybeRecommendationItem recommendation={recommendation} />
+              ))}
+            </ul>
+          </section>
         )}
       </section>
 

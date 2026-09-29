@@ -473,31 +473,31 @@ About 20 catalog rows, fetched once per dashboard request alongside the onboardi
 
 #### Automated
 
-- [x] 2.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
-- [x] 2.2 Worker bundle stays under the Free plan limit with Zod now included: `npx wrangler deploy --dry-run` reports < 3 MiB
-- [x] 2.3 Full smoke passes against a local preview, including the new dashboard body assertions
+- [x] 2.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 4fc4e3e
+- [x] 2.2 Worker bundle stays under the Free plan limit with Zod now included: `npx wrangler deploy --dry-run` reports < 3 MiB — 4fc4e3e
+- [x] 2.3 Full smoke passes against a local preview, including the new dashboard body assertions — 4fc4e3e
 
 #### Manual
 
-- [x] 2.4 Smoke profile in PL and EN shows the expected tier 1 and tier 2 entries and none of the ineligible ones
-- [x] 2.5 Male 1958 current smoker sees PSA in tier 3 with the benefits/harms note and AAA in tier 1
-- [x] 2.6 Item details open by keyboard, the "why" line states age by birth year and the matched rule, and sources and reviewed date show
-- [x] 2.7 Disclaimer is visible above the tiers and no copy states or implies a diagnosis
-- [x] 2.8 With local Supabase stopped, `/dashboard` renders the translated 500 page
+- [x] 2.4 Smoke profile in PL and EN shows the expected tier 1 and tier 2 entries and none of the ineligible ones — 4fc4e3e
+- [x] 2.5 Male 1958 current smoker sees PSA in tier 3 with the benefits/harms note and AAA in tier 1 — 4fc4e3e
+- [x] 2.6 Item details open by keyboard, the "why" line states age by birth year and the matched rule, and sources and reviewed date show — 4fc4e3e
+- [x] 2.7 Disclaimer is visible above the tiers and no copy states or implies a diagnosis — 4fc4e3e
+- [x] 2.8 With local Supabase stopped, `/dashboard` renders the translated 500 page — 4fc4e3e
 
 ### Phase 3: "May apply to you" section
 
 #### Automated
 
-- [ ] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
-- [ ] 3.2 Full smoke passes against a local preview, including the "may apply" assertion
+- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build`
+- [x] 3.2 Full smoke passes against a local preview, including the "may apply" assertion
 
 #### Manual
 
-- [ ] 3.3 Smoke profile sees the stool blood test and hepatitis C under "may apply", with no tier entries repeated there
-- [ ] 3.4 A profile born 1981 who never smoked sees colonoscopy under "may apply" and diabetes screening in tier 2
-- [ ] 3.5 A profile born 1996 sees diabetes screening under "may apply" with its conditions joined by "or"
-- [ ] 3.6 A never-smoker aged 52 does not see LDCT anywhere
+- [x] 3.3 Smoke profile sees the stool blood test and hepatitis C under "may apply", with no tier entries repeated there
+- [x] 3.4 A profile born 1981 who never smoked sees colonoscopy under "may apply" and diabetes screening in tier 2
+- [x] 3.5 A profile born 1996 sees diabetes screening under "may apply" with its conditions joined by "or"
+- [x] 3.6 A never-smoker aged 52 does not see LDCT anywhere
 
 ### Phase 4: Docs sync — F-03 unit-test foundation, PRD and roadmap
 

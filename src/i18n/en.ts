@@ -107,6 +107,10 @@ export const en: Record<MessageKey, string> = {
   "dashboard.recommendations.factor.hysterectomy": "you have had a hysterectomy (removal of the uterus)",
   "dashboard.recommendations.factor.questionnaire_flags_risk":
     "the program's health questionnaire (e.g. Moje Zdrowie) points you to this test",
+  "dashboard.recommendations.maybe.heading": "May apply to you — ask your POZ doctor",
+  "dashboard.recommendations.maybe.intro":
+    "These tests depend on details we don't ask about. If the condition next to a test applies to you, ask your POZ (primary care) doctor about it.",
+  "dashboard.recommendations.maybe.if": "If {conditions}.",
 
   "onboarding.title": "Your health profile",
   "onboarding.withdrawn": "Your consent has been withdrawn and your health data deleted.",

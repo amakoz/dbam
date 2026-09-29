@@ -100,7 +100,8 @@ export function describeCondition(condition: Condition, t: Translate, locale: Lo
     case "enum": {
       const values = Array.isArray(value) ? value : [String(value)];
       const labels = values.map((v) => (Object.hasOwn(wording.labels, v) ? t(wording.labels[v]) : v));
-      return t(wording.key, { values: listFormat(locale, "disjunction", labels) });
+      // The labels are the profile form's answers ("Tak, obecnie"); mid-sentence they read in lower case.
+      return t(wording.key, { values: listFormat(locale, "disjunction", labels).toLocaleLowerCase(locale) });
     }
   }
 }

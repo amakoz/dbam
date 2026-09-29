@@ -125,13 +125,17 @@ const accountSteps = [
     () => request("/api/profile", { method: "POST", form: profile }),
     { status: 302, location: "/dashboard" },
   ],
-  // The fixture is 56 in 2026: mammography (women 45–74) stays in tier 1 until 2044, and PSA is for men only.
+  // The fixture is 56 in 2026: mammography (women 45–74) stays in tier 1 until 2044, and PSA is for men only. The
+  // stool blood test (50+) also needs the program questionnaire, which the profile doesn't collect: "may apply".
   [
     "dashboard renders for onboarded user",
     () => request("/dashboard"),
     {
       status: 200,
-      bodyIncludes: 'data-slug="mammography-nfz-program" data-tier="1"',
+      bodyIncludes: [
+        'data-slug="mammography-nfz-program" data-tier="1"',
+        'data-slug="fecal-occult-blood-test" data-maybe',
+      ],
       bodyExcludes: 'data-slug="psa-shared-decision"',
     },
   ],

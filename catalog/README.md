@@ -135,3 +135,13 @@ Then continue with [Shipping changes](#shipping-changes).
 5. After merge, the CI **`migrate`** job applies the snapshot to production (`supabase db push`), before `deploy`.
 
 Upserts never delete rows, so a retired entry stays in the table and future exam records keep resolving.
+
+### When two catalog PRs overlap
+
+Each catalog PR carries its own snapshot migration. If another catalog PR merged first, yours is stale. On main, `catalog:check` fails, or `supabase db push` refuses a snapshot older than one already applied, and `migrate` and `deploy` stay blocked until it's fixed. Never edit or reorder an applied snapshot. Before merging (or to fix a red main), rebase your branch:
+
+1. Rebase your branch on `main`.
+2. Delete your branch's own snapshot file(s). Only delete ones that have never reached production, i.e. are not on `main`.
+3. Run `npm run catalog:migration`, then `npm run catalog:check`, and push.
+
+Requiring branches to be up to date before merging (a branch protection setting on `main`) prevents the red main entirely.

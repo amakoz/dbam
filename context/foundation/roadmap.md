@@ -3,7 +3,7 @@ project: Dbam
 version: 3
 status: draft
 created: 2026-09-26
-updated: 2026-09-28
+updated: 2026-09-29
 prd_version: 2
 main_goal: speed
 top_blocker: decisions
@@ -41,7 +41,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 | ID   | Change ID                   | Outcome (user can …)                                                                                      | Prerequisites | PRD refs                                          | Status      |
 | ---- | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------- | ----------- |
-| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | in-progress |
+| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | done        |
 | F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | ready       |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)      | done        |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)           | proposed    |
@@ -89,7 +89,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Resolved: sources are the NFZ / Ministry of Health programs (breast, cervical, colorectal, lung LDCT) plus "Moje Zdrowie", Polish society guidelines (PTD, PTNT/PTK) for other checks, and USPSTF / EU Council 2022 as the evidence layer — see `context/foundation/screening-catalog-research.md`.
   - A family-medicine (POZ) doctor must sign off each entry before public launch; not needed to plan or build. — Owner: user. Block: no.
 - **Risk:** Sequenced first because both the north star and recurrence read from it; Polish programs changed in 2025–2026, so entries must cite current sources, not older summaries.
-- **Status:** in-progress
+- **Status:** done
 
 ### F-02: Reminder dispatch path
 
@@ -230,3 +230,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Done
 
 - **S-01: user can sign up or sign in, give explicit, separate consent to storing their health data, complete a minimal profile (birth year, sex, smoking history), and land on their dashboard; their profile is visible only to them.** — Archived 2026-09-28 → `context/archive/2026-09-27-onboarding-profile/`. Lesson: —.
+- **F-01: (foundation) a curated catalog of screening types (the static table FR-009's resolution calls for) exists in the app's data — each with eligibility criteria (at least age and sex), an importance tier, and a repeat interval or an explicit "no known interval" marker — each entry carrying its source, publicly readable and free of personal data.** — Archived 2026-09-29 → `context/archive/2026-09-28-screening-catalog-v1/`. Lesson: —.

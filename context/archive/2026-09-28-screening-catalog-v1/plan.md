@@ -535,34 +535,34 @@ The catalog is small (tens of rows), and no request path reads it in this change
 
 #### Automated
 
-- [x] 1.1 Local database rebuilds from migrations: `npx supabase db reset` — d795b32
-- [x] 1.2 pgTAP suites pass, including the new file: `npx supabase test db` — d795b32
-- [x] 1.3 Generated types are current: `npm run db:types` leaves `git diff --exit-code src/lib/database.types.ts` clean — d795b32
-- [x] 1.4 Lint and type checks pass: `npm run lint` and `npx astro check` — d795b32
+- [x] 1.1 Local database rebuilds from migrations: `npx supabase db reset` — 33f1914
+- [x] 1.2 pgTAP suites pass, including the new file: `npx supabase test db` — 33f1914
+- [x] 1.3 Generated types are current: `npm run db:types` leaves `git diff --exit-code src/lib/database.types.ts` clean — 33f1914
+- [x] 1.4 Lint and type checks pass: `npm run lint` and `npx astro check` — 33f1914
 
 #### Manual
 
-- [x] 1.5 A REST read with the local publishable key returns `[]` against the empty table, not a permission error — d795b32
+- [x] 1.5 A REST read with the local publishable key returns `[]` against the empty table, not a permission error — 33f1914
 
 ### Phase 2: Entry schema, validator and migration generator
 
 #### Automated
 
-- [x] 2.1 Catalog check passes on the empty catalog: `npm run catalog:check` — 09059ed
-- [x] 2.2 Published JSON Schema is current: `npm run catalog:schema` leaves `git diff --exit-code catalog/entry.schema.json` clean — 09059ed
-- [x] 2.3 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 09059ed
-- [x] 2.4 Worker bundle stays under the Free plan limit, with no Anthropic SDK or tsx in it: `npx wrangler deploy --dry-run` reports < 3 MiB — 09059ed
+- [x] 2.1 Catalog check passes on the empty catalog: `npm run catalog:check` — 33f1914
+- [x] 2.2 Published JSON Schema is current: `npm run catalog:schema` leaves `git diff --exit-code catalog/entry.schema.json` clean — 33f1914
+- [x] 2.3 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 33f1914
+- [x] 2.4 Worker bundle stays under the Free plan limit, with no Anthropic SDK or tsx in it: `npx wrangler deploy --dry-run` reports < 3 MiB — 33f1914
 
 #### Manual
 
-- [x] 2.5 A deliberately broken sample entry makes `npm run catalog:check` print messages that point to the file and field, and the checks pass again once it is removed — 09059ed
+- [x] 2.5 A deliberately broken sample entry makes `npm run catalog:check` print messages that point to the file and field, and the checks pass again once it is removed — 33f1914
 
 ### Phase 3: LLM drafting script
 
 #### Automated
 
-- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — ae4a0d4
-- [x] 3.2 `@anthropic-ai/sdk` is not imported anywhere under `src/`: `grep -r "@anthropic-ai/sdk" src/` finds nothing — ae4a0d4
+- [x] 3.1 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 33f1914
+- [x] 3.2 `@anthropic-ai/sdk` is not imported anywhere under `src/`: `grep -r "@anthropic-ai/sdk" src/` finds nothing — 33f1914
 
 #### Manual
 
@@ -572,13 +572,13 @@ The catalog is small (tens of rows), and no request path reads it in this change
 
 #### Automated
 
-- [x] 4.1 Catalog is valid and matches the newest snapshot: `npm run catalog:check` — 5e8b85c
-- [x] 4.2 Local database applies the snapshot: `npx supabase db reset` — 5e8b85c
-- [x] 4.3 pgTAP suites pass, including the data sanity checks: `npx supabase test db` — 5e8b85c
-- [x] 4.4 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 5e8b85c
+- [x] 4.1 Catalog is valid and matches the newest snapshot: `npm run catalog:check` — 33f1914
+- [x] 4.2 Local database applies the snapshot: `npx supabase db reset` — 33f1914
+- [x] 4.3 pgTAP suites pass, including the data sanity checks: `npx supabase test db` — 33f1914
+- [x] 4.4 Lint, type checks and build pass: `npm run lint`, `npx astro check` and `npm run build` — 33f1914
 
 #### Manual
 
-- [x] 4.5 The owner has reviewed every `active` entry against its cited sources, per the `catalog/README.md` checklist — 5e8b85c
-- [x] 4.6 A local REST read with the publishable key returns only active and retired entries, with PL and EN text and sources present — 5e8b85c
-- [x] 4.7 After merge, CI `migrate` succeeds, and the production REST endpoint returns the active entries with the publishable key — 421ffff
+- [x] 4.5 The owner has reviewed every `active` entry against its cited sources, per the `catalog/README.md` checklist — 33f1914
+- [x] 4.6 A local REST read with the publishable key returns only active and retired entries, with PL and EN text and sources present — 33f1914
+- [x] 4.7 After merge, CI `migrate` succeeds, and the production REST endpoint returns the active entries with the publishable key — 5733232

@@ -1,6 +1,9 @@
 ---
+import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
 import Layout from "@/layouts/Layout.astro";
-import { createT } from "@/i18n";
+import { createT, type MessageKey } from "@/i18n";
+import { getActiveCatalog } from "@/lib/catalog/read";
+import { recommend, type Tier } from "@/lib/catalog/recommend";
 import { getOnboardingState } from "@/lib/consent";
 import { SEX_LABEL_KEYS, SMOKING_STATUS_LABEL_KEYS, type Sex, type SmokingStatus } from "@/lib/profile";
 import { createClient } from "@/lib/supabase";
@@ -19,6 +22,18 @@ if (state !== "complete" || !profile) {
   return Astro.redirect("/onboarding");
 }
 
+// A database error throws and renders the 500 page, so an outage never looks like "nothing is due".
+const catalog = await getActiveCatalog(supabase);
+const { tiers, age } = recommend(catalog, profile, new Date().getFullYear(), locale);
+const TIER_HEADING_KEYS = {
+  1: "dashboard.recommendations.tier.1",
+  2: "dashboard.recommendations.tier.2",
+  3: "dashboard.recommendations.tier.3",
+} as const satisfies Record<Tier, MessageKey>;
+const tierGroups = ([1, 2, 3] as const)
+  .map((tier) => ({ tier, items: tiers[tier] }))
+  .filter(({ items }) => items.length > 0);
+
 const number = new Intl.NumberFormat(locale);
 const summary = [
   [t("dashboard.profile.birthYear"), String(profile.birth_year)],
@@ -30,7 +45,7 @@ const summary = [
 
 <Layout title={t("dashboard.title")}>
   <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-lg space-y-6 rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
+    <div class="w-full max-w-2xl space-y-6 rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
       <div class="text-center">
         <h1 class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
           {t("dashboard.title")}
@@ -40,13 +55,35 @@ const summary = [
         </p>
       </div>
 
-      <section aria-labelledby="recommendations-heading">
-        <h2 id="recommendations-heading" class="mb-2 text-lg font-semibold">
+      <section aria-labelledby="recommendations-heading" class="space-y-4">
+        <h2 id="recommendations-heading" class="text-lg font-semibold">
           {t("dashboard.recommendations.heading")}
         </h2>
-        <p class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-blue-100/70">
-          {t("dashboard.recommendations.placeholder")}
+        <p class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-blue-100/70">
+          {t("dashboard.recommendations.disclaimer")}
         </p>
+        {tierGroups.length === 0 ? (
+          <p class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-blue-100/80">
+            {t("dashboard.recommendations.empty")}
+          </p>
+        ) : (
+          tierGroups.map(({ tier, items }) => (
+            <section aria-labelledby={`tier-${tier}-heading`} class="space-y-2">
+              <h3
+                id={`tier-${tier}-heading`}
+                class:list={["font-semibold", tier === 1 ? "text-amber-100" : "text-blue-100"]}
+              >
+                {t(TIER_HEADING_KEYS[tier])}
+              </h3>
+              {tier === 3 && <p class="text-sm text-blue-100/70">{t("dashboard.recommendations.tier.3.note")}</p>}
+              <ul class="space-y-2">
+                {items.map((recommendation) => (
+                  <RecommendationItem recommendation={recommendation} age={age} />
+                ))}
+              </ul>
+            </section>
+          ))
+        )}
       </section>
 
       <section aria-labelledby="profile-heading">

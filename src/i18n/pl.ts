@@ -35,7 +35,82 @@ export const pl = {
   "dashboard.profile.packYears": "Paczkolata",
   "dashboard.profile.edit": "Edytuj profil i zgodę",
   "dashboard.recommendations.heading": "Twoje badania",
-  "dashboard.recommendations.placeholder": "Wkrótce pokażemy tu badania profilaktyczne, które są dla Ciebie należne.",
+  "dashboard.recommendations.disclaimer":
+    "Ta lista ma charakter wyłącznie informacyjny: nie jest diagnozą, poradą medyczną ani wyrobem medycznym. Źródła sprawdził właściciel aplikacji, a nie lekarz. O tym, które badania są dla Ciebie odpowiednie, porozmawiaj z lekarzem POZ.",
+  "dashboard.recommendations.tier.1": "Ważne – umów się teraz",
+  "dashboard.recommendations.tier.2": "Warto zaplanować",
+  "dashboard.recommendations.tier.3": "Porozmawiaj z lekarzem",
+  "dashboard.recommendations.tier.3.note":
+    "Te badania mają zarówno możliwe korzyści, jak i możliwe szkody. Decyzję, czy je wykonać, warto podjąć razem z lekarzem.",
+  "dashboard.recommendations.empty":
+    "Na podstawie Twojego profilu żadne badanie z naszej listy nie jest teraz dla Ciebie przewidziane. Lista obejmuje tylko wybrane badania profilaktyczne, więc o swoich potrzebach porozmawiaj z lekarzem POZ.",
+  "dashboard.recommendations.howOften": "Jak często: {interval}",
+  "dashboard.recommendations.interval.years_one": "co roku",
+  "dashboard.recommendations.interval.years_few": "co {count} lata",
+  "dashboard.recommendations.interval.years_many": "co {count} lat",
+  "dashboard.recommendations.interval.years_other": "co {count} roku",
+  "dashboard.recommendations.interval.months_one": "co miesiąc",
+  "dashboard.recommendations.interval.months_few": "co {count} miesiące",
+  "dashboard.recommendations.interval.months_many": "co {count} miesięcy",
+  "dashboard.recommendations.interval.months_other": "co {count} miesiąca",
+  "dashboard.recommendations.interval.no_known_interval": "brak ustalonego odstępu",
+  "dashboard.recommendations.interval.shared_decision": "ustalasz z lekarzem",
+  "dashboard.recommendations.interval.per_program": "według zasad programu",
+  "dashboard.recommendations.badge.nfzFunded": "Bezpłatne w NFZ",
+  "dashboard.recommendations.badge.notNfzFunded": "Poza NFZ",
+  "dashboard.recommendations.badge.referralRequired": "Wymaga skierowania",
+  "dashboard.recommendations.badge.noReferral": "Bez skierowania",
+  "dashboard.recommendations.details.toggle": "Szczegóły",
+  "dashboard.recommendations.details.about": "O badaniu",
+  "dashboard.recommendations.details.howToAccess": "Jak skorzystać",
+  "dashboard.recommendations.details.why": "Dlaczego na liście",
+  "dashboard.recommendations.details.sources": "Źródła",
+  "dashboard.recommendations.details.newTab": "(otwiera się w nowej karcie)",
+  "dashboard.recommendations.details.reviewedOn": "Ostatnio sprawdzono: {date}",
+  "dashboard.recommendations.why.age_one":
+    "W tym roku kończysz {count} rok (programy liczą wiek według roku urodzenia).",
+  "dashboard.recommendations.why.age_few":
+    "W tym roku kończysz {count} lata (programy liczą wiek według roku urodzenia).",
+  "dashboard.recommendations.why.age_many":
+    "W tym roku kończysz {count} lat (programy liczą wiek według roku urodzenia).",
+  "dashboard.recommendations.why.age_other":
+    "W tym roku kończysz {count} roku (programy liczą wiek według roku urodzenia).",
+  "dashboard.recommendations.why.rule": "Kryteria z zaleceń: {rule}.",
+  "dashboard.recommendations.rule.sex.female": "kobiety",
+  "dashboard.recommendations.rule.sex.male": "mężczyźni",
+  "dashboard.recommendations.rule.ageRange": "wiek {min}–{max} lat",
+  "dashboard.recommendations.rule.ageFrom": "wiek od {min} lat",
+  "dashboard.recommendations.factor.negation": "nie jest tak, że {condition}",
+  "dashboard.recommendations.factor.smoking_status": "palenie papierosów: {values}",
+  "dashboard.recommendations.factor.pack_years.eq": "paczkolata = {value}",
+  "dashboard.recommendations.factor.pack_years.gte": "paczkolata ≥ {value}",
+  "dashboard.recommendations.factor.pack_years.lte": "paczkolata ≤ {value}",
+  "dashboard.recommendations.factor.years_since_quitting.eq": "lata od rzucenia palenia = {value}",
+  "dashboard.recommendations.factor.years_since_quitting.gte": "lata od rzucenia palenia ≥ {value}",
+  "dashboard.recommendations.factor.years_since_quitting.lte": "lata od rzucenia palenia ≤ {value}",
+  "dashboard.recommendations.factor.family_history_crc_first_degree":
+    "Twój rodzic, rodzeństwo lub dziecko chorowało na raka jelita grubego",
+  "dashboard.recommendations.factor.family_history_breast_ovarian":
+    "bliska krewna chorowała na raka piersi lub jajnika albo w rodzinie występuje mutacja BRCA",
+  "dashboard.recommendations.factor.occupational_carcinogen_exposure":
+    "w pracy masz lub miałeś(-aś) kontakt z czynnikami rakotwórczymi (np. azbestem, radonem, krzemionką)",
+  "dashboard.recommendations.factor.bmi.eq": "BMI = {value}",
+  "dashboard.recommendations.factor.bmi.gte": "BMI ≥ {value}",
+  "dashboard.recommendations.factor.bmi.lte": "BMI ≤ {value}",
+  "dashboard.recommendations.factor.hypertension": "lekarz rozpoznał u Ciebie nadciśnienie tętnicze",
+  "dashboard.recommendations.factor.dyslipidemia":
+    "lekarz rozpoznał u Ciebie dyslipidemię (nieprawidłowe stężenie lipidów we krwi)",
+  "dashboard.recommendations.factor.diabetes": "lekarz rozpoznał u Ciebie cukrzycę",
+  "dashboard.recommendations.factor.cardiovascular_disease":
+    "lekarz rozpoznał u Ciebie chorobę sercowo-naczyniową (np. chorobę wieńcową, przebyty zawał lub udar)",
+  "dashboard.recommendations.factor.fatty_liver": "lekarz rozpoznał u Ciebie stłuszczeniową chorobę wątroby",
+  "dashboard.recommendations.factor.hiv_or_immunosuppression":
+    "masz HIV lub obniżoną odporność (np. po przeszczepie albo przy lekach obniżających odporność)",
+  "dashboard.recommendations.factor.pregnancy": "jesteś w ciąży",
+  "dashboard.recommendations.factor.prior_cancer": "w przeszłości chorowałeś(-aś) na nowotwór",
+  "dashboard.recommendations.factor.hysterectomy": "masz za sobą usunięcie macicy (histerektomię)",
+  "dashboard.recommendations.factor.questionnaire_flags_risk":
+    "ankieta programu (np. Moje Zdrowie) wskaże, że to badanie jest dla Ciebie",
 
   "onboarding.title": "Twój profil zdrowotny",
   "onboarding.withdrawn": "Twoja zgoda została wycofana, a dane o zdrowiu usunięte.",

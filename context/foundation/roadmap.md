@@ -42,7 +42,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | ID   | Change ID                   | Outcome (user can …)                                                                                      | Prerequisites | PRD refs                                          | Status      |
 | ---- | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------- | ----------- |
 | F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | in-progress |
-| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | planning    |
+| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | in-progress |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)      | done        |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)           | proposed    |
 | S-03 | record-appointment-date     | user picks a recommended exam and records an appointment date booked elsewhere                            | S-02          | US-02, FR-005                                     | proposed    |
@@ -105,7 +105,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Resolved (2026-09-29): F-02 is verified manually (real cron fires, email arrives). Automated post-deploy verification is parked (see Parked).
   - Cron-trigger limit scope (per account vs per Worker) is inconsistently documented — verify in the dashboard. — Owner: team. Block: no.
 - **Risk:** The starter has no scheduled work and `tech-stack.md` flags it as the known gap; proving it early and in isolation keeps S-04 from carrying infrastructure risk and product logic at once.
-- **Status:** planning
+- **Status:** in-progress
 
 ## Slices
 

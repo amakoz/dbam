@@ -1,7 +1,7 @@
 ---
 change_id: reminder-dispatch-path
 title: Reminder dispatch path
-status: planned
+status: implementing
 created: 2026-09-29
 updated: 2026-09-29
 archived_at: null

@@ -22,6 +22,11 @@ export default defineConfig({
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // Reminder email transport (src/lib/email.ts). REMINDER_TEST_TO is the heartbeat recipient; EMAIL_DRY_RUN=true
+      // logs instead of calling Resend, so local dev and CI never send.
+      RESEND_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      REMINDER_TEST_TO: envField.string({ context: "server", access: "secret", optional: true }),
+      EMAIL_DRY_RUN: envField.boolean({ context: "server", access: "secret", optional: true, default: false }),
     },
   },
 });

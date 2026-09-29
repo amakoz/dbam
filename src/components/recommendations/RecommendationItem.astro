@@ -1,0 +1,65 @@
+---
+import EntryDetails from "@/components/recommendations/EntryDetails.astro";
+import { createT } from "@/i18n";
+import type { Recommendation } from "@/lib/catalog/recommend";
+import { describeBranch, describeInterval } from "@/lib/catalog/wording";
+
+interface Props {
+  recommendation: Recommendation;
+  /** The user's age by year of birth, as `recommend` computed it. */
+  age: number;
+}
+
+const { recommendation, age } = Astro.props;
+const { entry, tier, matchedBranch, interval } = recommendation;
+const { locale } = Astro.locals;
+const t = createT(locale);
+
+const name = locale === "pl" ? entry.name_pl : entry.name_en;
+const badge = "rounded-full border px-2 py-0.5 text-xs";
+---
+
+<li data-slug={entry.slug} data-tier={tier} class="rounded-lg border border-white/10 bg-white/5 p-3">
+  <h4 class="font-medium text-white">{name}</h4>
+  <p class="mt-1 text-sm text-blue-100/80">
+    {t("dashboard.recommendations.howOften", { interval: describeInterval(interval, t) })}
+  </p>
+  <p class="mt-2 flex flex-wrap gap-2">
+    <span
+      class:list={[
+        badge,
+        entry.nfz_funded
+          ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
+          : "border-white/20 bg-white/10 text-blue-100/80",
+      ]}
+    >
+      {t(
+        entry.nfz_funded ? "dashboard.recommendations.badge.nfzFunded" : "dashboard.recommendations.badge.notNfzFunded",
+      )}
+    </span>
+    <span
+      class:list={[
+        badge,
+        entry.referral_required
+          ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
+          : "border-white/20 bg-white/10 text-blue-100/80",
+      ]}
+    >
+      {t(
+        entry.referral_required
+          ? "dashboard.recommendations.badge.referralRequired"
+          : "dashboard.recommendations.badge.noReferral",
+      )}
+    </span>
+  </p>
+
+  <EntryDetails entry={entry}>
+    <div>
+      <dt class="font-semibold text-white">{t("dashboard.recommendations.details.why")}</dt>
+      <dd>
+        {t.plural("dashboard.recommendations.why.age", age)}{" "}
+        {t("dashboard.recommendations.why.rule", { rule: describeBranch(matchedBranch, t, locale) })}
+      </dd>
+    </div>
+  </EntryDetails>
+</li>

@@ -1,6 +1,6 @@
 ---
 project: "Dbam"
-version: 2
+version: 3
 status: draft
 created: 2026-09-23
 context_type: greenfield
@@ -28,12 +28,15 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
 ## Success Criteria
 
 ### Primary
+
 - The end-to-end v1 flow works: a user signs up, completes onboarding, receives personalized screening recommendations from their profile data, can mark an exam as already handled (which schedules the next due date by its repeat interval), and receives an opt-in reminder when a screening becomes due.
 
 ### Secondary
+
 - Users act on a reminder — i.e. book or attend the suggested exam, not just see the recommendation.
 
 ### Guardrails
+
 - Recommendations never state or imply a diagnosis — the app surfaces which screening/exam is due, never a claim of detecting or diagnosing a condition.
 - A user's health/profile data is never exposed to another user.
 
@@ -48,6 +51,7 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
   on their profile data, showing which screenings are currently due
 
 #### Acceptance Criteria
+
 - Recommendations are ordered using at least the user's age from onboarding
 - A user with no due screenings sees an explanatory empty-state, not a
   blank dashboard
@@ -61,6 +65,7 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
   appointment date approaches
 
 #### Acceptance Criteria
+
 - The app does not attempt to book, schedule, or contact any provider —
   only the date is recorded
 - The appointment-approaching reminder only fires for users who opted in
@@ -74,6 +79,7 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
   automatically, without the user re-entering the exam
 
 #### Acceptance Criteria
+
 - If the exam has no known repeat interval, no reminder is silently
   dropped — the gap is surfaced to the user instead
 - The exam reappears as "due" once its repeat interval elapses
@@ -81,6 +87,7 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
 ## Functional Requirements
 
 ### Account & Onboarding
+
 - FR-001: User can create an account. Priority: must-have
   > Socrates: Counter-argument considered: "mandatory accounts mean handling health-adjacent personal data from day one." Resolution: kept; accounts are needed for reminders across sessions. The privacy concern is addressed as an explicit Non-Functional Requirement (see Business Logic & Quality phase), not by removing accounts.
 - FR-002: User can log in to an existing account. Priority: must-have
@@ -90,15 +97,18 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
   > Socrates: Counter-argument considered: "a long onboarding form before any value is shown risks drop-off." Resolution: revised — split into this minimal upfront form plus optional follow-up profiling after first recommendations are shown (see FR-010).
 
 ### Screening recommendations
+
 - FR-004: User can view screening/exam recommendations, tagged by
-  importance (e.g. important vs. routine) based on their profile data.
-  Priority: must-have
+  importance in three tiers ("important — schedule now", "worth planning",
+  "talk to your doctor") based on their profile data. Priority: must-have
   > Socrates: Counter-argument considered: "priority ordering implies a scoring model that doesn't exist yet, and a mis-ranked list could be worse than an unranked one." Resolution: revised — replaced continuous priority sorting with a simple importance tag/label (e.g. "important" like a prostate exam vs. "routine" like a vitamin D level), avoiding an unproven ranking algorithm.
+  > Update (v3, S-02 planning): the tag is derived from the catalog's evidence level (organised program / USPSTF A–B → "important — schedule now"; society recommendation → "worth planning"; shared decision / USPSTF C–I → "talk to your doctor"). The prostate example is superseded: PSA is a shared decision, so it lands in "talk to your doctor".
 - FR-005: User can select a recommended exam and record an appointment
   date for it (booked outside the app). Priority: must-have
   > Socrates: Counter-argument considered: "without any booking integration, users may forget to return and enter the date." Resolution: kept, plus mitigated — an explicit nudge is added if the user hasn't logged a date within some days (see FR-011).
 
 ### Reminders & recurrence
+
 - FR-006: User can opt in (or out) of receiving reminders. Priority: must-have
   > Socrates: Counter-argument considered: "if reminders are the entire point of the product, offering opt-out could undermine the core value loop from day one." Resolution: kept as originally written — respects user autonomy over health-adjacent notifications.
 - FR-007: User receives a reminder as a recorded appointment date
@@ -129,6 +139,7 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
 - The product remains usable on the latest two major versions of mainstream desktop and mobile browsers.
 - The interface remains fully usable on mobile-sized screens, with no loss of core functionality compared to desktop.
 - Core flows are operable via keyboard and compatible with screen readers (baseline accessibility commitment; no formal certification target for v1).
+- The catalog rule logic (eligibility, importance tier, repeat interval) is covered by unit tests, tracked as roadmap foundation F-03 (#49); until then it is covered by smoke checks, pgTAP and manual test profiles.
 
 ## Business Logic
 

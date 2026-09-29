@@ -11,7 +11,7 @@ The curated catalog of screening checks behind `public.screening_catalog`. Each 
 `draft → active → retired`
 
 - **`draft`:** shipped to the database like every other entry, but hidden from users by row-level security. New and unverified entries stay here.
-- **`active`:** visible to everyone and used for recommendations. Only the owner sets this, after reviewing the entry against its sources.
+- **`active`:** visible to everyone and used for recommendations. Only the owner sets this, after reviewing the entry against its sources, and only together with a review stamp (`reviewed_by` + `last_reviewed`): `catalog:check` rejects an active entry without one, and the dashboard shows only stamped entries.
 - **`retired`:** still visible, so existing exam records keep resolving, but no longer recommended.
 
 **Never delete an entry.** Set `"status": "retired"` instead. The slug is the entry's permanent identity, so never rename it either. `catalog:check` fails when a slug that an earlier snapshot migration shipped has no file anymore.
@@ -20,23 +20,23 @@ The curated catalog of screening checks behind `public.screening_catalog`. Each 
 
 The fields mirror the table columns (without `created_at`/`updated_at`). Unknown keys are rejected.
 
-| Field                                             | Meaning                                                                                                                                                              |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `slug`                                            | Permanent id: lowercase words joined by single hyphens, ≤ 64 characters. Must equal the file name (`<slug>.json`).                                                   |
-| `status`                                          | `draft`, `active` or `retired` (see [Lifecycle](#lifecycle)).                                                                                                        |
-| `name_pl`, `name_en`                              | Display name, Polish and English.                                                                                                                                    |
-| `summary_pl`, `summary_en`                        | Plain-language summary. Informational only: no diagnosis, no risk scores.                                                                                            |
-| `how_to_access_pl`, `how_to_access_en`            | How to get the check (e.g. NFZ program, referral from a POZ doctor).                                                                                                 |
-| `eligibility`                                     | Eligibility branches, at least one (see [Eligibility](#eligibility)).                                                                                                |
-| `interval_kind`                                   | `fixed`, `no_known_interval`, `shared_decision` or `per_program` (see [Interval](#interval)).                                                                        |
-| `interval_months`                                 | 1–240. Required when `interval_kind` is `fixed`; absent or `null` otherwise.                                                                                         |
-| `interval_overrides`                              | Conditional intervals, `[]` when there are none.                                                                                                                     |
-| `evidence_level`                                  | 3 = organised NFZ program, EU core cancer screening or USPSTF A/B; 2 = Polish society recommendation or Moje Zdrowie item; 1 = shared decision, USPSTF C/I or pilot. |
-| `evidence_source`                                 | Who backs the evidence level, e.g. `NFZ program; EU Council Rec. 2022`.                                                                                              |
-| `burden_weight`                                   | Disease burden in Poland, 0–5. Only a tie-breaker when sorting.                                                                                                      |
-| `nfz_funded`, `referral_required`                 | Whether NFZ pays for it, and whether it needs a referral.                                                                                                            |
-| `sources`                                         | At least one: `url` (https), `title`, `publisher`, `quote` (verbatim from the source, supporting the rules) and `accessed` (`YYYY-MM-DD`, not in the future).        |
-| `reviewed_by`, `last_reviewed`, `next_review_due` | Medical sign-off (reviewer, `YYYY-MM-DD` dates). Absent or `null` until a POZ doctor reviews the entry.                                                              |
+| Field                                             | Meaning                                                                                                                                                                                                                                                |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `slug`                                            | Permanent id: lowercase words joined by single hyphens, ≤ 64 characters. Must equal the file name (`<slug>.json`).                                                                                                                                     |
+| `status`                                          | `draft`, `active` or `retired` (see [Lifecycle](#lifecycle)).                                                                                                                                                                                          |
+| `name_pl`, `name_en`                              | Display name, Polish and English.                                                                                                                                                                                                                      |
+| `summary_pl`, `summary_en`                        | Plain-language summary. Informational only: no diagnosis, no risk scores.                                                                                                                                                                              |
+| `how_to_access_pl`, `how_to_access_en`            | How to get the check (e.g. NFZ program, referral from a POZ doctor).                                                                                                                                                                                   |
+| `eligibility`                                     | Eligibility branches, at least one (see [Eligibility](#eligibility)).                                                                                                                                                                                  |
+| `interval_kind`                                   | `fixed`, `no_known_interval`, `shared_decision` or `per_program` (see [Interval](#interval)).                                                                                                                                                          |
+| `interval_months`                                 | 1–240. Required when `interval_kind` is `fixed`; absent or `null` otherwise.                                                                                                                                                                           |
+| `interval_overrides`                              | Conditional intervals, `[]` when there are none.                                                                                                                                                                                                       |
+| `evidence_level`                                  | 3 = organised NFZ program, EU core cancer screening or USPSTF A/B; 2 = Polish society recommendation or Moje Zdrowie item; 1 = shared decision, USPSTF C/I or pilot.                                                                                   |
+| `evidence_source`                                 | Who backs the evidence level, e.g. `NFZ program; EU Council Rec. 2022`.                                                                                                                                                                                |
+| `burden_weight`                                   | Disease burden in Poland, 0–5. Only a tie-breaker when sorting.                                                                                                                                                                                        |
+| `nfz_funded`, `referral_required`                 | Whether NFZ pays for it, and whether it needs a referral.                                                                                                                                                                                              |
+| `sources`                                         | At least one: `url` (https), `title`, `publisher`, `quote` (verbatim from the source, supporting the rules) and `accessed` (`YYYY-MM-DD`, not in the future).                                                                                          |
+| `reviewed_by`, `last_reviewed`, `next_review_due` | Review stamp (who signed off, `YYYY-MM-DD` dates); `reviewed_by` and `last_reviewed` are required for `active` entries. Until a POZ doctor signs off, the owner's `"owner (non-medical review)"` label is used; a doctor's sign-off later replaces it. |
 
 ### Eligibility
 
@@ -122,7 +122,7 @@ Open every drafted file and, for each entry:
 3. Check `nfz_funded`, `referral_required` and `evidence_level` against the sources.
 4. Read the PL and EN text. It must be informational only: no diagnosis, no risk scores, and a pointer to a POZ doctor.
 5. Fix what is wrong. If the entry cannot be sourced, discard the new file: a draft that was never committed or shipped in a snapshot is not yet part of the catalog, so the never-delete rule does not apply to it.
-6. Set `"status": "active"` on entries that pass. Leave `reviewed_by`, `last_reviewed` and `next_review_due` as `null` until a POZ doctor signs off.
+6. Set `"status": "active"` on entries that pass, together with the review stamp: `reviewed_by` (`"owner (non-medical review)"` until a POZ doctor signs off, then the doctor), `last_reviewed` (today) and `next_review_due` (12 months later). The owner's stamp is not medical sign-off: public launch still needs a POZ doctor's review (roadmap Open Question 2, #27).
 
 Then continue with [Shipping changes](#shipping-changes).
 

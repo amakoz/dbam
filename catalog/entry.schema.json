@@ -300,7 +300,7 @@
       }
     },
     "reviewed_by": {
-      "description": "The reviewing doctor; null until medical sign-off.",
+      "description": "Who signed off the entry: a POZ doctor, or 'owner (non-medical review)' until one does; required for active entries.",
       "anyOf": [
         {
           "type": "string",
@@ -312,6 +312,7 @@
       ]
     },
     "last_reviewed": {
+      "description": "The sign-off date, YYYY-MM-DD; required for active entries.",
       "anyOf": [
         {
           "type": "string",

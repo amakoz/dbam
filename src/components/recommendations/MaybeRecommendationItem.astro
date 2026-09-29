@@ -1,0 +1,27 @@
+---
+import EntryDetails from "@/components/recommendations/EntryDetails.astro";
+import { createT } from "@/i18n";
+import type { MaybeRecommendation } from "@/lib/catalog/recommend";
+import { describeMissing } from "@/lib/catalog/wording";
+
+// An entry that applies only if something the profile doesn't collect is true. It states that condition and shows
+// no interval: the interval may depend on the unknown factor.
+
+interface Props {
+  recommendation: MaybeRecommendation;
+}
+
+const { entry, missing } = Astro.props.recommendation;
+const { locale } = Astro.locals;
+const t = createT(locale);
+
+const name = locale === "pl" ? entry.name_pl : entry.name_en;
+---
+
+<li data-slug={entry.slug} data-maybe class="rounded-lg border border-dashed border-white/15 bg-white/5 p-3">
+  <h4 class="font-medium text-white">{name}</h4>
+  <p class="mt-1 text-sm text-blue-100/80">
+    {t("dashboard.recommendations.maybe.if", { conditions: describeMissing(missing, t, locale) })}
+  </p>
+  <EntryDetails entry={entry} />
+</li>

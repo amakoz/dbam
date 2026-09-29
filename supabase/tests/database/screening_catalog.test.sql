@@ -2,7 +2,7 @@
 -- Run with `npx supabase test db`. Everything happens in one transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+select plan(25);
 
 -- Fixtures, inserted as postgres: one row per status. updated_at starts in the past so the trigger test can see
 -- it move (now() is constant within this transaction).
@@ -52,6 +52,13 @@ select ok(
 select is(
   (select count(*) from public.screening_catalog where status = 'draft'), 0::bigint,
   'anon sees no draft catalog entries'
+);
+-- The launch gate (S-02): every shipped active entry carries a review stamp.
+select is(
+  (select count(*) from public.screening_catalog
+    where status = 'active' and slug not like 'test-%' and (reviewed_by is null or last_reviewed is null)),
+  0::bigint,
+  'every shipped active catalog entry carries a review stamp'
 );
 
 -- --- As an authenticated user -----------------------------------------------------------------------------------

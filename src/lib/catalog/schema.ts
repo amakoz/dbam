@@ -7,8 +7,8 @@ import { MAX_AGE, SEX_VALUES } from "@/lib/profile";
 // `public.screening_catalog`). The entry validator, the TS types, the published JSON Schema
 // (`catalog/entry.schema.json`, via `npm run catalog:schema`) and the drafter's tool schema all come from it.
 // Keys are declared in table column order; the snapshot generator serializes rows and jsonb values in this order.
-// Refinements (condition vs factor kind, age ranges, fixed interval ⇔ months, source dates) are enforced here only:
-// JSON Schema carries the structural shape. See `factors.ts` for the eligibility and interval semantics.
+// Refinements (condition vs factor kind, age ranges, fixed interval ⇔ months, source dates, active ⇒ review stamp)
+// are enforced here only: JSON Schema carries the structural shape. See `factors.ts` for the eligibility and interval semantics.
 
 export const CATALOG_STATUSES = ["draft", "active", "retired"] as const;
 export const INTERVAL_KINDS = ["fixed", "no_known_interval", "shared_decision", "per_program"] as const;
@@ -184,6 +184,25 @@ function checkIntervalMonths(
   }
 }
 
+const ReviewFields = z.object({
+  status: z.enum(CATALOG_STATUSES),
+  reviewed_by: Text.nullish(),
+  last_reviewed: IsoDate.nullish(),
+});
+
+/** The launch gate: an active entry is shown to users, so it must carry a review stamp. */
+function checkReviewStamp(
+  entry: { status: (typeof CATALOG_STATUSES)[number]; reviewed_by?: string | null; last_reviewed?: string | null },
+  ctx: z.RefinementCtx,
+): void {
+  if (entry.status !== "active") return;
+  for (const field of ["reviewed_by", "last_reviewed"] as const) {
+    if (entry[field] === undefined || entry[field] === null) {
+      ctx.addIssue({ code: "custom", path: [field], message: `required when status is "active" (review stamp)` });
+    }
+  }
+}
+
 export const CatalogEntrySchema = z
   .strictObject({
     slug: z
@@ -221,12 +240,18 @@ export const CatalogEntrySchema = z
     nfz_funded: z.boolean(),
     referral_required: z.boolean(),
     sources: z.array(SourceSchema).min(1),
-    reviewed_by: Text.nullish().describe("The reviewing doctor; null until medical sign-off."),
-    last_reviewed: IsoDate.nullish(),
+    reviewed_by: Text.nullish().describe(
+      "Who signed off the entry: a POZ doctor, or 'owner (non-medical review)' until one does; required for active " +
+        "entries.",
+    ),
+    last_reviewed: IsoDate.nullish().describe("The sign-off date, YYYY-MM-DD; required for active entries."),
     next_review_due: IsoDate.nullish(),
   })
   .superRefine(checkIntervalMonths, {
     when: (payload) => IntervalFields.safeParse(payload.value).success,
+  })
+  .superRefine(checkReviewStamp, {
+    when: (payload) => ReviewFields.safeParse(payload.value).success,
   })
   .describe("A screening catalog entry: one row of public.screening_catalog.");
 

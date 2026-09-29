@@ -125,7 +125,20 @@ const accountSteps = [
     () => request("/api/profile", { method: "POST", form: profile }),
     { status: 302, location: "/dashboard" },
   ],
-  ["dashboard renders for onboarded user", () => request("/dashboard"), { status: 200 }],
+  // The fixture is 56 in 2026: mammography (women 45–74) stays in tier 1 until 2044, and PSA is for men only. The
+  // stool blood test (50+) also needs the program questionnaire, which the profile doesn't collect: "may apply".
+  [
+    "dashboard renders for onboarded user",
+    () => request("/dashboard"),
+    {
+      status: 200,
+      bodyIncludes: [
+        'data-slug="mammography-nfz-program" data-tier="1"',
+        'data-slug="fecal-occult-blood-test" data-maybe',
+      ],
+      bodyExcludes: 'data-slug="psa-shared-decision"',
+    },
+  ],
   [
     "onboarding sends onboarded user to dashboard",
     () => request("/onboarding"),
@@ -180,6 +193,9 @@ const accountSteps = [
 
 const steps = READONLY ? readonlySteps : [...readonlySteps, ...accountSteps];
 
+// `bodyIncludes` (all must be present) and `bodyExcludes` (none may be present) take a string or an array.
+const asList = (value) => (value === undefined ? [] : [value].flat());
+
 let failed = 0;
 for (const [name, run, expected] of steps) {
   const actual = await run();
@@ -189,7 +205,8 @@ for (const [name, run, expected] of steps) {
       // Same path exactly; the query string only needs the expected prefix (e.g. "?error=").
       (actual.location.split("?")[0] === expected.location.split("?")[0] &&
         actual.location.startsWith(expected.location))) &&
-    (expected.bodyIncludes === undefined || actual.body.includes(expected.bodyIncludes));
+    asList(expected.bodyIncludes).every((text) => actual.body.includes(text)) &&
+    asList(expected.bodyExcludes).every((text) => !actual.body.includes(text));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;

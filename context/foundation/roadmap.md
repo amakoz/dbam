@@ -39,17 +39,17 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 ## At a glance
 
-| ID   | Change ID                   | Outcome (user can …)                                                                                      | Prerequisites | PRD refs                                          | Status   |
-| ---- | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------- | -------- |
-| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | done     |
-| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | ready    |
-| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)      | done     |
-| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)           | ready    |
-| S-03 | record-appointment-date     | user picks a recommended exam and records an appointment date booked elsewhere                            | S-02          | US-02, FR-005                                     | proposed |
-| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                           | S-03, F-02    | US-02, FR-006, FR-007                             | proposed |
-| S-05 | confirm-exam-and-recurrence | user confirms an exam happened (or marks one already done) and sees its next due date                     | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary) | proposed |
-| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)         | proposed |
-| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                      | S-04, S-05    | FR-011, FR-012                                    | proposed |
+| ID   | Change ID                   | Outcome (user can …)                                                                                      | Prerequisites | PRD refs                                          | Status      |
+| ---- | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------- | ----------- |
+| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | done        |
+| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | in-progress |
+| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)      | done        |
+| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)           | ready       |
+| S-03 | record-appointment-date     | user picks a recommended exam and records an appointment date booked elsewhere                            | S-02          | US-02, FR-005                                     | proposed    |
+| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                           | S-03, F-02    | US-02, FR-006, FR-007                             | proposed    |
+| S-05 | confirm-exam-and-recurrence | user confirms an exam happened (or marks one already done) and sees its next due date                     | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary) | proposed    |
+| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)         | proposed    |
+| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                      | S-04, S-05    | FR-011, FR-012                                    | proposed    |
 
 ## Streams
 
@@ -101,10 +101,11 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** F-01, S-01, S-02
 - **Blockers:** —
 - **Unknowns:**
-  - Is the Workers Paid plan (~$5/mo) acceptable before reminders go live, given the free-tier 10 ms CPU cap on scheduled runs (`infrastructure.md` risk register)? — Owner: user. Block: no.
+  - Resolved (2026-09-29): no Workers Paid plan and no custom domain in the MVP. F-02 runs on Workers Free and sends through Resend test mode to the owner's address only. See the limits in `context/changes/reminder-dispatch-path/research.md` (Follow-up).
+  - Resolved (2026-09-29): F-02 is verified manually (real cron fires, email arrives). Automated post-deploy verification is parked (see Parked).
   - Cron-trigger limit scope (per account vs per Worker) is inconsistently documented — verify in the dashboard. — Owner: team. Block: no.
 - **Risk:** The starter has no scheduled work and `tech-stack.md` flags it as the known gap; proving it early and in isolation keeps S-04 from carrying infrastructure risk and product logic at once.
-- **Status:** ready
+- **Status:** in-progress
 
 ## Slices
 
@@ -223,6 +224,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Family / shared accounts** — Why parked: PRD §Non-Goals; single user per account for v1.
 - **Optional follow-up profiling (FR-010)** — Why parked: nice-to-have; `main_goal: speed` keeps the milestone on must-have FRs only.
 - **AI at runtime (LLM-generated recommendations, "ask about this exam" chatbot)** — Why parked: research decision; rules are deterministic and the profile is never sent to an AI model. A chatbot is v2 and would get only the exam ID.
+- **Automated post-deploy verification of the reminder dispatch path** — Why parked: user decision (2026-09-29, F-02). With many PRs merging, a `deploy` step that sends a real email on every `main` deploy is noise, and cron changes take up to 15 min to propagate, which is longer than the current post-deploy retry window. Revisit once reminders reach real users. Likely shape: a secret-protected trigger endpoint the `deploy` job calls, or a send-log check. See `context/changes/reminder-dispatch-path/research.md` §E.
 - **Error tracking beyond Workers observability** — Why parked: no PRD requirement demands it for v1; revisit if reminder runs fail silently.
 
 ## Milestone History

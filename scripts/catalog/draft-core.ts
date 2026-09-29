@@ -404,3 +404,35 @@ export function sumUsage(messages: readonly Pick<BetaMessage, "usage">[]): Usage
   }
   return totals;
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Local safety: terminal output and the --source file
+// ---------------------------------------------------------------------------------------------------------------
+
+/**
+ * Text safe to print to a terminal: C0 controls (except tab and newline), DEL and C1 controls removed. Model output
+ * and quotes come from fetched web pages, so they could otherwise carry terminal escape sequences.
+ */
+export function terminalSafe(text: string): string {
+  let safe = "";
+  for (const char of text) {
+    const code = char.charCodeAt(0);
+    const control = (code < 0x20 && char !== "\t" && char !== "\n") || (code >= 0x7f && code <= 0x9f);
+    if (!control) safe += char;
+  }
+  return safe;
+}
+
+/**
+ * Why a `--source` file must not be sent to the API, or null when it may. The file is included in the prompt and
+ * the audit file, so env files (Supabase keys) and anything outside the repository are refused.
+ */
+export function forbiddenSourceReason(repoRelativePath: string): string | null {
+  const segments = repoRelativePath.split(/[\\/]/);
+  if (repoRelativePath === "" || segments[0] === ".." || /^([a-zA-Z]:|[\\/])/.test(repoRelativePath)) {
+    return "must be a file inside the repository";
+  }
+  const name = segments.at(-1) ?? "";
+  if (name.startsWith(".env") || name === ".dev.vars") return "env files hold secrets and are never sent to the API";
+  return null;
+}

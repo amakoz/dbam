@@ -2,7 +2,7 @@
 -- Run with `npx supabase test db`. Everything happens in one transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(21);
+select plan(24);
 
 -- Fixtures, inserted as postgres: one row per status. updated_at starts in the past so the trigger test can see
 -- it move (now() is constant within this transaction).
@@ -92,6 +92,28 @@ select ok(
     'authenticated', 'public.screening_catalog', 'INSERT, UPDATE, DELETE, TRUNCATE, TRIGGER, REFERENCES'
   ),
   'authenticated holds no INSERT/UPDATE/DELETE/TRUNCATE/TRIGGER/REFERENCES on the catalog'
+);
+-- service_role bypasses RLS, so only grants keep it from writing rows the next snapshot would overwrite.
+select ok(
+  not has_table_privilege(
+    'service_role', 'public.screening_catalog', 'INSERT, UPDATE, DELETE, TRUNCATE, TRIGGER, REFERENCES'
+  ),
+  'service_role holds no write privileges on the catalog'
+);
+select ok(
+  has_table_privilege('service_role', 'public.screening_catalog', 'SELECT'), 'service_role can still read the catalog'
+);
+-- MAINTAIN exists only from Postgres 17.
+select ok(
+  case
+    when current_setting('server_version_num')::int < 170000 then true
+    else not (
+      has_table_privilege('anon', 'public.screening_catalog', 'MAINTAIN')
+      or has_table_privilege('authenticated', 'public.screening_catalog', 'MAINTAIN')
+      or has_table_privilege('service_role', 'public.screening_catalog', 'MAINTAIN')
+    )
+  end,
+  'no client role holds MAINTAIN on the catalog (PG17+)'
 );
 
 select is(

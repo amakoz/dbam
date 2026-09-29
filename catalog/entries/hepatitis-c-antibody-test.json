@@ -10,7 +10,13 @@
   "eligibility": [
     {
       "age_min": 20,
-      "requires": []
+      "requires": [
+        {
+          "factor": "questionnaire_flags_risk",
+          "op": "eq",
+          "value": true
+        }
+      ]
     }
   ],
   "interval_kind": "per_program",

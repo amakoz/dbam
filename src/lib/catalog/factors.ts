@@ -112,6 +112,11 @@ export const FACTORS = {
     collected: false,
     description: "Had a hysterectomy (removal of the uterus).",
   },
+  questionnaire_flags_risk: {
+    kind: "boolean",
+    collected: false,
+    description: "The program's health questionnaire (e.g. Moje Zdrowie) flags a risk that makes this check indicated.",
+  },
 } as const satisfies Record<string, FactorDefinition>;
 
 export type FactorId = keyof typeof FACTORS;

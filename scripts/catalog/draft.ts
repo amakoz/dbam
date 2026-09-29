@@ -26,12 +26,14 @@ import {
   continuationContent,
   extractSubmittedEntries,
   fallbackHops,
+  forbiddenSourceReason,
   planWrites,
   renderExistingEntries,
   renderFactorVocabulary,
   renderTemplate,
   SUBMIT_TOOL_NAME,
   sumUsage,
+  terminalSafe,
   type SubmittedEntries,
   type UsageTotals,
   type WritePlan,
@@ -56,6 +58,8 @@ const DEFAULT_MAX_ENTRIES = 5;
 const MAX_ENTRIES_LIMIT = 30;
 const DEFAULT_MAX_SEARCHES = 20;
 const MAX_SEARCHES_LIMIT = 50;
+/** Per fetched page: Dziennik Ustaw PDFs can be very long, and every fetched token is billed as input. */
+const FETCH_MAX_CONTENT_TOKENS = 50000;
 
 const PROMPT_PATH = path.join(import.meta.dirname, "draft-prompt.md");
 const RUNS_DIR = path.join(REPO_ROOT, "catalog", ".draft-runs");
@@ -70,7 +74,8 @@ Options:
   --source <path>       Background document included in the prompt, e.g.
                         context/foundation/screening-catalog-research.md (default: none)
   --max <n>             Most entries to submit, 1-${MAX_ENTRIES_LIMIT} (default: ${DEFAULT_MAX_ENTRIES})
-  --max-searches <n>    Cap on web searches, 1-${MAX_SEARCHES_LIMIT} (default: ${DEFAULT_MAX_SEARCHES})
+  --max-searches <n>    Cap on web searches, and separately on web fetches, for the whole run,
+                        1-${MAX_SEARCHES_LIMIT} (default: ${DEFAULT_MAX_SEARCHES})
   --dry-run             Validate and report, but write no entry files (the audit file is still saved)
   -h, --help            Show this help
 
@@ -78,8 +83,16 @@ Credentials: ANTHROPIC_API_KEY or an \`ant auth login\` profile (never .env, .de
 Every run costs money: Opus 5 tokens plus per-search fees. Start with --max 5.
 `;
 
+/** stdout/stderr writes: model and web-derived text is stripped of terminal control characters first. */
+function writeOut(text: string): void {
+  process.stdout.write(terminalSafe(text));
+}
+function writeErr(text: string): void {
+  process.stderr.write(terminalSafe(text));
+}
+
 function fail(message: string): never {
-  process.stderr.write(`${message}\n`);
+  writeErr(`${message}\n`);
   process.exit(1);
 }
 
@@ -125,7 +138,7 @@ function parseOptions(argv: string[]): Options {
   }
 
   if (values.help) {
-    process.stdout.write(USAGE);
+    writeOut(USAGE);
     process.exit(0);
   }
 
@@ -135,6 +148,8 @@ function parseOptions(argv: string[]): Options {
   let sourcePath: string | null = null;
   if (values.source !== undefined) {
     sourcePath = path.resolve(values.source);
+    const refused = forbiddenSourceReason(path.relative(REPO_ROOT, sourcePath));
+    if (refused !== null) fail(`catalog:draft: --source ${values.source}: ${refused}`);
     if (!fs.existsSync(sourcePath) || !fs.statSync(sourcePath).isFile()) {
       fail(`catalog:draft: --source ${values.source}: no such file`);
     }
@@ -196,16 +211,22 @@ function buildParams(options: Options, existingEntries: string, today: string): 
     output_config: { effort: "high" },
     system,
     tools: [
+      // max_uses applies per request; run() lowers both caps on each continuation by what was already spent.
       { type: "web_search_20260209", name: "web_search", max_uses: options.maxSearches },
-      { type: "web_fetch_20260209", name: "web_fetch" },
+      {
+        type: "web_fetch_20260209",
+        name: "web_fetch",
+        max_uses: options.maxSearches,
+        max_content_tokens: FETCH_MAX_CONTENT_TOKENS,
+      },
       {
         name: SUBMIT_TOOL_NAME,
         description:
           "Submit the drafted screening catalog entries. Call it exactly once, at the end, with every entry " +
           "(or an empty list when nothing could be sourced). Each rule must be backed by a verbatim quote.",
+        // Strict mode validates the input structure; planWrites() still validates every entry with Zod. No
+        // eager_input_streaming: it would skip the API-side validation that strict mode provides.
         strict: true,
-        // Streamed tool input is not validated by the API; planWrites() validates every entry with Zod.
-        eager_input_streaming: true,
         input_schema: buildSubmitToolInputSchema(JSON.parse(entryJsonSchema)),
       },
     ],
@@ -221,7 +242,9 @@ function buildParams(options: Options, existingEntries: string, today: string): 
 
 /** Progress on stderr: the model's text, and each web search, fetch and submission as it completes. */
 function reportBlock(block: BetaContentBlock): void {
-  const line = (text: string) => process.stderr.write(`\n  · ${text}\n`);
+  const line = (text: string) => {
+    writeErr(`\n  · ${text}\n`);
+  };
   switch (block.type) {
     case "server_tool_use": {
       const input = block.input;
@@ -251,15 +274,47 @@ interface RunResult {
   error: { kind: "api"; status: number | undefined; message: string } | { kind: "other"; message: string } | null;
 }
 
-/** Streams the request, resuming `pause_turn` up to MAX_CONTINUATIONS times. Never throws: errors are returned. */
-async function run(client: Anthropic, params: BetaMessageStreamParams): Promise<RunResult> {
+/** The request's tools with the web search and fetch caps lowered to what is left of the run's budget. */
+function withWebBudget(
+  tools: BetaMessageStreamParams["tools"],
+  searchesLeft: number,
+  fetchesLeft: number,
+): BetaMessageStreamParams["tools"] {
+  return tools?.map((tool) => {
+    if (tool.type === "web_search_20260209") return { ...tool, max_uses: searchesLeft };
+    if (tool.type === "web_fetch_20260209") return { ...tool, max_uses: fetchesLeft };
+    return tool;
+  });
+}
+
+/**
+ * Streams the request, resuming `pause_turn` up to MAX_CONTINUATIONS times. The web search and fetch caps
+ * (`maxWebUses` each) hold across continuations; a run that uses one up while still paused stops with an error.
+ * Never throws: errors are returned.
+ */
+async function run(client: Anthropic, params: BetaMessageStreamParams, maxWebUses: number): Promise<RunResult> {
   const responses: BetaMessage[] = [];
   const messages: BetaMessageParam[] = [...params.messages];
   for (let turn = 0; turn <= MAX_CONTINUATIONS; turn++) {
-    if (turn > 0) process.stderr.write(`\n[pause_turn: continuing, ${turn}/${MAX_CONTINUATIONS}]\n`);
+    let tools = params.tools;
+    if (turn > 0) {
+      const spent = sumUsage(responses);
+      const searchesLeft = maxWebUses - spent.web_search_requests;
+      const fetchesLeft = maxWebUses - spent.web_fetch_requests;
+      if (searchesLeft < 1 || fetchesLeft < 1) {
+        const message =
+          `the web search/fetch budget (${maxWebUses} each) was used up while the model was still working; ` +
+          "retry with a larger --max-searches or a narrower --topic";
+        return { responses, error: { kind: "other", message } };
+      }
+      tools = withWebBudget(params.tools, searchesLeft, fetchesLeft);
+      writeErr(`\n[pause_turn: continuing, ${turn}/${MAX_CONTINUATIONS}]\n`);
+    }
     try {
-      const stream = client.beta.messages.stream({ ...params, messages });
-      stream.on("text", (delta) => process.stderr.write(delta));
+      const stream = client.beta.messages.stream({ ...params, tools, messages });
+      stream.on("text", (delta) => {
+        writeErr(delta);
+      });
       stream.on("contentBlock", reportBlock);
       const message = await stream.finalMessage();
       responses.push(message);
@@ -273,7 +328,7 @@ async function run(client: Anthropic, params: BetaMessageStreamParams): Promise<
       return { responses, error: { kind: "other", message: error instanceof Error ? error.message : String(error) } };
     }
   }
-  process.stderr.write("\n");
+  writeErr("\n");
   return { responses, error: null };
 }
 
@@ -343,7 +398,7 @@ const options = parseOptions(process.argv.slice(2));
 const startedAt = new Date();
 
 const taken = takenSlugs();
-for (const warning of taken.warnings) process.stderr.write(`warning: ${warning}\n`);
+for (const warning of taken.warnings) writeErr(`warning: ${warning}\n`);
 const params = buildParams(options, taken.listing, localToday(startedAt));
 
 let client: Anthropic;
@@ -356,12 +411,12 @@ try {
   );
 }
 
-process.stderr.write(
+writeErr(
   `catalog:draft: ${MODEL}, topic "${options.topic}", max ${options.maxEntries} entries, ` +
     `max ${options.maxSearches} searches${options.dryRun ? ", dry run" : ""}\n`,
 );
 
-const { responses, error } = await run(client, params);
+const { responses, error } = await run(client, params, options.maxSearches);
 const final = responses.at(-1);
 const usage = sumUsage(responses);
 const extracted: SubmittedEntries | null = final === undefined ? null : extractSubmittedEntries(final);
@@ -397,7 +452,7 @@ const out: string[] = ["", ...usageLines(usage)];
 const hops = responses.flatMap(fallbackHops);
 for (const hop of hops) out.push(`fallback: ${hop.from} declined, ${hop.to} continued`);
 out.push(`audit: ${displayPath(auditFile)}`);
-process.stdout.write(`${out.join("\n")}\n`);
+writeOut(`${out.join("\n")}\n`);
 
 if (error !== null) {
   const status = error.kind === "api" && error.status !== undefined ? ` ${error.status}` : "";
@@ -425,10 +480,10 @@ if (!options.dryRun) {
     }
   }
 }
-process.stdout.write(`${report.join("\n")}\n`);
+writeOut(`${report.join("\n")}\n`);
 if (writeErrors.length > 0) fail(writeErrors.join("\n"));
 if (!options.dryRun && plan.write.length > 0) {
-  process.stdout.write(
+  writeOut(
     '\nNext: review each new file against its sources (catalog/README.md, "Drafting with Claude"), ' +
       "then run `npm run catalog:check`.\n",
   );

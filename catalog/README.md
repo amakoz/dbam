@@ -82,6 +82,7 @@ Age and sex are branch fields, not factors. The closed list of factors lives in 
 | `pregnancy`                        | boolean                            | no                           |
 | `prior_cancer`                     | boolean                            | no                           |
 | `hysterectomy`                     | boolean                            | no                           |
+| `questionnaire_flags_risk`         | boolean                            | no                           |
 
 ## Drafting with Claude
 
@@ -106,7 +107,7 @@ npm run catalog:draft -- --topic "badania przesiewowe raka NFZ" \
   - `--topic` (required);
   - `--source <path>`: a background document, included in the prompt as leads only;
   - `--max <n>`: at most n entries, default 5;
-  - `--max-searches <n>`: web search cap, default 20;
+  - `--max-searches <n>`: cap on web searches, and separately on web fetches, for the whole run (including `pause_turn` continuations), default 20;
   - `--dry-run`: validate and report without writing entry files.
 - **Output:** the script prints each valid entry with its sources and quotes, skips slugs that already exist (as a file or in a shipped snapshot), and lists invalid entries with their errors.
 - **Audit:** every raw response, with the request and token usage, is saved to `catalog/.draft-runs/<timestamp>.json` (gitignored), even when the run fails.
@@ -134,3 +135,13 @@ Then continue with [Shipping changes](#shipping-changes).
 5. After merge, the CI **`migrate`** job applies the snapshot to production (`supabase db push`), before `deploy`.
 
 Upserts never delete rows, so a retired entry stays in the table and future exam records keep resolving.
+
+### When two catalog PRs overlap
+
+Each catalog PR carries its own snapshot migration. If another catalog PR merged first, yours is stale. On main, `catalog:check` fails, or `supabase db push` refuses a snapshot older than one already applied, and `migrate` and `deploy` stay blocked until it's fixed. Never edit or reorder an applied snapshot. Before merging (or to fix a red main), rebase your branch:
+
+1. Rebase your branch on `main`.
+2. Delete your branch's own snapshot file(s). Only delete ones that have never reached production, i.e. are not on `main`.
+3. Run `npm run catalog:migration`, then `npm run catalog:check`, and push.
+
+Requiring branches to be up to date before merging (a branch protection setting on `main`) prevents the red main entirely.

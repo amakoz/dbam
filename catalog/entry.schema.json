@@ -83,7 +83,8 @@
                     "hiv_or_immunosuppression",
                     "pregnancy",
                     "prior_cancer",
-                    "hysterectomy"
+                    "hysterectomy",
+                    "questionnaire_flags_risk"
                   ],
                   "description": "A factor id from the closed vocabulary in src/lib/catalog/factors.ts."
                 },
@@ -186,7 +187,8 @@
                         "hiv_or_immunosuppression",
                         "pregnancy",
                         "prior_cancer",
-                        "hysterectomy"
+                        "hysterectomy",
+                        "questionnaire_flags_risk"
                       ],
                       "description": "A factor id from the closed vocabulary in src/lib/catalog/factors.ts."
                     },

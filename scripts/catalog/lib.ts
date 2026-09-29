@@ -184,7 +184,16 @@ export function renderSnapshotSql(entries: readonly CatalogEntry[]): string {
     values.push("now()");
     return `  (\n${values.map((v) => `    ${v}`).join(",\n")}\n  )`;
   });
-  const updates = columns.filter((column) => column !== "slug").map((column) => `  ${column} = excluded.${column}`);
+  const contentColumns = ENTRY_COLUMNS.filter((column) => column !== "slug");
+  const updates = [...contentColumns, "updated_at"].map((column) => `  ${column} = excluded.${column}`);
+  // Unchanged rows are left alone, so updated_at keeps meaning "this entry's content changed".
+  const guard = [
+    "where (",
+    contentColumns.map((column) => `  screening_catalog.${column}`).join(",\n"),
+    ") is distinct from (",
+    contentColumns.map((column) => `  excluded.${column}`).join(",\n"),
+    ");",
+  ];
 
   return [
     ...SNAPSHOT_HEADER,
@@ -195,14 +204,19 @@ export function renderSnapshotSql(entries: readonly CatalogEntry[]): string {
     ") values",
     rows.join(",\n"),
     "on conflict (slug) do update set",
-    `${updates.join(",\n")};`,
+    updates.join(",\n"),
+    ...guard,
     "",
   ].join("\n");
 }
 
-/** The slugs listed in a snapshot's `-- catalog-slug:` manifest, or null when it has none. */
+/**
+ * The slugs listed in a snapshot's `-- catalog-slug:` manifest, or null when it has none. Only the header (before
+ * `insert into`) is read, so entry text that happens to contain a manifest-like line can't add a slug.
+ */
 export function parseSnapshotSlugs(sql: string): string[] | null {
-  const slugs = [...sql.matchAll(MANIFEST_LINE)].map((match) => match[1]);
+  const header = sql.split(/^insert into /m)[0];
+  const slugs = [...header.matchAll(MANIFEST_LINE)].map((match) => match[1]);
   return slugs.length > 0 ? slugs : null;
 }
 

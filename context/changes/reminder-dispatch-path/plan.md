@@ -388,20 +388,20 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 
 #### Automated
 
-- [x] 1.1 Worker types generated and committed: `npm run cf:types` leaves `worker-configuration.d.ts` unchanged in git
-- [x] 1.2 Linting passes with no new warnings: `npm run lint`
-- [x] 1.3 Type checking passes: `npx astro check`
-- [x] 1.4 Build succeeds: `npm run build`
-- [x] 1.5 Catalog check still passes: `npm run catalog:check`
+- [x] 1.1 Worker types generated and committed: `npm run cf:types` leaves `worker-configuration.d.ts` unchanged in git — ced6da1
+- [x] 1.2 Linting passes with no new warnings: `npm run lint` — ced6da1
+- [x] 1.3 Type checking passes: `npx astro check` — ced6da1
+- [x] 1.4 Build succeeds: `npm run build` — ced6da1
+- [x] 1.5 Catalog check still passes: `npm run catalog:check` — ced6da1
 
 #### Manual
 
-- [x] 1.6 Local dry run returns `outcome: ok` and logs a `dry-run` line
-- [x] 1.7 Warsaw gate returns send/skip/skip/send for the four `time` values
-- [x] 1.8 `/cdn-cgi/local/scheduled` confirmed reachable under `astro preview` (or fallback recorded)
-- [x] 1.9 Unknown cron string returns a non-ok outcome with a named error
+- [x] 1.6 Local dry run returns `outcome: ok` and logs a `dry-run` line — ced6da1
+- [x] 1.7 Warsaw gate returns send/skip/skip/send for the four `time` values — ced6da1
+- [x] 1.8 `/cdn-cgi/local/scheduled` confirmed reachable under `astro preview` (or fallback recorded) — ced6da1
+- [x] 1.9 Unknown cron string returns a non-ok outcome with a named error — ced6da1
 - [ ] 1.10 One live local send arrives at the `+dbam` inbox from `onboarding@resend.dev`
-- [x] 1.11 Site pages, static assets and auth still work under `npm run preview`
+- [x] 1.11 Site pages, static assets and auth still work under `npm run preview` — ced6da1
 
 ### Phase 2: CI dry-run check
 
@@ -412,7 +412,7 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 
 #### Manual
 
-- [ ] 2.3 Removing `scheduled` on a scratch branch makes the new CI step fail
+- [x] 2.3 Removing `scheduled` on a scratch branch makes the new CI step fail
 
 ### Phase 3: Production rollout
 

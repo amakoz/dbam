@@ -1,10 +1,10 @@
 ---
 change_id: screening-catalog-v1
 title: Screening catalog v1
-status: impl_reviewed
+status: archived
 created: 2026-09-28
-updated: 2026-09-28
-archived_at: null
+updated: 2026-09-29
+archived_at: 2026-09-29T16:17:42Z
 ---
 
 ## Notes
@@ -13,3 +13,4 @@ archived_at: null
 
 - 2026-09-28 (owner decision): the owner has a claude.ai subscription and no Claude API credits. So Progress 3.3, the live `npm run catalog:draft -- --max 2 --dry-run`, stays pending until an API key is available. The Phase 3 code passed its automated checks, but the drafter has not run against the live API.
 - 2026-09-28 (owner decision): Phase 4 entries are drafted inside a Claude Code session, not by `npm run catalog:draft`. The session follows `scripts/catalog/draft-prompt.md`, uses web search/fetch for sources, writes `catalog/entries/<slug>.json` as `draft` and validates with `npm run catalog:check`. Owner review and activation, snapshot generation and the pgTAP checks are unchanged.
+- 2026-09-29 (owner decision): F-01 is closed with Progress 3.3 still pending. The catalog is in production and nothing S-02 reads depends on the live drafter run. 3.3 moves to a follow-up tracked in GitHub issue #42.

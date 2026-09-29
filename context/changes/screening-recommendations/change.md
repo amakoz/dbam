@@ -1,7 +1,7 @@
 ---
 change_id: screening-recommendations
 title: Screening recommendations
-status: preparing
+status: implementing
 created: 2026-09-28
 updated: 2026-09-29
 archived_at: null
@@ -17,3 +17,4 @@ archived_at: null
   - "powyżej X" read as X+
   - colonoscopy 120 mo inferred from an exclusion
   - LDCT 50–54 risk factors
+- 2026-09-29 (owner decision, plan Phase 1): no POZ doctor is available yet, so the owner accepts the current sources and data and stamps the 19 active entries `reviewed_by: "owner (non-medical review)"`, `last_reviewed: 2026-09-29`, `next_review_due: 2027-09-29`. S-02 renders only stamped entries, and `catalog:check` + pgTAP reject an active entry without a stamp. This is **not** medical sign-off: the points above stay open for the POZ review, and #27 stays open.

@@ -172,6 +172,76 @@ export type Database = {
         };
         Relationships: [];
       };
+      screening_completions: {
+        Row: {
+          catalog_slug: string;
+          created_at: string;
+          id: number;
+          last_done_month: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          catalog_slug: string;
+          created_at?: string;
+          id?: never;
+          last_done_month?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          catalog_slug?: string;
+          created_at?: string;
+          id?: never;
+          last_done_month?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "screening_completions_catalog_slug_fkey";
+            columns: ["catalog_slug"];
+            isOneToOne: false;
+            referencedRelation: "screening_catalog";
+            referencedColumns: ["slug"];
+          },
+        ];
+      };
+      screening_plans: {
+        Row: {
+          appointment_date: string | null;
+          catalog_slug: string;
+          created_at: string;
+          id: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          appointment_date?: string | null;
+          catalog_slug: string;
+          created_at?: string;
+          id?: never;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          appointment_date?: string | null;
+          catalog_slug?: string;
+          created_at?: string;
+          id?: never;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "screening_plans_catalog_slug_fkey";
+            columns: ["catalog_slug"];
+            isOneToOne: false;
+            referencedRelation: "screening_catalog";
+            referencedColumns: ["slug"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

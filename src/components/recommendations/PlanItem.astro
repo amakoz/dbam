@@ -1,7 +1,10 @@
 ---
+import SavedNote from "@/components/recommendations/SavedNote.astro";
+import { SAVED_ROW_CLASS, type SavedFeedback } from "@/components/recommendations/saved";
 import ScreeningActions from "@/components/recommendations/ScreeningActions.astro";
-import { createT, type MessageKey } from "@/i18n";
-import type { Tier } from "@/lib/catalog/recommend";
+import TierBadge from "@/components/recommendations/TierBadge.astro";
+import { Button } from "@/components/ui/button";
+import { createT } from "@/i18n";
 import { formatDay, type ScreeningFormBounds } from "@/lib/screenings/format";
 import type { PlanView } from "@/lib/screenings/rules";
 
@@ -13,18 +16,16 @@ interface Props {
   bounds: ScreeningFormBounds;
   /** Translated error of the last attempt on this exam; opens its panel. */
   error?: string | null;
+  /** The form field the error is about, marked invalid in the panel. */
+  invalidField?: "date" | "done" | null;
+  /** Translated confirmation when this exam was just saved (planned or its date changed); highlights the row. */
+  saved?: SavedFeedback | null;
 }
 
-const { view, bounds, error } = Astro.props;
+const { view, bounds, error, invalidField, saved } = Astro.props;
 const { plan, entry, tier } = view;
 const { locale } = Astro.locals;
 const t = createT(locale);
-
-const TIER_BADGE_KEYS = {
-  1: "dashboard.screenings.tierBadge.1",
-  2: "dashboard.screenings.tierBadge.2",
-  3: "dashboard.screenings.tierBadge.3",
-} as const satisfies Record<Tier, MessageKey>;
 
 const name = locale === "pl" ? entry.name_pl : entry.name_en;
 const date = plan.appointment_date;
@@ -35,24 +36,14 @@ const date = plan.appointment_date;
   data-plan
   data-slug={entry.slug}
   data-appointment={date ?? ""}
-  class="scroll-mt-4 rounded-lg border border-purple-400/30 bg-purple-500/10 p-3"
+  class:list={["-mx-3 scroll-mt-4 px-3 py-4", saved ? SAVED_ROW_CLASS[saved.tone] : "first:pt-0 last:pb-0"]}
 >
-  <div class="flex flex-wrap items-start justify-between gap-2">
-    <h4 class="font-medium text-white">{name}</h4>
-    {tier !== null && (
-      <span
-        class:list={[
-          "rounded-full border px-2 py-0.5 text-xs",
-          tier === 1
-            ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
-            : "border-white/20 bg-white/10 text-blue-100/80",
-        ]}
-      >
-        {t(TIER_BADGE_KEYS[tier])}
-      </span>
-    )}
+  <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+    <h3 class="font-semibold text-foreground">{name}</h3>
+    {tier !== null && <TierBadge tier={tier} />}
   </div>
-  <p class="mt-1 text-sm text-blue-100/80">
+  {saved && <SavedNote saved={saved} />}
+  <p class="mt-1 text-sm text-muted-foreground tabular-nums">
     {date
       ? t("dashboard.screenings.plan.date", { date: formatDay(date, locale) })
       : t("dashboard.screenings.plan.noDate")}
@@ -63,6 +54,7 @@ const date = plan.appointment_date;
     name={name}
     bounds={bounds}
     error={error}
+    invalidField={invalidField}
     open={Boolean(error)}
     planned={{ appointmentDate: date }}
   />
@@ -70,12 +62,9 @@ const date = plan.appointment_date;
   <form method="POST" action="/api/screenings" class="mt-3">
     <input type="hidden" name="intent" value="unplan" />
     <input type="hidden" name="slug" value={entry.slug} />
-    <button
-      type="submit"
-      class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
-    >
+    <Button type="submit" variant="outline" size="sm">
       {t("dashboard.screenings.plan.remove")}
       <span class="sr-only">: {name}</span>
-    </button>
+    </Button>
   </form>
 </li>

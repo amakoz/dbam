@@ -1,75 +1,45 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Dark mode follows the system setting (no manual toggle), matching the light-dark() tokens below. */
+@custom-variant dark (@media (prefers-color-scheme: dark));
 
+/*
+ * Theme A "Len i szałwia" (linen and sage). Value source: context/changes/ui-refactor/directions.md §A.
+ * Each colour is light-dark(<light>, <dark>): it follows the system scheme, and `color-scheme: light|dark`
+ * on any element forces that subtree. Tier and success tokens carry status meaning; never use palette classes for it.
+ */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  color-scheme: light dark;
+  --radius: 0.875rem;
+  --background: light-dark(oklch(0.985 0.008 85), oklch(0.19 0.01 70));
+  --foreground: light-dark(oklch(0.27 0.015 60), oklch(0.93 0.01 85));
+  --card: light-dark(oklch(0.995 0.004 85), oklch(0.23 0.012 70));
+  --card-foreground: light-dark(oklch(0.27 0.015 60), oklch(0.93 0.01 85));
+  --popover: light-dark(oklch(0.995 0.004 85), oklch(0.23 0.012 70));
+  --popover-foreground: light-dark(oklch(0.27 0.015 60), oklch(0.93 0.01 85));
+  --primary: light-dark(oklch(0.47 0.07 165), oklch(0.74 0.08 165));
+  --primary-foreground: light-dark(oklch(0.985 0.008 85), oklch(0.2 0.02 165));
+  --secondary: light-dark(oklch(0.945 0.018 150), oklch(0.28 0.02 160));
+  --secondary-foreground: light-dark(oklch(0.33 0.05 165), oklch(0.9 0.02 150));
+  --muted: light-dark(oklch(0.955 0.01 80), oklch(0.26 0.01 70));
+  --muted-foreground: light-dark(oklch(0.5 0.015 65), oklch(0.72 0.015 75));
+  --accent: light-dark(oklch(0.94 0.025 75), oklch(0.29 0.015 70));
+  --accent-foreground: light-dark(oklch(0.27 0.015 60), oklch(0.93 0.01 85));
+  --destructive: light-dark(oklch(0.52 0.16 30), oklch(0.68 0.15 30));
+  --border: light-dark(oklch(0.9 0.012 80), oklch(0.32 0.012 70));
+  --input: light-dark(oklch(0.64 0.014 80), oklch(0.54 0.012 70));
+  --ring: light-dark(oklch(0.55 0.08 165), oklch(0.62 0.08 165));
+  --tier-1: light-dark(oklch(0.95 0.045 80), oklch(0.3 0.05 70));
+  --tier-1-foreground: light-dark(oklch(0.42 0.09 65), oklch(0.87 0.09 80));
+  --tier-1-solid: light-dark(oklch(0.62 0.12 70), oklch(0.75 0.12 75));
+  --tier-2: light-dark(oklch(0.95 0.03 160), oklch(0.29 0.04 165));
+  --tier-2-foreground: light-dark(oklch(0.4 0.06 165), oklch(0.86 0.06 160));
+  --tier-2-solid: light-dark(oklch(0.6 0.08 165), oklch(0.7 0.08 165));
+  --tier-3: light-dark(oklch(0.95 0.01 250), oklch(0.28 0.015 250));
+  --tier-3-foreground: light-dark(oklch(0.42 0.02 250), oklch(0.86 0.02 250));
+  --tier-3-solid: light-dark(oklch(0.62 0.02 250), oklch(0.68 0.02 250));
+  --success: light-dark(oklch(0.5 0.09 150), oklch(0.72 0.1 150));
 }
 
 @theme inline {
@@ -95,21 +65,22 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-tier-1: var(--tier-1);
+  --color-tier-1-foreground: var(--tier-1-foreground);
+  --color-tier-1-solid: var(--tier-1-solid);
+  --color-tier-2: var(--tier-2);
+  --color-tier-2-foreground: var(--tier-2-foreground);
+  --color-tier-2-solid: var(--tier-2-solid);
+  --color-tier-3: var(--tier-3);
+  --color-tier-3-foreground: var(--tier-3-foreground);
+  --color-tier-3-solid: var(--tier-3-solid);
+  --color-success: var(--success);
+  /* --font-figtree / --font-fraunces come from the Astro fonts config (astro.config.mjs, <Font> in Layout.astro). */
+  --font-sans: var(--font-figtree, ui-sans-serif, system-ui, sans-serif);
+  --font-heading: var(--font-fraunces, ui-serif, Georgia, serif);
 }
 
+/* Legacy: serves the unmigrated pages (landing, auth, errors, onboarding, profile) until their follow-up changes. */
 @utility bg-cosmic {
   background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
 }

@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, envField } from "astro/config";
+import { defineConfig, envField, fontProviders } from "astro/config";
 
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -14,8 +14,35 @@ export default defineConfig({
   // Sessions and the Images binding are unused; disabling them keeps wrangler from auto-provisioning a KV namespace.
   session: false,
   integrations: [react(), sitemap()],
+  // Theme A fonts (context/changes/ui-refactor/directions.md §A), downloaded at build time and self-hosted: no CDN at runtime.
+  // `latin-ext` carries the Polish diacritics (ą ć ę ł ń ś ź ż); the default `latin` subset lacks them.
+  fonts: [
+    {
+      provider: fontProviders.fontsource(),
+      name: "Fraunces",
+      cssVariable: "--font-fraunces",
+      weights: ["100 900"],
+      styles: ["normal"],
+      subsets: ["latin", "latin-ext"],
+      fallbacks: ["serif"],
+    },
+    {
+      provider: fontProviders.fontsource(),
+      name: "Figtree",
+      cssVariable: "--font-figtree",
+      weights: ["300 900"],
+      styles: ["normal"],
+      subsets: ["latin", "latin-ext"],
+      fallbacks: ["sans-serif"],
+    },
+  ],
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      // Baseline 2024, so the CSS minifier keeps native light-dark() (src/styles/global.css) instead of polyfilling it.
+      // The polyfill resolves the tokens once on :root, so `color-scheme` on an element could no longer force its subtree.
+      cssTarget: ["chrome123", "edge123", "firefox120", "safari17.5", "ios17.5"],
+    },
   },
   adapter: cloudflare({ imageService: "passthrough" }),
   env: {

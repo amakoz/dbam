@@ -11,6 +11,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "smoke": "node scripts/smoke.mjs",
+    "ui:check": "node scripts/ui-check.mjs",
     "deploy": "astro build && wrangler deploy",
     "cf:types": "wrangler types && prettier --write worker-configuration.d.ts",
     "db:types": "supabase gen types --lang=typescript --local > src/lib/database.types.ts && prettier --write src/lib/database.types.ts",
@@ -35,6 +36,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.14.0",
+    "radix-ui": "^1.6.7",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "tailwind-merge": "^3.5.0",
@@ -70,6 +72,9 @@
     ],
     "*.{json,css,md}": [
       "prettier --write"
+    ],
+    "{src/pages/dashboard.astro,src/pages/dev/kitchen-sink.astro,src/components/AppHeader.astro,src/components/LanguageSwitcher.astro,src/components/recommendations/*.{astro,ts}}": [
+      "node scripts/ui-check.mjs"
     ]
   },
   "overrides": {

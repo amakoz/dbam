@@ -1,4 +1,9 @@
 ---
+import { CircleAlert } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { createT } from "@/i18n";
 import type { ScreeningFormBounds } from "@/lib/screenings/format";
 
@@ -6,7 +11,8 @@ import type { ScreeningFormBounds } from "@/lib/screenings/format";
 // item it adds a plan; on a planned item (`planned` set) it changes the date. Every outcome redirects back to the
 // dashboard, to the item's anchor.
 //
-// `<input type="month">` is not used for the last exam: Firefox and Safari desktop don't support it.
+// `<input type="month">` is not used for the last exam: Firefox and Safari desktop don't support it. The native
+// date input and selects follow the page's colour scheme (`color-scheme` on `:root`).
 
 interface Props {
   slug: string;
@@ -15,98 +21,107 @@ interface Props {
   bounds: ScreeningFormBounds;
   /** Translated error of the last attempt on this exam, shown above the panel. */
   error?: string | null;
+  /** The form field the error is about (`date` = plan form, `done` = month/year); marks it invalid. */
+  invalidField?: "date" | "done" | null;
   /** Renders the panel expanded (e.g. after an error). */
   open?: boolean;
   /** Set when the exam is already planned: prefills its date (null = no date yet). */
   planned?: { appointmentDate: string | null };
 }
 
-const { slug, name, bounds, error, open = false, planned } = Astro.props;
+const { slug, name, bounds, error, invalidField = null, open = false, planned } = Astro.props;
 const t = createT(Astro.locals.locale);
 
 const id = (field: string) => `screening-${slug}-${field}`;
-const control =
-  "rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white [color-scheme:dark] focus:ring-2 focus:ring-purple-400 focus:outline-none";
-const submit =
-  "rounded-lg bg-purple-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500";
+// A field is marked invalid only while its form's error is shown, and then points to that error.
+const dateInvalid = Boolean(error) && invalidField === "date";
+const doneInvalid = Boolean(error) && invalidField === "done";
+
+const doneFields = [
+  {
+    field: "done-month",
+    name: "done_month",
+    label: t("dashboard.screenings.done.monthLabel"),
+    options: bounds.months.map(({ value, label }) => ({ value: String(value), label })),
+  },
+  {
+    field: "done-year",
+    name: "done_year",
+    label: t("dashboard.screenings.done.yearLabel"),
+    options: bounds.years.map((year) => ({ value: String(year), label: String(year) })),
+  },
+];
 ---
 
-<div class="mt-3 space-y-2">
+<div class="mt-3 space-y-3">
   {error && (
-    <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
-      {error}
-    </p>
+    <Alert variant="destructive" id={id("error")}>
+      <CircleAlert aria-hidden="true" />
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>
   )}
-  <details open={open} class="rounded-lg border border-white/10 bg-white/5">
-    <summary class="cursor-pointer px-3 py-2 text-sm text-purple-300 hover:underline">
+  <details open={open}>
+    <summary class="w-fit cursor-pointer rounded-sm text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
       {t(planned ? "dashboard.screenings.panel.togglePlanned" : "dashboard.screenings.panel.toggle")}
       <span class="sr-only">: {name}</span>
     </summary>
-    <div class="space-y-4 border-t border-white/10 p-3">
+    <div class="mt-3 space-y-4 rounded-lg border border-border p-4">
       <form method="POST" action="/api/screenings">
         <input type="hidden" name="intent" value="plan" />
         <input type="hidden" name="slug" value={slug} />
         <fieldset class="space-y-2">
-          <legend class="mb-2 text-sm font-semibold text-white">
+          <legend class="mb-2 text-sm font-semibold text-foreground">
             {t(planned ? "dashboard.screenings.plan.legendPlanned" : "dashboard.screenings.plan.legend")}
           </legend>
-          <label for={id("date")} class="block text-sm text-blue-100/80">
-            {t("dashboard.screenings.plan.dateLabel")}
-          </label>
-          <input
+          <Label htmlFor={id("date")}>{t("dashboard.screenings.plan.dateLabel")}</Label>
+          <Input
             id={id("date")}
             type="date"
             name="appointment_date"
             min={bounds.minDate}
             max={bounds.maxDate}
-            value={planned?.appointmentDate ?? ""}
-            aria-describedby={id("date-hint")}
-            class:list={[control, "w-full sm:w-auto"]}
+            defaultValue={planned?.appointmentDate ?? ""}
+            aria-describedby={dateInvalid ? `${id("date-hint")} ${id("error")}` : id("date-hint")}
+            aria-invalid={dateInvalid ? true : undefined}
+            className="w-full bg-background tabular-nums sm:w-auto"
           />
-          <p id={id("date-hint")} class="text-xs text-blue-100/60">
+          <p id={id("date-hint")} class="text-xs text-muted-foreground">
             {t("dashboard.screenings.plan.dateHint")}
           </p>
-          <button type="submit" class:list={submit}>
+          <Button type="submit">
             {t(planned ? "dashboard.screenings.plan.submitPlanned" : "dashboard.screenings.plan.submit")}
-          </button>
+          </Button>
         </fieldset>
       </form>
 
-      <form method="POST" action="/api/screenings" class="border-t border-white/10 pt-4">
+      <form method="POST" action="/api/screenings" class="border-t border-border pt-4">
         <input type="hidden" name="intent" value="done" />
         <input type="hidden" name="slug" value={slug} />
         <fieldset class="space-y-2" aria-describedby={id("done-hint")}>
-          <legend class="mb-2 text-sm font-semibold text-white">{t("dashboard.screenings.done.legend")}</legend>
+          <legend class="mb-2 text-sm font-semibold text-foreground">{t("dashboard.screenings.done.legend")}</legend>
           <div class="flex flex-wrap gap-3">
-            <div>
-              <label for={id("done-month")} class="mb-1 block text-sm text-blue-100/80">
-                {t("dashboard.screenings.done.monthLabel")}
-              </label>
-              <select id={id("done-month")} name="done_month" class:list={control}>
-                <option value="">—</option>
-                {bounds.months.map(({ value, label }) => (
-                  <option value={String(value)}>{label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label for={id("done-year")} class="mb-1 block text-sm text-blue-100/80">
-                {t("dashboard.screenings.done.yearLabel")}
-              </label>
-              <select id={id("done-year")} name="done_year" class:list={control}>
-                <option value="">—</option>
-                {bounds.years.map((year) => (
-                  <option value={String(year)}>{year}</option>
-                ))}
-              </select>
-            </div>
+            {doneFields.map(({ field, name: fieldName, label, options }) => (
+              <div class="space-y-1">
+                <Label htmlFor={id(field)}>{label}</Label>
+                <select
+                  id={id(field)}
+                  name={fieldName}
+                  aria-invalid={doneInvalid ? "true" : undefined}
+                  aria-describedby={doneInvalid ? id("error") : undefined}
+                  class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive dark:bg-input/30"
+                >
+                  <option value="">—</option>
+                  {options.map(({ value, label: optionLabel }) => (
+                    <option value={value}>{optionLabel}</option>
+                  ))}
+                </select>
+              </div>
+            ))}
           </div>
-          <p id={id("done-hint")} class="text-xs text-blue-100/60">
+          <p id={id("done-hint")} class="text-xs text-muted-foreground">
             {t("dashboard.screenings.done.hint")}
           </p>
-          <button type="submit" class:list={submit}>
-            {t("dashboard.screenings.done.submit")}
-          </button>
+          <Button type="submit">{t("dashboard.screenings.done.submit")}</Button>
         </fieldset>
       </form>
     </div>

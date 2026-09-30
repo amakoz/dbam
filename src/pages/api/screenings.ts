@@ -44,7 +44,8 @@ export const POST: APIRoute = async (context) => {
   if (!isIntent(intent)) {
     return fail("invalid_request");
   }
-  const succeed = (saved: string) => context.redirect(`/dashboard?saved=${intent}#screening-${saved}`);
+  // The dashboard shows the confirmation on the saved exam's row (`slug`), where the browser scrolls.
+  const succeed = (saved: string) => context.redirect(`/dashboard?saved=${intent}&slug=${saved}#screening-${saved}`);
 
   // Removing a record needs no consent or recommendation check: RLS limits the delete to the caller's own row.
   if (intent === "unplan" || intent === "undone") {

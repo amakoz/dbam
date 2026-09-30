@@ -12,6 +12,8 @@ export const pl = {
   "nav.signup": "Zarejestruj się",
   "nav.signout": "Wyloguj się",
   "nav.notSignedIn": "Nie zalogowano",
+  "nav.profile": "Profil",
+  "nav.skipToContent": "Przejdź do treści",
 
   "home.title": "10x Astro Starter",
   "home.subtitle":
@@ -27,6 +29,14 @@ export const pl = {
 
   "dashboard.title": "Panel",
   "dashboard.greeting": "Witaj,",
+  "dashboard.status.plans_one": "{count} zaplanowane badanie",
+  "dashboard.status.plans_few": "{count} zaplanowane badania",
+  "dashboard.status.plans_many": "{count} zaplanowanych badań",
+  "dashboard.status.plans_other": "{count} zaplanowanego badania",
+  "dashboard.status.open_one": "{count} badanie czeka na Twoją decyzję",
+  "dashboard.status.open_few": "{count} badania czekają na Twoją decyzję",
+  "dashboard.status.open_many": "{count} badań czeka na Twoją decyzję",
+  "dashboard.status.open_other": "{count} badania czeka na Twoją decyzję",
 
   "dashboard.profile.heading": "Twój profil",
   "dashboard.profile.birthYear": "Rok urodzenia",

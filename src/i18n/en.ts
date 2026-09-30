@@ -14,6 +14,8 @@ export const en: Record<MessageKey, string> = {
   "nav.signup": "Sign up",
   "nav.signout": "Sign out",
   "nav.notSignedIn": "Not signed in",
+  "nav.profile": "Profile",
+  "nav.skipToContent": "Skip to content",
 
   "home.title": "10x Astro Starter",
   "home.subtitle": "A production-ready starter with authentication, modern tooling, and a cosmic developer experience.",
@@ -27,6 +29,14 @@ export const en: Record<MessageKey, string> = {
 
   "dashboard.title": "Dashboard",
   "dashboard.greeting": "Welcome,",
+  "dashboard.status.plans_one": "{count} planned screening",
+  "dashboard.status.plans_few": "{count} planned screenings",
+  "dashboard.status.plans_many": "{count} planned screenings",
+  "dashboard.status.plans_other": "{count} planned screenings",
+  "dashboard.status.open_one": "{count} screening awaiting your decision",
+  "dashboard.status.open_few": "{count} screenings awaiting your decision",
+  "dashboard.status.open_many": "{count} screenings awaiting your decision",
+  "dashboard.status.open_other": "{count} screenings awaiting your decision",
 
   "dashboard.profile.heading": "Your profile",
   "dashboard.profile.birthYear": "Year of birth",

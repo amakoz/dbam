@@ -475,32 +475,32 @@ Leave a rule and a failing check, so the next agent keeps the dashboard on the c
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Type checking passes: `npx astro check`
-- [x] 1.3 Build succeeds, including the fonts on the Cloudflare adapter: `npm run build`
-- [x] 1.4 Smoke passes against the local preview: `npm run smoke`
+- [x] 1.1 Linting passes: `npm run lint` — e0296b1
+- [x] 1.2 Type checking passes: `npx astro check` — e0296b1
+- [x] 1.3 Build succeeds, including the fonts on the Cloudflare adapter: `npm run build` — e0296b1
+- [x] 1.4 Smoke passes against the local preview: `npm run smoke` — e0296b1
 
 #### Manual
 
-- [x] 1.5 Unmigrated pages look the same apart from the body font
-- [x] 1.6 Polish diacritics render in Fraunces and Figtree at 16px and 32px
-- [x] 1.7 Dark system scheme resolves theme A's dark background
+- [x] 1.5 Unmigrated pages look the same apart from the body font — e0296b1
+- [x] 1.6 Polish diacritics render in Fraunces and Figtree at 16px and 32px — e0296b1
+- [x] 1.7 Dark system scheme resolves theme A's dark background — e0296b1
 
 ### Phase 2: Dashboard shell and information architecture
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `npm run lint`
-- [ ] 2.2 Type checking passes: `npx astro check`
-- [ ] 2.3 Build succeeds: `npm run build`
-- [ ] 2.4 Smoke passes, with dashboard assertions unchanged: `npm run smoke`
-- [ ] 2.5 Hardcoded-value scan on dashboard.astro and AppHeader.astro returns 0 hits
+- [x] 2.1 Linting passes: `npm run lint`
+- [x] 2.2 Type checking passes: `npx astro check`
+- [x] 2.3 Build succeeds: `npm run build`
+- [x] 2.4 Smoke passes, with dashboard assertions unchanged: `npm run smoke`
+- [x] 2.5 Hardcoded-value scan on dashboard.astro and AppHeader.astro returns 0 hits
 
 #### Manual
 
-- [ ] 2.6 Desktop shows header, intro, separate section cards, profile card and footer, with no outer card
-- [ ] 2.7 About 375px width has no overlap, and there is no floating language pill on the dashboard
-- [ ] 2.8 Skip link and header are keyboard-reachable in order
+- [x] 2.6 Desktop shows header, intro, separate section cards, profile card and footer, with no outer card
+- [x] 2.7 About 375px width has no overlap, and there is no floating language pill on the dashboard
+- [x] 2.8 Skip link and header are keyboard-reachable in order
 
 ### Phase 3: Exam rows, forms and save feedback
 

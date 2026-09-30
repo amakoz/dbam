@@ -1,5 +1,5 @@
 import { EMAIL_DRY_RUN, REMINDER_TEST_TO } from "astro:env/server";
-import { sendEmail } from "@/lib/email";
+import { EmailSendError, sendEmail } from "@/lib/email";
 
 // Heartbeat job run by the Worker's Cron Trigger (`scheduled()` in src/worker.ts). It proves that a scheduled run can
 // deliver email in production. Cron runs in UTC only, so the daily schedule fires at 08:00 and 09:00 UTC and sends only
@@ -52,8 +52,17 @@ export async function runHeartbeat({
     log({ outcome: "sent", cron, scheduledAt, resendId: result.id });
     return "sent";
   } catch (error) {
-    const { name, message } = error instanceof Error ? error : new Error(String(error));
-    log({ outcome: "failed", cron, scheduledAt, error: name, message });
+    // Error names and Resend's status/error name only, never `message`: once reminder jobs reuse this path, messages
+    // (e.g. from Postgres) can quote user data, and Workers Logs must not hold it.
+    const details: Record<string, string> =
+      error instanceof EmailSendError ? { status: String(error.status), resendError: error.resendError } : {};
+    log({
+      outcome: "failed",
+      cron,
+      scheduledAt,
+      error: error instanceof Error ? error.name : "UnknownError",
+      ...details,
+    });
     throw error;
   }
 }
@@ -75,7 +84,12 @@ function warsawHour(time: number): number {
     hour: "numeric",
     hourCycle: "h23",
   }).formatToParts(time);
-  return Number(parts.find((part) => part.type === "hour")?.value);
+  const hour = Number(parts.find((part) => part.type === "hour")?.value);
+  // A NaN hour would silently skip every daily run; fail the run instead so it shows in Trigger Events.
+  if (!Number.isFinite(hour)) {
+    throw new Error("Could not read the Europe/Warsaw hour");
+  }
+  return hour;
 }
 
 function recipient(): string {

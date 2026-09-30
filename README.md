@@ -216,6 +216,8 @@ curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=0+8%2C9+*+*+*&time=1790
 
 For one real send, put a real `RESEND_API_KEY` and `REMINDER_TEST_TO` plus `EMAIL_DRY_RUN=false` in `.dev.vars`, restart the server and call the first `curl` again. Set `EMAIL_DRY_RUN=true` back afterwards.
 
+`EMAIL_DRY_RUN` accepts only the literal `true` or `false`. Any other value (`1`, `TRUE`, `yes`) fails `astro:env` validation when the Worker starts and breaks every request, not just the cron. Production leaves it unset, which means `false`; never `wrangler secret put` it.
+
 In production:
 
 - **Runs:** Cloudflare dashboard → Workers → `dbam` → Settings → Trigger Events (the last 100 invocations), and Workers Logs (one `heartbeat` JSON line per run with its outcome; no recipient or key). A cron change takes up to 15 minutes to take effect after a deploy.
@@ -247,7 +249,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`,
 
 - **ci** — `catalog:check`, lint, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
-  It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for both heartbeat crons with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"` (see [Scheduled jobs](#scheduled-jobs)).
+  It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for every cron in the built `dist/server/wrangler.json` with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"`, so a `wrangler.jsonc` cron that `src/lib/heartbeat.ts` doesn't handle fails the PR (see [Scheduled jobs](#scheduled-jobs)).
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).
 - **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check (`GET /api/health`: 200 `{"status":"ok"}`, or 503 `{"status":"misconfigured"}` when the Supabase secrets are missing) and the read-only smoke test against production (retried up to 3 times, 20 s apart, because a new Worker version takes up to a minute to reach every edge location).
 

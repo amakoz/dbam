@@ -27,14 +27,12 @@ export default defineConfig({
       RESEND_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       REMINDER_TEST_TO: envField.string({ context: "server", access: "secret", optional: true }),
       EMAIL_DRY_RUN: envField.boolean({ context: "server", access: "secret", optional: true, default: false }),
-      // EMAIL_FROM is the sender for every email (e.g. `Dbam <przypomnienia@send.<domain>>` on the domain verified in
-      // Resend); unset, it falls back to Resend's sandbox sender `Dbam <onboarding@resend.dev>`.
+      // EMAIL_FROM is the sender for every email (e.g. `Dbam <przypomnienia@notification.dbam.net.pl>`, the domain
+      // verified in Resend); unset, it falls back to Resend's sandbox sender `Dbam <onboarding@resend.dev>`.
       EMAIL_FROM: envField.string({ context: "server", access: "secret", optional: true }),
       // Appointment reminder job (src/lib/reminders/). SUPABASE_SECRET_KEY is used only by that cron job
-      // (src/lib/reminders/admin-client.ts), never by a request. REMINDER_ALLOWED_TO is a comma-separated allowlist of
-      // recipient addresses; unset means everyone.
+      // (src/lib/reminders/admin-client.ts), never by a request.
       SUPABASE_SECRET_KEY: envField.string({ context: "server", access: "secret", optional: true }),
-      REMINDER_ALLOWED_TO: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

@@ -1,4 +1,3 @@
-import { REMINDER_ALLOWED_TO } from "astro:env/server";
 import { createT, resolveLocale } from "@/i18n";
 import type { Database } from "@/lib/database.types";
 import { EmailSendError, MAX_BATCH_SIZE, sendEmailBatch, type BatchEmailMessage } from "@/lib/email";
@@ -9,8 +8,8 @@ import { warsawToday } from "@/lib/screenings/rules";
 
 // Appointment reminder job run by the Worker's Cron Trigger (`scheduled()` in src/worker.ts) on the daily 10:00 Warsaw
 // run. The database decides who is due (`claim_due_appointment_reminders`: opted in, active consent, a plan dated 1–3
-// days ahead, not yet reminded for that date) and returns emails only for allowlisted users. The job sends one email
-// per user in one Resend batch, then marks the reminders sent. A failed send leaves them unsent for the next run, and
+// days ahead, not yet reminded for that date) and returns each user's account email. The job sends one email per
+// user in one Resend batch, then marks the reminders sent. A failed send leaves them unsent for the next run, and
 // a retry of the same run reuses the batch key, so Resend deduplicates it. With EMAIL_DRY_RUN=true nothing is sent and
 // nothing is marked. Emails and logs never name an exam; logs carry counts and error names only, never recipients,
 // subjects or error messages.
@@ -20,11 +19,7 @@ export const APPOINTMENT_REMINDER_LEAD_DAYS = 3;
 
 export type AppointmentReminderOutcome = "none" | "skipped" | "dry-run" | "sent";
 
-type ClaimFunction = Database["public"]["Functions"]["claim_due_appointment_reminders"];
-// The generated types say `p_allowed_emails: string[]` and `email: string`, but both are nullable in SQL: a null list
-// means "no allowlist: everyone", and `email` is null for users not on the allowlist.
-type ClaimArgs = Omit<ClaimFunction["Args"], "p_allowed_emails"> & { p_allowed_emails: string[] | null };
-type ClaimedReminder = Omit<ClaimFunction["Returns"][number], "email"> & { email: string | null };
+type ClaimedReminder = Database["public"]["Functions"]["claim_due_appointment_reminders"]["Returns"][number];
 
 /** A reminder database call failed. Carries the SQLSTATE only, never Postgres' message (it can quote row values). */
 export class ReminderDatabaseError extends Error {
@@ -53,34 +48,28 @@ export async function runAppointmentReminders({
     }
 
     const supabase = createReminderClient();
-    const args: ClaimArgs = {
+    const { data: claimed, error } = await supabase.rpc("claim_due_appointment_reminders", {
       p_today: warsawToday(new Date(scheduledTime)),
       p_lead_days: APPOINTMENT_REMINDER_LEAD_DAYS,
-      p_allowed_emails: allowedEmails(),
       p_limit: MAX_BATCH_SIZE,
-    };
-    // Cast only for the nullable allowlist (see ClaimArgs).
-    const { data, error } = await supabase.rpc("claim_due_appointment_reminders", args as ClaimFunction["Args"]);
+    });
     if (error) {
       throw new ReminderDatabaseError("claim", error.code);
     }
 
-    const claimed = data as ClaimedReminder[];
-    const deliverable = claimed.filter((row): row is ClaimedReminder & { email: string } => row.email !== null);
-    const counts = { due: claimed.length, undeliverable: claimed.length - deliverable.length };
-    if (deliverable.length === 0) {
-      log({ outcome: "none", cron, scheduledAt, ...counts, sent: 0 });
+    if (claimed.length === 0) {
+      log({ outcome: "none", cron, scheduledAt, due: 0, sent: 0 });
       return "none";
     }
 
-    const ids = deliverable.flatMap((row) => row.reminder_ids);
+    const ids = claimed.flatMap((row) => row.reminder_ids);
     const result = await sendEmailBatch({
-      messages: deliverable.map((row) => buildMessage(row)),
+      messages: claimed.map((row) => buildMessage(row)),
       idempotencyKey: await batchKey(ids),
     });
     if ("dryRun" in result) {
       // Marks nothing, so local and CI runs never consume reminders.
-      log({ outcome: "dry-run", cron, scheduledAt, ...counts, sent: 0 });
+      log({ outcome: "dry-run", cron, scheduledAt, due: claimed.length, sent: 0 });
       return "dry-run";
     }
 
@@ -88,7 +77,7 @@ export async function runAppointmentReminders({
     if (marked.error) {
       throw new ReminderDatabaseError("mark", marked.error.code);
     }
-    log({ outcome: "sent", cron, scheduledAt, ...counts, sent: result.ids.length });
+    log({ outcome: "sent", cron, scheduledAt, due: claimed.length, sent: result.ids.length });
     return "sent";
   } catch (error) {
     const details: Record<string, string> =
@@ -108,17 +97,7 @@ export async function runAppointmentReminders({
   }
 }
 
-/** `REMINDER_ALLOWED_TO` as a list, or null (everyone) when unset. Set but blank means nobody. */
-function allowedEmails(): string[] | null {
-  if (REMINDER_ALLOWED_TO === undefined) {
-    return null;
-  }
-  return REMINDER_ALLOWED_TO.split(",")
-    .map((address) => address.trim())
-    .filter((address) => address !== "");
-}
-
-function buildMessage(row: ClaimedReminder & { email: string }): BatchEmailMessage {
+function buildMessage(row: ClaimedReminder): BatchEmailMessage {
   const locale = resolveLocale(row.locale);
   const t = createT(locale);
   const dates = new Intl.ListFormat(locale, { style: "long", type: "conjunction" }).format(

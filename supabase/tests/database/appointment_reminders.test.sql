@@ -2,7 +2,7 @@
 -- Run with `npx supabase test db`. Everything happens in one transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(68);
+select plan(66);
 
 -- Fixtures, inserted as postgres: active catalog rows, so the test doesn't depend on snapshot data.
 insert into public.screening_catalog (
@@ -117,19 +117,19 @@ select is_empty(
 
 -- --- Function grants -------------------------------------------------------------------------------------------
 select ok(
-  not has_function_privilege('anon', 'public.claim_due_appointment_reminders(date, int, text[], int)', 'EXECUTE')
+  not has_function_privilege('anon', 'public.claim_due_appointment_reminders(date, int, int)', 'EXECUTE')
     and not has_function_privilege('anon', 'public.mark_appointment_reminders_sent(bigint[])', 'EXECUTE'),
   'anon cannot execute the reminder functions'
 );
 select ok(
   not has_function_privilege(
-    'authenticated', 'public.claim_due_appointment_reminders(date, int, text[], int)', 'EXECUTE'
+    'authenticated', 'public.claim_due_appointment_reminders(date, int, int)', 'EXECUTE'
   )
     and not has_function_privilege('authenticated', 'public.mark_appointment_reminders_sent(bigint[])', 'EXECUTE'),
   'authenticated cannot execute the reminder functions'
 );
 select ok(
-  has_function_privilege('service_role', 'public.claim_due_appointment_reminders(date, int, text[], int)', 'EXECUTE')
+  has_function_privilege('service_role', 'public.claim_due_appointment_reminders(date, int, int)', 'EXECUTE')
     and has_function_privilege('service_role', 'public.mark_appointment_reminders_sent(bigint[])', 'EXECUTE'),
   'service_role can execute the reminder functions'
 );
@@ -178,7 +178,7 @@ select throws_ok(
 select lives_ok($$ update public.profiles set reminders_enabled = true $$, 'A can turn reminders back on');
 
 select throws_ok(
-  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100) $$,
+  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 3, 100) $$,
   '42501', null, 'A cannot claim reminders'
 );
 select throws_ok(
@@ -221,61 +221,51 @@ select throws_ok(
   $$ select * from public.appointment_reminders $$, '42501', null, 'service_role cannot read the reminder ledger'
 );
 select lives_ok(
-  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100) $$,
+  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 3, 100) $$,
   'service_role can claim due reminders'
 );
 select throws_ok(
-  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 0, null, 100) $$,
+  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 0, 100) $$,
   '22023', null, 'a lead of 0 days is rejected'
 );
 select throws_ok(
-  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 31, null, 100) $$,
+  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 31, 100) $$,
   '22023', null, 'a lead of 31 days is rejected'
 );
 select throws_ok(
-  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 3, null, 0) $$,
+  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 3, 0) $$,
   '22023', null, 'a limit of 0 is rejected'
 );
 select throws_ok(
-  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 3, null, 101) $$,
+  $$ select * from public.claim_due_appointment_reminders('2027-03-10', 3, 101) $$,
   '22023', null, 'a limit of 101 is rejected'
 );
 select throws_ok(
-  $$ select * from public.claim_due_appointment_reminders('2027-03-10', null, null, 100) $$,
+  $$ select * from public.claim_due_appointment_reminders('2027-03-10', null, 100) $$,
   '22023', null, 'a null lead is rejected'
 );
 
 select is(
-  (select array_agg(user_id) from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)),
+  (select array_agg(user_id) from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
   array['11111111-1111-1111-1111-111111111111']::uuid[],
   'only A is claimed: not the opted-out user, the one without an active consent or the one without a profile'
 );
 select is(
-  (select appointment_dates from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)),
+  (select appointment_dates from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
   array['2027-03-11', '2027-03-13']::date[],
   'the plans at +1 and +3 are claimed in one row, dates ascending'
 );
 select is(
-  (select cardinality(reminder_ids) from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)),
+  (select cardinality(reminder_ids) from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
   2, 'two plans give two reminder ids'
 );
 select is(
-  (select locale from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)), 'en',
+  (select locale from public.claim_due_appointment_reminders('2027-03-10', 3, 100)), 'en',
   'the locale is the one stored with the opt-in'
 );
 select is(
-  (select email from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)), 'a@example.com',
-  'a null allowlist returns the email'
-);
-select is(
-  (select email from public.claim_due_appointment_reminders('2027-03-10', 3, array['someone@example.com'], 100)),
-  null::text, 'an allowlist without the user returns a null email'
-);
-select is(
-  (select email from public.claim_due_appointment_reminders(
-    '2027-03-10', 3, array['someone@example.com', 'A@Example.COM'], 100
-  )),
-  'a@example.com', 'the allowlist is compared case-insensitively'
+  (select email from public.claim_due_appointment_reminders('2027-03-10', 3, 100)), 'a@example.com',
+  'the account email is returned'
 );
 select is(
   public.mark_appointment_reminders_sent(array[]::bigint[]), 0, 'service_role can mark; an empty list marks nothing'
@@ -304,7 +294,7 @@ select is(
   0::bigint, 'a user without a profile gets no ledger row'
 );
 select is(
-  (select reminder_ids from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)),
+  (select reminder_ids from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
   (select array_agg(id order by id) from public.appointment_reminders),
   'a repeated claim before mark returns the same ids'
 );
@@ -313,7 +303,7 @@ select is((select count(*) from public.appointment_reminders), 2::bigint, 'repea
 -- Opting out between claim and send: the unsent rows are no longer returned.
 update public.profiles set reminders_enabled = false where user_id = '11111111-1111-1111-1111-111111111111';
 select is(
-  (select count(*) from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)), 0::bigint,
+  (select count(*) from public.claim_due_appointment_reminders('2027-03-10', 3, 100)), 0::bigint,
   'after opting out, A''s unsent rows are not returned'
 );
 update public.profiles set reminders_enabled = true where user_id = '11111111-1111-1111-1111-111111111111';
@@ -325,7 +315,7 @@ update public.screening_plans set appointment_date = '2027-03-12' where catalog_
 reset role;
 
 select is(
-  (select appointment_dates from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)),
+  (select appointment_dates from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
   array['2027-03-11', '2027-03-12']::date[],
   'a re-dated plan is claimed for its new date, and the old date is not returned'
 );
@@ -337,7 +327,7 @@ select is(
 select ok(
   not (
     array[(select id from public.appointment_reminders where appointment_date = '2027-03-13')]
-    <@ (select reminder_ids from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100))
+    <@ (select reminder_ids from public.claim_due_appointment_reminders('2027-03-10', 3, 100))
   ),
   'the old date''s row is not among the returned ids'
 );
@@ -345,7 +335,7 @@ select ok(
 -- --- Mark sent ------------------------------------------------------------------------------------------------
 select is(
   (select public.mark_appointment_reminders_sent(reminder_ids)
-   from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)),
+   from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
   2, 'mark stamps the claimed rows and returns the count'
 );
 select is(
@@ -355,7 +345,7 @@ select is(
   0, 'mark is a no-op on already-sent ids'
 );
 select is(
-  (select count(*) from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)), 0::bigint,
+  (select count(*) from public.claim_due_appointment_reminders('2027-03-10', 3, 100)), 0::bigint,
   'sent rows are no longer returned'
 );
 select ok(
@@ -374,12 +364,12 @@ update public.screening_plans set appointment_date = '2027-03-11'
   where user_id = '11111111-1111-1111-1111-111111111111' and catalog_slug = 'test-c';
 
 select is(
-  (select array_agg(user_id) from public.claim_due_appointment_reminders('2027-03-10', 3, null, 1)),
+  (select array_agg(user_id) from public.claim_due_appointment_reminders('2027-03-10', 3, 1)),
   array['11111111-1111-1111-1111-111111111111']::uuid[],
   'p_limit caps the rows, taking the lowest user id first'
 );
 select is(
-  (select array_agg(user_id) from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)),
+  (select array_agg(user_id) from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
   array['11111111-1111-1111-1111-111111111111', '55555555-5555-5555-5555-555555555555']::uuid[],
   'rows are ordered by user id'
 );
@@ -412,7 +402,7 @@ select is(
   0::bigint, 'withdrawal leaves A with no profile'
 );
 select is(
-  (select array_agg(user_id) from public.claim_due_appointment_reminders('2027-03-10', 3, null, 100)),
+  (select array_agg(user_id) from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
   array['55555555-5555-5555-5555-555555555555']::uuid[],
   'after withdrawal only the other opted-in user is claimed'
 );

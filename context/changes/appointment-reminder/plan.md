@@ -4,6 +4,8 @@
 
 A signed-in user can switch appointment reminders on or off on `/profile`. When on, the daily 10:00 (Europe/Warsaw) Cron Trigger run emails them once per recorded appointment date, 1–3 days before it. The email is generic: the date(s) and a count, never an exam name. The cron reads across users through a dedicated secret key that the database narrows to two `security definer` functions. Emails are sent from a sending domain the owner verifies in Resend (the site stays on `workers.dev`). Real sends are limited to an allowlist holding the two production users (the owner and the tester), so S-04 is done when both receive a real reminder in production (roadmap S-04, issue #22; PRD US-02, FR-006, FR-007).
 
+> **Amendment (2026-09-30, after Phase 4):** the owner verified the sending domain `notification.dbam.net.pl` in Resend and dropped the allowlist, since production holds only the owner and the tester. `REMINDER_ALLOWED_TO` and the `p_allowed_emails` parameter are removed; the migration had not reached production, so it was edited in place. `claim` now returns the account email of every due user who has one, and the job logs `due` and `sent` only. Mentions of the allowlist or of `undeliverable` below are superseded. For Progress: row 1.5 reads "account email" for "allowlisted email", row 3.8 no longer applies, and row 4.3 covers the key and the sender only.
+
 ## Current State Analysis
 
 - **The cron reads nothing.** `scheduled()` awaits only `runHeartbeat` (`src/worker.ts:10-12`). The only Supabase client is per request, cookie-bound, with the publishable key (`src/lib/supabase.ts:6-22`). `anon` is revoked on every user table, and emails live only in `auth.users`, which PostgREST does not expose (`supabase/config.toml:13`). F-02 deliberately left this path to S-04 (`context/archive/2026-09-29-reminder-dispatch-path/plan.md:54`).
@@ -523,7 +525,7 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [x] 4.1 Formatting passes on changed docs
+- [x] 4.1 Formatting passes on changed docs — dca7fbe
 
 #### Manual
 

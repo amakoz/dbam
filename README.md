@@ -137,8 +137,7 @@ If you prefer to use a hosted Supabase project, add these variables to your `.en
 | `SUPABASE_URL`        | Project URL from Supabase dashboard → Settings → API                                                                                                                                       |
 | `SUPABASE_KEY`        | `anon` public key from Supabase dashboard → Settings → API                                                                                                                                 |
 | `SUPABASE_SECRET_KEY` | Secret key (`sb_secret_…`), used only by the appointment reminder cron job (`src/lib/reminders/admin-client.ts`). The database lets it execute the two reminder functions and nothing else |
-| `REMINDER_ALLOWED_TO` | Optional. Comma-separated addresses the reminder job may email; unset means everyone, set but empty means nobody                                                                           |
-| `EMAIL_FROM`          | Optional. Sender for every email, e.g. `Dbam <przypomnienia@send.<domain>>` on the domain verified in Resend; unset falls back to Resend's sandbox sender                                  |
+| `EMAIL_FROM`          | Optional. Sender for every email, e.g. `Dbam <przypomnienia@notification.dbam.net.pl>` on the domain verified in Resend; unset falls back to Resend's sandbox sender                       |
 
 ```
 SUPABASE_URL=https://<project-ref>.supabase.co
@@ -209,17 +208,16 @@ Unless `EMAIL_FROM` is set to a sender on a domain verified in Resend, mail is s
 
 ### Sending domain
 
-Appointment reminders go to real users, so production needs a sender on a domain verified in Resend. The domain is for email only: the site stays on `workers.dev`.
+Appointment reminders go to real users, so production sends from a domain verified in Resend: **`notification.dbam.net.pl`**. The domain is for email only: the site stays on `workers.dev`.
 
-1. In Resend → Domains, add a subdomain such as `send.<domain>`.
-2. Add the SPF/DKIM TXT records and the MX record Resend shows at your DNS provider, and wait until the domain shows "Verified".
-3. Set the sender:
+- **DNS** is hosted at nazwa.pl (`dbam.net.pl`). Resend's records live under the subdomain: the DKIM TXT at `resend._domainkey.notification.dbam.net.pl`, and the MX + SPF TXT at `send.notification.dbam.net.pl`. Resend → Domains must show the domain as "Verified".
+- **Sender** (Worker secret):
 
 ```bash
-npx wrangler secret put EMAIL_FROM   # e.g. Dbam <przypomnienia@send.<domain>>
+npx wrangler secret put EMAIL_FROM   # Dbam <przypomnienia@notification.dbam.net.pl>
 ```
 
-Until `EMAIL_FROM` is set, mail falls back to `Dbam <onboarding@resend.dev>`, which reaches only the Resend account owner.
+Until `EMAIL_FROM` is set, mail falls back to `Dbam <onboarding@resend.dev>`, which reaches only the Resend account owner. Once it is set, reminders go to every opted-in user's account address.
 
 ### Scheduled jobs
 
@@ -233,7 +231,7 @@ curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=*%2F30+*+*+*+*&format=j
 curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=0+8%2C9+*+*+*&time=1790841600000&format=json'
 ```
 
-**Appointment reminders** run only on the daily cron's 10:00 Warsaw run (every other run logs `skipped`). The job calls `claim_due_appointment_reminders` with `SUPABASE_SECRET_KEY` (required: without it or `SUPABASE_URL` the job fails with `ReminderConfigError`, even in dry run). The database returns every opted-in user with an active consent and a plan dated 1–3 Warsaw days after the run date that hasn't been reminded for that date yet, with the email only for addresses on `REMINDER_ALLOWED_TO`. The job sends one email per allowlisted user (dates and a count, never an exam name) in one Resend batch, then marks those reminders sent. With `EMAIL_DRY_RUN=true` it sends nothing and marks nothing, so the same reminders are due again on the next run. To try it locally: turn reminders on in `/profile`, plan a screening with an appointment date 1–3 days after the run date (the `time` below is 2026-10-01, so 2–4 October 2026), and call the daily `curl` above. Each run logs one line (counts only, no addresses or subjects):
+**Appointment reminders** run only on the daily cron's 10:00 Warsaw run (every other run logs `skipped`). The job calls `claim_due_appointment_reminders` with `SUPABASE_SECRET_KEY` (required: without it or `SUPABASE_URL` the job fails with `ReminderConfigError`, even in dry run). The database returns every opted-in user with an active consent and a plan dated 1–3 Warsaw days after the run date that hasn't been reminded for that date yet, with the account's email address. The job sends one email per user (dates and a count, never an exam name) in one Resend batch, then marks those reminders sent. With `EMAIL_DRY_RUN=true` it sends nothing and marks nothing, so the same reminders are due again on the next run. To try it locally: turn reminders on in `/profile`, plan a screening with an appointment date 1–3 days after the run date (the `time` below is 2026-10-01, so 2–4 October 2026), and call the daily `curl` above. Each run logs one line (counts only, no addresses or subjects):
 
 ```json
 {
@@ -242,12 +240,11 @@ curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=0+8%2C9+*+*+*&time=1790
   "cron": "0 8,9 * * *",
   "scheduledAt": "2026-10-01T08:00:00.000Z",
   "due": 1,
-  "undeliverable": 0,
   "sent": 0
 }
 ```
 
-`outcome` is `skipped` (not the 10:00 run), `none` (nothing to send), `dry-run` or `sent`, or `failed` with the error name (plus Resend's status and error name, or the database step and SQLSTATE). `due` counts claimed users, `undeliverable` those not on `REMINDER_ALLOWED_TO` (nothing is sent to them), and `sent` the emails Resend accepted.
+`outcome` is `skipped` (not the 10:00 run), `none` (nothing to send), `dry-run` or `sent`, or `failed` with the error name (plus Resend's status and error name, or the database step and SQLSTATE). `due` counts claimed users and `sent` the emails Resend accepted.
 
 For one real send, put a real `RESEND_API_KEY` and `REMINDER_TEST_TO` plus `EMAIL_DRY_RUN=false` in `.dev.vars`, restart the server and call the first `curl` again. Set `EMAIL_DRY_RUN=true` back afterwards.
 

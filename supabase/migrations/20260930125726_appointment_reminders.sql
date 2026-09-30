@@ -76,13 +76,11 @@ revoke all on table public.appointment_reminders from anon, authenticated, servi
 -- Records a ledger row for every plan dated in (p_today, p_today + p_lead_days] whose owner has reminders on and an
 -- active consent, then returns every still-valid unsent row, one row per user. A row is still valid only while its
 -- plan keeps that date, the owner still has reminders on and an active consent, and the date is still in the
--- window. email is null unless the user is on p_allowed_emails (case-insensitive; a null list allows everyone), so
--- other addresses never leave the database. Returns nothing beyond user id, allowlisted email, locale, reminder ids
+-- window, and the account has an email address. Returns nothing beyond user id, account email, locale, reminder ids
 -- and dates: no exam names. security definer (runs as the table owner), so EXECUTE is granted to service_role only.
 create function public.claim_due_appointment_reminders(
   p_today date,
   p_lead_days int,
-  p_allowed_emails text[],
   p_limit int
 )
 returns table (user_id uuid, email text, locale text, reminder_ids bigint[], appointment_dates date[])
@@ -113,11 +111,7 @@ begin
   return query
   select
     r.user_id,
-    case
-      when p_allowed_emails is null
-        or exists (select 1 from unnest(p_allowed_emails) a (e) where lower(a.e) = lower(u.email))
-      then u.email::text
-    end,
+    u.email::text,
     coalesce(pr.reminders_locale, 'pl'),
     array_agg(r.id order by r.id),
     array_agg(distinct r.appointment_date order by r.appointment_date)
@@ -127,6 +121,7 @@ begin
   join public.profiles pr on pr.user_id = r.user_id and pr.reminders_enabled
   join auth.users u on u.id = r.user_id
   where r.sent_at is null
+    and u.email is not null
     and r.appointment_date > p_today
     and r.appointment_date <= p_today + p_lead_days
     and exists (
@@ -157,9 +152,9 @@ begin
 end;
 $$;
 
-revoke execute on function public.claim_due_appointment_reminders(date, int, text[], int)
+revoke execute on function public.claim_due_appointment_reminders(date, int, int)
   from public, anon, authenticated;
-grant execute on function public.claim_due_appointment_reminders(date, int, text[], int) to service_role;
+grant execute on function public.claim_due_appointment_reminders(date, int, int) to service_role;
 revoke execute on function public.mark_appointment_reminders_sent(bigint[]) from public, anon, authenticated;
 grant execute on function public.mark_appointment_reminders_sent(bigint[]) to service_role;
 

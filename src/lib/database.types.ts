@@ -292,12 +292,7 @@ export type Database = {
     };
     Functions: {
       claim_due_appointment_reminders: {
-        Args: {
-          p_allowed_emails: string[];
-          p_lead_days: number;
-          p_limit: number;
-          p_today: string;
-        };
+        Args: { p_lead_days: number; p_limit: number; p_today: string };
         Returns: {
           appointment_dates: string[];
           email: string;

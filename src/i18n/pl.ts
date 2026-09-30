@@ -1,7 +1,7 @@
 // Polish is the default locale and the source of truth for message keys: `en.ts` must define every key below.
 // Plural messages use `_one`/`_few`/`_many`/`_other` suffixes and are read with `t.plural(baseKey, count)`.
 export const pl = {
-  "meta.title": "10x Astro Starter",
+  "meta.title": "Dbam",
 
   "language.switcher": "Język",
   "language.pl": "Polski",

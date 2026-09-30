@@ -1,28 +1,33 @@
 ---
 import "../styles/global.css";
+import { Font } from "astro:assets";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import { createT } from "@/i18n";
 
 interface Props {
   title?: string;
+  /** Pages with an app header render the switcher inline and hide the floating pill. */
+  hideLanguageSwitcher?: boolean;
 }
 
 const { locale } = Astro.locals;
 const t = createT(locale);
-const { title = t("meta.title") } = Astro.props;
+const { title = t("meta.title"), hideLanguageSwitcher = false } = Astro.props;
 ---
 
 <!doctype html>
 <html lang={locale}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <Font cssVariable="--font-fraunces" preload />
+    <Font cssVariable="--font-figtree" preload />
     <title>{title}</title>
   </head>
   <body>
     <slot />
-    <LanguageSwitcher />
+    {!hideLanguageSwitcher && <LanguageSwitcher />}
   </body>
 </html>
 

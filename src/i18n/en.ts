@@ -3,7 +3,7 @@ import type { MessageKey } from "@/i18n";
 // Typed against the Polish keys, so a missing or misspelled key fails the type check. English plurals only use
 // `_one` and `_other`, but every suffix defined in Polish must exist here too.
 export const en: Record<MessageKey, string> = {
-  "meta.title": "10x Astro Starter",
+  "meta.title": "Dbam",
 
   "language.switcher": "Language",
   "language.pl": "Polski",

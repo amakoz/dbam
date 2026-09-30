@@ -475,16 +475,16 @@ Leave a rule and a failing check, so the next agent keeps the dashboard on the c
 
 #### Automated
 
-- [ ] 1.1 Linting passes: `npm run lint`
-- [ ] 1.2 Type checking passes: `npx astro check`
-- [ ] 1.3 Build succeeds, including the fonts on the Cloudflare adapter: `npm run build`
-- [ ] 1.4 Smoke passes against the local preview: `npm run smoke`
+- [x] 1.1 Linting passes: `npm run lint`
+- [x] 1.2 Type checking passes: `npx astro check`
+- [x] 1.3 Build succeeds, including the fonts on the Cloudflare adapter: `npm run build`
+- [x] 1.4 Smoke passes against the local preview: `npm run smoke`
 
 #### Manual
 
-- [ ] 1.5 Unmigrated pages look the same apart from the body font
-- [ ] 1.6 Polish diacritics render in Fraunces and Figtree at 16px and 32px
-- [ ] 1.7 Dark system scheme resolves theme A's dark background
+- [x] 1.5 Unmigrated pages look the same apart from the body font
+- [x] 1.6 Polish diacritics render in Fraunces and Figtree at 16px and 32px
+- [x] 1.7 Dark system scheme resolves theme A's dark background
 
 ### Phase 2: Dashboard shell and information architecture
 

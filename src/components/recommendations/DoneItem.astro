@@ -1,4 +1,10 @@
 ---
+import { CircleAlert, CircleCheck } from "lucide-react";
+import SavedNote from "@/components/recommendations/SavedNote.astro";
+import { SAVED_ROW_CLASS, type SavedFeedback } from "@/components/recommendations/saved";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { createT } from "@/i18n";
 import { describeLastDone, formatMonth } from "@/lib/screenings/format";
 import type { DoneView } from "@/lib/screenings/rules";
@@ -10,9 +16,11 @@ interface Props {
   view: DoneView;
   /** Translated error of the last attempt on this exam. */
   error?: string | null;
+  /** Translated confirmation when this exam was just marked done; highlights the row. */
+  saved?: SavedFeedback | null;
 }
 
-const { view, error } = Astro.props;
+const { view, error, saved } = Astro.props;
 const { completion, entry, nextDue } = view;
 const { locale } = Astro.locals;
 const t = createT(locale);
@@ -25,31 +33,36 @@ const name = locale === "pl" ? entry.name_pl : entry.name_en;
   data-done
   data-slug={entry.slug}
   data-next-due={nextDue ? nextDue.slice(0, 7) : ""}
-  class="scroll-mt-4 rounded-lg border border-emerald-400/20 bg-emerald-500/5 p-3"
+  class:list={["-mx-3 scroll-mt-4 px-3 py-4", saved ? SAVED_ROW_CLASS[saved.tone] : "first:pt-0 last:pb-0"]}
 >
-  <h4 class="font-medium text-white">{name}</h4>
-  <p class="mt-1 text-sm text-blue-100/80">{describeLastDone(completion, t, locale)}</p>
-  <p class="mt-1 text-sm text-blue-100/80">
+  <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+    <h3 class="font-semibold text-foreground">{name}</h3>
+    <Badge variant="success">
+      <CircleCheck aria-hidden="true" />
+      {t("dashboard.screenings.done.heading")}
+    </Badge>
+  </div>
+  {saved && <SavedNote saved={saved} />}
+  <p class="mt-1 text-sm text-muted-foreground tabular-nums">{describeLastDone(completion, t, locale)}</p>
+  <p class="mt-1 text-sm text-muted-foreground tabular-nums">
     {nextDue
       ? t("dashboard.screenings.done.dueAgain", { month: formatMonth(nextDue, locale) })
       : t("dashboard.screenings.done.noInterval")}
   </p>
 
   {error && (
-    <p class="mt-3 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
-      {error}
-    </p>
+    <Alert variant="destructive" className="mt-3">
+      <CircleAlert aria-hidden="true" />
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>
   )}
 
   <form method="POST" action="/api/screenings" class="mt-3">
     <input type="hidden" name="intent" value="undone" />
     <input type="hidden" name="slug" value={entry.slug} />
-    <button
-      type="submit"
-      class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
-    >
+    <Button type="submit" variant="outline" size="sm">
       {t("dashboard.screenings.done.undo")}
       <span class="sr-only">: {name}</span>
-    </button>
+    </Button>
   </form>
 </li>

@@ -7,12 +7,14 @@ import {
   CircleQuestionMark,
   ClipboardList,
   Stethoscope,
+  Undo2,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader.astro";
 import DoneItem from "@/components/recommendations/DoneItem.astro";
 import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
 import PlanItem from "@/components/recommendations/PlanItem.astro";
 import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
+import type { SavedFeedback } from "@/components/recommendations/saved";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import Layout from "@/layouts/Layout.astro";
@@ -90,30 +92,45 @@ const TIER_STYLES = {
 // The intro's status line: exams in "Your plans", and the exams in the tier sections that still wait for a decision.
 const openCount = tierGroups.reduce((count, { items }) => count + items.length, 0);
 
-// `/api/screenings` redirects back with `?saved=<intent>`, or `?error=<code>&slug=<slug>`. The error shows inside
-// the exam's item when that item is on the page, otherwise under the heading; the raw slug is only compared, never
-// rendered.
+// `/api/screenings` redirects back with `?saved=<intent>&slug=<slug>`, or `?error=<code>&slug=<slug>`. The message
+// shows on the exam's row when that row is on the page (the browser scrolls there), otherwise under the intro; the
+// raw slug is only compared, never rendered.
 const SAVED_KEYS = {
   plan: "dashboard.screenings.saved.plan",
   unplan: "dashboard.screenings.saved.unplan",
   done: "dashboard.screenings.saved.done",
   undone: "dashboard.screenings.saved.undone",
 } as const satisfies Record<string, MessageKey>;
-const savedParam = Astro.url.searchParams.get("saved");
-const savedKey = Object.entries(SAVED_KEYS).find(([intent]) => intent === savedParam)?.[1];
-const savedText = savedKey ? t(savedKey) : null;
-
-const errorCode = Astro.url.searchParams.get("error");
-const errorText = errorCode ? t(errorMessageKey(errorCode)) : null;
-const errorSlug = Astro.url.searchParams.get("slug");
+// Errors about one field of the plan/done panel mark that field invalid.
+const INVALID_FIELDS = {
+  invalid_appointment_date: "date",
+  invalid_done_date: "done",
+} as const satisfies Record<string, "date" | "done">;
+const slugParam = Astro.url.searchParams.get("slug");
+// Rows that carry an `id="screening-<slug>"` anchor ("may apply" rows have no actions, so no anchor).
 const itemSlugs = new Set([
   ...plans.map(({ entry }) => entry.slug),
   ...done.map(({ entry }) => entry.slug),
   ...tierGroups.flatMap(({ items }) => items.map(({ entry }) => entry.slug)),
 ]);
-const itemErrorSlug = errorText && errorSlug && itemSlugs.has(errorSlug) ? errorSlug : null;
+const rowSlug = slugParam && itemSlugs.has(slugParam) ? slugParam : null;
+
+const savedParam = Astro.url.searchParams.get("saved");
+const savedKey = Object.entries(SAVED_KEYS).find(([intent]) => intent === savedParam)?.[1];
+const saved: SavedFeedback | null = savedKey
+  ? { text: t(savedKey), tone: savedParam === "plan" || savedParam === "done" ? "success" : "neutral" }
+  : null;
+const savedSlug = saved ? rowSlug : null;
+const pageSaved = saved && !savedSlug ? saved : null;
+const savedFor = (slug: string) => (slug === savedSlug ? saved : null);
+
+const errorCode = Astro.url.searchParams.get("error");
+const errorText = errorCode ? t(errorMessageKey(errorCode)) : null;
+const itemErrorSlug = errorText ? rowSlug : null;
 const pageError = errorText && !itemErrorSlug ? errorText : null;
 const errorFor = (slug: string) => (slug === itemErrorSlug ? errorText : null);
+const invalidField = Object.entries(INVALID_FIELDS).find(([code]) => code === errorCode)?.[1] ?? null;
+const invalidFieldFor = (slug: string) => (slug === itemErrorSlug ? invalidField : null);
 
 const number = new Intl.NumberFormat(locale);
 const summary = [
@@ -143,10 +160,10 @@ const summary = [
       </p>
     </div>
 
-    {savedText && (
-      <Alert role="status" className="border-success/40">
-        <CircleCheck aria-hidden="true" />
-        <AlertDescription className="text-foreground">{savedText}</AlertDescription>
+    {pageSaved && (
+      <Alert role="status" className={cn(pageSaved.tone === "success" && "border-success/40")}>
+        {pageSaved.tone === "success" ? <CircleCheck aria-hidden="true" /> : <Undo2 aria-hidden="true" />}
+        <AlertDescription className="text-foreground">{pageSaved.text}</AlertDescription>
       </Alert>
     )}
     {pageError && (
@@ -166,9 +183,15 @@ const summary = [
             </h2>
           </CardHeader>
           <CardContent>
-            <ul class="space-y-2">
+            <ul class="divide-y divide-border">
               {plans.map((view) => (
-                <PlanItem view={view} bounds={bounds} error={errorFor(view.entry.slug)} />
+                <PlanItem
+                  view={view}
+                  bounds={bounds}
+                  error={errorFor(view.entry.slug)}
+                  invalidField={invalidFieldFor(view.entry.slug)}
+                  saved={savedFor(view.entry.slug)}
+                />
               ))}
             </ul>
           </CardContent>
@@ -198,7 +221,7 @@ const summary = [
                 )}
               </CardHeader>
               <CardContent>
-                <ul class="space-y-2">
+                <ul class="divide-y divide-border">
                   {items.map((recommendation) => (
                     <RecommendationItem
                       recommendation={recommendation}
@@ -206,6 +229,8 @@ const summary = [
                       bounds={bounds}
                       lastDone={lastDone.get(recommendation.entry.slug)}
                       error={errorFor(recommendation.entry.slug)}
+                      invalidField={invalidFieldFor(recommendation.entry.slug)}
+                      saved={savedFor(recommendation.entry.slug)}
                     />
                   ))}
                 </ul>
@@ -227,7 +252,7 @@ const summary = [
             <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.maybe.intro")}</p>
           </CardHeader>
           <CardContent>
-            <ul class="space-y-2">
+            <ul class="divide-y divide-border">
               {maybe.map((recommendation) => (
                 <MaybeRecommendationItem recommendation={recommendation} />
               ))}
@@ -247,9 +272,9 @@ const summary = [
             </h2>
           </CardHeader>
           <CardContent>
-            <ul class="space-y-2">
+            <ul class="divide-y divide-border">
               {done.map((view) => (
-                <DoneItem view={view} error={errorFor(view.entry.slug)} />
+                <DoneItem view={view} error={errorFor(view.entry.slug)} saved={savedFor(view.entry.slug)} />
               ))}
             </ul>
           </CardContent>

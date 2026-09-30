@@ -490,35 +490,35 @@ Leave a rule and a failing check, so the next agent keeps the dashboard on the c
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint`
-- [x] 2.2 Type checking passes: `npx astro check`
-- [x] 2.3 Build succeeds: `npm run build`
-- [x] 2.4 Smoke passes, with dashboard assertions unchanged: `npm run smoke`
-- [x] 2.5 Hardcoded-value scan on dashboard.astro and AppHeader.astro returns 0 hits
+- [x] 2.1 Linting passes: `npm run lint` — 2575d49
+- [x] 2.2 Type checking passes: `npx astro check` — 2575d49
+- [x] 2.3 Build succeeds: `npm run build` — 2575d49
+- [x] 2.4 Smoke passes, with dashboard assertions unchanged: `npm run smoke` — 2575d49
+- [x] 2.5 Hardcoded-value scan on dashboard.astro and AppHeader.astro returns 0 hits — 2575d49
 
 #### Manual
 
-- [x] 2.6 Desktop shows header, intro, separate section cards, profile card and footer, with no outer card
-- [x] 2.7 About 375px width has no overlap, and there is no floating language pill on the dashboard
-- [x] 2.8 Skip link and header are keyboard-reachable in order
+- [x] 2.6 Desktop shows header, intro, separate section cards, profile card and footer, with no outer card — 2575d49
+- [x] 2.7 About 375px width has no overlap, and there is no floating language pill on the dashboard — 2575d49
+- [x] 2.8 Skip link and header are keyboard-reachable in order — 2575d49
 
 ### Phase 3: Exam rows, forms and save feedback
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `npm run lint`
-- [ ] 3.2 Type checking passes: `npx astro check`
-- [ ] 3.3 Build succeeds: `npm run build`
-- [ ] 3.4 Smoke passes, including plan, done, undo, due-again and undated flows: `npm run smoke`
-- [ ] 3.5 Hardcoded-value scan on dashboard-scope files returns 0 hits
-- [ ] 3.6 No bg-cosmic, bg-white/, text-white or backdrop-blur in dashboard-scope files
+- [x] 3.1 Linting passes: `npm run lint`
+- [x] 3.2 Type checking passes: `npx astro check`
+- [x] 3.3 Build succeeds: `npm run build`
+- [x] 3.4 Smoke passes, including plan, done, undo, due-again and undated flows: `npm run smoke`
+- [x] 3.5 Hardcoded-value scan on dashboard-scope files returns 0 hits
+- [x] 3.6 No bg-cosmic, bg-white/, text-white or backdrop-blur in dashboard-scope files
 
 #### Manual
 
-- [ ] 3.7 Saved exam's row shows the confirmation and highlight after plan, done, undo and remove
-- [ ] 3.8 Removing a plan for a no-longer-recommended exam shows the confirmation at the top
-- [ ] 3.9 Invalid date shows an inline error, the panel opens, and the field is announced as invalid
-- [ ] 3.10 Tier 1 is recognisable without colour and visually strongest
+- [x] 3.7 Saved exam's row shows the confirmation and highlight after plan, done, undo and remove
+- [x] 3.8 Removing a plan for a no-longer-recommended exam shows the confirmation at the top
+- [x] 3.9 Invalid date shows an inline error, the panel opens, and the field is announced as invalid
+- [x] 3.10 Tier 1 is recognisable without colour and visually strongest
 
 ### Phase 4: States and visual gate
 

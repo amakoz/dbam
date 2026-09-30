@@ -18,9 +18,9 @@ const t = createT(locale);
 const name = locale === "pl" ? entry.name_pl : entry.name_en;
 ---
 
-<li data-slug={entry.slug} data-maybe class="rounded-lg border border-dashed border-white/15 bg-white/5 p-3">
-  <h4 class="font-medium text-white">{name}</h4>
-  <p class="mt-1 text-sm text-blue-100/80">
+<li data-slug={entry.slug} data-maybe class="-mx-3 px-3 py-4 first:pt-0 last:pb-0">
+  <h3 class="font-semibold text-foreground">{name}</h3>
+  <p class="mt-1 text-sm text-muted-foreground">
     {t("dashboard.recommendations.maybe.if", { conditions: describeMissing(missing, t, locale) })}
   </p>
   <EntryDetails entry={entry} />

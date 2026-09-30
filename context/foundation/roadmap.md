@@ -39,18 +39,18 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 ## At a glance
 
-| ID   | Change ID                   | Outcome (user can …)                                                                                                                      | Prerequisites | PRD refs                                           | Status   |
-| ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------- | -------- |
-| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done     |
-| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done     |
-| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | ready    |
-| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
-| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done     |
-| S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done     |
-| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02    | US-02, FR-006, FR-007                              | proposed |
-| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary)  | proposed |
-| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)          | proposed |
-| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05    | FR-011, FR-012                                     | proposed |
+| ID   | Change ID                   | Outcome (user can …)                                                                                                                      | Prerequisites | PRD refs                                           | Status      |
+| ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------- | ----------- |
+| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done        |
+| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done        |
+| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | ready       |
+| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done        |
+| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done        |
+| S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done        |
+| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02    | US-02, FR-006, FR-007                              | in-progress |
+| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary)  | proposed    |
+| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)          | proposed    |
+| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05    | FR-011, FR-012                                     | proposed    |
 
 ## Streams
 
@@ -170,7 +170,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - How many days before the appointment should the reminder fire? — Owner: user. Block: no.
 - **Risk:** First real user-facing use of the dispatch path; opt-in must gate every send, including the later S-06/S-07 messages.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-05: Confirm exam and recurrence
 

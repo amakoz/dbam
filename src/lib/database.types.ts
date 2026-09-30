@@ -28,6 +28,41 @@ export type Database = {
   };
   public: {
     Tables: {
+      appointment_reminders: {
+        Row: {
+          appointment_date: string;
+          created_at: string;
+          id: number;
+          plan_id: number;
+          sent_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          appointment_date: string;
+          created_at?: string;
+          id?: never;
+          plan_id: number;
+          sent_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          appointment_date?: string;
+          created_at?: string;
+          id?: never;
+          plan_id?: number;
+          sent_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reminders_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: false;
+            referencedRelation: "screening_plans";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       health_data_consents: {
         Row: {
           consent_version: string;
@@ -61,6 +96,9 @@ export type Database = {
           created_at: string;
           pack_years: number | null;
           packs_per_day: number | null;
+          reminders_enabled: boolean;
+          reminders_enabled_at: string | null;
+          reminders_locale: string | null;
           sex: string;
           smoking_status: string;
           smoking_years: number | null;
@@ -73,6 +111,9 @@ export type Database = {
           created_at?: string;
           pack_years?: number | null;
           packs_per_day?: number | null;
+          reminders_enabled?: boolean;
+          reminders_enabled_at?: string | null;
+          reminders_locale?: string | null;
           sex: string;
           smoking_status: string;
           smoking_years?: number | null;
@@ -85,6 +126,9 @@ export type Database = {
           created_at?: string;
           pack_years?: number | null;
           packs_per_day?: number | null;
+          reminders_enabled?: boolean;
+          reminders_enabled_at?: string | null;
+          reminders_locale?: string | null;
           sex?: string;
           smoking_status?: string;
           smoking_years?: number | null;
@@ -247,6 +291,25 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      claim_due_appointment_reminders: {
+        Args: {
+          p_allowed_emails: string[];
+          p_lead_days: number;
+          p_limit: number;
+          p_today: string;
+        };
+        Returns: {
+          appointment_dates: string[];
+          email: string;
+          locale: string;
+          reminder_ids: number[];
+          user_id: string;
+        }[];
+      };
+      mark_appointment_reminders_sent: {
+        Args: { p_ids: number[] };
+        Returns: number;
+      };
       withdraw_health_data_consent: { Args: never; Returns: undefined };
     };
     Enums: {

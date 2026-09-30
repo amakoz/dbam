@@ -488,7 +488,7 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Manual
 
-- [ ] 1.5 Neither function returns more than id, allowlisted email, locale, reminder ids and dates
+- [x] 1.5 Neither function returns more than id, allowlisted email, locale, reminder ids and dates
 
 ### Phase 2: Opt-in toggle on /profile and the dashboard hint
 
@@ -502,8 +502,8 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Manual
 
-- [ ] 2.6 Toggle on and off in Polish and English reads correctly
-- [ ] 2.7 Dashboard hint appears with a dated plan and reminders off
+- [x] 2.6 Toggle on and off in Polish and English reads correctly
+- [x] 2.7 Dashboard hint appears with a dated plan and reminders off
 
 ### Phase 3: Reminder job on the daily cron
 
@@ -518,8 +518,8 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Manual
 
-- [ ] 3.7 Local dry run with a due plan logs due 1 without an address, twice
-- [ ] 3.8 Local run with another allowlist logs undeliverable 1
+- [x] 3.7 Local dry run with a due plan logs due 1 without an address, twice
+- [x] 3.8 Local run with another allowlist logs undeliverable 1
 
 ### Phase 4: Docs and production enablement
 
@@ -529,7 +529,7 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Manual
 
-- [ ] 4.2 Sending domain shows Verified in Resend
-- [ ] 4.3 Key, sender and allowlist secrets exist on the dbam Worker before merge
+- [x] 4.2 Sending domain shows Verified in Resend
+- [x] 4.3 Key, sender and allowlist secrets exist on the dbam Worker before merge
 - [ ] 4.4 Owner and tester each receive one real reminder and the run succeeds
 - [ ] 4.5 No duplicate reminder the following day

@@ -506,34 +506,34 @@ Leave a rule and a failing check, so the next agent keeps the dashboard on the c
 
 #### Automated
 
-- [x] 3.1 Linting passes: `npm run lint`
-- [x] 3.2 Type checking passes: `npx astro check`
-- [x] 3.3 Build succeeds: `npm run build`
-- [x] 3.4 Smoke passes, including plan, done, undo, due-again and undated flows: `npm run smoke`
-- [x] 3.5 Hardcoded-value scan on dashboard-scope files returns 0 hits
-- [x] 3.6 No bg-cosmic, bg-white/, text-white or backdrop-blur in dashboard-scope files
+- [x] 3.1 Linting passes: `npm run lint` — 16721e8
+- [x] 3.2 Type checking passes: `npx astro check` — 16721e8
+- [x] 3.3 Build succeeds: `npm run build` — 16721e8
+- [x] 3.4 Smoke passes, including plan, done, undo, due-again and undated flows: `npm run smoke` — 16721e8
+- [x] 3.5 Hardcoded-value scan on dashboard-scope files returns 0 hits — 16721e8
+- [x] 3.6 No bg-cosmic, bg-white/, text-white or backdrop-blur in dashboard-scope files — 16721e8
 
 #### Manual
 
-- [x] 3.7 Saved exam's row shows the confirmation and highlight after plan, done, undo and remove
-- [x] 3.8 Removing a plan for a no-longer-recommended exam shows the confirmation at the top
-- [x] 3.9 Invalid date shows an inline error, the panel opens, and the field is announced as invalid
-- [x] 3.10 Tier 1 is recognisable without colour and visually strongest
+- [x] 3.7 Saved exam's row shows the confirmation and highlight after plan, done, undo and remove — 16721e8
+- [x] 3.8 Removing a plan for a no-longer-recommended exam shows the confirmation at the top — 16721e8
+- [x] 3.9 Invalid date shows an inline error, the panel opens, and the field is announced as invalid — 16721e8
+- [x] 3.10 Tier 1 is recognisable without colour and visually strongest — 16721e8
 
 ### Phase 4: States and visual gate
 
 #### Automated
 
-- [ ] 4.1 Linting passes: `npm run lint`
-- [ ] 4.2 Type checking passes: `npx astro check`
-- [ ] 4.3 Build succeeds, and /dev/kitchen-sink returns 404 in the production preview
-- [ ] 4.4 Hardcoded-value scan on kitchen-sink.astro returns 0 hits
+- [x] 4.1 Linting passes: `npm run lint`
+- [x] 4.2 Type checking passes: `npx astro check`
+- [x] 4.3 Build succeeds, and /dev/kitchen-sink returns 404 in the production preview
+- [x] 4.4 Hardcoded-value scan on kitchen-sink.astro returns 0 hits
 
 #### Manual
 
-- [ ] 4.5 Kitchen sink shows every 7-state cell (or N/A) in light and dark
-- [ ] 4.6 Screenshots at desktop and 375px in both schemes attached to the PR
-- [ ] 4.7 Contrast spot-check passes in both schemes
+- [x] 4.5 Kitchen sink shows every 7-state cell (or N/A) in light and dark
+- [x] 4.6 Screenshots at desktop and 375px in both schemes attached to the PR
+- [x] 4.7 Contrast spot-check passes in both schemes
 
 ### Phase 5: Guard and docs
 

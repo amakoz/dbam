@@ -1,0 +1,21 @@
+---
+import { CircleCheck, Undo2 } from "lucide-react";
+import type { SavedFeedback } from "@/components/recommendations/saved";
+
+// The save confirmation on the row of the exam that was just saved: the browser scrolls there after the redirect.
+
+interface Props {
+  saved: SavedFeedback;
+}
+
+const { text, tone } = Astro.props.saved;
+---
+
+<p role="status" class="mt-2 flex items-center gap-1.5 text-sm font-medium text-foreground">
+  {tone === "success" ? (
+    <CircleCheck aria-hidden="true" className="size-4 shrink-0 text-success" />
+  ) : (
+    <Undo2 aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+  )}
+  {text}
+</p>

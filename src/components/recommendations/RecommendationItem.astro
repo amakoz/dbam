@@ -1,6 +1,11 @@
 ---
+import { BadgeCheck, FileCheck, FileText, Wallet } from "lucide-react";
 import EntryDetails from "@/components/recommendations/EntryDetails.astro";
+import SavedNote from "@/components/recommendations/SavedNote.astro";
+import { SAVED_ROW_CLASS, type SavedFeedback } from "@/components/recommendations/saved";
 import ScreeningActions from "@/components/recommendations/ScreeningActions.astro";
+import TierBadge from "@/components/recommendations/TierBadge.astro";
+import { Badge } from "@/components/ui/badge";
 import { createT } from "@/i18n";
 import type { Recommendation } from "@/lib/catalog/recommend";
 import { describeBranch, describeInterval } from "@/lib/catalog/wording";
@@ -16,15 +21,18 @@ interface Props {
   lastDone?: ScreeningCompletion;
   /** Translated error of the last plan/done attempt on this exam; opens its panel. */
   error?: string | null;
+  /** The form field the error is about, marked invalid in the panel. */
+  invalidField?: "date" | "done" | null;
+  /** Translated confirmation when this exam was just saved (e.g. its plan removed); highlights the row. */
+  saved?: SavedFeedback | null;
 }
 
-const { recommendation, age, bounds, lastDone, error } = Astro.props;
+const { recommendation, age, bounds, lastDone, error, invalidField, saved } = Astro.props;
 const { entry, tier, matchedBranch, interval } = recommendation;
 const { locale } = Astro.locals;
 const t = createT(locale);
 
 const name = locale === "pl" ? entry.name_pl : entry.name_en;
-const badge = "rounded-full border px-2 py-0.5 text-xs";
 ---
 
 <li
@@ -32,47 +40,54 @@ const badge = "rounded-full border px-2 py-0.5 text-xs";
   data-slug={entry.slug}
   data-tier={tier}
   data-last-done={lastDone ? anchorMonth(lastDone).slice(0, 7) : undefined}
-  class="scroll-mt-4 rounded-lg border border-white/10 bg-white/5 p-3"
+  class:list={["-mx-3 scroll-mt-4 px-3 py-4", saved ? SAVED_ROW_CLASS[saved.tone] : "first:pt-0 last:pb-0"]}
 >
-  <h4 class="font-medium text-white">{name}</h4>
-  <p class="mt-1 text-sm text-blue-100/80">
+  <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+    <h3 class="font-semibold text-foreground">{name}</h3>
+    <TierBadge tier={tier} />
+  </div>
+  {saved && <SavedNote saved={saved} />}
+  <p class="mt-1 text-sm text-muted-foreground">
     {t("dashboard.recommendations.howOften", { interval: describeInterval(interval, t) })}
   </p>
-  {lastDone && <p class="mt-1 text-sm text-blue-100/80">{describeLastDone(lastDone, t, locale)}</p>}
+  {lastDone && <p class="mt-1 text-sm text-muted-foreground tabular-nums">{describeLastDone(lastDone, t, locale)}</p>}
   <p class="mt-2 flex flex-wrap gap-2">
-    <span
-      class:list={[
-        badge,
-        entry.nfz_funded
-          ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
-          : "border-white/20 bg-white/10 text-blue-100/80",
-      ]}
-    >
-      {t(
-        entry.nfz_funded ? "dashboard.recommendations.badge.nfzFunded" : "dashboard.recommendations.badge.notNfzFunded",
-      )}
-    </span>
-    <span
-      class:list={[
-        badge,
-        entry.referral_required
-          ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
-          : "border-white/20 bg-white/10 text-blue-100/80",
-      ]}
-    >
-      {t(
-        entry.referral_required
-          ? "dashboard.recommendations.badge.referralRequired"
-          : "dashboard.recommendations.badge.noReferral",
-      )}
-    </span>
+    {entry.nfz_funded ? (
+      <Badge variant="success">
+        <BadgeCheck aria-hidden="true" />
+        {t("dashboard.recommendations.badge.nfzFunded")}
+      </Badge>
+    ) : (
+      <Badge variant="outline">
+        <Wallet aria-hidden="true" />
+        {t("dashboard.recommendations.badge.notNfzFunded")}
+      </Badge>
+    )}
+    {entry.referral_required ? (
+      <Badge variant="outline">
+        <FileText aria-hidden="true" />
+        {t("dashboard.recommendations.badge.referralRequired")}
+      </Badge>
+    ) : (
+      <Badge variant="outline">
+        <FileCheck aria-hidden="true" />
+        {t("dashboard.recommendations.badge.noReferral")}
+      </Badge>
+    )}
   </p>
 
-  <ScreeningActions slug={entry.slug} name={name} bounds={bounds} error={error} open={Boolean(error)} />
+  <ScreeningActions
+    slug={entry.slug}
+    name={name}
+    bounds={bounds}
+    error={error}
+    invalidField={invalidField}
+    open={Boolean(error)}
+  />
 
   <EntryDetails entry={entry}>
     <div>
-      <dt class="font-semibold text-white">{t("dashboard.recommendations.details.why")}</dt>
+      <dt class="font-medium text-foreground">{t("dashboard.recommendations.details.why")}</dt>
       <dd>
         {t.plural("dashboard.recommendations.why.age", age)}{" "}
         {t("dashboard.recommendations.why.rule", { rule: describeBranch(matchedBranch, t, locale) })}

@@ -1,0 +1,54 @@
+---
+import { LogOut } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import { Button } from "@/components/ui/button";
+import { createT } from "@/i18n";
+
+// The top bar of signed-in pages: wordmark, main navigation, the language switcher (inline, so the page passes
+// `hideLanguageSwitcher` to Layout) and sign-out. Static: plain links and POST forms, no island.
+
+const { locale } = Astro.locals;
+const t = createT(locale);
+const { pathname } = Astro.url;
+
+const links = [
+  { href: "/dashboard", label: t("nav.dashboard") },
+  { href: "/profile", label: t("nav.profile") },
+].map((link) => ({ ...link, current: pathname === link.href || pathname.startsWith(`${link.href}/`) }));
+
+const focusRing = "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
+---
+
+<header class="border-b border-border bg-card">
+  <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+    <a href="/dashboard" class:list={["rounded-md font-heading text-xl font-semibold text-foreground", focusRing]}>
+      {t("meta.title")}
+    </a>
+    <nav class="flex flex-wrap items-center gap-1 text-sm">
+      {links.map(({ href, label, current }) => (
+        <a
+          href={href}
+          aria-current={current ? "page" : undefined}
+          class:list={[
+            "rounded-md px-3 py-1.5 font-medium transition-colors",
+            focusRing,
+            current
+              ? "bg-secondary text-secondary-foreground"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+          ]}
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
+    <div class="ml-auto flex items-center gap-2">
+      <LanguageSwitcher inline />
+      <form method="POST" action="/api/auth/signout">
+        <Button type="submit" variant="ghost" size="sm">
+          <LogOut aria-hidden="true" />
+          {t("nav.signout")}
+        </Button>
+      </form>
+    </div>
+  </div>
+</header>

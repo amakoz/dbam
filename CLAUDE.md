@@ -24,8 +24,9 @@
 - `npm run format` — Prettier.
 - `npm run smoke` — smoke test of auth, onboarding, profile edit and withdrawal against a running server (`BASE_URL` env), see `@scripts/smoke.mjs`.
 - `npx supabase test db` — pgTAP tests for database access rules (`supabase/tests/`).
+- `npm run ui:check` — hardcoded-value check over the views migrated to the design system, see `@scripts/ui-check.mjs`.
 
-Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --write` on `*.{json,css,md}`.
+Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}`, `prettier --write` on `*.{json,css,md}` and `ui:check` when a migrated view is staged.
 
 ## Coding Style & Naming Conventions
 
@@ -35,13 +36,20 @@ Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}` and `pr
 - User-facing strings go through `src/i18n` (Polish default, `lang` cookie): add the key to `pl.ts` and `en.ts`, then use `createT(Astro.locals.locale)` in Astro or pass `locale` to islands. Plurals use `_one`/`_few`/`_many`/`_other` keys with `t.plural()`.
 - shadcn/ui components live in `src/components/ui/` ("new-york" style, see `@components.json`); add new ones with `npx shadcn@latest add <name>`.
 
+## UI
+
+- Tokens live in `src/styles/global.css` (theme A "Len i szałwia": `light-dark()` values, tier-1..3 and success tokens published via `@theme inline`). Reference them by role (`bg-primary`, `text-muted-foreground`, `bg-tier-1`); add a missing value there, not in the view.
+- Components live in `src/components/ui` — check there before creating one; add missing ones with `npx shadcn@latest add <name>`.
+- No Tailwind palette classes (`bg-purple-600`, `text-white`), hex/rgb/oklch literals or arbitrary values (`p-[13px]`) in migrated views. The migrated files are listed in `@scripts/ui-check.mjs`; `npm run ui:check` fails on any hit (CI `ci` job and pre-commit). A view migrated by a follow-up change appends its files to that list and to the matching lint-staged glob in `package.json`.
+- The kitchen sink at `/dev/kitchen-sink` (dev only, 404 in production) renders the tokens and components.
+
 ## Testing Guidelines
 
 No unit suite is configured yet. Database access rules (RLS, grants, the withdraw function) are covered by pgTAP tests in `supabase/tests/` (`npx supabase test db`, run in CI's `smoke` job); add a case there for every new policy or grant. `npm run smoke` (`@scripts/smoke.mjs`) is an HTTP-level check of the auth and onboarding flows, not a substitute for unit tests — see `@README.md`.
 
 ## Commit & Pull Request Guidelines
 
-No commit-message convention is established yet (single scaffold commit). PRs to `main` must pass `.github/workflows/ci.yml`: `ci` (lint, `astro check`, build) and `smoke`.
+No commit-message convention is established yet (single scaffold commit). PRs to `main` must pass `.github/workflows/ci.yml`: `ci` (lint, `ui:check`, `astro check`, build) and `smoke`.
 
 ## Security & Configuration Tips
 

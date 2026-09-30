@@ -1,7 +1,7 @@
 // Polish is the default locale and the source of truth for message keys: `en.ts` must define every key below.
 // Plural messages use `_one`/`_few`/`_many`/`_other` suffixes and are read with `t.plural(baseKey, count)`.
 export const pl = {
-  "meta.title": "10x Astro Starter",
+  "meta.title": "Dbam",
 
   "language.switcher": "Język",
   "language.pl": "Polski",
@@ -12,6 +12,8 @@ export const pl = {
   "nav.signup": "Zarejestruj się",
   "nav.signout": "Wyloguj się",
   "nav.notSignedIn": "Nie zalogowano",
+  "nav.profile": "Profil",
+  "nav.skipToContent": "Przejdź do treści",
 
   "home.title": "10x Astro Starter",
   "home.subtitle":
@@ -27,6 +29,14 @@ export const pl = {
 
   "dashboard.title": "Panel",
   "dashboard.greeting": "Witaj,",
+  "dashboard.status.plans_one": "{count} zaplanowane badanie",
+  "dashboard.status.plans_few": "{count} zaplanowane badania",
+  "dashboard.status.plans_many": "{count} zaplanowanych badań",
+  "dashboard.status.plans_other": "{count} zaplanowanego badania",
+  "dashboard.status.open_one": "{count} badanie czeka na Twoją decyzję",
+  "dashboard.status.open_few": "{count} badania czekają na Twoją decyzję",
+  "dashboard.status.open_many": "{count} badań czeka na Twoją decyzję",
+  "dashboard.status.open_other": "{count} badania czeka na Twoją decyzję",
 
   "dashboard.profile.heading": "Twój profil",
   "dashboard.profile.birthYear": "Rok urodzenia",
@@ -117,6 +127,8 @@ export const pl = {
   "dashboard.recommendations.maybe.if": "Jeśli {conditions}.",
 
   "dashboard.screenings.plans.heading": "Twoje plany",
+  "dashboard.screenings.plans.empty":
+    "Nic jeszcze nie zaplanowano. Wybierz przy badaniu „Zaplanuj lub oznacz jako wykonane”, aby dodać je tutaj.",
   "dashboard.screenings.done.heading": "Wykonane",
   "dashboard.screenings.panel.toggle": "Zaplanuj lub oznacz jako wykonane",
   "dashboard.screenings.panel.togglePlanned": "Zmień termin lub oznacz jako wykonane",

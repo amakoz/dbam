@@ -1,8 +1,22 @@
 ---
+import {
+  CalendarClock,
+  CalendarPlus,
+  CircleAlert,
+  CircleCheck,
+  CircleQuestionMark,
+  ClipboardList,
+  Stethoscope,
+  Undo2,
+} from "lucide-react";
+import AppHeader from "@/components/AppHeader.astro";
 import DoneItem from "@/components/recommendations/DoneItem.astro";
 import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
 import PlanItem from "@/components/recommendations/PlanItem.astro";
 import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
+import type { SavedFeedback } from "@/components/recommendations/saved";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import Layout from "@/layouts/Layout.astro";
 import { createT, type MessageKey } from "@/i18n";
 import { getActiveCatalog, getCatalogEntries } from "@/lib/catalog/read";
@@ -14,6 +28,7 @@ import { screeningFormBounds } from "@/lib/screenings/format";
 import { getUserScreenings } from "@/lib/screenings/read";
 import { partitionDashboard } from "@/lib/screenings/rules";
 import { createClient } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 
 const { user, locale } = Astro.locals;
 const t = createT(locale);
@@ -63,31 +78,59 @@ const TIER_HEADING_KEYS = {
 const tierGroups = ([1, 2, 3] as const)
   .map((tier) => ({ tier, items: tiers[tier] }))
   .filter(({ items }) => items.length > 0);
+// Tier 1 is the strongest card (tier-1 border and header band); every tier heading carries an icon, not colour alone.
+const TIER_STYLES = {
+  1: {
+    Icon: CalendarClock,
+    card: "overflow-hidden border-2 border-tier-1-solid pt-0",
+    header: "bg-tier-1 py-4 text-tier-1-foreground",
+    icon: "text-tier-1-foreground",
+  },
+  2: { Icon: CalendarPlus, card: "", header: "", icon: "text-tier-2-solid" },
+  3: { Icon: Stethoscope, card: "", header: "", icon: "text-tier-3-solid" },
+} as const satisfies Record<Tier, { Icon: typeof CalendarClock; card: string; header: string; icon: string }>;
+// The intro's status line: exams in "Your plans", and the exams in the tier sections that still wait for a decision.
+const openCount = tierGroups.reduce((count, { items }) => count + items.length, 0);
 
-// `/api/screenings` redirects back with `?saved=<intent>`, or `?error=<code>&slug=<slug>`. The error shows inside
-// the exam's item when that item is on the page, otherwise under the heading; the raw slug is only compared, never
-// rendered.
+// `/api/screenings` redirects back with `?saved=<intent>&slug=<slug>`, or `?error=<code>&slug=<slug>`. The message
+// shows on the exam's row when that row is on the page (the browser scrolls there), otherwise under the intro; the
+// raw slug is only compared, never rendered.
 const SAVED_KEYS = {
   plan: "dashboard.screenings.saved.plan",
   unplan: "dashboard.screenings.saved.unplan",
   done: "dashboard.screenings.saved.done",
   undone: "dashboard.screenings.saved.undone",
 } as const satisfies Record<string, MessageKey>;
-const savedParam = Astro.url.searchParams.get("saved");
-const savedKey = Object.entries(SAVED_KEYS).find(([intent]) => intent === savedParam)?.[1];
-const savedText = savedKey ? t(savedKey) : null;
-
-const errorCode = Astro.url.searchParams.get("error");
-const errorText = errorCode ? t(errorMessageKey(errorCode)) : null;
-const errorSlug = Astro.url.searchParams.get("slug");
+// Errors about one field of the plan/done panel mark that field invalid.
+const INVALID_FIELDS = {
+  invalid_appointment_date: "date",
+  invalid_done_date: "done",
+} as const satisfies Record<string, "date" | "done">;
+const slugParam = Astro.url.searchParams.get("slug");
+// Rows that carry an `id="screening-<slug>"` anchor ("may apply" rows have no actions, so no anchor).
 const itemSlugs = new Set([
   ...plans.map(({ entry }) => entry.slug),
   ...done.map(({ entry }) => entry.slug),
   ...tierGroups.flatMap(({ items }) => items.map(({ entry }) => entry.slug)),
 ]);
-const itemErrorSlug = errorText && errorSlug && itemSlugs.has(errorSlug) ? errorSlug : null;
+const rowSlug = slugParam && itemSlugs.has(slugParam) ? slugParam : null;
+
+const savedParam = Astro.url.searchParams.get("saved");
+const savedKey = Object.entries(SAVED_KEYS).find(([intent]) => intent === savedParam)?.[1];
+const saved: SavedFeedback | null = savedKey
+  ? { text: t(savedKey), tone: savedParam === "plan" || savedParam === "done" ? "success" : "neutral" }
+  : null;
+const savedSlug = saved ? rowSlug : null;
+const pageSaved = saved && !savedSlug ? saved : null;
+const savedFor = (slug: string) => (slug === savedSlug ? saved : null);
+
+const errorCode = Astro.url.searchParams.get("error");
+const errorText = errorCode ? t(errorMessageKey(errorCode)) : null;
+const itemErrorSlug = errorText ? rowSlug : null;
 const pageError = errorText && !itemErrorSlug ? errorText : null;
 const errorFor = (slug: string) => (slug === itemErrorSlug ? errorText : null);
+const invalidField = Object.entries(INVALID_FIELDS).find(([code]) => code === errorCode)?.[1] ?? null;
+const invalidFieldFor = (slug: string) => (slug === itemErrorSlug ? invalidField : null);
 
 const number = new Intl.NumberFormat(locale);
 const summary = [
@@ -98,130 +141,187 @@ const summary = [
 ];
 ---
 
-<Layout title={t("dashboard.title")}>
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-2xl space-y-6 rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
-      <div class="text-center">
-        <h1 class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-          {t("dashboard.title")}
-        </h1>
-        <p class="text-blue-100/80">
-          {t("dashboard.greeting")} <span class="font-semibold text-white">{user.email}</span>
-        </p>
+<Layout title={t("dashboard.title")} hideLanguageSwitcher>
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+  <AppHeader />
+
+  <main id="main" class="mx-auto w-full max-w-7xl space-y-6 bg-background px-4 py-8 sm:px-6">
+    <div class="space-y-2">
+      <h1 class="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">{t("dashboard.title")}</h1>
+      <p class="text-muted-foreground">
+        {t.plural("dashboard.status.plans", plans.length)}
+        <span aria-hidden="true">·</span>
+        {t.plural("dashboard.status.open", openCount)}
+      </p>
+    </div>
+
+    {pageSaved && (
+      <Alert role="status" className={cn(pageSaved.tone === "success" && "border-success/40")}>
+        {pageSaved.tone === "success" ? <CircleCheck aria-hidden="true" /> : <Undo2 aria-hidden="true" />}
+        <AlertDescription className="text-foreground">{pageSaved.text}</AlertDescription>
+      </Alert>
+    )}
+    {pageError && (
+      <Alert variant="destructive">
+        <CircleAlert aria-hidden="true" />
+        <AlertDescription>{pageError}</AlertDescription>
+      </Alert>
+    )}
+
+    <div class="grid items-start gap-6 lg:grid-cols-2 xl:grid-cols-3">
+      <div class="grid content-start gap-6">
+        <section aria-labelledby="plans-heading">
+          <Card>
+            <CardHeader>
+              <h2 id="plans-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
+                <ClipboardList aria-hidden="true" className="size-5 text-primary" />
+                {t("dashboard.screenings.plans.heading")}
+              </h2>
+            </CardHeader>
+            <CardContent>
+              {plans.length === 0 ? (
+                <p class="text-sm text-muted-foreground">{t("dashboard.screenings.plans.empty")}</p>
+              ) : (
+                <ul class="divide-y divide-border">
+                  {plans.map((view) => (
+                    <PlanItem
+                      view={view}
+                      bounds={bounds}
+                      error={errorFor(view.entry.slug)}
+                      invalidField={invalidFieldFor(view.entry.slug)}
+                      saved={savedFor(view.entry.slug)}
+                    />
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </section>
       </div>
 
-      <section aria-labelledby="recommendations-heading" class="space-y-4">
-        <h2 id="recommendations-heading" class="text-lg font-semibold">
-          {t("dashboard.recommendations.heading")}
-        </h2>
-        {savedText && (
-          <p
-            class="rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200"
-            role="status"
-          >
-            {savedText}
-          </p>
-        )}
-        {pageError && (
-          <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
-            {pageError}
-          </p>
-        )}
-        <p class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-blue-100/70">
-          {t("dashboard.recommendations.disclaimer")}
-        </p>
-        {plans.length > 0 && (
-          <section aria-labelledby="plans-heading" class="space-y-2">
-            <h3 id="plans-heading" class="font-semibold text-purple-100">
-              {t("dashboard.screenings.plans.heading")}
-            </h3>
-            <ul class="space-y-2">
-              {plans.map((view) => (
-                <PlanItem view={view} bounds={bounds} error={errorFor(view.entry.slug)} />
-              ))}
-            </ul>
-          </section>
-        )}
+      <div class="grid content-start gap-6">
         {tierGroups.length === 0 ? (
-          <p class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-blue-100/80">
-            {t("dashboard.recommendations.empty")}
-          </p>
+          <Card>
+            <CardContent>
+              <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.empty")}</p>
+            </CardContent>
+          </Card>
         ) : (
-          tierGroups.map(({ tier, items }) => (
-            <section aria-labelledby={`tier-${tier}-heading`} class="space-y-2">
-              <h3
-                id={`tier-${tier}-heading`}
-                class:list={["font-semibold", tier === 1 ? "text-amber-100" : "text-blue-100"]}
-              >
-                {t(TIER_HEADING_KEYS[tier])}
-              </h3>
-              {tier === 3 && <p class="text-sm text-blue-100/70">{t("dashboard.recommendations.tier.3.note")}</p>}
-              <ul class="space-y-2">
-                {items.map((recommendation) => (
-                  <RecommendationItem
-                    recommendation={recommendation}
-                    age={age}
-                    bounds={bounds}
-                    lastDone={lastDone.get(recommendation.entry.slug)}
-                    error={errorFor(recommendation.entry.slug)}
-                  />
-                ))}
-              </ul>
-            </section>
-          ))
+          tierGroups.map(({ tier, items }) => {
+            const { Icon, card, header, icon } = TIER_STYLES[tier];
+            return (
+              <section aria-labelledby={`tier-${tier}-heading`}>
+                <Card className={card}>
+                  <CardHeader className={header}>
+                    <h2 id={`tier-${tier}-heading`} class="flex items-center gap-2 font-heading text-xl font-semibold">
+                      <Icon aria-hidden="true" className={cn("size-5", icon)} />
+                      {t(TIER_HEADING_KEYS[tier])}
+                    </h2>
+                    {tier === 3 && (
+                      <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.tier.3.note")}</p>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    <ul class="divide-y divide-border">
+                      {items.map((recommendation) => (
+                        <RecommendationItem
+                          recommendation={recommendation}
+                          age={age}
+                          bounds={bounds}
+                          lastDone={lastDone.get(recommendation.entry.slug)}
+                          error={errorFor(recommendation.entry.slug)}
+                          invalidField={invalidFieldFor(recommendation.entry.slug)}
+                          saved={savedFor(recommendation.entry.slug)}
+                        />
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </section>
+            );
+          })
         )}
-        {maybe.length > 0 && (
-          <section aria-labelledby="maybe-heading" class="space-y-2">
-            <h3 id="maybe-heading" class="font-semibold text-blue-100">
-              {t("dashboard.recommendations.maybe.heading")}
-            </h3>
-            <p class="text-sm text-blue-100/70">{t("dashboard.recommendations.maybe.intro")}</p>
-            <ul class="space-y-2">
-              {maybe.map((recommendation) => (
-                <MaybeRecommendationItem recommendation={recommendation} />
-              ))}
-            </ul>
-          </section>
-        )}
+      </div>
+
+      <div class="grid content-start gap-6 lg:col-span-2 lg:grid-cols-2 xl:col-span-1 xl:grid-cols-1">
         {done.length > 0 && (
-          <section aria-labelledby="done-heading" class="space-y-2">
-            <h3 id="done-heading" class="font-semibold text-emerald-100">
-              {t("dashboard.screenings.done.heading")}
-            </h3>
-            <ul class="space-y-2">
-              {done.map((view) => (
-                <DoneItem view={view} error={errorFor(view.entry.slug)} />
-              ))}
-            </ul>
+          <section aria-labelledby="done-heading">
+            <Card>
+              <CardHeader>
+                <h2 id="done-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
+                  <CircleCheck aria-hidden="true" className="size-5 text-success" />
+                  {t("dashboard.screenings.done.heading")}
+                </h2>
+              </CardHeader>
+              <CardContent>
+                <ul class="divide-y divide-border">
+                  {done.map((view) => (
+                    <DoneItem view={view} error={errorFor(view.entry.slug)} saved={savedFor(view.entry.slug)} />
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
           </section>
         )}
-      </section>
 
-      <section aria-labelledby="profile-heading">
-        <h2 id="profile-heading" class="mb-2 text-lg font-semibold">
-          {t("dashboard.profile.heading")}
-        </h2>
-        <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-          {summary.map(([label, value]) => (
-            <>
-              <dt class="text-blue-100/60">{label}</dt>
-              <dd class="text-white">{value}</dd>
-            </>
-          ))}
-        </dl>
-        <a href="/profile" class="mt-3 inline-block text-sm text-purple-300 hover:underline">
-          {t("dashboard.profile.edit")}
-        </a>
-      </section>
+        {maybe.length > 0 && (
+          <section aria-labelledby="maybe-heading">
+            <Card>
+              <CardHeader>
+                <h2 id="maybe-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
+                  <CircleQuestionMark aria-hidden="true" className="size-5 text-muted-foreground" />
+                  {t("dashboard.recommendations.maybe.heading")}
+                </h2>
+                <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.maybe.intro")}</p>
+              </CardHeader>
+              <CardContent>
+                <ul class="divide-y divide-border">
+                  {maybe.map((recommendation) => (
+                    <MaybeRecommendationItem recommendation={recommendation} />
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </section>
+        )}
 
-      <form method="POST" action="/api/auth/signout" class="text-center">
-        <button
-          type="submit"
-          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-        >
-          {t("nav.signout")}
-        </button>
-      </form>
+        <section aria-labelledby="profile-heading">
+          <Card className="gap-4">
+            <CardHeader>
+              <h2 id="profile-heading" class="font-heading text-xl font-semibold">
+                {t("dashboard.profile.heading")}
+              </h2>
+            </CardHeader>
+            <CardContent>
+              <dl class="divide-y divide-border text-sm">
+                {summary.map(([label, value]) => (
+                  <div class="flex flex-wrap justify-between gap-x-4 py-2">
+                    <dt class="text-muted-foreground">{label}</dt>
+                    <dd class="font-medium">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </CardContent>
+            <CardFooter>
+              <a
+                href="/profile"
+                class="rounded-md text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                {t("dashboard.profile.edit")}
+              </a>
+            </CardFooter>
+          </Card>
+        </section>
+      </div>
     </div>
-  </div>
+  </main>
+
+  <footer class="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6">
+    <p class="border-t border-border pt-6 text-xs text-muted-foreground">{t("dashboard.recommendations.disclaimer")}</p>
+  </footer>
 </Layout>

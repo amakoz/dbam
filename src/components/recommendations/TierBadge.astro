@@ -1,0 +1,31 @@
+---
+import { CalendarClock, CalendarPlus, Stethoscope } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { createT, type MessageKey } from "@/i18n";
+import type { Tier } from "@/lib/catalog/recommend";
+
+// An exam's tier as a label plus an icon, never colour alone. The icons match the tier section headings
+// (`TIER_STYLES` in dashboard.astro).
+
+interface Props {
+  tier: Tier;
+}
+
+const { tier } = Astro.props;
+const t = createT(Astro.locals.locale);
+
+const TIER_BADGES = {
+  1: { Icon: CalendarClock, variant: "tier1", key: "dashboard.screenings.tierBadge.1" },
+  2: { Icon: CalendarPlus, variant: "tier2", key: "dashboard.screenings.tierBadge.2" },
+  3: { Icon: Stethoscope, variant: "tier3", key: "dashboard.screenings.tierBadge.3" },
+} as const satisfies Record<
+  Tier,
+  { Icon: typeof CalendarClock; variant: "tier1" | "tier2" | "tier3"; key: MessageKey }
+>;
+const { Icon, variant, key } = TIER_BADGES[tier];
+---
+
+<Badge variant={variant}>
+  <Icon aria-hidden="true" />
+  {t(key)}
+</Badge>

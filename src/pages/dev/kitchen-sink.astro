@@ -1,0 +1,456 @@
+---
+import { CircleAlert, CircleCheck, CircleQuestionMark, ClipboardList, ListChecks, Undo2 } from "lucide-react";
+import AppHeader from "@/components/AppHeader.astro";
+import DoneItem from "@/components/recommendations/DoneItem.astro";
+import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
+import PlanItem from "@/components/recommendations/PlanItem.astro";
+import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
+import type { SavedFeedback } from "@/components/recommendations/saved";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Layout from "@/layouts/Layout.astro";
+import { createT } from "@/i18n";
+import type { MaybeRecommendation, Recommendation } from "@/lib/catalog/recommend";
+import type { CatalogEntry } from "@/lib/catalog/schema";
+import { screeningFormBounds } from "@/lib/screenings/format";
+import type { DoneView, PlanView, ScreeningCompletion } from "@/lib/screenings/rules";
+
+// The visual gate of the dashboard (context/changes/ui-refactor/plan.md, Phase 4): its building blocks in every state
+// of the /10x-ui 7-state matrix, rendered through the real components from fixture data, in a forced light and a
+// forced dark column side by side. Dev only: not linked anywhere, no user data, 404 in production.
+//
+// The fixtures are literal (fixture exam names and texts); every real UI string comes from the components or from
+// existing i18n keys. The dev-only captions and the legend are plain English literals: nobody outside development
+// ever sees this page.
+
+if (import.meta.env.PROD) {
+  return new Response(null, { status: 404 });
+}
+
+const { locale } = Astro.locals;
+const t = createT(locale);
+
+const now = new Date();
+const bounds = screeningFormBounds(now, 1970, locale);
+const age = now.getFullYear() - 1970;
+
+type Scheme = "light" | "dark";
+// `color-scheme` on the column forces every light-dark() token in its subtree (src/styles/global.css).
+const SCHEMES = [
+  { scheme: "light", label: "Light", className: "scheme-light" },
+  { scheme: "dark", label: "Dark", className: "scheme-dark" },
+] as const satisfies readonly { scheme: Scheme; label: string; className: string }[];
+
+const FIXTURE_DATE = "2026-09-28";
+
+function fixtureEntry(slug: string, name_pl: string, name_en: string, extra: Partial<CatalogEntry> = {}): CatalogEntry {
+  return {
+    slug,
+    status: "active",
+    name_pl,
+    name_en,
+    summary_pl: "Przykładowy opis badania (dane testowe kitchen sink).",
+    summary_en: "A sample description of the exam (kitchen-sink fixture data).",
+    how_to_access_pl: "Przykładowa informacja, jak się zapisać.",
+    how_to_access_en: "A sample note on how to book it.",
+    eligibility: [{ age_min: 40, age_max: 74, requires: [] }],
+    interval_kind: "fixed",
+    interval_months: 24,
+    interval_overrides: [],
+    evidence_level: 3,
+    evidence_source: "Fixture",
+    burden_weight: 3,
+    nfz_funded: true,
+    referral_required: false,
+    sources: [
+      {
+        url: "https://example.com/source",
+        title: "Sample source",
+        publisher: "Example publisher",
+        quote: "A sample quote.",
+        accessed: FIXTURE_DATE,
+      },
+    ],
+    reviewed_by: "fixture",
+    last_reviewed: FIXTURE_DATE,
+    next_review_due: null,
+    ...extra,
+  };
+}
+
+function recommendation(entry: CatalogEntry, tier: Recommendation["tier"], interval: Recommendation["interval"]) {
+  return { entry, tier, matchedBranch: entry.eligibility[0], interval } satisfies Recommendation;
+}
+
+function completion(slug: string, lastDoneMonth: string | null): ScreeningCompletion {
+  return {
+    catalog_slug: slug,
+    created_at: `${FIXTURE_DATE}T10:00:00Z`,
+    id: 0,
+    last_done_month: lastDoneMonth,
+    updated_at: `${FIXTURE_DATE}T10:00:00Z`,
+    user_id: "00000000-0000-0000-0000-000000000000",
+  };
+}
+
+function plan(slug: string, appointmentDate: string | null): PlanView["plan"] {
+  return {
+    appointment_date: appointmentDate,
+    catalog_slug: slug,
+    created_at: `${FIXTURE_DATE}T10:00:00Z`,
+    id: 0,
+    updated_at: `${FIXTURE_DATE}T10:00:00Z`,
+    user_id: "00000000-0000-0000-0000-000000000000",
+  };
+}
+
+/** One column's fixtures. Slugs carry the scheme, so the element ids (and label `for`s) stay unique on the page. */
+function fixtures(scheme: Scheme) {
+  const entry = (slug: string, pl: string, en: string, extra?: Partial<CatalogEntry>) =>
+    fixtureEntry(`${slug}-${scheme}`, pl, en, extra);
+
+  const tier1 = entry("tier-one", "Mammografia (tier 1)", "Mammography (tier 1)");
+  const tier2 = entry("tier-two", "Lipidogram (tier 2)", "Lipid profile (tier 2)", {
+    evidence_level: 2,
+    interval_months: 60,
+    nfz_funded: false,
+    referral_required: true,
+  });
+  const tier3 = entry("tier-three", "PSA (tier 3)", "PSA (tier 3)", {
+    evidence_level: 1,
+    interval_kind: "shared_decision",
+    interval_months: null,
+  });
+  const withError = entry("with-error", "Cytologia (otwarty formularz, błąd)", "Pap smear (open form, error)", {
+    evidence_level: 2,
+  });
+  const savedNeutral = entry("saved-neutral", "Morfologia (zapisano, neutralnie)", "Blood count (saved, neutral)", {
+    evidence_level: 2,
+  });
+  const planned = entry("planned", "Kolonoskopia (z datą)", "Colonoscopy (dated)");
+  const plannedNoDate = entry("planned-no-date", "Densytometria (bez daty)", "Bone density (no date)");
+  const plannedSaved = entry("planned-saved", "Badanie oczu (zapisano)", "Eye exam (saved)", { evidence_level: 2 });
+  const done = entry("done", "Pomiar ciśnienia (zrobione)", "Blood pressure (done)");
+  const doneNoInterval = entry("done-no-interval", "Przegląd szczepień (zrobione)", "Vaccination review (done)", {
+    interval_kind: "no_known_interval",
+    interval_months: null,
+  });
+  const maybe = entry("maybe", "Kolonoskopia wcześniej (może dotyczyć)", "Early colonoscopy (may apply)");
+
+  const savedSuccess: SavedFeedback = { text: t("dashboard.screenings.saved.plan"), tone: "success" };
+  const savedUndo: SavedFeedback = { text: t("dashboard.screenings.saved.unplan"), tone: "neutral" };
+
+  const plans: { view: PlanView; saved?: SavedFeedback }[] = [
+    { view: { plan: plan(planned.slug, "2026-11-12"), entry: planned, tier: 1 } },
+    { view: { plan: plan(plannedNoDate.slug, null), entry: plannedNoDate, tier: null } },
+    { view: { plan: plan(plannedSaved.slug, "2027-01-20"), entry: plannedSaved, tier: 2 }, saved: savedSuccess },
+  ];
+  const tiers: { recommendation: Recommendation; lastDone?: ScreeningCompletion }[] = [
+    {
+      recommendation: recommendation(tier1, 1, { kind: "months", months: 24 }),
+      lastDone: completion(tier1.slug, "2024-03-01"),
+    },
+    { recommendation: recommendation(tier2, 2, { kind: "months", months: 60 }) },
+    { recommendation: recommendation(tier3, 3, { kind: "shared_decision" }) },
+  ];
+  const doneViews: DoneView[] = [
+    { completion: completion(done.slug, "2026-06-01"), entry: done, nextDue: "2027-06-01" },
+    { completion: completion(doneNoInterval.slug, null), entry: doneNoInterval, nextDue: null },
+  ];
+  const maybeItems: MaybeRecommendation[] = [
+    { entry: maybe, missing: [[{ factor: "family_history_crc_first_degree", op: "eq", value: true }]] },
+  ];
+
+  return {
+    plans,
+    tiers,
+    error: recommendation(withError, 2, { kind: "months", months: 36 }),
+    savedNeutral: { recommendation: recommendation(savedNeutral, 2, { kind: "months", months: 12 }), saved: savedUndo },
+    done: doneViews,
+    maybe: maybeItems,
+  };
+}
+
+const columns = SCHEMES.map((column) => ({ ...column, data: fixtures(column.scheme) }));
+
+// The 7-state matrix of /10x-ui (.claude/skills/10x-ui/SKILL.md, "Definition of done").
+const LEGEND = [
+  { state: "default", status: "Shown", note: "Every block below, built from theme A tokens and src/components/ui." },
+  {
+    state: "hover",
+    status: "Live",
+    note: "Hover any button, link or summary: token-driven (accent fill, primary at 90%, underline).",
+  },
+  {
+    state: "focus-visible",
+    status: "Live",
+    note: "Press Tab: every control shows a ring from the ring token (header, summaries, fields, buttons, links).",
+  },
+  {
+    state: "disabled",
+    status: "Shown",
+    note: "Buttons and fields block: shadcn disabled styles (dimmed, not clickable, still readable).",
+  },
+  {
+    state: "error",
+    status: "Shown",
+    note: "Open form with an inline destructive alert and the date field marked invalid; the top error alert.",
+  },
+  { state: "empty", status: "Shown", note: "The empty-state card shown when no tier has items." },
+  {
+    state: "loading",
+    status: "N/A",
+    note:
+      "Server-rendered page with plain POST forms (Post/Redirect/Get): there is no async data after render, and a " +
+      "submit is a full page load. No no-JS pending guard is trivial, so none is added.",
+  },
+] as const;
+---
+
+<Layout title="Kitchen sink" hideLanguageSwitcher>
+  <main id="main" class="mx-auto w-full max-w-7xl space-y-8 bg-background px-4 py-8 sm:px-6">
+    <div class="space-y-2">
+      <h1 class="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">Kitchen sink</h1>
+      <p class="text-muted-foreground">
+        Dev only (404 in production). The dashboard's building blocks from fixture data, in a forced light and a forced
+        dark column.
+      </p>
+    </div>
+
+    <Card className="gap-4">
+      <CardHeader>
+        <h2 class="flex items-center gap-2 font-heading text-xl font-semibold">
+          <ListChecks aria-hidden="true" className="size-5 text-primary" />
+          7-state matrix
+        </h2>
+      </CardHeader>
+      <CardContent>
+        <dl class="divide-y divide-border text-sm">
+          {LEGEND.map(({ state, status, note }) => (
+            <div class="grid gap-1 py-2 sm:grid-cols-4 sm:gap-4">
+              <dt class="font-medium text-foreground">
+                {state}
+                <span
+                  class:list={[
+                    "ml-2 text-xs font-semibold",
+                    status === "N/A" ? "text-muted-foreground" : "text-success",
+                  ]}
+                >
+                  {status}
+                </span>
+              </dt>
+              <dd class="text-muted-foreground sm:col-span-3">{note}</dd>
+            </div>
+          ))}
+        </dl>
+      </CardContent>
+    </Card>
+
+    <div class="grid items-start gap-6 lg:grid-cols-2">
+      {columns.map(({ scheme, label, className, data }) => (
+        <section
+          aria-labelledby={`scheme-${scheme}`}
+          class:list={[
+            className,
+            "space-y-6 rounded-2xl border border-border bg-background p-3 text-foreground sm:p-4",
+          ]}
+        >
+          <h2 id={`scheme-${scheme}`} class="font-heading text-2xl font-semibold">
+            {label}
+          </h2>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">App header</p>
+            <div class="overflow-hidden rounded-xl border border-border">
+              <AppHeader />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Top alerts</p>
+            <Alert role="status" className="border-success/40">
+              <CircleCheck aria-hidden="true" />
+              <AlertDescription className="text-foreground">{t("dashboard.screenings.saved.plan")}</AlertDescription>
+            </Alert>
+            <Alert role="status">
+              <Undo2 aria-hidden="true" />
+              <AlertDescription className="text-foreground">{t("dashboard.screenings.saved.undone")}</AlertDescription>
+            </Alert>
+            <Alert variant="destructive">
+              <CircleAlert aria-hidden="true" />
+              <AlertDescription>{t("errors.save_failed")}</AlertDescription>
+            </Alert>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Plan rows: dated, undated, saved
+            </p>
+            <Card>
+              <CardHeader>
+                <h3 class="flex items-center gap-2 font-heading text-xl font-semibold">
+                  <ClipboardList aria-hidden="true" className="size-5 text-primary" />
+                  {t("dashboard.screenings.plans.heading")}
+                </h3>
+              </CardHeader>
+              <CardContent>
+                <ul class="divide-y divide-border">
+                  {data.plans.map(({ view, saved }) => (
+                    <PlanItem view={view} bounds={bounds} saved={saved} />
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Tier rows: 1 (with last done), 2, 3
+            </p>
+            <Card>
+              <CardContent>
+                <ul class="divide-y divide-border">
+                  {data.tiers.map(({ recommendation: item, lastDone }) => (
+                    <RecommendationItem recommendation={item} age={age} bounds={bounds} lastDone={lastDone} />
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Open form with an error; saved row (neutral)
+            </p>
+            <Card>
+              <CardContent>
+                <ul class="divide-y divide-border">
+                  <RecommendationItem
+                    recommendation={data.error}
+                    age={age}
+                    bounds={bounds}
+                    error={t("errors.invalid_appointment_date")}
+                    invalidField="date"
+                  />
+                  <RecommendationItem
+                    recommendation={data.savedNeutral.recommendation}
+                    age={age}
+                    bounds={bounds}
+                    saved={data.savedNeutral.saved}
+                  />
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">May apply</p>
+            <Card>
+              <CardHeader>
+                <h3 class="flex items-center gap-2 font-heading text-xl font-semibold">
+                  <CircleQuestionMark aria-hidden="true" className="size-5 text-muted-foreground" />
+                  {t("dashboard.recommendations.maybe.heading")}
+                </h3>
+                <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.maybe.intro")}</p>
+              </CardHeader>
+              <CardContent>
+                <ul class="divide-y divide-border">
+                  {data.maybe.map((item) => (
+                    <MaybeRecommendationItem recommendation={item} />
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Done rows: due again, no interval
+            </p>
+            <Card>
+              <CardHeader>
+                <h3 class="flex items-center gap-2 font-heading text-xl font-semibold">
+                  <CircleCheck aria-hidden="true" className="size-5 text-success" />
+                  {t("dashboard.screenings.done.heading")}
+                </h3>
+              </CardHeader>
+              <CardContent>
+                <ul class="divide-y divide-border">
+                  {data.done.map((view) => (
+                    <DoneItem view={view} />
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Empty state</p>
+            <Card>
+              <CardContent>
+                <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.empty")}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Buttons and fields: default, disabled, invalid
+            </p>
+            <Card>
+              <CardContent className="space-y-4">
+                <div class="flex flex-wrap gap-2">
+                  <Button type="button">{t("dashboard.screenings.plan.submit")}</Button>
+                  <Button type="button" variant="outline" size="sm">
+                    {t("dashboard.screenings.plan.remove")}
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm">
+                    {t("nav.signout")}
+                  </Button>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <Button type="button" disabled>
+                    {t("dashboard.screenings.plan.submit")}
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" disabled>
+                    {t("dashboard.screenings.plan.remove")}
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" disabled>
+                    {t("nav.signout")}
+                  </Button>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <div class="space-y-1">
+                    <Label htmlFor={`field-default-${scheme}`}>{t("dashboard.screenings.plan.dateLabel")}</Label>
+                    <Input id={`field-default-${scheme}`} type="date" className="bg-background tabular-nums" />
+                  </div>
+                  <div class="space-y-1">
+                    <Label htmlFor={`field-invalid-${scheme}`}>{t("dashboard.screenings.plan.dateLabel")}</Label>
+                    <Input
+                      id={`field-invalid-${scheme}`}
+                      type="date"
+                      aria-invalid={true}
+                      className="bg-background tabular-nums"
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <Label htmlFor={`field-disabled-${scheme}`}>{t("dashboard.screenings.plan.dateLabel")}</Label>
+                    <Input
+                      id={`field-disabled-${scheme}`}
+                      type="date"
+                      disabled
+                      className="bg-background tabular-nums"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      ))}
+    </div>
+  </main>
+</Layout>

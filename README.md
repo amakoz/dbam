@@ -207,6 +207,20 @@ npx wrangler secret put REMINDER_TEST_TO   # heartbeat recipient
 
 Unless `EMAIL_FROM` is set to a sender on a domain verified in Resend, mail is sent from Resend's test sender `onboarding@resend.dev`, which delivers only to the Resend account owner's address, so `REMINDER_TEST_TO` must be exactly the email the Resend account was created with. A `+tag` variant of that address is rejected with a 403 `validation_error`. Leave `EMAIL_DRY_RUN` unset in production (it defaults to `false`).
 
+### Sending domain
+
+Appointment reminders go to real users, so production needs a sender on a domain verified in Resend. The domain is for email only: the site stays on `workers.dev`.
+
+1. In Resend → Domains, add a subdomain such as `send.<domain>`.
+2. Add the SPF/DKIM TXT records and the MX record Resend shows at your DNS provider, and wait until the domain shows "Verified".
+3. Set the sender:
+
+```bash
+npx wrangler secret put EMAIL_FROM   # e.g. Dbam <przypomnienia@send.<domain>>
+```
+
+Until `EMAIL_FROM` is set, mail falls back to `Dbam <onboarding@resend.dev>`, which reaches only the Resend account owner.
+
 ### Scheduled jobs
 
 `src/worker.ts` is the Worker entry (`main` in `wrangler.jsonc`): HTTP requests go to the Astro adapter, and Cron Triggers (`triggers.crons`) run `scheduled()`, which runs two independent jobs: the heartbeat email from `src/lib/heartbeat.ts` and the appointment reminders from `src/lib/reminders/appointment.ts`, both sending through `src/lib/email.ts`. One failing job doesn't stop the other; the run is still marked failed. Cron runs in UTC; the shared schedule gate is `src/lib/schedule.ts`. `*/30 * * * *` sends on every run; `0 8,9 * * *` sends only on the run that is 10:00 in Europe/Warsaw, so it stays at 10:00 across daylight saving time. Any other cron string fails the run. Production runs `0 8,9 * * *`: one heartbeat email a day at 10:00 Warsaw time (the 08:00 and 09:00 UTC runs are both needed because Warsaw's UTC offset changes with daylight saving; one of them always skips).

@@ -102,7 +102,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** F-01, S-01, S-02
 - **Blockers:** —
 - **Unknowns:**
-  - Resolved (2026-09-29): no Workers Paid plan and no custom domain in the MVP. F-02 runs on Workers Free and sends through Resend test mode to the owner's address only. See the limits in `context/changes/reminder-dispatch-path/research.md` (Follow-up).
+  - Resolved (2026-09-29): no Workers Paid plan and no custom domain in the MVP. F-02 runs on Workers Free and sends through Resend test mode to the owner's address only. See the limits in `context/changes/reminder-dispatch-path/research.md` (Follow-up). Narrowed (2026-09-30, S-04): a sending domain is verified in Resend for email only; the site stays on `workers.dev` and Workers stay on Free.
   - Resolved (2026-09-29): F-02 is verified manually (real cron fires, email arrives). Automated post-deploy verification is parked (see Parked, #57).
   - Cron-trigger limit scope (per account vs per Worker) is inconsistently documented — verify in the dashboard. — Owner: team. Block: no.
 - **Risk:** The starter has no scheduled work and `tech-stack.md` flags it as the known gap; proving it early and in isolation keeps S-04 from carrying infrastructure risk and product logic at once.

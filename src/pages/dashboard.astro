@@ -1,12 +1,18 @@
 ---
+import DoneItem from "@/components/recommendations/DoneItem.astro";
 import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
+import PlanItem from "@/components/recommendations/PlanItem.astro";
 import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
 import Layout from "@/layouts/Layout.astro";
 import { createT, type MessageKey } from "@/i18n";
-import { getActiveCatalog } from "@/lib/catalog/read";
+import { getActiveCatalog, getCatalogEntries } from "@/lib/catalog/read";
 import { recommend, type Tier } from "@/lib/catalog/recommend";
 import { getOnboardingState } from "@/lib/consent";
+import { errorMessageKey } from "@/lib/errors";
 import { SEX_LABEL_KEYS, SMOKING_STATUS_LABEL_KEYS, type Sex, type SmokingStatus } from "@/lib/profile";
+import { screeningFormBounds } from "@/lib/screenings/format";
+import { getUserScreenings } from "@/lib/screenings/read";
+import { partitionDashboard } from "@/lib/screenings/rules";
 import { createClient } from "@/lib/supabase";
 
 const { user, locale } = Astro.locals;
@@ -24,8 +30,31 @@ if (state !== "complete" || !profile) {
 }
 
 // A database error throws and renders the 500 page, so an outage never looks like "nothing is due".
-const catalog = await getActiveCatalog(supabase);
-const { tiers, maybe, age } = recommend(catalog, profile, new Date().getFullYear(), locale);
+const now = new Date();
+const [catalog, { plans: planRows, completions }] = await Promise.all([
+  getActiveCatalog(supabase),
+  getUserScreenings(supabase, user.id),
+]);
+// Plans and done records can point at entries that are no longer active (retired); load those too.
+const activeSlugs = new Set(catalog.map(({ slug }) => slug));
+const missingSlugs = [...new Set([...planRows, ...completions].map(({ catalog_slug }) => catalog_slug))].filter(
+  (slug) => !activeSlugs.has(slug),
+);
+const extraEntries = await getCatalogEntries(supabase, missingSlugs);
+
+const recommendations = recommend(catalog, profile, now.getFullYear(), locale);
+const { age } = recommendations;
+// Each exam shows in one place: "Your plans", "Done", or its tier (with a "last done" line when due again).
+const { plans, done, tiers, maybe, lastDone } = partitionDashboard(
+  recommendations,
+  planRows,
+  completions,
+  [...catalog, ...extraEntries],
+  profile,
+  now,
+);
+const bounds = screeningFormBounds(now, profile.birth_year, locale);
+
 const TIER_HEADING_KEYS = {
   1: "dashboard.recommendations.tier.1",
   2: "dashboard.recommendations.tier.2",
@@ -34,6 +63,31 @@ const TIER_HEADING_KEYS = {
 const tierGroups = ([1, 2, 3] as const)
   .map((tier) => ({ tier, items: tiers[tier] }))
   .filter(({ items }) => items.length > 0);
+
+// `/api/screenings` redirects back with `?saved=<intent>`, or `?error=<code>&slug=<slug>`. The error shows inside
+// the exam's item when that item is on the page, otherwise under the heading; the raw slug is only compared, never
+// rendered.
+const SAVED_KEYS = {
+  plan: "dashboard.screenings.saved.plan",
+  unplan: "dashboard.screenings.saved.unplan",
+  done: "dashboard.screenings.saved.done",
+  undone: "dashboard.screenings.saved.undone",
+} as const satisfies Record<string, MessageKey>;
+const savedParam = Astro.url.searchParams.get("saved");
+const savedKey = Object.entries(SAVED_KEYS).find(([intent]) => intent === savedParam)?.[1];
+const savedText = savedKey ? t(savedKey) : null;
+
+const errorCode = Astro.url.searchParams.get("error");
+const errorText = errorCode ? t(errorMessageKey(errorCode)) : null;
+const errorSlug = Astro.url.searchParams.get("slug");
+const itemSlugs = new Set([
+  ...plans.map(({ entry }) => entry.slug),
+  ...done.map(({ entry }) => entry.slug),
+  ...tierGroups.flatMap(({ items }) => items.map(({ entry }) => entry.slug)),
+]);
+const itemErrorSlug = errorText && errorSlug && itemSlugs.has(errorSlug) ? errorSlug : null;
+const pageError = errorText && !itemErrorSlug ? errorText : null;
+const errorFor = (slug: string) => (slug === itemErrorSlug ? errorText : null);
 
 const number = new Intl.NumberFormat(locale);
 const summary = [
@@ -60,9 +114,34 @@ const summary = [
         <h2 id="recommendations-heading" class="text-lg font-semibold">
           {t("dashboard.recommendations.heading")}
         </h2>
+        {savedText && (
+          <p
+            class="rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200"
+            role="status"
+          >
+            {savedText}
+          </p>
+        )}
+        {pageError && (
+          <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
+            {pageError}
+          </p>
+        )}
         <p class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-blue-100/70">
           {t("dashboard.recommendations.disclaimer")}
         </p>
+        {plans.length > 0 && (
+          <section aria-labelledby="plans-heading" class="space-y-2">
+            <h3 id="plans-heading" class="font-semibold text-purple-100">
+              {t("dashboard.screenings.plans.heading")}
+            </h3>
+            <ul class="space-y-2">
+              {plans.map((view) => (
+                <PlanItem view={view} bounds={bounds} error={errorFor(view.entry.slug)} />
+              ))}
+            </ul>
+          </section>
+        )}
         {tierGroups.length === 0 ? (
           <p class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-blue-100/80">
             {t("dashboard.recommendations.empty")}
@@ -79,7 +158,13 @@ const summary = [
               {tier === 3 && <p class="text-sm text-blue-100/70">{t("dashboard.recommendations.tier.3.note")}</p>}
               <ul class="space-y-2">
                 {items.map((recommendation) => (
-                  <RecommendationItem recommendation={recommendation} age={age} />
+                  <RecommendationItem
+                    recommendation={recommendation}
+                    age={age}
+                    bounds={bounds}
+                    lastDone={lastDone.get(recommendation.entry.slug)}
+                    error={errorFor(recommendation.entry.slug)}
+                  />
                 ))}
               </ul>
             </section>
@@ -94,6 +179,18 @@ const summary = [
             <ul class="space-y-2">
               {maybe.map((recommendation) => (
                 <MaybeRecommendationItem recommendation={recommendation} />
+              ))}
+            </ul>
+          </section>
+        )}
+        {done.length > 0 && (
+          <section aria-labelledby="done-heading" class="space-y-2">
+            <h3 id="done-heading" class="font-semibold text-emerald-100">
+              {t("dashboard.screenings.done.heading")}
+            </h3>
+            <ul class="space-y-2">
+              {done.map((view) => (
+                <DoneItem view={view} error={errorFor(view.entry.slug)} />
               ))}
             </ul>
           </section>

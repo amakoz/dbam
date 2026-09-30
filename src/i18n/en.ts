@@ -112,13 +112,48 @@ export const en: Record<MessageKey, string> = {
     "These tests depend on details we don't ask about. If the condition next to a test applies to you, ask your POZ (primary care) doctor about it.",
   "dashboard.recommendations.maybe.if": "If {conditions}.",
 
+  "dashboard.screenings.plans.heading": "Your plans",
+  "dashboard.screenings.done.heading": "Done",
+  "dashboard.screenings.panel.toggle": "Plan or mark done",
+  "dashboard.screenings.panel.togglePlanned": "Change the date or mark done",
+  "dashboard.screenings.plan.legend": "Plan this screening",
+  "dashboard.screenings.plan.legendPlanned": "Change the date",
+  "dashboard.screenings.plan.dateLabel": "Appointment date",
+  "dashboard.screenings.plan.dateHint":
+    "Optional — leave it blank if you don't have a date yet. Dbam doesn't book anything: enter the date you arrange with the clinic.",
+  "dashboard.screenings.plan.submit": "Add to my plans",
+  "dashboard.screenings.plan.submitPlanned": "Save date",
+  "dashboard.screenings.plan.date": "Appointment: {date}",
+  "dashboard.screenings.plan.noDate": "Date not set yet",
+  "dashboard.screenings.plan.remove": "Remove from plans",
+  "dashboard.screenings.done.legend": "Already done?",
+  "dashboard.screenings.done.monthLabel": "Month of the last exam",
+  "dashboard.screenings.done.yearLabel": "Year",
+  "dashboard.screenings.done.hint":
+    "Optional — if you don't remember, leave both blank. We then count the next one from this month.",
+  "dashboard.screenings.done.submit": "Mark as done",
+  "dashboard.screenings.done.lastDone": "Last done: {month}",
+  "dashboard.screenings.done.markedIn": "Marked done in {month}",
+  "dashboard.screenings.done.dueAgain": "Due again: {month}",
+  "dashboard.screenings.done.noInterval":
+    "This screening has no set interval — talk to your doctor about when to repeat it.",
+  "dashboard.screenings.done.undo": "Undo",
+  "dashboard.screenings.tierBadge.1": "Important",
+  "dashboard.screenings.tierBadge.2": "Worth planning",
+  "dashboard.screenings.tierBadge.3": "Talk to your doctor",
+  "dashboard.screenings.saved.plan": "Saved to your plans.",
+  "dashboard.screenings.saved.unplan": "Removed from your plans.",
+  "dashboard.screenings.saved.done": "Marked as done.",
+  "dashboard.screenings.saved.undone": "The screening is no longer marked as done.",
+
   "onboarding.title": "Your health profile",
   "onboarding.withdrawn": "Your consent has been withdrawn and your health data deleted.",
   "onboarding.consent.heading": "Consent to storing your health data",
   "onboarding.consent.intro":
     "To show you the preventive screenings you're eligible for, Dbam needs to store a few details about your health. This is special-category data (GDPR Art. 9), so we need your explicit consent.",
   "onboarding.consent.dataHeading": "What data",
-  "onboarding.consent.data": "Your year of birth, sex at birth and smoking history.",
+  "onboarding.consent.data":
+    "Your year of birth, sex at birth and smoking history, and — if you add them — the screenings you plan (with appointment dates) and the ones you mark as done (with the month of the last exam).",
   "onboarding.consent.purposeHeading": "What for",
   "onboarding.consent.purpose":
     "Only to show which screening tests you're eligible for and when. The app does not diagnose anything. We don't share this data with other users or third parties, and we never send it to AI models.",
@@ -142,7 +177,7 @@ export const en: Record<MessageKey, string> = {
   "profile.withdraw.heading": "Withdrawing consent",
   "profile.withdraw.intro": "You can withdraw your consent to storing your health data at any time.",
   "profile.withdraw.deleted":
-    "We then immediately delete your health profile: your year of birth, sex at birth and smoking history. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
+    "We then immediately delete your health data: your year of birth, sex at birth and smoking history, your planned screenings with their appointment dates, and the screenings you marked as done. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
   "profile.withdraw.kept":
     "We keep only a record of when, under which version and in which language consent was given and withdrawn, as proof that we processed your data lawfully. Your account stays active.",
   "profile.withdraw.checkbox": "I understand that my health data will be deleted.",
@@ -254,6 +289,11 @@ export const en: Record<MessageKey, string> = {
   "errors.withdraw_failed": "We couldn't withdraw your consent. Your data hasn't changed — please try again.",
   "errors.invalid_request": "We couldn't read the form. Refresh the page and try again.",
   "errors.consent_outdated": "The consent text has been updated. Please read it again and confirm.",
+  "errors.invalid_appointment_date": "Pick a date from today up to two years ahead.",
+  "errors.invalid_done_date":
+    "Enter both the month and the year of the last exam, or leave both blank. The date can't be in the future.",
+  "errors.screening_not_available":
+    "This exam isn't on your recommendations list right now. Refresh the page and try again.",
   "errorPage.title": "Something went wrong",
   "errorPage.message": "We couldn't load this page right now. Please try again in a moment.",
   "errorPage.retry": "Try again",

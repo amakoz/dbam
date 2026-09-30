@@ -39,18 +39,18 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 ## At a glance
 
-| ID   | Change ID                   | Outcome (user can …)                                                                                      | Prerequisites | PRD refs                                          | Status   |
-| ---- | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------- | -------- |
-| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                         | —             | FR-004, FR-009, Business Logic                    | done     |
-| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                              | —             | FR-007, FR-009, FR-011, FR-012                    | done     |
-| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules    | S-02          | FR-004, FR-009, NFR (testing)                     | ready    |
-| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)      | done     |
-| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)           | done     |
-| S-03 | record-appointment-date     | user picks a recommended exam and records an appointment date booked elsewhere                            | S-02          | US-02, FR-005                                     | ready    |
-| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                           | S-03, F-02    | US-02, FR-006, FR-007                             | proposed |
-| S-05 | confirm-exam-and-recurrence | user confirms an exam happened (or marks one already done) and sees its next due date                     | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary) | proposed |
-| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)         | proposed |
-| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                      | S-04, S-05    | FR-011, FR-012                                    | proposed |
+| ID   | Change ID                   | Outcome (user can …)                                                                                                                      | Prerequisites | PRD refs                                           | Status   |
+| ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------- | -------- |
+| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done     |
+| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done     |
+| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | ready    |
+| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
+| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done     |
+| S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done     |
+| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02    | US-02, FR-006, FR-007                              | proposed |
+| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary)  | proposed |
+| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)          | proposed |
+| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05    | FR-011, FR-012                                     | proposed |
 
 ## Streams
 
@@ -149,15 +149,15 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-03: Record appointment date
 
-- **Outcome:** user can select a recommended exam, enter the date of an appointment booked outside the app, and see that date on their dashboard.
+- **Outcome:** user can plan a recommended exam, optionally with the date of an appointment booked outside the app, or mark it already done, optionally with the month and year of the last exam, so it leaves the list until it is due again; both planned and done exams are shown on the dashboard.
 - **Change ID:** record-appointment-date
-- **PRD refs:** US-02, FR-005
+- **PRD refs:** US-02, FR-005, FR-009 (partial: mark already done)
 - **Prerequisites:** S-02
 - **Parallel with:** F-02
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Low technical risk; the product must only record the date and never book or contact a provider (PRD Non-Goals).
-- **Status:** ready
+- **Status:** done
 
 ### S-04: Appointment reminder
 
@@ -174,7 +174,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-05: Confirm exam and recurrence
 
-- **Outcome:** user can confirm that an exam happened on its appointment date, or mark an exam already done with its last date ("never / don't know" allowed); the exam leaves the "due now" list, its next due date is computed from the catalog interval, it reappears as due when that interval elapses, and an exam with no known interval is surfaced to the user instead of silently dropped.
+- **Outcome:** user can confirm that an exam happened on its recorded appointment date; the exam leaves the "due now" list, its next due date is computed from that date and the catalog interval, it reappears as due when that interval elapses, and an exam with no known interval is surfaced to the user instead of silently dropped. Marking an exam already done (with an optional month and year) moved to S-03.
 - **Change ID:** confirm-exam-and-recurrence
 - **PRD refs:** US-03, FR-008, FR-009, Success Criteria (Primary)
 - **Prerequisites:** S-03, F-01
@@ -250,3 +250,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **F-01: (foundation) a curated catalog of screening types (the static table FR-009's resolution calls for) exists in the app's data — each with eligibility criteria (at least age and sex), an importance tier, and a repeat interval or an explicit "no known interval" marker — each entry carrying its source, publicly readable and free of personal data.** — Archived 2026-09-29 → `context/archive/2026-09-28-screening-catalog-v1/`. Lesson: —.
 - **S-02: user can open their dashboard and see the screenings currently due for their profile, grouped by importance tier (most important first), each with the rule and source that put it there, or an explanatory empty state when nothing is due — with no wording that states or implies a diagnosis.** — Archived 2026-09-29 → `context/archive/2026-09-28-screening-recommendations/`. Lesson: —.
 - **F-02: (foundation) a scheduled job runs in production on a timer and delivers an email to a test address; the path is exercised in CI or post-deploy verification.** — Archived 2026-09-30 → `context/archive/2026-09-29-reminder-dispatch-path/`. Lesson: —.
+- **S-03: user can plan a recommended exam, optionally with the date of an appointment booked outside the app, or mark it already done, optionally with the month and year of the last exam, so it leaves the list until it is due again; both planned and done exams are shown on the dashboard.** — Archived 2026-09-30 → `context/archive/2026-09-30-record-appointment-date/`. Lesson: —.

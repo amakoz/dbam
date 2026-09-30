@@ -275,6 +275,16 @@ export const en: Record<MessageKey, string> = {
   "auth.form.showPassword": "Show password",
   "auth.form.hidePassword": "Hide password",
 
+  // Appointment reminder email (plain text). Never name an exam: only dates and a count.
+  "email.appointmentReminder.subject": "Dbam: appointment reminder",
+  "email.appointmentReminder.greeting": "Hello,",
+  "email.appointmentReminder.body_one": "You have an appointment coming up: {dates}.",
+  "email.appointmentReminder.body_few": "You have {count} appointments coming up: {dates}.",
+  "email.appointmentReminder.body_many": "You have {count} appointments coming up: {dates}.",
+  "email.appointmentReminder.body_other": "You have {count} appointments coming up: {dates}.",
+  "email.appointmentReminder.dashboard": "See the details in your Dbam dashboard: {url}",
+  "email.appointmentReminder.optOut": "Don't want these reminders? Turn them off in your profile: {url}",
+
   "errors.auth.not_configured": "Sign-in is temporarily unavailable. Please try again later.",
   "errors.auth.missing_code": "The confirmation link is incomplete. Open it again from the email.",
   "errors.auth.link_invalid": "The confirmation link is invalid or has expired. Try signing in.",

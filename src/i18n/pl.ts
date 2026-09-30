@@ -278,6 +278,16 @@ export const pl = {
   "auth.form.showPassword": "Pokaż hasło",
   "auth.form.hidePassword": "Ukryj hasło",
 
+  // Appointment reminder email (plain text). Never name an exam: only dates and a count.
+  "email.appointmentReminder.subject": "Dbam: przypomnienie o wizycie",
+  "email.appointmentReminder.greeting": "Dzień dobry,",
+  "email.appointmentReminder.body_one": "Masz zaplanowaną wizytę w najbliższych dniach: {dates}.",
+  "email.appointmentReminder.body_few": "Masz {count} zaplanowane wizyty w najbliższych dniach: {dates}.",
+  "email.appointmentReminder.body_many": "Masz {count} zaplanowanych wizyt w najbliższych dniach: {dates}.",
+  "email.appointmentReminder.body_other": "Masz {count} zaplanowanej wizyty w najbliższych dniach: {dates}.",
+  "email.appointmentReminder.dashboard": "Szczegóły znajdziesz w swoim panelu Dbam: {url}",
+  "email.appointmentReminder.optOut": "Nie chcesz dostawać przypomnień? Wyłącz je w swoim profilu: {url}",
+
   "errors.auth.not_configured": "Logowanie jest chwilowo niedostępne. Spróbuj ponownie później.",
   "errors.auth.missing_code": "Link potwierdzający jest niekompletny. Otwórz go ponownie z wiadomości e-mail.",
   "errors.auth.link_invalid": "Link potwierdzający jest nieprawidłowy lub wygasł. Spróbuj się zalogować.",

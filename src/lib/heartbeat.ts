@@ -1,18 +1,13 @@
 import { EMAIL_DRY_RUN, REMINDER_TEST_TO } from "astro:env/server";
 import { EmailSendError, sendEmail } from "@/lib/email";
+import { DAILY_CRON, isDailySendRun, PROVING_CRON } from "@/lib/schedule";
 
 // Heartbeat job run by the Worker's Cron Trigger (`scheduled()` in src/worker.ts). It proves that a scheduled run can
-// deliver email in production. Cron runs in UTC only, so the daily schedule fires at 08:00 and 09:00 UTC and sends only
-// on the run that is 10:00 in Warsaw, which holds in both CEST and CET. Logs never contain the recipient address.
-
-/** Proving schedule: every run sends. */
-export const HEARTBEAT_CRON_PROVING = "*/30 * * * *";
-/** Daily schedule: two UTC runs, one of which is 10:00 Europe/Warsaw. */
-export const HEARTBEAT_CRON_DAILY = "0 8,9 * * *";
+// deliver email in production. The proving schedule sends on every run; the daily schedule sends only on the run that
+// is 10:00 in Warsaw (src/lib/schedule.ts). Logs never contain the recipient address.
 
 export type HeartbeatOutcome = "sent" | "skipped" | "dry-run";
 
-const DAILY_SEND_HOUR = 10;
 // Resend's simulator address: accepts sends without reaching an inbox.
 const DRY_RUN_RECIPIENT = "delivered@resend.dev";
 
@@ -69,27 +64,13 @@ export async function runHeartbeat({
 
 function shouldSend(cron: string, scheduledTime: number): boolean {
   switch (cron) {
-    case HEARTBEAT_CRON_PROVING:
+    case PROVING_CRON:
       return true;
-    case HEARTBEAT_CRON_DAILY:
-      return warsawHour(scheduledTime) === DAILY_SEND_HOUR;
+    case DAILY_CRON:
+      return isDailySendRun(cron, scheduledTime);
     default:
       throw new UnknownCronError(`No job for cron "${cron}"`);
   }
-}
-
-function warsawHour(time: number): number {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Warsaw",
-    hour: "numeric",
-    hourCycle: "h23",
-  }).formatToParts(time);
-  const hour = Number(parts.find((part) => part.type === "hour")?.value);
-  // A NaN hour would silently skip every daily run; fail the run instead so it shows in Trigger Events.
-  if (!Number.isFinite(hour)) {
-    throw new Error("Could not read the Europe/Warsaw hour");
-  }
-  return hour;
 }
 
 function recipient(): string {

@@ -492,11 +492,11 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [x] 2.1 Lint passes
-- [x] 2.2 Type check passes
-- [x] 2.3 Build passes
-- [x] 2.4 Smoke passes against local preview
-- [x] 2.5 pgTAP still passes
+- [x] 2.1 Lint passes — 23beafe
+- [x] 2.2 Type check passes — 23beafe
+- [x] 2.3 Build passes — 23beafe
+- [x] 2.4 Smoke passes against local preview — 23beafe
+- [x] 2.5 pgTAP still passes — 23beafe
 
 #### Manual
 
@@ -507,12 +507,12 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [ ] 3.1 Lint passes (including the restricted-import rule)
-- [ ] 3.2 Type check passes
-- [ ] 3.3 Build passes
-- [ ] 3.4 pgTAP passes
-- [ ] 3.5 Smoke passes against local preview
-- [ ] 3.6 Scheduled handler returns outcome ok locally with the secret key in dry run
+- [x] 3.1 Lint passes (including the restricted-import rule)
+- [x] 3.2 Type check passes
+- [x] 3.3 Build passes
+- [x] 3.4 pgTAP passes
+- [x] 3.5 Smoke passes against local preview
+- [x] 3.6 Scheduled handler returns outcome ok locally with the secret key in dry run
 
 #### Manual
 

@@ -75,8 +75,32 @@ const astroConfig = defineConfig({
 
 // Worker-side jobs log through console on purpose: Workers Logs captures it.
 const workerLogsConfig = defineConfig({
-  files: ["src/worker.ts", "src/lib/email.ts", "src/lib/heartbeat.ts"],
+  files: ["src/worker.ts", "src/lib/email.ts", "src/lib/heartbeat.ts", "src/lib/reminders/appointment.ts"],
   rules: { "no-console": "off" },
+});
+
+// The Supabase secret key is for the cron's reminder job only: nothing that serves a request may import its client.
+const reminderClientConfig = defineConfig({
+  files: [
+    "src/pages/**/*.{ts,tsx,astro}",
+    "src/components/**/*.{ts,tsx,astro}",
+    "src/layouts/**/*.{ts,tsx,astro}",
+    "src/middleware.ts",
+  ],
+  rules: {
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            // The whole reminders folder: the job module imports the admin client, so it would leak the key too.
+            group: ["@/lib/reminders/*", "**/lib/reminders/*"],
+            message: "src/lib/reminders is cron-only (it holds the Supabase secret key): use @/lib/supabase in pages.",
+          },
+        ],
+      },
+    ],
+  },
 });
 
 const scriptsConfig = defineConfig({
@@ -98,6 +122,7 @@ export default defineConfig(
   eslintPluginAstro.configs["flat/jsx-a11y-recommended"],
   astroConfig,
   workerLogsConfig,
+  reminderClientConfig,
   scriptsConfig,
   eslintPluginPrettier,
 );

@@ -5,8 +5,9 @@ import { createClient } from "@/lib/supabase";
 // Pages that render the withdraw form; errors go back to the page the form was on.
 const SOURCES = { profile: "/profile", onboarding: "/onboarding" } as const;
 
-// Withdraws health-data consent (GDPR Art. 7(3)). The database function deletes the caller's profile and stamps
-// `withdrawn_at` on their active consent in one transaction; the consent row itself stays as proof it was given.
+// Withdraws health-data consent (GDPR Art. 7(3)). The database function deletes the caller's plans, done records and
+// profile (with it the reminder opt-in) and stamps `withdrawn_at` on their active consent in one transaction; the
+// consent row itself stays as proof it was given.
 // Deleting data is irreversible, so the form must carry an explicit confirmation.
 export const POST: APIRoute = async (context) => {
   const form = await readForm(context.request);

@@ -174,6 +174,29 @@ const accountSteps = [
       bodyExcludes: `data-slug="${mammography}" data-tier`,
     },
   ],
+  // Appointment reminders (S-04): off by default, so the dated plan above makes the dashboard suggest them.
+  ["dashboard suggests reminders", () => request("/dashboard"), { status: 200, bodyIncludes: "data-reminders-hint" }],
+  [
+    "reminders are turned on",
+    () => request("/api/reminders", { method: "POST", form: { enabled: "on" } }),
+    { status: 302, location: "/profile?reminders=on" },
+  ],
+  ["profile shows reminders on", () => request("/profile"), { status: 200, bodyIncludes: 'data-reminders="on"' }],
+  [
+    "dashboard no longer suggests reminders",
+    () => request("/dashboard"),
+    { status: 200, bodyExcludes: "data-reminders-hint" },
+  ],
+  [
+    "reminders are turned off",
+    () => request("/api/reminders", { method: "POST", form: { enabled: "off" } }),
+    { status: 302, location: "/profile?reminders=off" },
+  ],
+  [
+    "reminders reject an invalid value",
+    () => request("/api/reminders", { method: "POST", form: { enabled: "yes" } }),
+    { status: 302, location: "/profile?error=" },
+  ],
   [
     "plan rejects a past date",
     () => screening({ intent: "plan", appointment_date: shiftDays(today, -30) }),

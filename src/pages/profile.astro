@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import ProfileForm from "@/components/profile/ProfileForm";
+import RemindersForm from "@/components/profile/RemindersForm.astro";
 import WithdrawConsentForm from "@/components/profile/WithdrawConsentForm.astro";
 import { createT } from "@/i18n";
 import { getOnboardingState } from "@/lib/consent";
@@ -31,13 +32,18 @@ const initial: ProfileInput = {
   years_since_quitting: profile.years_since_quitting,
 };
 
-// Both forms on this page redirect back with `?error=`; withdraw codes are shown in the withdraw section.
+// All forms on this page redirect back with `?error=`; withdraw and reminders codes are shown in their own sections.
 const errorCode = Astro.url.searchParams.get("error");
 const errorText = errorCode ? t(errorMessageKey(errorCode)) : null;
 const isWithdrawError = errorCode?.startsWith("withdraw_") ?? false;
-const profileError = isWithdrawError ? null : errorText;
+const isRemindersError = errorCode?.startsWith("reminders_") ?? false;
+const profileError = isWithdrawError || isRemindersError ? null : errorText;
 const withdrawError = isWithdrawError ? errorText : null;
+const remindersError = isRemindersError ? errorText : null;
 const saved = Astro.url.searchParams.has("saved");
+// `/api/reminders` redirects back with `?reminders=on|off`.
+const remindersParam = Astro.url.searchParams.get("reminders");
+const remindersSaved = remindersParam === "on" || remindersParam === "off" ? remindersParam : null;
 ---
 
 <Layout title={t("profile.title")}>
@@ -63,6 +69,8 @@ const saved = Astro.url.searchParams.has("saved");
 
         <ProfileForm locale={locale} mode="profile" initial={initial} serverError={profileError} client:load />
       </section>
+
+      <RemindersForm enabled={profile.reminders_enabled} saved={remindersSaved} error={remindersError} />
 
       <WithdrawConsentForm from="profile" error={withdrawError} />
 

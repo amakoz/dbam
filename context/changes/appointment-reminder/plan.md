@@ -479,10 +479,10 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [x] 1.1 Migration applies on a clean local database
-- [x] 1.2 pgTAP passes, including the new file
-- [x] 1.3 Types regenerated and committed
-- [x] 1.4 Lint and type check pass
+- [x] 1.1 Migration applies on a clean local database — a8a98f3
+- [x] 1.2 pgTAP passes, including the new file — a8a98f3
+- [x] 1.3 Types regenerated and committed — a8a98f3
+- [x] 1.4 Lint and type check pass — a8a98f3
 
 #### Manual
 
@@ -492,11 +492,11 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [ ] 2.1 Lint passes
-- [ ] 2.2 Type check passes
-- [ ] 2.3 Build passes
-- [ ] 2.4 Smoke passes against local preview
-- [ ] 2.5 pgTAP still passes
+- [x] 2.1 Lint passes
+- [x] 2.2 Type check passes
+- [x] 2.3 Build passes
+- [x] 2.4 Smoke passes against local preview
+- [x] 2.5 pgTAP still passes
 
 #### Manual
 

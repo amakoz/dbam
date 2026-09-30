@@ -431,10 +431,10 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 
 #### Automated
 
-- [ ] 4.1 The PR's `ci` and `smoke` jobs pass, and `deploy` on `main` succeeds
+- [x] 4.1 The PR's `ci` and `smoke` jobs pass, and `deploy` on `main` succeeds — 97e8aa9
 
 #### Manual
 
-- [ ] 4.2 Trigger Events shows `0 8,9 * * *` and no further `*/30` runs
-- [ ] 4.3 Next day: two runs, one `sent` and one `skipped`
-- [ ] 4.4 Exactly one heartbeat email arrives at 10:00 Warsaw time
+- [x] 4.2 Trigger Events shows `0 8,9 * * *` and no further `*/30` runs — 97e8aa9
+- [x] 4.3 Next day: two runs, one `sent` and one `skipped` — 97e8aa9
+- [x] 4.4 Exactly one heartbeat email arrives at 10:00 Warsaw time — 97e8aa9

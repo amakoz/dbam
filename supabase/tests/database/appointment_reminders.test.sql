@@ -295,10 +295,15 @@ select is(
 );
 select is(
   (select reminder_ids from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),
-  (select array_agg(id order by id) from public.appointment_reminders),
+  (select array_agg(id order by id) from public.appointment_reminders
+   where user_id = '11111111-1111-1111-1111-111111111111'),
   'a repeated claim before mark returns the same ids'
 );
-select is((select count(*) from public.appointment_reminders), 2::bigint, 'repeated claims add no duplicate rows');
+-- Scoped to A: the local database may hold other users' ledger rows.
+select is(
+  (select count(*) from public.appointment_reminders where user_id = '11111111-1111-1111-1111-111111111111'),
+  2::bigint, 'repeated claims add no duplicate rows'
+);
 
 -- Opting out between claim and send: the unsent rows are no longer returned.
 update public.profiles set reminders_enabled = false where user_id = '11111111-1111-1111-1111-111111111111';

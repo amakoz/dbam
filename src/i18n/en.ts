@@ -123,6 +123,7 @@ export const en: Record<MessageKey, string> = {
   "dashboard.recommendations.maybe.if": "If {conditions}.",
 
   "dashboard.screenings.plans.heading": "Your plans",
+  "dashboard.screenings.plans.empty": "Nothing planned yet. Choose “Plan or mark done” on an exam to add it here.",
   "dashboard.screenings.done.heading": "Done",
   "dashboard.screenings.panel.toggle": "Plan or mark done",
   "dashboard.screenings.panel.togglePlanned": "Change the date or mark done",

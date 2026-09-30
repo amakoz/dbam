@@ -127,6 +127,8 @@ export const pl = {
   "dashboard.recommendations.maybe.if": "Jeśli {conditions}.",
 
   "dashboard.screenings.plans.heading": "Twoje plany",
+  "dashboard.screenings.plans.empty":
+    "Nic jeszcze nie zaplanowano. Wybierz przy badaniu „Zaplanuj lub oznacz jako wykonane”, aby dodać je tutaj.",
   "dashboard.screenings.done.heading": "Wykonane",
   "dashboard.screenings.panel.toggle": "Zaplanuj lub oznacz jako wykonane",
   "dashboard.screenings.panel.togglePlanned": "Zmień termin lub oznacz jako wykonane",

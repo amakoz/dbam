@@ -150,7 +150,7 @@ const summary = [
   </a>
   <AppHeader />
 
-  <main id="main" class="mx-auto w-full max-w-3xl space-y-6 bg-background px-4 py-8 sm:px-6">
+  <main id="main" class="mx-auto w-full max-w-7xl space-y-6 bg-background px-4 py-8 sm:px-6">
     <div class="space-y-2">
       <h1 class="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">{t("dashboard.title")}</h1>
       <p class="text-muted-foreground">
@@ -173,145 +173,155 @@ const summary = [
       </Alert>
     )}
 
-    {plans.length > 0 && (
-      <section aria-labelledby="plans-heading">
-        <Card>
-          <CardHeader>
-            <h2 id="plans-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
-              <ClipboardList aria-hidden="true" className="size-5 text-primary" />
-              {t("dashboard.screenings.plans.heading")}
-            </h2>
-          </CardHeader>
-          <CardContent>
-            <ul class="divide-y divide-border">
-              {plans.map((view) => (
-                <PlanItem
-                  view={view}
-                  bounds={bounds}
-                  error={errorFor(view.entry.slug)}
-                  invalidField={invalidFieldFor(view.entry.slug)}
-                  saved={savedFor(view.entry.slug)}
-                />
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </section>
-    )}
+    <div class="grid items-start gap-6 lg:grid-cols-2 xl:grid-cols-3">
+      <div class="grid content-start gap-6">
+        <section aria-labelledby="plans-heading">
+          <Card>
+            <CardHeader>
+              <h2 id="plans-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
+                <ClipboardList aria-hidden="true" className="size-5 text-primary" />
+                {t("dashboard.screenings.plans.heading")}
+              </h2>
+            </CardHeader>
+            <CardContent>
+              {plans.length === 0 ? (
+                <p class="text-sm text-muted-foreground">{t("dashboard.screenings.plans.empty")}</p>
+              ) : (
+                <ul class="divide-y divide-border">
+                  {plans.map((view) => (
+                    <PlanItem
+                      view={view}
+                      bounds={bounds}
+                      error={errorFor(view.entry.slug)}
+                      invalidField={invalidFieldFor(view.entry.slug)}
+                      saved={savedFor(view.entry.slug)}
+                    />
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+      </div>
 
-    {tierGroups.length === 0 ? (
-      <Card>
-        <CardContent>
-          <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.empty")}</p>
-        </CardContent>
-      </Card>
-    ) : (
-      tierGroups.map(({ tier, items }) => {
-        const { Icon, card, header, icon } = TIER_STYLES[tier];
-        return (
-          <section aria-labelledby={`tier-${tier}-heading`}>
-            <Card className={card}>
-              <CardHeader className={header}>
-                <h2 id={`tier-${tier}-heading`} class="flex items-center gap-2 font-heading text-xl font-semibold">
-                  <Icon aria-hidden="true" className={cn("size-5", icon)} />
-                  {t(TIER_HEADING_KEYS[tier])}
+      <div class="grid content-start gap-6">
+        {tierGroups.length === 0 ? (
+          <Card>
+            <CardContent>
+              <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.empty")}</p>
+            </CardContent>
+          </Card>
+        ) : (
+          tierGroups.map(({ tier, items }) => {
+            const { Icon, card, header, icon } = TIER_STYLES[tier];
+            return (
+              <section aria-labelledby={`tier-${tier}-heading`}>
+                <Card className={card}>
+                  <CardHeader className={header}>
+                    <h2 id={`tier-${tier}-heading`} class="flex items-center gap-2 font-heading text-xl font-semibold">
+                      <Icon aria-hidden="true" className={cn("size-5", icon)} />
+                      {t(TIER_HEADING_KEYS[tier])}
+                    </h2>
+                    {tier === 3 && (
+                      <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.tier.3.note")}</p>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    <ul class="divide-y divide-border">
+                      {items.map((recommendation) => (
+                        <RecommendationItem
+                          recommendation={recommendation}
+                          age={age}
+                          bounds={bounds}
+                          lastDone={lastDone.get(recommendation.entry.slug)}
+                          error={errorFor(recommendation.entry.slug)}
+                          invalidField={invalidFieldFor(recommendation.entry.slug)}
+                          saved={savedFor(recommendation.entry.slug)}
+                        />
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </section>
+            );
+          })
+        )}
+      </div>
+
+      <div class="grid content-start gap-6 lg:col-span-2 lg:grid-cols-2 xl:col-span-1 xl:grid-cols-1">
+        {done.length > 0 && (
+          <section aria-labelledby="done-heading">
+            <Card>
+              <CardHeader>
+                <h2 id="done-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
+                  <CircleCheck aria-hidden="true" className="size-5 text-success" />
+                  {t("dashboard.screenings.done.heading")}
                 </h2>
-                {tier === 3 && (
-                  <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.tier.3.note")}</p>
-                )}
               </CardHeader>
               <CardContent>
                 <ul class="divide-y divide-border">
-                  {items.map((recommendation) => (
-                    <RecommendationItem
-                      recommendation={recommendation}
-                      age={age}
-                      bounds={bounds}
-                      lastDone={lastDone.get(recommendation.entry.slug)}
-                      error={errorFor(recommendation.entry.slug)}
-                      invalidField={invalidFieldFor(recommendation.entry.slug)}
-                      saved={savedFor(recommendation.entry.slug)}
-                    />
+                  {done.map((view) => (
+                    <DoneItem view={view} error={errorFor(view.entry.slug)} saved={savedFor(view.entry.slug)} />
                   ))}
                 </ul>
               </CardContent>
             </Card>
           </section>
-        );
-      })
-    )}
+        )}
 
-    {maybe.length > 0 && (
-      <section aria-labelledby="maybe-heading">
-        <Card>
-          <CardHeader>
-            <h2 id="maybe-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
-              <CircleQuestionMark aria-hidden="true" className="size-5 text-muted-foreground" />
-              {t("dashboard.recommendations.maybe.heading")}
-            </h2>
-            <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.maybe.intro")}</p>
-          </CardHeader>
-          <CardContent>
-            <ul class="divide-y divide-border">
-              {maybe.map((recommendation) => (
-                <MaybeRecommendationItem recommendation={recommendation} />
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </section>
-    )}
+        {maybe.length > 0 && (
+          <section aria-labelledby="maybe-heading">
+            <Card>
+              <CardHeader>
+                <h2 id="maybe-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
+                  <CircleQuestionMark aria-hidden="true" className="size-5 text-muted-foreground" />
+                  {t("dashboard.recommendations.maybe.heading")}
+                </h2>
+                <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.maybe.intro")}</p>
+              </CardHeader>
+              <CardContent>
+                <ul class="divide-y divide-border">
+                  {maybe.map((recommendation) => (
+                    <MaybeRecommendationItem recommendation={recommendation} />
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </section>
+        )}
 
-    {done.length > 0 && (
-      <section aria-labelledby="done-heading">
-        <Card>
-          <CardHeader>
-            <h2 id="done-heading" class="flex items-center gap-2 font-heading text-xl font-semibold">
-              <CircleCheck aria-hidden="true" className="size-5 text-success" />
-              {t("dashboard.screenings.done.heading")}
-            </h2>
-          </CardHeader>
-          <CardContent>
-            <ul class="divide-y divide-border">
-              {done.map((view) => (
-                <DoneItem view={view} error={errorFor(view.entry.slug)} saved={savedFor(view.entry.slug)} />
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </section>
-    )}
-
-    <section aria-labelledby="profile-heading">
-      <Card className="gap-4">
-        <CardHeader>
-          <h2 id="profile-heading" class="font-heading text-xl font-semibold">
-            {t("dashboard.profile.heading")}
-          </h2>
-        </CardHeader>
-        <CardContent>
-          <dl class="divide-y divide-border text-sm">
-            {summary.map(([label, value]) => (
-              <div class="flex flex-wrap justify-between gap-x-4 py-2">
-                <dt class="text-muted-foreground">{label}</dt>
-                <dd class="font-medium">{value}</dd>
-              </div>
-            ))}
-          </dl>
-        </CardContent>
-        <CardFooter>
-          <a
-            href="/profile"
-            class="rounded-md text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          >
-            {t("dashboard.profile.edit")}
-          </a>
-        </CardFooter>
-      </Card>
-    </section>
+        <section aria-labelledby="profile-heading">
+          <Card className="gap-4">
+            <CardHeader>
+              <h2 id="profile-heading" class="font-heading text-xl font-semibold">
+                {t("dashboard.profile.heading")}
+              </h2>
+            </CardHeader>
+            <CardContent>
+              <dl class="divide-y divide-border text-sm">
+                {summary.map(([label, value]) => (
+                  <div class="flex flex-wrap justify-between gap-x-4 py-2">
+                    <dt class="text-muted-foreground">{label}</dt>
+                    <dd class="font-medium">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </CardContent>
+            <CardFooter>
+              <a
+                href="/profile"
+                class="rounded-md text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                {t("dashboard.profile.edit")}
+              </a>
+            </CardFooter>
+          </Card>
+        </section>
+      </div>
+    </div>
   </main>
 
-  <footer class="mx-auto w-full max-w-3xl px-4 pb-10 sm:px-6">
+  <footer class="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6">
     <p class="border-t border-border pt-6 text-xs text-muted-foreground">{t("dashboard.recommendations.disclaimer")}</p>
   </footer>
 </Layout>

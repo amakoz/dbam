@@ -524,16 +524,16 @@ Leave a rule and a failing check, so the next agent keeps the dashboard on the c
 
 #### Automated
 
-- [x] 4.1 Linting passes: `npm run lint`
-- [x] 4.2 Type checking passes: `npx astro check`
-- [x] 4.3 Build succeeds, and /dev/kitchen-sink returns 404 in the production preview
-- [x] 4.4 Hardcoded-value scan on kitchen-sink.astro returns 0 hits
+- [x] 4.1 Linting passes: `npm run lint` — ca5eb3e
+- [x] 4.2 Type checking passes: `npx astro check` — ca5eb3e
+- [x] 4.3 Build succeeds, and /dev/kitchen-sink returns 404 in the production preview — ca5eb3e
+- [x] 4.4 Hardcoded-value scan on kitchen-sink.astro returns 0 hits — ca5eb3e
 
 #### Manual
 
-- [x] 4.5 Kitchen sink shows every 7-state cell (or N/A) in light and dark
-- [x] 4.6 Screenshots at desktop and 375px in both schemes attached to the PR
-- [x] 4.7 Contrast spot-check passes in both schemes
+- [x] 4.5 Kitchen sink shows every 7-state cell (or N/A) in light and dark — ca5eb3e
+- [x] 4.6 Screenshots at desktop and 375px in both schemes attached to the PR — ca5eb3e
+- [x] 4.7 Contrast spot-check passes in both schemes — ca5eb3e
 
 ### Phase 5: Guard and docs
 

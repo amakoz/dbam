@@ -1,10 +1,10 @@
 ---
 change_id: reminder-dispatch-path
 title: Reminder dispatch path
-status: impl_reviewed
+status: archived
 created: 2026-09-29
 updated: 2026-09-30
-archived_at: null
+archived_at: 2026-09-30T09:37:39Z
 ---
 
 ## Notes

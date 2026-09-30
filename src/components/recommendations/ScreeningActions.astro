@@ -1,0 +1,114 @@
+---
+import { createT } from "@/i18n";
+import type { ScreeningFormBounds } from "@/lib/screenings/format";
+
+// The "plan or mark done" panel of an exam: two plain forms posting to `/api/screenings`, no JavaScript. On a tier
+// item it adds a plan; on a planned item (`planned` set) it changes the date. Every outcome redirects back to the
+// dashboard, to the item's anchor.
+//
+// `<input type="month">` is not used for the last exam: Firefox and Safari desktop don't support it.
+
+interface Props {
+  slug: string;
+  /** The exam's name, for the screen-reader label of the toggle. */
+  name: string;
+  bounds: ScreeningFormBounds;
+  /** Translated error of the last attempt on this exam, shown above the panel. */
+  error?: string | null;
+  /** Renders the panel expanded (e.g. after an error). */
+  open?: boolean;
+  /** Set when the exam is already planned: prefills its date (null = no date yet). */
+  planned?: { appointmentDate: string | null };
+}
+
+const { slug, name, bounds, error, open = false, planned } = Astro.props;
+const t = createT(Astro.locals.locale);
+
+const id = (field: string) => `screening-${slug}-${field}`;
+const control =
+  "rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white [color-scheme:dark] focus:ring-2 focus:ring-purple-400 focus:outline-none";
+const submit =
+  "rounded-lg bg-purple-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500";
+---
+
+<div class="mt-3 space-y-2">
+  {error && (
+    <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
+      {error}
+    </p>
+  )}
+  <details open={open} class="rounded-lg border border-white/10 bg-white/5">
+    <summary class="cursor-pointer px-3 py-2 text-sm text-purple-300 hover:underline">
+      {t(planned ? "dashboard.screenings.panel.togglePlanned" : "dashboard.screenings.panel.toggle")}
+      <span class="sr-only">: {name}</span>
+    </summary>
+    <div class="space-y-4 border-t border-white/10 p-3">
+      <form method="POST" action="/api/screenings">
+        <input type="hidden" name="intent" value="plan" />
+        <input type="hidden" name="slug" value={slug} />
+        <fieldset class="space-y-2">
+          <legend class="mb-2 text-sm font-semibold text-white">
+            {t(planned ? "dashboard.screenings.plan.legendPlanned" : "dashboard.screenings.plan.legend")}
+          </legend>
+          <label for={id("date")} class="block text-sm text-blue-100/80">
+            {t("dashboard.screenings.plan.dateLabel")}
+          </label>
+          <input
+            id={id("date")}
+            type="date"
+            name="appointment_date"
+            min={bounds.minDate}
+            max={bounds.maxDate}
+            value={planned?.appointmentDate ?? ""}
+            aria-describedby={id("date-hint")}
+            class:list={[control, "w-full sm:w-auto"]}
+          />
+          <p id={id("date-hint")} class="text-xs text-blue-100/60">
+            {t("dashboard.screenings.plan.dateHint")}
+          </p>
+          <button type="submit" class:list={submit}>
+            {t(planned ? "dashboard.screenings.plan.submitPlanned" : "dashboard.screenings.plan.submit")}
+          </button>
+        </fieldset>
+      </form>
+
+      <form method="POST" action="/api/screenings" class="border-t border-white/10 pt-4">
+        <input type="hidden" name="intent" value="done" />
+        <input type="hidden" name="slug" value={slug} />
+        <fieldset class="space-y-2" aria-describedby={id("done-hint")}>
+          <legend class="mb-2 text-sm font-semibold text-white">{t("dashboard.screenings.done.legend")}</legend>
+          <div class="flex flex-wrap gap-3">
+            <div>
+              <label for={id("done-month")} class="mb-1 block text-sm text-blue-100/80">
+                {t("dashboard.screenings.done.monthLabel")}
+              </label>
+              <select id={id("done-month")} name="done_month" class:list={control}>
+                <option value="">—</option>
+                {bounds.months.map(({ value, label }) => (
+                  <option value={String(value)}>{label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label for={id("done-year")} class="mb-1 block text-sm text-blue-100/80">
+                {t("dashboard.screenings.done.yearLabel")}
+              </label>
+              <select id={id("done-year")} name="done_year" class:list={control}>
+                <option value="">—</option>
+                {bounds.years.map((year) => (
+                  <option value={String(year)}>{year}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <p id={id("done-hint")} class="text-xs text-blue-100/60">
+            {t("dashboard.screenings.done.hint")}
+          </p>
+          <button type="submit" class:list={submit}>
+            {t("dashboard.screenings.done.submit")}
+          </button>
+        </fieldset>
+      </form>
+    </div>
+  </details>
+</div>

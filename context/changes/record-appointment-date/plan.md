@@ -491,28 +491,28 @@ The change is additive: two new tables and a `create or replace` of the withdraw
 
 #### Automated
 
-- [x] 2.1 Lint and type check pass: `npm run lint && npx astro check`
-- [x] 2.2 Production build succeeds: `npm run build`
-- [x] 2.3 Existing smoke still passes against a local server: `npm run smoke`
+- [x] 2.1 Lint and type check pass: `npm run lint && npx astro check` — 3908b83
+- [x] 2.2 Production build succeeds: `npm run build` — 3908b83
+- [x] 2.3 Existing smoke still passes against a local server: `npm run smoke` — 3908b83
 
 #### Manual
 
-- [x] 2.4 Each intent and rejection case redirects as specified and rows match in Supabase Studio
-- [x] 2.5 A JSON POST to `/api/screenings` redirects with `invalid_request` instead of a 500
+- [x] 2.4 Each intent and rejection case redirects as specified and rows match in Supabase Studio — 3908b83
+- [x] 2.5 A JSON POST to `/api/screenings` redirects with `invalid_request` instead of a 500 — 3908b83
 
 ### Phase 3: Dashboard, wording and smoke
 
 #### Automated
 
-- [ ] 3.1 Lint and type check pass: `npm run lint && npx astro check`
-- [ ] 3.2 Production build succeeds: `npm run build`
-- [ ] 3.3 Full smoke, including the new steps, passes against a local server: `npm run smoke`
-- [ ] 3.4 pgTAP suite still passes: `npx supabase test db`
+- [x] 3.1 Lint and type check pass: `npm run lint && npx astro check`
+- [x] 3.2 Production build succeeds: `npm run build`
+- [x] 3.3 Full smoke, including the new steps, passes against a local server: `npm run smoke`
+- [x] 3.4 pgTAP suite still passes: `npx supabase test db`
 
 #### Manual
 
-- [ ] 3.5 In pl and en: plan with and without a date, re-date, remove, mark done with and without a month, undo; each lands in the right section with a correct message
-- [ ] 3.6 An error (e.g. a past date) appears inside the right item with its panel open, and the page scrolls to it
-- [ ] 3.7 Dates display without a day shift, and "due again" months are correct for a fixed-interval exam; a no-interval exam shows the note
-- [ ] 3.8 The forms work with the keyboard and at phone width; date input and selects work in Chrome, Firefox and Safari
-- [ ] 3.9 The consent and withdrawal texts read correctly in both locales, and withdrawing on `/profile` removes plans and done records
+- [x] 3.5 In pl and en: plan with and without a date, re-date, remove, mark done with and without a month, undo; each lands in the right section with a correct message
+- [x] 3.6 An error (e.g. a past date) appears inside the right item with its panel open, and the page scrolls to it
+- [x] 3.7 Dates display without a day shift, and "due again" months are correct for a fixed-interval exam; a no-interval exam shows the note
+- [x] 3.8 The forms work with the keyboard and at phone width; date input and selects work in Chrome, Firefox and Safari
+- [x] 3.9 The consent and withdrawal texts read correctly in both locales, and withdrawing on `/profile` removes plans and done records

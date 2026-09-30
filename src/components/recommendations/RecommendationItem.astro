@@ -1,16 +1,24 @@
 ---
 import EntryDetails from "@/components/recommendations/EntryDetails.astro";
+import ScreeningActions from "@/components/recommendations/ScreeningActions.astro";
 import { createT } from "@/i18n";
 import type { Recommendation } from "@/lib/catalog/recommend";
 import { describeBranch, describeInterval } from "@/lib/catalog/wording";
+import { describeLastDone, type ScreeningFormBounds } from "@/lib/screenings/format";
+import { anchorMonth, type ScreeningCompletion } from "@/lib/screenings/rules";
 
 interface Props {
   recommendation: Recommendation;
   /** The user's age by year of birth, as `recommend` computed it. */
   age: number;
+  bounds: ScreeningFormBounds;
+  /** The done record of an exam that is due again, for its "last done" line. */
+  lastDone?: ScreeningCompletion;
+  /** Translated error of the last plan/done attempt on this exam; opens its panel. */
+  error?: string | null;
 }
 
-const { recommendation, age } = Astro.props;
+const { recommendation, age, bounds, lastDone, error } = Astro.props;
 const { entry, tier, matchedBranch, interval } = recommendation;
 const { locale } = Astro.locals;
 const t = createT(locale);
@@ -19,11 +27,18 @@ const name = locale === "pl" ? entry.name_pl : entry.name_en;
 const badge = "rounded-full border px-2 py-0.5 text-xs";
 ---
 
-<li data-slug={entry.slug} data-tier={tier} class="rounded-lg border border-white/10 bg-white/5 p-3">
+<li
+  id={`screening-${entry.slug}`}
+  data-slug={entry.slug}
+  data-tier={tier}
+  data-last-done={lastDone ? anchorMonth(lastDone).slice(0, 7) : undefined}
+  class="scroll-mt-4 rounded-lg border border-white/10 bg-white/5 p-3"
+>
   <h4 class="font-medium text-white">{name}</h4>
   <p class="mt-1 text-sm text-blue-100/80">
     {t("dashboard.recommendations.howOften", { interval: describeInterval(interval, t) })}
   </p>
+  {lastDone && <p class="mt-1 text-sm text-blue-100/80">{describeLastDone(lastDone, t, locale)}</p>}
   <p class="mt-2 flex flex-wrap gap-2">
     <span
       class:list={[
@@ -52,6 +67,8 @@ const badge = "rounded-full border px-2 py-0.5 text-xs";
       )}
     </span>
   </p>
+
+  <ScreeningActions slug={entry.slug} name={name} bounds={bounds} error={error} open={Boolean(error)} />
 
   <EntryDetails entry={entry}>
     <div>

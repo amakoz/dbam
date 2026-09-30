@@ -116,13 +116,48 @@ export const pl = {
     "Te badania zależą od informacji, o które nie pytamy. Jeśli warunek przy badaniu Cię dotyczy, zapytaj o nie lekarza POZ.",
   "dashboard.recommendations.maybe.if": "Jeśli {conditions}.",
 
+  "dashboard.screenings.plans.heading": "Twoje plany",
+  "dashboard.screenings.done.heading": "Wykonane",
+  "dashboard.screenings.panel.toggle": "Zaplanuj lub oznacz jako wykonane",
+  "dashboard.screenings.panel.togglePlanned": "Zmień termin lub oznacz jako wykonane",
+  "dashboard.screenings.plan.legend": "Zaplanuj badanie",
+  "dashboard.screenings.plan.legendPlanned": "Zmień termin",
+  "dashboard.screenings.plan.dateLabel": "Termin wizyty",
+  "dashboard.screenings.plan.dateHint":
+    "Opcjonalnie — zostaw puste, jeśli nie masz jeszcze terminu. Dbam niczego nie rezerwuje: wpisz termin, który ustalisz z placówką.",
+  "dashboard.screenings.plan.submit": "Dodaj do planów",
+  "dashboard.screenings.plan.submitPlanned": "Zapisz termin",
+  "dashboard.screenings.plan.date": "Termin: {date}",
+  "dashboard.screenings.plan.noDate": "Termin jeszcze nieustalony",
+  "dashboard.screenings.plan.remove": "Usuń z planów",
+  "dashboard.screenings.done.legend": "Już wykonane?",
+  "dashboard.screenings.done.monthLabel": "Miesiąc ostatniego badania",
+  "dashboard.screenings.done.yearLabel": "Rok",
+  "dashboard.screenings.done.hint":
+    "Opcjonalnie — jeśli nie pamiętasz, zostaw oba pola puste. Następne badanie policzymy wtedy od bieżącego miesiąca.",
+  "dashboard.screenings.done.submit": "Oznacz jako wykonane",
+  "dashboard.screenings.done.lastDone": "Ostatnio wykonane: {month}",
+  "dashboard.screenings.done.markedIn": "Oznaczone jako wykonane: {month}",
+  "dashboard.screenings.done.dueAgain": "Następne badanie: {month}",
+  "dashboard.screenings.done.noInterval":
+    "To badanie nie ma ustalonego odstępu — o tym, kiedy je powtórzyć, porozmawiaj z lekarzem.",
+  "dashboard.screenings.done.undo": "Cofnij oznaczenie",
+  "dashboard.screenings.tierBadge.1": "Ważne",
+  "dashboard.screenings.tierBadge.2": "Warto zaplanować",
+  "dashboard.screenings.tierBadge.3": "Do rozmowy z lekarzem",
+  "dashboard.screenings.saved.plan": "Zapisano w Twoich planach.",
+  "dashboard.screenings.saved.unplan": "Usunięto z Twoich planów.",
+  "dashboard.screenings.saved.done": "Oznaczono badanie jako wykonane.",
+  "dashboard.screenings.saved.undone": "Cofnięto oznaczenie badania jako wykonanego.",
+
   "onboarding.title": "Twój profil zdrowotny",
   "onboarding.withdrawn": "Twoja zgoda została wycofana, a dane o zdrowiu usunięte.",
   "onboarding.consent.heading": "Zgoda na przechowywanie danych o zdrowiu",
   "onboarding.consent.intro":
     "Aby wskazać badania profilaktyczne, które Ci przysługują, Dbam musi przechowywać kilka informacji o Twoim zdrowiu. To dane szczególnej kategorii (art. 9 RODO), dlatego potrzebujemy Twojej wyraźnej zgody.",
   "onboarding.consent.dataHeading": "Jakie dane",
-  "onboarding.consent.data": "Rok urodzenia, płeć przy urodzeniu i historię palenia papierosów.",
+  "onboarding.consent.data":
+    "Rok urodzenia, płeć przy urodzeniu i historię palenia papierosów, a jeśli je dodasz — zaplanowane badania (z terminami wizyt) i badania oznaczone jako wykonane (z miesiącem ostatniego badania).",
   "onboarding.consent.purposeHeading": "W jakim celu",
   "onboarding.consent.purpose":
     "Wyłącznie po to, by pokazać, na które badania przesiewowe się kwalifikujesz i kiedy. Aplikacja nie stawia diagnoz. Nie udostępniamy tych danych innym użytkownikom ani podmiotom trzecim i nie przekazujemy ich do modeli sztucznej inteligencji.",
@@ -146,7 +181,7 @@ export const pl = {
   "profile.withdraw.heading": "Wycofanie zgody",
   "profile.withdraw.intro": "Możesz w każdej chwili wycofać zgodę na przechowywanie danych o zdrowiu.",
   "profile.withdraw.deleted":
-    "Usuniemy wtedy od razu Twój profil zdrowotny: rok urodzenia, płeć przy urodzeniu i historię palenia papierosów. Przez ograniczony czas dane mogą jeszcze pozostawać w kopiach zapasowych bazy danych, z których znikną automatycznie.",
+    "Usuniemy wtedy od razu Twoje dane o zdrowiu: rok urodzenia, płeć przy urodzeniu, historię palenia papierosów, zaplanowane badania z terminami wizyt i badania oznaczone jako wykonane. Przez ograniczony czas dane mogą jeszcze pozostawać w kopiach zapasowych bazy danych, z których znikną automatycznie.",
   "profile.withdraw.kept":
     "Zachowamy jedynie informację o tym, kiedy, w jakiej wersji i w jakim języku zgoda została udzielona i wycofana — jako dowód, że przetwarzaliśmy dane zgodnie z prawem. Twoje konto pozostanie aktywne.",
   "profile.withdraw.checkbox": "Rozumiem, że moje dane o zdrowiu zostaną usunięte.",

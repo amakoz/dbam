@@ -57,6 +57,26 @@ async function request(path, { method = "GET", form } = {}) {
   return { status: response.status, location: response.headers.get("location") ?? "", body: await response.text() };
 }
 
+// Plan and done dates relative to the run date, as Warsaw calendar values like the app uses (`YYYY-MM-DD`), so the
+// steps never age and never flake around midnight.
+function warsawToday() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date());
+}
+function shiftDays(date, days) {
+  const shifted = new Date(`${date}T00:00:00Z`);
+  shifted.setUTCDate(shifted.getUTCDate() + days);
+  return shifted.toISOString().slice(0, 10);
+}
+const today = warsawToday();
+// Last calendar month in Warsaw: always between January of the fixture's birth year (1970) and this month.
+const [thisYear, thisMonth] = today.split("-").map(Number);
+const lastMonth =
+  thisMonth === 1
+    ? { month: "12", year: String(thisYear - 1) }
+    : { month: String(thisMonth - 1), year: String(thisYear) };
+const mammography = "mammography-nfz-program";
+const screening = (form) => request("/api/screenings", { method: "POST", form: { slug: mammography, ...form } });
+
 // The consent form carries the version of the text it shows; read it from the page like a browser would submit it.
 let consentVersion = "";
 async function readConsentVersion() {
@@ -139,6 +159,80 @@ const accountSteps = [
       bodyExcludes: 'data-slug="psa-shared-decision"',
     },
   ],
+  // Plans and done records (S-03). Mammography is in tier 1 for the fixture, so it can be planned and marked done.
+  [
+    "plan with a date is saved",
+    () => screening({ intent: "plan", appointment_date: shiftDays(today, 30) }),
+    { status: 302, location: "/dashboard?saved=plan" },
+  ],
+  [
+    "dashboard shows the plan instead of the tier item",
+    () => request("/dashboard"),
+    {
+      status: 200,
+      bodyIncludes: `data-plan data-slug="${mammography}" data-appointment="${shiftDays(today, 30)}"`,
+      bodyExcludes: `data-slug="${mammography}" data-tier`,
+    },
+  ],
+  [
+    "plan rejects a past date",
+    () => screening({ intent: "plan", appointment_date: shiftDays(today, -30) }),
+    { status: 302, location: "/dashboard?error=invalid_appointment_date" },
+  ],
+  [
+    "plan rejects an exam that is not recommended (draft entry)",
+    () => request("/api/screenings", { method: "POST", form: { intent: "plan", slug: "lung-ldct-nfz-program" } }),
+    { status: 302, location: "/dashboard?error=screening_not_available" },
+  ],
+  [
+    "done last month is saved",
+    () => screening({ intent: "done", done_month: lastMonth.month, done_year: lastMonth.year }),
+    { status: 302, location: "/dashboard?saved=done" },
+  ],
+  [
+    "dashboard shows the exam as done, not planned",
+    () => request("/dashboard"),
+    {
+      status: 200,
+      bodyIncludes: `data-done data-slug="${mammography}"`,
+      bodyExcludes: [`data-slug="${mammography}" data-tier`, "data-plan"],
+    },
+  ],
+  ["undone is saved", () => screening({ intent: "undone" }), { status: 302, location: "/dashboard?saved=undone" }],
+  [
+    "dashboard returns the exam to its tier",
+    () => request("/dashboard"),
+    { status: 200, bodyIncludes: `data-slug="${mammography}" data-tier="1"`, bodyExcludes: "data-done" },
+  ],
+  [
+    "done in January 2020 is saved",
+    () => screening({ intent: "done", done_month: "1", done_year: "2020" }),
+    { status: 302, location: "/dashboard?saved=done" },
+  ],
+  [
+    "dashboard shows the exam due again in its tier",
+    () => request("/dashboard"),
+    {
+      status: 200,
+      bodyIncludes: `data-slug="${mammography}" data-tier="1" data-last-done="2020-01"`,
+      bodyExcludes: "data-done",
+    },
+  ],
+  [
+    "plan without a date is saved",
+    () => screening({ intent: "plan", appointment_date: "" }),
+    { status: 302, location: "/dashboard?saved=plan" },
+  ],
+  // An empty attribute value renders as a bare attribute, so "no date" is `data-appointment` without `="…"`.
+  [
+    "dashboard shows the undated plan",
+    () => request("/dashboard"),
+    {
+      status: 200,
+      bodyIncludes: `data-plan data-slug="${mammography}" data-appointment`,
+      bodyExcludes: ['data-appointment="', `data-slug="${mammography}" data-tier`],
+    },
+  ],
   [
     "onboarding sends onboarded user to dashboard",
     () => request("/onboarding"),
@@ -186,6 +280,22 @@ const accountSteps = [
     "withdraw from onboarding",
     () => request("/api/consent/withdraw", { method: "POST", form: { from: "onboarding", confirm: "yes" } }),
     { status: 302, location: "/onboarding?withdrawn=1" },
+  ],
+  // The first withdrawal deleted the plan and the done record left above: a fresh profile starts with none.
+  [
+    "consent is recorded after withdrawal",
+    () => request("/api/consent/grant", { method: "POST", form: { consent: "yes", version: consentVersion } }),
+    { status: 302, location: "/onboarding" },
+  ],
+  [
+    "profile is saved again",
+    () => request("/api/profile", { method: "POST", form: profile }),
+    { status: 302, location: "/dashboard" },
+  ],
+  [
+    "dashboard has no plans or done records after withdrawal",
+    () => request("/dashboard"),
+    { status: 200, bodyIncludes: `data-slug="${mammography}" data-tier="1"`, bodyExcludes: ["data-plan", "data-done"] },
   ],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],

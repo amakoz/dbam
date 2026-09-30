@@ -539,10 +539,10 @@ Leave a rule and a failing check, so the next agent keeps the dashboard on the c
 
 #### Automated
 
-- [ ] 5.1 UI check passes on the migrated files: `npm run ui:check`
-- [ ] 5.2 UI check fails on a deliberate bg-purple-600 in dashboard.astro (break-check)
-- [ ] 5.3 Linting passes: `npm run lint`
-- [ ] 5.4 Build succeeds: `npm run build`
+- [x] 5.1 UI check passes on the migrated files: `npm run ui:check`
+- [x] 5.2 UI check fails on a deliberate bg-purple-600 in dashboard.astro (break-check)
+- [x] 5.3 Linting passes: `npm run lint`
+- [x] 5.4 Build succeeds: `npm run build`
 
 #### Manual
 

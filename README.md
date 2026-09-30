@@ -56,6 +56,7 @@ npm run dev
 - `npm run lint:fix` - Auto-fix ESLint issues
 - `npm run format` - Run Prettier
 - `npm run smoke` - Smoke test the auth flow against a running server (`BASE_URL`, defaults to `http://localhost:4321`)
+- `npm run ui:check` - Fail on hardcoded colours and arbitrary values in the views migrated to the design system (see [Design system](#design-system))
 - `npm run db:types` - Regenerate `src/lib/database.types.ts` from the local database
 - `npm run cf:types` - Regenerate `worker-configuration.d.ts` (Worker runtime types and `Env`) from `wrangler.jsonc` and `.dev.vars` (commit it)
 - `npm run catalog:check` - Validate the screening catalog entries and check they match the newest snapshot migration
@@ -75,6 +76,15 @@ npm run dev
 ├── public/ # Public assets
 ├── wrangler.jsonc # Cloudflare Workers config
 ```
+
+## Design system
+
+The UI uses theme A "Len i szałwia" (linen and sage), light and dark from the system colour scheme.
+
+- **Tokens:** `src/styles/global.css` — colours are `light-dark()` values under `color-scheme: light dark`, published to Tailwind via `@theme inline` (including the tier-1..3 and success tokens). Views reference roles (`bg-primary`, `text-muted-foreground`, `bg-tier-1`), never raw colours.
+- **Components:** shadcn/ui ("new-york") in `src/components/ui/`. Add missing ones with `npx shadcn@latest add <name>`.
+- **Kitchen sink:** `/dev/kitchen-sink` renders the tokens and components; dev only (404 in production).
+- **Check:** `npm run ui:check` (`scripts/ui-check.mjs`) scans the migrated views for Tailwind palette classes, hex/rgb/hsl/oklch literals and arbitrary px/rem values, prints `file:line` hits and exits 1. It runs in CI and in the pre-commit hook. Only the files listed in the script are checked; when a follow-up change migrates a view, it appends the files to that list and to the matching lint-staged glob in `package.json`.
 
 ## Supabase Configuration
 
@@ -247,7 +257,7 @@ SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smo
 
 GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`, and on manual `workflow_dispatch`:
 
-- **ci** — `catalog:check`, lint, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
+- **ci** — `catalog:check`, lint, `ui:check`, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
   It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for every cron in the built `dist/server/wrangler.json` with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"`, so a `wrangler.jsonc` cron that `src/lib/heartbeat.ts` doesn't handle fails the PR (see [Scheduled jobs](#scheduled-jobs)).
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).

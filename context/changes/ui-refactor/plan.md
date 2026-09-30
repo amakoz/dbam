@@ -475,76 +475,76 @@ Leave a rule and a failing check, so the next agent keeps the dashboard on the c
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint` — e0296b1
-- [x] 1.2 Type checking passes: `npx astro check` — e0296b1
-- [x] 1.3 Build succeeds, including the fonts on the Cloudflare adapter: `npm run build` — e0296b1
-- [x] 1.4 Smoke passes against the local preview: `npm run smoke` — e0296b1
+- [x] 1.1 Linting passes: `npm run lint` — e166a2f
+- [x] 1.2 Type checking passes: `npx astro check` — e166a2f
+- [x] 1.3 Build succeeds, including the fonts on the Cloudflare adapter: `npm run build` — e166a2f
+- [x] 1.4 Smoke passes against the local preview: `npm run smoke` — e166a2f
 
 #### Manual
 
-- [x] 1.5 Unmigrated pages look the same apart from the body font — e0296b1
-- [x] 1.6 Polish diacritics render in Fraunces and Figtree at 16px and 32px — e0296b1
-- [x] 1.7 Dark system scheme resolves theme A's dark background — e0296b1
+- [x] 1.5 Unmigrated pages look the same apart from the body font — e166a2f
+- [x] 1.6 Polish diacritics render in Fraunces and Figtree at 16px and 32px — e166a2f
+- [x] 1.7 Dark system scheme resolves theme A's dark background — e166a2f
 
 ### Phase 2: Dashboard shell and information architecture
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint` — 2575d49
-- [x] 2.2 Type checking passes: `npx astro check` — 2575d49
-- [x] 2.3 Build succeeds: `npm run build` — 2575d49
-- [x] 2.4 Smoke passes, with dashboard assertions unchanged: `npm run smoke` — 2575d49
-- [x] 2.5 Hardcoded-value scan on dashboard.astro and AppHeader.astro returns 0 hits — 2575d49
+- [x] 2.1 Linting passes: `npm run lint` — e166a2f
+- [x] 2.2 Type checking passes: `npx astro check` — e166a2f
+- [x] 2.3 Build succeeds: `npm run build` — e166a2f
+- [x] 2.4 Smoke passes, with dashboard assertions unchanged: `npm run smoke` — e166a2f
+- [x] 2.5 Hardcoded-value scan on dashboard.astro and AppHeader.astro returns 0 hits — e166a2f
 
 #### Manual
 
-- [x] 2.6 Desktop shows header, intro, separate section cards, profile card and footer, with no outer card — 2575d49
-- [x] 2.7 About 375px width has no overlap, and there is no floating language pill on the dashboard — 2575d49
-- [x] 2.8 Skip link and header are keyboard-reachable in order — 2575d49
+- [x] 2.6 Desktop shows header, intro, separate section cards, profile card and footer, with no outer card — e166a2f
+- [x] 2.7 About 375px width has no overlap, and there is no floating language pill on the dashboard — e166a2f
+- [x] 2.8 Skip link and header are keyboard-reachable in order — e166a2f
 
 ### Phase 3: Exam rows, forms and save feedback
 
 #### Automated
 
-- [x] 3.1 Linting passes: `npm run lint` — 16721e8
-- [x] 3.2 Type checking passes: `npx astro check` — 16721e8
-- [x] 3.3 Build succeeds: `npm run build` — 16721e8
-- [x] 3.4 Smoke passes, including plan, done, undo, due-again and undated flows: `npm run smoke` — 16721e8
-- [x] 3.5 Hardcoded-value scan on dashboard-scope files returns 0 hits — 16721e8
-- [x] 3.6 No bg-cosmic, bg-white/, text-white or backdrop-blur in dashboard-scope files — 16721e8
+- [x] 3.1 Linting passes: `npm run lint` — e166a2f
+- [x] 3.2 Type checking passes: `npx astro check` — e166a2f
+- [x] 3.3 Build succeeds: `npm run build` — e166a2f
+- [x] 3.4 Smoke passes, including plan, done, undo, due-again and undated flows: `npm run smoke` — e166a2f
+- [x] 3.5 Hardcoded-value scan on dashboard-scope files returns 0 hits — e166a2f
+- [x] 3.6 No bg-cosmic, bg-white/, text-white or backdrop-blur in dashboard-scope files — e166a2f
 
 #### Manual
 
-- [x] 3.7 Saved exam's row shows the confirmation and highlight after plan, done, undo and remove — 16721e8
-- [x] 3.8 Removing a plan for a no-longer-recommended exam shows the confirmation at the top — 16721e8
-- [x] 3.9 Invalid date shows an inline error, the panel opens, and the field is announced as invalid — 16721e8
-- [x] 3.10 Tier 1 is recognisable without colour and visually strongest — 16721e8
+- [x] 3.7 Saved exam's row shows the confirmation and highlight after plan, done, undo and remove — e166a2f
+- [x] 3.8 Removing a plan for a no-longer-recommended exam shows the confirmation at the top — e166a2f
+- [x] 3.9 Invalid date shows an inline error, the panel opens, and the field is announced as invalid — e166a2f
+- [x] 3.10 Tier 1 is recognisable without colour and visually strongest — e166a2f
 
 ### Phase 4: States and visual gate
 
 #### Automated
 
-- [x] 4.1 Linting passes: `npm run lint` — ca5eb3e
-- [x] 4.2 Type checking passes: `npx astro check` — ca5eb3e
-- [x] 4.3 Build succeeds, and /dev/kitchen-sink returns 404 in the production preview — ca5eb3e
-- [x] 4.4 Hardcoded-value scan on kitchen-sink.astro returns 0 hits — ca5eb3e
+- [x] 4.1 Linting passes: `npm run lint` — e166a2f
+- [x] 4.2 Type checking passes: `npx astro check` — e166a2f
+- [x] 4.3 Build succeeds, and /dev/kitchen-sink returns 404 in the production preview — e166a2f
+- [x] 4.4 Hardcoded-value scan on kitchen-sink.astro returns 0 hits — e166a2f
 
 #### Manual
 
-- [x] 4.5 Kitchen sink shows every 7-state cell (or N/A) in light and dark — ca5eb3e
-- [x] 4.6 Screenshots at desktop and 375px in both schemes attached to the PR — ca5eb3e
-- [x] 4.7 Contrast spot-check passes in both schemes — ca5eb3e
+- [x] 4.5 Kitchen sink shows every 7-state cell (or N/A) in light and dark — e166a2f
+- [x] 4.6 Screenshots at desktop and 375px in both schemes attached to the PR — e166a2f
+- [x] 4.7 Contrast spot-check passes in both schemes — e166a2f
 
 ### Phase 5: Guard and docs
 
 #### Automated
 
-- [x] 5.1 UI check passes on the migrated files: `npm run ui:check`
-- [x] 5.2 UI check fails on a deliberate bg-purple-600 in dashboard.astro (break-check)
-- [x] 5.3 Linting passes: `npm run lint`
-- [x] 5.4 Build succeeds: `npm run build`
+- [x] 5.1 UI check passes on the migrated files: `npm run ui:check` — e166a2f
+- [x] 5.2 UI check fails on a deliberate bg-purple-600 in dashboard.astro (break-check) — e166a2f
+- [x] 5.3 Linting passes: `npm run lint` — e166a2f
+- [x] 5.4 Build succeeds: `npm run build` — e166a2f
 
 #### Manual
 
-- [ ] 5.5 CLAUDE.md UI section is outside the 10x-cli block and names the tokens, components, kitchen sink and check
-- [ ] 5.6 ui:check step is green in CI on the PR
+- [x] 5.5 CLAUDE.md UI section is outside the 10x-cli block and names the tokens, components, kitchen sink and check — e166a2f
+- [x] 5.6 ui:check step is green in CI on the PR — e166a2f

@@ -258,6 +258,11 @@ export const pl = {
   "errors.withdraw_failed": "Nie udało się wycofać zgody. Twoje dane nie zostały zmienione — spróbuj ponownie.",
   "errors.invalid_request": "Nie udało się odczytać formularza. Odśwież stronę i spróbuj ponownie.",
   "errors.consent_outdated": "Treść zgody została zaktualizowana. Przeczytaj ją ponownie i potwierdź.",
+  "errors.invalid_appointment_date": "Wybierz datę od dziś do dwóch lat naprzód.",
+  "errors.invalid_done_date":
+    "Podaj miesiąc i rok ostatniego badania albo zostaw oba pola puste. Data nie może być z przyszłości.",
+  "errors.screening_not_available":
+    "Tego badania nie ma teraz na Twojej liście zaleceń. Odśwież stronę i spróbuj ponownie.",
   "errorPage.title": "Chwilowy problem",
   "errorPage.message": "Nie udało się teraz wczytać tej strony. Spróbuj ponownie za chwilę.",
   "errorPage.retry": "Spróbuj ponownie",

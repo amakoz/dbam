@@ -254,6 +254,11 @@ export const en: Record<MessageKey, string> = {
   "errors.withdraw_failed": "We couldn't withdraw your consent. Your data hasn't changed — please try again.",
   "errors.invalid_request": "We couldn't read the form. Refresh the page and try again.",
   "errors.consent_outdated": "The consent text has been updated. Please read it again and confirm.",
+  "errors.invalid_appointment_date": "Pick a date from today up to two years ahead.",
+  "errors.invalid_done_date":
+    "Enter both the month and the year of the last exam, or leave both blank. The date can't be in the future.",
+  "errors.screening_not_available":
+    "This exam isn't on your recommendations list right now. Refresh the page and try again.",
   "errorPage.title": "Something went wrong",
   "errorPage.message": "We couldn't load this page right now. Please try again in a moment.",
   "errorPage.retry": "Try again",

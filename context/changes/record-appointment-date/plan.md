@@ -477,28 +477,28 @@ The change is additive: two new tables and a `create or replace` of the withdraw
 
 #### Automated
 
-- [x] 1.1 Local database resets with the new migration: `npx supabase db reset`
-- [x] 1.2 pgTAP suite passes, including `screening_records.test.sql`: `npx supabase test db`
-- [x] 1.3 Types regenerate with both tables and the committed file matches: `npm run db:types && git diff --exit-code src/lib/database.types.ts`
-- [x] 1.4 Lint and type check pass: `npm run lint && npx astro check`
+- [x] 1.1 Local database resets with the new migration: `npx supabase db reset` — d9f3ef6
+- [x] 1.2 pgTAP suite passes, including `screening_records.test.sql`: `npx supabase test db` — d9f3ef6
+- [x] 1.3 Types regenerate with both tables and the committed file matches: `npm run db:types && git diff --exit-code src/lib/database.types.ts` — d9f3ef6
+- [x] 1.4 Lint and type check pass: `npm run lint && npx astro check` — d9f3ef6
 
 #### Manual
 
-- [x] 1.5 Migration reviewed against the S-01 pattern: every command has a policy, `anon` revoked, no `service_role` grants, withdrawal deletes all three health-data tables
-- [x] 1.6 Roadmap S-03 and S-05 outcomes read consistently and nothing else in the roadmap changed
+- [x] 1.5 Migration reviewed against the S-01 pattern: every command has a policy, `anon` revoked, no `service_role` grants, withdrawal deletes all three health-data tables — d9f3ef6
+- [x] 1.6 Roadmap S-03 and S-05 outcomes read consistently and nothing else in the roadmap changed — d9f3ef6
 
 ### Phase 2: Rules and endpoint
 
 #### Automated
 
-- [ ] 2.1 Lint and type check pass: `npm run lint && npx astro check`
-- [ ] 2.2 Production build succeeds: `npm run build`
-- [ ] 2.3 Existing smoke still passes against a local server: `npm run smoke`
+- [x] 2.1 Lint and type check pass: `npm run lint && npx astro check`
+- [x] 2.2 Production build succeeds: `npm run build`
+- [x] 2.3 Existing smoke still passes against a local server: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.4 Each intent and rejection case redirects as specified and rows match in Supabase Studio
-- [ ] 2.5 A JSON POST to `/api/screenings` redirects with `invalid_request` instead of a 500
+- [x] 2.4 Each intent and rejection case redirects as specified and rows match in Supabase Studio
+- [x] 2.5 A JSON POST to `/api/screenings` redirects with `invalid_request` instead of a 500
 
 ### Phase 3: Dashboard, wording and smoke
 

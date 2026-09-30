@@ -204,7 +204,7 @@ Mail is sent from Resend's test sender `onboarding@resend.dev`, which delivers o
 
 ### Scheduled jobs
 
-`src/worker.ts` is the Worker entry (`main` in `wrangler.jsonc`): HTTP requests go to the Astro adapter, and Cron Triggers (`triggers.crons`) run `scheduled()`, which sends the heartbeat email from `src/lib/heartbeat.ts` through `src/lib/email.ts`. Cron runs in UTC. `*/30 * * * *` sends on every run; `0 8,9 * * *` sends only on the run that is 10:00 in Europe/Warsaw, so it stays at 10:00 across daylight saving time. Any other cron string fails the run.
+`src/worker.ts` is the Worker entry (`main` in `wrangler.jsonc`): HTTP requests go to the Astro adapter, and Cron Triggers (`triggers.crons`) run `scheduled()`, which sends the heartbeat email from `src/lib/heartbeat.ts` through `src/lib/email.ts`. Cron runs in UTC. `*/30 * * * *` sends on every run; `0 8,9 * * *` sends only on the run that is 10:00 in Europe/Warsaw, so it stays at 10:00 across daylight saving time. Any other cron string fails the run. Production runs `0 8,9 * * *`: one heartbeat email a day at 10:00 Warsaw time (the 08:00 and 09:00 UTC runs are both needed because Warsaw's UTC offset changes with daylight saving; one of them always skips).
 
 Run it locally against `npm run dev` or `npm run build && npm run preview`. With `EMAIL_DRY_RUN=true` (the `.env.example` default) it only logs a `dry-run` line and sends nothing:
 

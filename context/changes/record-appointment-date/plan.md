@@ -504,15 +504,15 @@ The change is additive: two new tables and a `create or replace` of the withdraw
 
 #### Automated
 
-- [x] 3.1 Lint and type check pass: `npm run lint && npx astro check`
-- [x] 3.2 Production build succeeds: `npm run build`
-- [x] 3.3 Full smoke, including the new steps, passes against a local server: `npm run smoke`
-- [x] 3.4 pgTAP suite still passes: `npx supabase test db`
+- [x] 3.1 Lint and type check pass: `npm run lint && npx astro check` — 21fbded
+- [x] 3.2 Production build succeeds: `npm run build` — 21fbded
+- [x] 3.3 Full smoke, including the new steps, passes against a local server: `npm run smoke` — 21fbded
+- [x] 3.4 pgTAP suite still passes: `npx supabase test db` — 21fbded
 
 #### Manual
 
-- [x] 3.5 In pl and en: plan with and without a date, re-date, remove, mark done with and without a month, undo; each lands in the right section with a correct message
-- [x] 3.6 An error (e.g. a past date) appears inside the right item with its panel open, and the page scrolls to it
-- [x] 3.7 Dates display without a day shift, and "due again" months are correct for a fixed-interval exam; a no-interval exam shows the note
-- [x] 3.8 The forms work with the keyboard and at phone width; date input and selects work in Chrome, Firefox and Safari
-- [x] 3.9 The consent and withdrawal texts read correctly in both locales, and withdrawing on `/profile` removes plans and done records
+- [x] 3.5 In pl and en: plan with and without a date, re-date, remove, mark done with and without a month, undo; each lands in the right section with a correct message — 21fbded
+- [x] 3.6 An error (e.g. a past date) appears inside the right item with its panel open, and the page scrolls to it — 21fbded
+- [x] 3.7 Dates display without a day shift, and "due again" months are correct for a fixed-interval exam; a no-interval exam shows the note — 21fbded
+- [x] 3.8 The forms work with the keyboard and at phone width; date input and selects work in Chrome, Firefox and Safari — 21fbded
+- [x] 3.9 The consent and withdrawal texts read correctly in both locales, and withdrawing on `/profile` removes plans and done records — 21fbded

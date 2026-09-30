@@ -42,7 +42,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | ID   | Change ID                   | Outcome (user can …)                                                                                                                      | Prerequisites | PRD refs                                           | Status      |
 | ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------- | ----------- |
 | F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done        |
-| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | in-progress |
+| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done        |
 | F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | ready       |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done        |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done        |
@@ -103,10 +103,10 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - Resolved (2026-09-29): no Workers Paid plan and no custom domain in the MVP. F-02 runs on Workers Free and sends through Resend test mode to the owner's address only. See the limits in `context/changes/reminder-dispatch-path/research.md` (Follow-up).
-  - Resolved (2026-09-29): F-02 is verified manually (real cron fires, email arrives). Automated post-deploy verification is parked (see Parked).
+  - Resolved (2026-09-29): F-02 is verified manually (real cron fires, email arrives). Automated post-deploy verification is parked (see Parked, #57).
   - Cron-trigger limit scope (per account vs per Worker) is inconsistently documented — verify in the dashboard. — Owner: team. Block: no.
 - **Risk:** The starter has no scheduled work and `tech-stack.md` flags it as the known gap; proving it early and in isolation keeps S-04 from carrying infrastructure risk and product logic at once.
-- **Status:** in-progress
+- **Status:** done
 
 ### F-03: Unit test suite
 
@@ -214,7 +214,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | Roadmap ID | Change ID                   | Suggested issue title                                           | Ready for `/10x-plan` | Notes                                         |
 | ---------- | --------------------------- | --------------------------------------------------------------- | --------------------- | --------------------------------------------- |
 | F-01       | screening-catalog-v1        | Curate v1 screening catalog (eligibility, importance, interval) | yes                   | #17 · Done; drafter live run (3.3) → #42      |
-| F-02       | reminder-dispatch-path      | Prove scheduled email delivery on Workers in production         | yes                   | #18 · Run `/10x-plan reminder-dispatch-path`  |
+| F-02       | reminder-dispatch-path      | Prove scheduled email delivery on Workers in production         | yes                   | #18 · Done; post-deploy verification → #57    |
 | F-03       | unit-test-suite             | Unit test suite for catalog rules                               | yes                   | #49 · Run `/10x-plan unit-test-suite`         |
 | S-01       | onboarding-profile          | Onboarding: health-data consent and minimal profile             | yes                   | #19 · Done                                    |
 | S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | yes                   | #20 · Done                                    |
@@ -239,7 +239,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Family / shared accounts** — Why parked: PRD §Non-Goals; single user per account for v1.
 - **Optional follow-up profiling (FR-010)** — Why parked: nice-to-have; `main_goal: speed` keeps the milestone on must-have FRs only.
 - **AI at runtime (LLM-generated recommendations, "ask about this exam" chatbot)** — Why parked: research decision; rules are deterministic and the profile is never sent to an AI model. A chatbot is v2 and would get only the exam ID.
-- **Automated post-deploy verification of the reminder dispatch path** — Why parked: user decision (2026-09-29, F-02). With many PRs merging, a `deploy` step that sends a real email on every `main` deploy is noise, and cron changes take up to 15 min to propagate, which is longer than the current post-deploy retry window. Revisit once reminders reach real users. Likely shape: a secret-protected trigger endpoint the `deploy` job calls, or a send-log check. See `context/changes/reminder-dispatch-path/research.md` §E.
+- **Automated post-deploy verification of the reminder dispatch path** (#57) — Why parked: user decision (2026-09-29, F-02). With many PRs merging, a `deploy` step that sends a real email on every `main` deploy is noise, and cron changes take up to 15 min to propagate, which is longer than the current post-deploy retry window. Revisit once reminders reach real users. Likely shape: a secret-protected trigger endpoint the `deploy` job calls, or a send-log check. See `context/changes/reminder-dispatch-path/research.md` §E.
 - **Error tracking beyond Workers observability** — Why parked: no PRD requirement demands it for v1; revisit if reminder runs fail silently.
 
 ## Milestone History
@@ -249,3 +249,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-01: user can sign up or sign in, give explicit, separate consent to storing their health data, complete a minimal profile (birth year, sex, smoking history), and land on their dashboard; their profile is visible only to them.** — Archived 2026-09-28 → `context/archive/2026-09-27-onboarding-profile/`. Lesson: —.
 - **F-01: (foundation) a curated catalog of screening types (the static table FR-009's resolution calls for) exists in the app's data — each with eligibility criteria (at least age and sex), an importance tier, and a repeat interval or an explicit "no known interval" marker — each entry carrying its source, publicly readable and free of personal data.** — Archived 2026-09-29 → `context/archive/2026-09-28-screening-catalog-v1/`. Lesson: —.
 - **S-02: user can open their dashboard and see the screenings currently due for their profile, grouped by importance tier (most important first), each with the rule and source that put it there, or an explanatory empty state when nothing is due — with no wording that states or implies a diagnosis.** — Archived 2026-09-29 → `context/archive/2026-09-28-screening-recommendations/`. Lesson: —.
+- **F-02: (foundation) a scheduled job runs in production on a timer and delivers an email to a test address; the path is exercised in CI or post-deploy verification.** — Archived 2026-09-30 → `context/archive/2026-09-29-reminder-dispatch-path/`. Lesson: —.

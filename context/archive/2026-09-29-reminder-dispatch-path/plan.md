@@ -380,6 +380,18 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 - CI: `.github/workflows/ci.yml:26-56`
 - Lessons: `context/foundation/lessons.md` (Worker name; post-deploy propagation)
 
+## Implementation Notes
+
+Deviations recorded after the implementation review (`reviews/impl-review.md`, F2). Phase blocks and Progress row titles stay as planned.
+
+- **`cf:types` script** (Phase 1.1): it is `wrangler types && prettier --write worker-configuration.d.ts`, not plain `wrangler types`. Without the prettier step, `npm run format` would reformat the generated file, and 1.1 ("leaves it unchanged in git") would fail. This mirrors `db:types`.
+- **Dry-run recipient** (Phase 1.4): the heartbeat uses `REMINDER_TEST_TO` whenever it is set, including in dry run, and falls back to `delivered@resend.dev` only when it is unset. Nothing is sent or logged either way.
+- **CI daily cron** (Phase 2.1): the step pins `time=1790841600000` (2026-10-01T08:00Z, which is 10:00 in Warsaw), so CI always takes the send path in dry run instead of a skip that depends on the runner's clock.
+- **Resend test mode**: the first local live send (1.10) got a 403 `validation_error`, because the recipient didn't exactly match the Resend account email. It worked after the user fixed the address. The 1.10 SHA (`ced6da1`) is the code it verified; the send itself happened on 2026-09-29 after the merge of #48.
+- **Secrets timing** (3.2): the production secrets were set after #48 merged, not before. The 18:00–20:30 UTC runs on 2026-09-29 failed with `HeartbeatConfigError`, which is the designed loud failure. The first successful production run was 21:00 UTC.
+- **Proving period** (3.5): one production `*/30` run was observed as `sent` (21:00 UTC, via `wrangler tail`, and the email arrived) before switching to daily, as the user decided.
+- **Squash merges**: #48 landed on `main` as `792156e`, so the Phase 1–2 SHAs in Progress (`ced6da1`, `ed48804`) are branch commits that aren't on `main`. Phase 4 landed as `97e8aa9` (#52). Phase 3 had no code change, so its rows carry no SHA.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
@@ -388,31 +400,31 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 
 #### Automated
 
-- [x] 1.1 Worker types generated and committed: `npm run cf:types` leaves `worker-configuration.d.ts` unchanged in git — ced6da1
-- [x] 1.2 Linting passes with no new warnings: `npm run lint` — ced6da1
-- [x] 1.3 Type checking passes: `npx astro check` — ced6da1
-- [x] 1.4 Build succeeds: `npm run build` — ced6da1
-- [x] 1.5 Catalog check still passes: `npm run catalog:check` — ced6da1
+- [x] 1.1 Worker types generated and committed: `npm run cf:types` leaves `worker-configuration.d.ts` unchanged in git — 792156e
+- [x] 1.2 Linting passes with no new warnings: `npm run lint` — 792156e
+- [x] 1.3 Type checking passes: `npx astro check` — 792156e
+- [x] 1.4 Build succeeds: `npm run build` — 792156e
+- [x] 1.5 Catalog check still passes: `npm run catalog:check` — 792156e
 
 #### Manual
 
-- [x] 1.6 Local dry run returns `outcome: ok` and logs a `dry-run` line — ced6da1
-- [x] 1.7 Warsaw gate returns send/skip/skip/send for the four `time` values — ced6da1
-- [x] 1.8 `/cdn-cgi/local/scheduled` confirmed reachable under `astro preview` (or fallback recorded) — ced6da1
-- [x] 1.9 Unknown cron string returns a non-ok outcome with a named error — ced6da1
-- [x] 1.10 One live local send arrives at the `+dbam` inbox from `onboarding@resend.dev` — ced6da1
-- [x] 1.11 Site pages, static assets and auth still work under `npm run preview` — ced6da1
+- [x] 1.6 Local dry run returns `outcome: ok` and logs a `dry-run` line — 792156e
+- [x] 1.7 Warsaw gate returns send/skip/skip/send for the four `time` values — 792156e
+- [x] 1.8 `/cdn-cgi/local/scheduled` confirmed reachable under `astro preview` (or fallback recorded) — 792156e
+- [x] 1.9 Unknown cron string returns a non-ok outcome with a named error — 792156e
+- [x] 1.10 One live local send arrives at the `+dbam` inbox from `onboarding@resend.dev` — 792156e
+- [x] 1.11 Site pages, static assets and auth still work under `npm run preview` — 792156e
 
 ### Phase 2: CI dry-run check
 
 #### Automated
 
-- [x] 2.1 Workflow lints as valid YAML and the PR's `ci` and `smoke` jobs pass — ed48804
-- [x] 2.2 The `smoke` job log shows both dry-run scheduled calls returning `"outcome":"ok"` — ed48804
+- [x] 2.1 Workflow lints as valid YAML and the PR's `ci` and `smoke` jobs pass — 792156e
+- [x] 2.2 The `smoke` job log shows both dry-run scheduled calls returning `"outcome":"ok"` — 792156e
 
 #### Manual
 
-- [x] 2.3 Removing `scheduled` on a scratch branch makes the new CI step fail — ed48804
+- [x] 2.3 Removing `scheduled` on a scratch branch makes the new CI step fail — 792156e
 
 ### Phase 3: Production rollout
 
@@ -431,10 +443,10 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 
 #### Automated
 
-- [ ] 4.1 The PR's `ci` and `smoke` jobs pass, and `deploy` on `main` succeeds
+- [x] 4.1 The PR's `ci` and `smoke` jobs pass, and `deploy` on `main` succeeds — 97e8aa9
 
 #### Manual
 
-- [ ] 4.2 Trigger Events shows `0 8,9 * * *` and no further `*/30` runs
-- [ ] 4.3 Next day: two runs, one `sent` and one `skipped`
-- [ ] 4.4 Exactly one heartbeat email arrives at 10:00 Warsaw time
+- [x] 4.2 Trigger Events shows `0 8,9 * * *` and no further `*/30` runs — 97e8aa9
+- [x] 4.3 Next day: two runs, one `sent` and one `skipped` — 97e8aa9
+- [x] 4.4 Exactly one heartbeat email arrives at 10:00 Warsaw time — 97e8aa9

@@ -200,7 +200,7 @@ npx wrangler secret put RESEND_API_KEY     # Resend API key with sending-only pe
 npx wrangler secret put REMINDER_TEST_TO   # heartbeat recipient
 ```
 
-Mail is sent from Resend's test sender `onboarding@resend.dev`, which delivers only to the Resend account owner's address, so the Resend account must be registered on the `REMINDER_TEST_TO` address. Leave `EMAIL_DRY_RUN` unset in production (it defaults to `false`).
+Mail is sent from Resend's test sender `onboarding@resend.dev`, which delivers only to the Resend account owner's address, so `REMINDER_TEST_TO` must be exactly the email the Resend account was created with. A `+tag` variant of that address is rejected with a 403 `validation_error`. Leave `EMAIL_DRY_RUN` unset in production (it defaults to `false`).
 
 ### Scheduled jobs
 

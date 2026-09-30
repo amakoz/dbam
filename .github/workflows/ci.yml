@@ -52,20 +52,26 @@ jobs:
           npm run preview -- --port 4321 &
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:4321/ && break; sleep 1; done
           BASE_URL=http://localhost:4321 npm run smoke
-      # Runs the Worker's scheduled() for both heartbeat crons on the preview started above, so a lost `scheduled`
-      # export, a broken src/worker.ts entry or broken env wiring fails the PR. EMAIL_DRY_RUN=true: nothing is sent.
-      # The daily cron is pinned to 2026-10-01T08:00Z (10:00 in Warsaw), so it takes the send path, not a clock-dependent skip.
+      # Runs the Worker's scheduled() for every cron the build deploys (triggers.crons in dist/server/wrangler.json) on
+      # the preview started above, so a lost `scheduled` export, a broken src/worker.ts entry, broken env wiring, or a
+      # wrangler.jsonc cron that src/lib/heartbeat.ts doesn't handle fails the PR. EMAIL_DRY_RUN=true: nothing is sent.
+      # Runs are pinned to 2026-10-01T08:00Z (10:00 in Warsaw), so the daily cron takes the send path, not a clock-dependent skip.
       - name: Exercise scheduled handler (dry run)
         run: |
+          crons=$(node -e 'for (const c of require("./dist/server/wrangler.json").triggers?.crons ?? []) console.log(encodeURIComponent(c).replace(/\*/g, "%2A"))')
+          if [ -z "$crons" ]; then
+            echo "::error::No crons in dist/server/wrangler.json"
+            exit 1
+          fi
           status=0
-          for cron in '*%2F30+*+*+*+*' '0+8%2C9+*+*+*&time=1790841600000'; do
-            body=$(curl -sS "http://localhost:4321/cdn-cgi/local/scheduled?cron=$cron&format=json" || true)
+          while IFS= read -r cron; do
+            body=$(curl -sS "http://localhost:4321/cdn-cgi/local/scheduled?cron=$cron&time=1790841600000&format=json" || true)
             echo "cron=$cron -> $body"
             if ! printf '%s' "$body" | grep -q '"outcome":"ok"'; then
               echo "::error::Scheduled handler failed for cron=$cron (expected \"outcome\":\"ok\")"
               status=1
             fi
-          done
+          done <<< "$crons"
           exit $status
       - if: always()
         run: supabase stop --no-backup

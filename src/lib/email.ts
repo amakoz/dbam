@@ -7,6 +7,7 @@ const RESEND_ENDPOINT = "https://api.resend.com/emails";
 // Resend's shared test sender: without a verified domain it delivers only to the Resend account owner's address.
 // Replace once Dbam has its own domain.
 const FROM = "Dbam <onboarding@resend.dev>";
+const SEND_TIMEOUT_MS = 10_000;
 
 export interface EmailMessage {
   to: string;
@@ -37,7 +38,8 @@ export class EmailSendError extends Error {
 
 export async function sendEmail({ to, subject, text, idempotencyKey }: EmailMessage): Promise<SendEmailResult> {
   if (EMAIL_DRY_RUN) {
-    console.log(JSON.stringify({ event: "email", outcome: "dry-run", subject, idempotencyKey }));
+    // No subject: reminder subjects may name a screening (health data), which must not reach Workers Logs.
+    console.log(JSON.stringify({ event: "email", outcome: "dry-run", idempotencyKey }));
     return { dryRun: true };
   }
   if (!RESEND_API_KEY) {
@@ -52,6 +54,8 @@ export async function sendEmail({ to, subject, text, idempotencyKey }: EmailMess
       "Idempotency-Key": idempotencyKey,
     },
     body: JSON.stringify({ from: FROM, to: [to], subject, text }),
+    // A hung Resend call would otherwise hold the cron run open until the platform's wall-time limit.
+    signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
   });
   const body = await readJson(response);
   if (!response.ok) {

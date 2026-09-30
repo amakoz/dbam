@@ -400,7 +400,7 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 - [x] 1.7 Warsaw gate returns send/skip/skip/send for the four `time` values — ced6da1
 - [x] 1.8 `/cdn-cgi/local/scheduled` confirmed reachable under `astro preview` (or fallback recorded) — ced6da1
 - [x] 1.9 Unknown cron string returns a non-ok outcome with a named error — ced6da1
-- [ ] 1.10 One live local send arrives at the `+dbam` inbox from `onboarding@resend.dev`
+- [x] 1.10 One live local send arrives at the `+dbam` inbox from `onboarding@resend.dev` — ced6da1
 - [x] 1.11 Site pages, static assets and auth still work under `npm run preview` — ced6da1
 
 ### Phase 2: CI dry-run check
@@ -418,14 +418,14 @@ Once the proving cron is confirmed, a follow-up PR moves to the daily schedule. 
 
 #### Automated
 
-- [ ] 3.1 `deploy` job on `main` succeeds after the merge
+- [x] 3.1 `deploy` job on `main` succeeds after the merge
 
 #### Manual
 
-- [ ] 3.2 Resend account on the `+dbam` address and both Worker secrets set before merge
-- [ ] 3.3 CI token confirmed able to deploy cron triggers (or `wrangler triggers deploy` run once)
-- [ ] 3.4 Trigger Events shows `*/30 * * * *` and successful runs within ~45 min of deploy
-- [ ] 3.5 Heartbeat emails arrive every 30 minutes and logs contain no recipient or key
+- [x] 3.2 Resend account on the `+dbam` address and both Worker secrets set before merge
+- [x] 3.3 CI token confirmed able to deploy cron triggers (or `wrangler triggers deploy` run once)
+- [x] 3.4 Trigger Events shows `*/30 * * * *` and successful runs within ~45 min of deploy
+- [x] 3.5 Heartbeat emails arrive every 30 minutes and logs contain no recipient or key
 
 ### Phase 4: Switch to daily 10:00 Warsaw
 

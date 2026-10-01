@@ -156,6 +156,7 @@ export const en: Record<MessageKey, string> = {
   "dashboard.screenings.saved.unplan": "Removed from your plans.",
   "dashboard.screenings.saved.done": "Marked as done.",
   "dashboard.screenings.saved.undone": "The screening is no longer marked as done.",
+  "dashboard.reminders.hint": "Want an email before your appointment? Turn on reminders in your profile.",
 
   "onboarding.title": "Your health profile",
   "onboarding.withdrawn": "Your consent has been withdrawn and your health data deleted.",
@@ -188,11 +189,20 @@ export const en: Record<MessageKey, string> = {
   "profile.withdraw.heading": "Withdrawing consent",
   "profile.withdraw.intro": "You can withdraw your consent to storing your health data at any time.",
   "profile.withdraw.deleted":
-    "We then immediately delete your health data: your year of birth, sex at birth and smoking history, your planned screenings with their appointment dates, and the screenings you marked as done. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
+    "We then immediately delete your health data: your year of birth, sex at birth and smoking history, your planned screenings with their appointment dates, and the screenings you marked as done. Appointment reminders are switched off too. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
   "profile.withdraw.kept":
     "We keep only a record of when, under which version and in which language consent was given and withdrawn, as proof that we processed your data lawfully. Your account stays active.",
   "profile.withdraw.checkbox": "I understand that my health data will be deleted.",
   "profile.withdraw.submit": "Withdraw consent and delete data",
+  "profile.reminders.heading": "Appointment reminders",
+  "profile.reminders.disclosure":
+    "With reminders on, we send you one email 1–3 days before each appointment date you enter in your plans. It contains the appointment date and a link to Dbam, never the name of the exam. We send it to your account's email address through our email provider (Resend). You can turn reminders off here at any time.",
+  "profile.reminders.state.on": "Reminders are on.",
+  "profile.reminders.state.off": "Reminders are off.",
+  "profile.reminders.turnOn": "Turn reminders on",
+  "profile.reminders.turnOff": "Turn reminders off",
+  "profile.reminders.saved.on": "Reminders are now on.",
+  "profile.reminders.saved.off": "Reminders are now off.",
 
   "profile.form.birthYear": "Year of birth",
   "profile.form.birthYearPlaceholder": "e.g. 1980",
@@ -276,6 +286,16 @@ export const en: Record<MessageKey, string> = {
   "auth.form.showPassword": "Show password",
   "auth.form.hidePassword": "Hide password",
 
+  // Appointment reminder email (plain text). Never name an exam: only dates and a count.
+  "email.appointmentReminder.subject": "Dbam: appointment reminder",
+  "email.appointmentReminder.greeting": "Hello,",
+  "email.appointmentReminder.body_one": "You have an appointment coming up: {dates}.",
+  "email.appointmentReminder.body_few": "You have {count} appointments coming up: {dates}.",
+  "email.appointmentReminder.body_many": "You have {count} appointments coming up: {dates}.",
+  "email.appointmentReminder.body_other": "You have {count} appointments coming up: {dates}.",
+  "email.appointmentReminder.dashboard": "See the details in your Dbam dashboard: {url}",
+  "email.appointmentReminder.optOut": "Don't want these reminders? Turn them off in your profile: {url}",
+
   "errors.auth.not_configured": "Sign-in is temporarily unavailable. Please try again later.",
   "errors.auth.missing_code": "The confirmation link is incomplete. Open it again from the email.",
   "errors.auth.link_invalid": "The confirmation link is invalid or has expired. Try signing in.",
@@ -305,6 +325,7 @@ export const en: Record<MessageKey, string> = {
     "Enter both the month and the year of the last exam, or leave both blank. The date can't be in the future.",
   "errors.screening_not_available":
     "This exam isn't on your recommendations list right now. Refresh the page and try again.",
+  "errors.reminders_failed": "We couldn't save your reminder setting. Please try again.",
   "errorPage.title": "Something went wrong",
   "errorPage.message": "We couldn't load this page right now. Please try again in a moment.",
   "errorPage.retry": "Try again",

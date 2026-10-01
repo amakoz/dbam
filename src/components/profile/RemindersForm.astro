@@ -1,0 +1,61 @@
+---
+import { createT } from "@/i18n";
+
+interface Props {
+  /** Whether reminders are on now; the button flips this. */
+  enabled: boolean;
+  /** The state just saved (`/api/reminders` redirects with `?reminders=on|off`), for the status line. */
+  saved?: "on" | "off" | null;
+  /** Translated `reminders_*` error, if the last attempt failed. */
+  error?: string | null;
+}
+
+const { enabled, saved, error } = Astro.props;
+const t = createT(Astro.locals.locale);
+const state = enabled ? "on" : "off";
+---
+
+<section id="reminders" aria-labelledby="reminders-heading" class="border-t border-white/10 pt-6">
+  <form method="POST" action="/api/reminders" class="space-y-4" data-reminders={state}>
+    <input type="hidden" name="enabled" value={enabled ? "off" : "on"} />
+    <h2 id="reminders-heading" class="text-lg font-semibold">
+      {t("profile.reminders.heading")}
+    </h2>
+    <p class="text-sm text-blue-100/80">{t("profile.reminders.disclosure")}</p>
+
+    {saved && (
+      <p class="rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200" role="status">
+        {t(saved === "on" ? "profile.reminders.saved.on" : "profile.reminders.saved.off")}
+      </p>
+    )}
+
+    {error && (
+      <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
+        {error}
+      </p>
+    )}
+
+    <p
+      class:list={[
+        "rounded-lg border px-3 py-2 text-sm",
+        enabled
+          ? "border-purple-400/30 bg-purple-900/30 text-purple-100"
+          : "border-white/20 bg-white/5 text-blue-100/80",
+      ]}
+    >
+      {t(enabled ? "profile.reminders.state.on" : "profile.reminders.state.off")}
+    </p>
+
+    <button
+      type="submit"
+      class:list={[
+        "w-full rounded-lg px-4 py-2 font-medium transition-colors",
+        enabled
+          ? "border border-white/20 bg-white/10 text-white hover:bg-white/20"
+          : "bg-purple-600 text-white hover:bg-purple-500",
+      ]}
+    >
+      {t(enabled ? "profile.reminders.turnOff" : "profile.reminders.turnOn")}
+    </button>
+  </form>
+</section>

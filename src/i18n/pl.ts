@@ -161,6 +161,7 @@ export const pl = {
   "dashboard.screenings.saved.unplan": "Usunięto z Twoich planów.",
   "dashboard.screenings.saved.done": "Oznaczono badanie jako wykonane.",
   "dashboard.screenings.saved.undone": "Cofnięto oznaczenie badania jako wykonanego.",
+  "dashboard.reminders.hint": "Chcesz dostać e-mail przed wizytą? Włącz przypomnienia w swoim profilu.",
 
   "onboarding.title": "Twój profil zdrowotny",
   "onboarding.withdrawn": "Twoja zgoda została wycofana, a dane o zdrowiu usunięte.",
@@ -193,11 +194,20 @@ export const pl = {
   "profile.withdraw.heading": "Wycofanie zgody",
   "profile.withdraw.intro": "Możesz w każdej chwili wycofać zgodę na przechowywanie danych o zdrowiu.",
   "profile.withdraw.deleted":
-    "Usuniemy wtedy od razu Twoje dane o zdrowiu: rok urodzenia, płeć przy urodzeniu, historię palenia papierosów, zaplanowane badania z terminami wizyt i badania oznaczone jako wykonane. Przez ograniczony czas dane mogą jeszcze pozostawać w kopiach zapasowych bazy danych, z których znikną automatycznie.",
+    "Usuniemy wtedy od razu Twoje dane o zdrowiu: rok urodzenia, płeć przy urodzeniu, historię palenia papierosów, zaplanowane badania z terminami wizyt i badania oznaczone jako wykonane. Wyłączymy też przypomnienia o wizytach. Przez ograniczony czas dane mogą jeszcze pozostawać w kopiach zapasowych bazy danych, z których znikną automatycznie.",
   "profile.withdraw.kept":
     "Zachowamy jedynie informację o tym, kiedy, w jakiej wersji i w jakim języku zgoda została udzielona i wycofana — jako dowód, że przetwarzaliśmy dane zgodnie z prawem. Twoje konto pozostanie aktywne.",
   "profile.withdraw.checkbox": "Rozumiem, że moje dane o zdrowiu zostaną usunięte.",
   "profile.withdraw.submit": "Wycofaj zgodę i usuń dane",
+  "profile.reminders.heading": "Przypomnienia o wizytach",
+  "profile.reminders.disclosure":
+    "Po włączeniu przypomnień wyślemy Ci jeden e-mail na 1–3 dni przed każdym terminem wizyty, który wpiszesz w swoich planach. Wiadomość zawiera datę wizyty i link do Dbam, ale nigdy nazwę badania. Wysyłamy ją na adres e-mail Twojego konta przez naszego dostawcę poczty e-mail (Resend). Przypomnienia możesz tu wyłączyć w każdej chwili.",
+  "profile.reminders.state.on": "Przypomnienia są włączone.",
+  "profile.reminders.state.off": "Przypomnienia są wyłączone.",
+  "profile.reminders.turnOn": "Włącz przypomnienia",
+  "profile.reminders.turnOff": "Wyłącz przypomnienia",
+  "profile.reminders.saved.on": "Przypomnienia zostały włączone.",
+  "profile.reminders.saved.off": "Przypomnienia zostały wyłączone.",
 
   "profile.form.birthYear": "Rok urodzenia",
   "profile.form.birthYearPlaceholder": "np. 1980",
@@ -280,6 +290,16 @@ export const pl = {
   "auth.form.showPassword": "Pokaż hasło",
   "auth.form.hidePassword": "Ukryj hasło",
 
+  // Appointment reminder email (plain text). Never name an exam: only dates and a count.
+  "email.appointmentReminder.subject": "Dbam: przypomnienie o wizycie",
+  "email.appointmentReminder.greeting": "Dzień dobry,",
+  "email.appointmentReminder.body_one": "Masz zaplanowaną wizytę w najbliższych dniach: {dates}.",
+  "email.appointmentReminder.body_few": "Masz {count} zaplanowane wizyty w najbliższych dniach: {dates}.",
+  "email.appointmentReminder.body_many": "Masz {count} zaplanowanych wizyt w najbliższych dniach: {dates}.",
+  "email.appointmentReminder.body_other": "Masz {count} zaplanowanej wizyty w najbliższych dniach: {dates}.",
+  "email.appointmentReminder.dashboard": "Szczegóły znajdziesz w swoim panelu Dbam: {url}",
+  "email.appointmentReminder.optOut": "Nie chcesz dostawać przypomnień? Wyłącz je w swoim profilu: {url}",
+
   "errors.auth.not_configured": "Logowanie jest chwilowo niedostępne. Spróbuj ponownie później.",
   "errors.auth.missing_code": "Link potwierdzający jest niekompletny. Otwórz go ponownie z wiadomości e-mail.",
   "errors.auth.link_invalid": "Link potwierdzający jest nieprawidłowy lub wygasł. Spróbuj się zalogować.",
@@ -310,6 +330,7 @@ export const pl = {
     "Podaj miesiąc i rok ostatniego badania albo zostaw oba pola puste. Data nie może być z przyszłości.",
   "errors.screening_not_available":
     "Tego badania nie ma teraz na Twojej liście zaleceń. Odśwież stronę i spróbuj ponownie.",
+  "errors.reminders_failed": "Nie udało się zapisać ustawienia przypomnień. Spróbuj ponownie.",
   "errorPage.title": "Chwilowy problem",
   "errorPage.message": "Nie udało się teraz wczytać tej strony. Spróbuj ponownie za chwilę.",
   "errorPage.retry": "Spróbuj ponownie",

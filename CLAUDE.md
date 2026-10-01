@@ -5,6 +5,7 @@
 ## Hard rules
 
 - `SUPABASE_URL`/`SUPABASE_KEY` are server-only secrets declared via `astro:env/server` (`astro.config.mjs`) — never read them on the client or pass them through props.
+- `SUPABASE_SECRET_KEY` is a server-only secret read only by `src/lib/reminders/admin-client.ts` (the cron job's client; lint forbids importing `@/lib/reminders/*` from pages, components, layouts and middleware) — never feed it to the SSR client. Every new `public` table must revoke all `service_role` privileges in its migration (a pgTAP guard in `supabase/tests/database/appointment_reminders.test.sql` fails otherwise).
 - Auth API routes (`src/pages/api/auth/*.ts`) respond by redirecting with `?error=<code>`, not JSON — the code is translatable (`errors.auth.<code>` in `src/i18n`, mapped by `@src/lib/auth-errors.ts`), never raw error text. Match this shape for new auth endpoints (`@src/pages/api/auth/signin.ts`). Non-auth endpoints use the same shape with `errors.<code>` keys, translated by `errorMessageKey()` (`@src/lib/errors.ts`), and read forms with `readForm()` (`@src/lib/forms.ts`).
 - New protected pages: add the path prefix to `PROTECTED_ROUTES` in `src/middleware.ts` instead of hand-rolling an auth check in the page.
 - Merging PRs to `main` is human-only: never run `gh pr merge`. Open the PR, report check status, and stop. A merge to `main` deploys to production automatically once `ci` + `smoke` pass on `main` (GitHub Actions `migrate` then `deploy` jobs, no approval step); Cloudflare Workers Builds is disconnected, so never reconnect it.
@@ -69,17 +70,17 @@ The lesson focus is distinguishing internal from external research and using evi
 
 ### Task Router - Where to start
 
-| Skill | Use it when |
-| --- | --- |
-| **Internal research (lesson focus)** | |
-| `/10x-research <change-id>` | You need evidence from the existing codebase — patterns, conventions, integration points, or existing implementations. Runs parallel sub-agents over the repo and writes structured findings to `research.md`. |
-| **External research (lesson focus)** | |
-| exa.ai | You need AI-native web search for library comparisons, best practices, or ecosystem context that the codebase cannot answer. |
-| Context7 (`resolve-library-id` → `get-library-docs`) | You need live, current documentation for a specific library or framework. Resolves a library ID first, then fetches relevant doc pages. |
-| **Framing spare wheel** | |
-| `/10x-frame <change-id>` | The plan won't converge, the plan doesn't deliver expected results, or persistent drift keeps breaking the implementation. Use as an escape hatch on a separate problem (demonstrated on Space Explorers example), not as pre-research ritual. |
-| **Planning and execution** | |
-| `/10x-plan <change-id>` / `/10x-implement <change-id> phase <n>` | Use the same planning and execution chain from Lesson 2, now with upstream research evidence feeding the plan. |
+| Skill                                                            | Use it when                                                                                                                                                                                                                                    |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Internal research (lesson focus)**                             |                                                                                                                                                                                                                                                |
+| `/10x-research <change-id>`                                      | You need evidence from the existing codebase — patterns, conventions, integration points, or existing implementations. Runs parallel sub-agents over the repo and writes structured findings to `research.md`.                                 |
+| **External research (lesson focus)**                             |                                                                                                                                                                                                                                                |
+| exa.ai                                                           | You need AI-native web search for library comparisons, best practices, or ecosystem context that the codebase cannot answer.                                                                                                                   |
+| Context7 (`resolve-library-id` → `get-library-docs`)             | You need live, current documentation for a specific library or framework. Resolves a library ID first, then fetches relevant doc pages.                                                                                                        |
+| **Framing spare wheel**                                          |                                                                                                                                                                                                                                                |
+| `/10x-frame <change-id>`                                         | The plan won't converge, the plan doesn't deliver expected results, or persistent drift keeps breaking the implementation. Use as an escape hatch on a separate problem (demonstrated on Space Explorers example), not as pre-research ritual. |
+| **Planning and execution**                                       |                                                                                                                                                                                                                                                |
+| `/10x-plan <change-id>` / `/10x-implement <change-id> phase <n>` | Use the same planning and execution chain from Lesson 2, now with upstream research evidence feeding the plan.                                                                                                                                 |
 
 ### Research discipline
 
@@ -91,6 +92,7 @@ The lesson focus is distinguishing internal from external research and using evi
 ### `/10x-frame` as spare wheel
 
 Three triggers for reaching for `/10x-frame`:
+
 1. The plan won't converge — research keeps opening more questions instead of narrowing to a contract.
 2. The plan doesn't deliver — implementation repeatedly fails to meet success criteria.
 3. Persistent drift — the implementation keeps diverging from the plan in ways that suggest the problem was mis-framed.

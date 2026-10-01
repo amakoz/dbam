@@ -117,6 +117,8 @@ npx supabase start
 ```
 SUPABASE_URL=http://127.0.0.1:54321
 SUPABASE_KEY=<anon key from CLI output>
+# only for the appointment reminder cron job: SECRET_KEY from `npx supabase status -o env`
+SUPABASE_SECRET_KEY=<secret key from CLI output>
 ```
 
 5. To stop the stack when done:
@@ -140,10 +142,12 @@ The schema lives in `supabase/migrations/` (`health_data_consents` and `profiles
 
 If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.dev.vars` files:
 
-| Variable       | Description                                                |
-| -------------- | ---------------------------------------------------------- |
-| `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API       |
-| `SUPABASE_KEY` | `anon` public key from Supabase dashboard → Settings → API |
+| Variable              | Description                                                                                                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SUPABASE_URL`        | Project URL from Supabase dashboard → Settings → API                                                                                                                                       |
+| `SUPABASE_KEY`        | `anon` public key from Supabase dashboard → Settings → API                                                                                                                                 |
+| `SUPABASE_SECRET_KEY` | Secret key (`sb_secret_…`), used only by the appointment reminder cron job (`src/lib/reminders/admin-client.ts`). The database lets it execute the two reminder functions and nothing else |
+| `EMAIL_FROM`          | Optional. Sender for every email, e.g. `Dbam <przypomnienia@notification.dbam.net.pl>` on the domain verified in Resend; unset falls back to Resend's sandbox sender                       |
 
 ```
 SUPABASE_URL=https://<project-ref>.supabase.co
@@ -210,11 +214,24 @@ npx wrangler secret put RESEND_API_KEY     # Resend API key with sending-only pe
 npx wrangler secret put REMINDER_TEST_TO   # heartbeat recipient
 ```
 
-Mail is sent from Resend's test sender `onboarding@resend.dev`, which delivers only to the Resend account owner's address, so `REMINDER_TEST_TO` must be exactly the email the Resend account was created with. A `+tag` variant of that address is rejected with a 403 `validation_error`. Leave `EMAIL_DRY_RUN` unset in production (it defaults to `false`).
+Unless `EMAIL_FROM` is set to a sender on a domain verified in Resend, mail is sent from Resend's test sender `onboarding@resend.dev`, which delivers only to the Resend account owner's address, so `REMINDER_TEST_TO` must be exactly the email the Resend account was created with. A `+tag` variant of that address is rejected with a 403 `validation_error`. Leave `EMAIL_DRY_RUN` unset in production (it defaults to `false`).
+
+### Sending domain
+
+Appointment reminders go to real users, so production sends from a domain verified in Resend: **`notification.dbam.net.pl`**. The domain is for email only: the site stays on `workers.dev`.
+
+- **DNS** is hosted at nazwa.pl (`dbam.net.pl`). Resend's records live under the subdomain: the DKIM TXT at `resend._domainkey.notification.dbam.net.pl`, and the MX + SPF TXT at `send.notification.dbam.net.pl`. Resend → Domains must show the domain as "Verified".
+- **Sender** (Worker secret):
+
+```bash
+npx wrangler secret put EMAIL_FROM   # Dbam <przypomnienia@notification.dbam.net.pl>
+```
+
+Until `EMAIL_FROM` is set, mail falls back to `Dbam <onboarding@resend.dev>`, which reaches only the Resend account owner. Once it is set, reminders go to every opted-in user's account address.
 
 ### Scheduled jobs
 
-`src/worker.ts` is the Worker entry (`main` in `wrangler.jsonc`): HTTP requests go to the Astro adapter, and Cron Triggers (`triggers.crons`) run `scheduled()`, which sends the heartbeat email from `src/lib/heartbeat.ts` through `src/lib/email.ts`. Cron runs in UTC. `*/30 * * * *` sends on every run; `0 8,9 * * *` sends only on the run that is 10:00 in Europe/Warsaw, so it stays at 10:00 across daylight saving time. Any other cron string fails the run. Production runs `0 8,9 * * *`: one heartbeat email a day at 10:00 Warsaw time (the 08:00 and 09:00 UTC runs are both needed because Warsaw's UTC offset changes with daylight saving; one of them always skips).
+`src/worker.ts` is the Worker entry (`main` in `wrangler.jsonc`): HTTP requests go to the Astro adapter, and Cron Triggers (`triggers.crons`) run `scheduled()`, which runs two independent jobs: the heartbeat email from `src/lib/heartbeat.ts` and the appointment reminders from `src/lib/reminders/appointment.ts`, both sending through `src/lib/email.ts`. One failing job doesn't stop the other; the run is still marked failed. Cron runs in UTC; the shared schedule gate is `src/lib/schedule.ts`. `*/30 * * * *` sends on every run; `0 8,9 * * *` sends only on the run that is 10:00 in Europe/Warsaw, so it stays at 10:00 across daylight saving time. Any other cron string fails the run. Production runs `0 8,9 * * *`: one heartbeat email a day at 10:00 Warsaw time (the 08:00 and 09:00 UTC runs are both needed because Warsaw's UTC offset changes with daylight saving; one of them always skips).
 
 Run it locally against `npm run dev` or `npm run build && npm run preview`. With `EMAIL_DRY_RUN=true` (the `.env.example` default) it only logs a `dry-run` line and sends nothing:
 
@@ -224,13 +241,28 @@ curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=*%2F30+*+*+*+*&format=j
 curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=0+8%2C9+*+*+*&time=1790841600000&format=json'
 ```
 
+**Appointment reminders** run only on the daily cron's 10:00 Warsaw run (every other run logs `skipped`). The job calls `claim_due_appointment_reminders` with `SUPABASE_SECRET_KEY` (required: without it or `SUPABASE_URL` the job fails with `ReminderConfigError`, even in dry run). The database returns every opted-in user with an active consent and a plan dated 1–3 Warsaw days after the run date that hasn't been reminded for that date yet, with the account's email address. The job sends one email per user (dates and a count, never an exam name) in one Resend batch, then marks those reminders sent. With `EMAIL_DRY_RUN=true` it sends nothing and marks nothing, so the same reminders are due again on the next run. To try it locally: turn reminders on in `/profile`, plan a screening with an appointment date 1–3 days after the run date (the `time` below is 2026-10-01, so 2–4 October 2026), and call the daily `curl` above. Each run logs one line (counts only, no addresses or subjects):
+
+```json
+{
+  "event": "appointment-reminder",
+  "outcome": "dry-run",
+  "cron": "0 8,9 * * *",
+  "scheduledAt": "2026-10-01T08:00:00.000Z",
+  "due": 1,
+  "sent": 0
+}
+```
+
+`outcome` is `skipped` (not the 10:00 run), `none` (nothing to send), `dry-run` or `sent`, or `failed` with the error name (plus Resend's status and error name, or the database step and SQLSTATE). `due` counts claimed users and `sent` the emails Resend accepted.
+
 For one real send, put a real `RESEND_API_KEY` and `REMINDER_TEST_TO` plus `EMAIL_DRY_RUN=false` in `.dev.vars`, restart the server and call the first `curl` again. Set `EMAIL_DRY_RUN=true` back afterwards.
 
 `EMAIL_DRY_RUN` accepts only the literal `true` or `false`. Any other value (`1`, `TRUE`, `yes`) fails `astro:env` validation when the Worker starts and breaks every request, not just the cron. Production leaves it unset, which means `false`; never `wrangler secret put` it.
 
 In production:
 
-- **Runs:** Cloudflare dashboard → Workers → `dbam` → Settings → Trigger Events (the last 100 invocations), and Workers Logs (one `heartbeat` JSON line per run with its outcome; no recipient or key). A cron change takes up to 15 minutes to take effect after a deploy.
+- **Runs:** Cloudflare dashboard → Workers → `dbam` → Settings → Trigger Events (the last 100 invocations), and Workers Logs (one `heartbeat` and one `appointment-reminder` JSON line per run with its outcome; no recipient or key). A cron change takes up to 15 minutes to take effect after a deploy.
 - **Free-plan limits:** 10 ms CPU per cron run (waiting on the network doesn't count), 50 subrequests per run, and 5 Cron Triggers per account. Resend's free tier allows 100 emails a day and 3,000 a month.
 - **Stopping the cron:** deploy `"triggers": { "crons": [] }`. Removing or commenting out the `crons` key leaves the deployed schedule running, and `wrangler rollback` is not known to restore trigger settings.
 
@@ -259,7 +291,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`,
 
 - **ci** — `catalog:check`, lint, `ui:check`, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
-  It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for every cron in the built `dist/server/wrangler.json` with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"`, so a `wrangler.jsonc` cron that `src/lib/heartbeat.ts` doesn't handle fails the PR (see [Scheduled jobs](#scheduled-jobs)).
+  It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for every cron in the built `dist/server/wrangler.json` with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"`, so a `wrangler.jsonc` cron that `src/lib/heartbeat.ts` doesn't handle fails the PR (see [Scheduled jobs](#scheduled-jobs)). The daily run also exercises the appointment reminder job's real claim against the local Supabase with its `SECRET_KEY`, so broken wiring or a wrong grant fails the PR too.
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).
 - **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check (`GET /api/health`: 200 `{"status":"ok"}`, or 503 `{"status":"misconfigured"}` when the Supabase secrets are missing) and the read-only smoke test against production (retried up to 3 times, 20 s apart, because a new Worker version takes up to a minute to reach every edge location).
 

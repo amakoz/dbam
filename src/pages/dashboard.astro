@@ -69,6 +69,8 @@ const { plans, done, tiers, maybe, lastDone } = partitionDashboard(
   now,
 );
 const bounds = screeningFormBounds(now, profile.birth_year, locale);
+// Nudge towards reminders once there is an appointment date to be reminded of.
+const showRemindersHint = !profile.reminders_enabled && planRows.some(({ appointment_date }) => appointment_date);
 
 const TIER_HEADING_KEYS = {
   1: "dashboard.recommendations.tier.1",
@@ -198,6 +200,16 @@ const summary = [
                     />
                   ))}
                 </ul>
+              )}
+              {showRemindersHint && (
+                <p class="mt-4 text-sm" data-reminders-hint>
+                  <a
+                    href="/profile#reminders"
+                    class="rounded-md font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  >
+                    {t("dashboard.reminders.hint")}
+                  </a>
+                </p>
               )}
             </CardContent>
           </Card>

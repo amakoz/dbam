@@ -8,8 +8,14 @@ on:
   workflow_dispatch: {}
 
 jobs:
+  # A newer push to the same PR or branch cancels the older run's ci/smoke; the older run's migrate/deploy are then
+  # skipped (they need both), so only the newest commit is checked and deployed. Cancellation is per job, not per
+  # workflow, so a migrate or deploy that has already started is never killed (see their own concurrency groups).
   ci:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ci-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,6 +32,9 @@ jobs:
 
   smoke:
     runs-on: ubuntu-latest
+    concurrency:
+      group: smoke-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

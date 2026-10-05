@@ -939,13 +939,13 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 10.1 Hardcoded-value scan on the five pages returns 0 hits
-- [x] 10.2 Linting passes: `npm run lint`
-- [x] 10.3 Type and template check passes: `npx astro check`
-- [x] 10.4 Build succeeds: `npm run build`
-- [x] 10.5 `npm run ui:check` passes
-- [x] 10.6 Smoke passes against a local dev server: `npm run smoke`
+- [x] 10.1 Hardcoded-value scan on the five pages returns 0 hits — 9a695b0
+- [x] 10.2 Linting passes: `npm run lint` — 9a695b0
+- [x] 10.3 Type and template check passes: `npx astro check` — 9a695b0
+- [x] 10.4 Build succeeds: `npm run build` — 9a695b0
+- [x] 10.5 `npm run ui:check` passes — 9a695b0
+- [x] 10.6 Smoke passes against a local dev server: `npm run smoke` — 9a695b0
 
 #### Manual
 
-- [ ] 10.7 Auth and error cards vertically centred at desktop and 375px, light and dark
+- [x] 10.7 Auth and error cards vertically centred at desktop and 375px, light and dark — 9a695b0

@@ -346,62 +346,62 @@ No database or production changes. Left on the owner's side:
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint` — 0e22752
-- [x] 1.2 Type and template check passes: `npx astro check` — 0e22752
-- [x] 1.3 Build succeeds: `npm run build` — 0e22752
-- [x] 1.4 No references remain to Topbar, Banner, LibBadge, template.png, nav.notSignedIn — 0e22752
-- [x] 1.5 Smoke passes against the local dev server: `npm run smoke` — 0e22752
+- [x] 1.1 Linting passes: `npm run lint` — ba40c8f
+- [x] 1.2 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 1.3 Build succeeds: `npm run build` — ba40c8f
+- [x] 1.4 No references remain to Topbar, Banner, LibBadge, template.png, nav.notSignedIn — ba40c8f
+- [x] 1.5 Smoke passes against the local dev server: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 1.6 Signed out, `/` renders the landing with HTTP 200 — 0e22752
-- [x] 1.7 Signed in, `/` redirects to `/dashboard` (or `/onboarding` for unfinished onboarding) — 0e22752
-- [x] 1.8 Signing out from the dashboard lands on the landing page — 0e22752
+- [x] 1.6 Signed out, `/` renders the landing with HTTP 200 — ba40c8f
+- [x] 1.7 Signed in, `/` redirects to `/dashboard` (or `/onboarding` for unfinished onboarding) — ba40c8f
+- [x] 1.8 Signing out from the dashboard lands on the landing page — ba40c8f
 
 ### Phase 2: Landing view on theme A
 
 #### Automated
 
-- [x] 2.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits — 8c27883
-- [x] 2.2 No starter copy or components remain in the landing, components and i18n — 8c27883
-- [x] 2.3 Linting passes: `npm run lint` — 8c27883
-- [x] 2.4 Type and template check passes: `npx astro check` — 8c27883
-- [x] 2.5 Build succeeds: `npm run build` — 8c27883
+- [x] 2.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits — ba40c8f
+- [x] 2.2 No starter copy or components remain in the landing, components and i18n — ba40c8f
+- [x] 2.3 Linting passes: `npm run lint` — ba40c8f
+- [x] 2.4 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 2.5 Build succeeds: `npm run build` — ba40c8f
 
 #### Manual
 
-- [x] 2.6 Signed out, `/` in light and dark at desktop and ~375px matches theme A — 8c27883
-- [x] 2.7 Keyboard Tab order and visible focus ring on every control — 8c27883
-- [x] 2.8 Language switch on `/` returns to `/` with translated copy — 8c27883
-- [x] 2.9 Owner has reviewed the Polish and English copy — 8c27883
+- [x] 2.6 Signed out, `/` in light and dark at desktop and ~375px matches theme A — ba40c8f
+- [x] 2.7 Keyboard Tab order and visible focus ring on every control — ba40c8f
+- [x] 2.8 Language switch on `/` returns to `/` with translated copy — ba40c8f
+- [x] 2.9 Owner has reviewed the Polish and English copy — ba40c8f
 
 ### Phase 3: States and visual gate
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits — 22a77ce
-- [x] 3.2 Build succeeds: `npm run build` — 22a77ce
+- [x] 3.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits — ba40c8f
+- [x] 3.2 Build succeeds: `npm run build` — ba40c8f
 
 #### Manual
 
-- [x] 3.3 Screenshots of `/` at desktop and ~375px, light and dark, attached to the PR — 22a77ce
-- [x] 3.4 Contrast spot-check in both schemes — 22a77ce
-- [x] 3.5 Hover and focus-visible checked live on every link in both schemes — 22a77ce
+- [x] 3.3 Screenshots of `/` at desktop and ~375px, light and dark, attached to the PR — ba40c8f
+- [x] 3.4 Contrast spot-check in both schemes — ba40c8f
+- [x] 3.5 Hover and focus-visible checked live on every link in both schemes — ba40c8f
 
 ### Phase 4: Identity, guard and docs
 
 #### Automated
 
-- [x] 4.1 `npm run ui:check` passes with `src/pages/index.astro` listed — 2f7f279
-- [x] 4.2 No starter name remains outside `context/` — 2f7f279
-- [x] 4.3 Lock file is consistent: `npm ci` succeeds — 2f7f279
-- [x] 4.4 Linting passes: `npm run lint` — 2f7f279
-- [x] 4.5 Type and template check passes: `npx astro check` — 2f7f279
-- [x] 4.6 Build succeeds: `npm run build` — 2f7f279
-- [x] 4.7 pgTAP tests pass on the renamed local stack: `npx supabase test db` — 2f7f279
+- [x] 4.1 `npm run ui:check` passes with `src/pages/index.astro` listed — ba40c8f
+- [x] 4.2 No starter name remains outside `context/` — ba40c8f
+- [x] 4.3 Lock file is consistent: `npm ci` succeeds — ba40c8f
+- [x] 4.4 Linting passes: `npm run lint` — ba40c8f
+- [x] 4.5 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 4.6 Build succeeds: `npm run build` — ba40c8f
+- [x] 4.7 pgTAP tests pass on the renamed local stack: `npx supabase test db` — ba40c8f
 
 #### Manual
 
-- [x] 4.8 New favicon shows in Chrome and Safari tabs, light and dark chrome — 2f7f279
-- [x] 4.9 README reads as Dbam's doc and its setup steps work under the new `project_id` — 2f7f279
-- [x] 4.10 Pre-commit hook blocks a test literal in `src/pages/index.astro` — 2f7f279
+- [x] 4.8 New favicon shows in Chrome and Safari tabs, light and dark chrome — ba40c8f
+- [x] 4.9 README reads as Dbam's doc and its setup steps work under the new `project_id` — ba40c8f
+- [x] 4.10 Pre-commit hook blocks a test literal in `src/pages/index.astro` — ba40c8f

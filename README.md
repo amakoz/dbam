@@ -184,7 +184,7 @@ Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_
 Sign-up requires a password of at least 12 characters with at least one letter and one digit. The rule is defined once in `src/lib/password.ts`: the sign-up form lists it live and the sign-up endpoint redirects with `?error=weak_password` before calling Supabase. Supabase Auth enforces the same policy on its side, so all three places must match:
 
 - Local: `supabase/config.toml` → `[auth]` `minimum_password_length = 12`, `password_requirements = "letters_digits"` (applied when the local stack restarts).
-- Production: Supabase dashboard → **Authentication → Email** → minimum password length **12**, password requirements **Letters and digits**. Set it there by hand; never `supabase config push` the local config (it also disables email confirmations).
+- Production: Supabase dashboard → **Authentication → Sign In / Providers → Email** (direct link: `https://supabase.com/dashboard/project/_/auth/providers?provider=Email`) → minimum password length **12**, password requirements **Letters and digits**, then save. Set it there by hand; never `supabase config push` the local config (it also disables email confirmations).
 
 ## Screening catalog
 

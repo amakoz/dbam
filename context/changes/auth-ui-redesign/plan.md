@@ -875,13 +875,13 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 9.1 Hardcoded-value scan on onboarding and WithdrawConsentForm returns 0 hits
-- [x] 9.2 Linting passes: `npm run lint`
-- [x] 9.3 Type and template check passes: `npx astro check`
-- [x] 9.4 Build succeeds: `npm run build`
-- [x] 9.5 Smoke passes, including onboarding withdrawal: `npm run smoke`
+- [x] 9.1 Hardcoded-value scan on onboarding and WithdrawConsentForm returns 0 hits — 4bac509
+- [x] 9.2 Linting passes: `npm run lint` — 4bac509
+- [x] 9.3 Type and template check passes: `npx astro check` — 4bac509
+- [x] 9.4 Build succeeds: `npm run build` — 4bac509
+- [x] 9.5 Smoke passes, including onboarding withdrawal: `npm run smoke` — 4bac509
 
 #### Manual
 
-- [ ] 9.6 Onboarding shows withdrawal as a muted toggle that opens the full form
-- [ ] 9.7 A failed withdraw reopens with the toggle expanded and the error visible
+- [x] 9.6 Onboarding shows withdrawal as a muted toggle that opens the full form — 4bac509
+- [x] 9.7 A failed withdraw reopens with the toggle expanded and the error visible — 4bac509

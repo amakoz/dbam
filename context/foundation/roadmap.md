@@ -45,11 +45,11 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done     |
 | F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done     |
 | F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | ready    |
-| F-04 | pr-review-bot               | (foundation) every PR to `main` gets an automated AI code review before the human merges                                                  | —             | NFR (testing)                                      | proposed |
+| F-04 | pr-review-bot               | (foundation) every PR to `main` gets an automated CodeRabbit review before the human merges                                               | —             | NFR (testing)                                      | ready    |
 | F-05 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —             | —                                                  | ready    |
 | F-06 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —             | NFR (testing)                                      | ready    |
 | F-07 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —             | NFR (testing)                                      | ready    |
-| F-08 | error-tracking              | (foundation) production errors in the Worker and the reminder cron are captured and alerted, with health data scrubbed                    | —             | NFR (privacy), FR-007                              | proposed |
+| F-08 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —             | NFR (privacy), FR-007                              | ready    |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done     |
 | S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done     |
@@ -62,12 +62,12 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme                       | Chain                                              | Note                                                                                                                                                                      |
-| ------ | --------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A      | Profile and recommendations | `S-01` → `S-02` → `S-03`                           | Shortest path to the north star; `S-02` also joins Stream B at `F-01`.                                                                                                    |
-| B      | Catalog and recurrence      | `F-01` → `S-05`; `F-03`                            | Catalog built from Polish NFZ programs and society guidelines; `S-05` joins Stream A at `S-03`; `F-03` (unit tests for the catalog rules) follows `S-02`.                 |
-| C      | Reminders                   | `F-02` → `S-04` → `S-06` / `S-07`                  | Proves the delivery path early; `S-04` joins A at `S-03`, `S-06`/`S-07` join B at `S-05`.                                                                                 |
-| D      | Agent workflow              | `F-03` / `F-07` → `F-06` / `F-05` → `F-04`; `F-08` | No prerequisites; suggested order puts verification first (`F-03`, `F-07`), so later agent-run slices are checked. `F-04` and `F-08` wait on owner-side accounts/secrets. |
+| Stream | Theme                       | Chain                                              | Note                                                                                                                                                                     |
+| ------ | --------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A      | Profile and recommendations | `S-01` → `S-02` → `S-03`                           | Shortest path to the north star; `S-02` also joins Stream B at `F-01`.                                                                                                   |
+| B      | Catalog and recurrence      | `F-01` → `S-05`; `F-03`                            | Catalog built from Polish NFZ programs and society guidelines; `S-05` joins Stream A at `S-03`; `F-03` (unit tests for the catalog rules) follows `S-02`.                |
+| C      | Reminders                   | `F-02` → `S-04` → `S-06` / `S-07`                  | Proves the delivery path early; `S-04` joins A at `S-03`, `S-06`/`S-07` join B at `S-05`.                                                                                |
+| D      | Agent workflow              | `F-03` / `F-07` → `F-06` / `F-05` → `F-04`; `F-08` | No prerequisites; suggested order puts verification first (`F-03`, `F-07`), so later agent-run slices are checked. `F-04` needs the owner to install the CodeRabbit app. |
 
 ## Baseline
 
@@ -130,18 +130,18 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### F-04: PR review bot
 
-- **Outcome:** (foundation) every pull request to `main` gets an automated AI code review (Claude Code GitHub Action, `anthropics/claude-code-action`) posted as PR comments, so the human reviewer sees a second opinion before merging; the review prompt points at `CLAUDE.md` hard rules and `context/foundation/lessons.md`.
+- **Outcome:** (foundation) every pull request to `main` gets an automated AI code review from CodeRabbit (free with Pro features for public repos) posted as a PR walkthrough and inline comments, so the human reviewer sees a second opinion before merging. A committed `.coderabbit.yaml` sets the review profile and `path_instructions` that restate the `CLAUDE.md` hard rules per path (migrations revoke `service_role`, auth routes redirect with `?error=<code>`, user-facing strings go through `src/i18n`, no hardcoded values in migrated views, never edit `*_screening_catalog_snapshot.sql` by hand) and skip generated files (`src/lib/database.types.ts`, `worker-configuration.d.ts`, `package-lock.json`).
 - **Change ID:** pr-review-bot
 - **PRD refs:** NFR (testing)
 - **Unlocks:** verification path "independent review of agent-written PRs" for S-06, S-07 and every later change
 - **Prerequisites:** —
 - **Parallel with:** F-05, F-06, F-07
 - **Blockers:**
-  - The owner installs the Claude GitHub app and adds the auth secret (`CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY`) to the repo; agents never handle secrets. — Owner: user.
+  - The owner installs the CodeRabbit GitHub app on `amakoz/dbam` (a 2-minute sign-in with GitHub); agents never install apps or handle accounts. — Owner: user.
 - **Unknowns:**
-  - Claude Code Action vs CodeRabbit (GitHub app, free for public repos). Default: Claude Code Action, reusing the existing Claude subscription. — Owner: user. Block: no.
-- **Risk:** The repo is public, so the workflow must run only on PRs from the repo itself (no `pull_request_target` on forks) and never expose the secret to fork code.
-- **Status:** proposed
+  - Resolved (2026-10-05): CodeRabbit, not the Claude Code Action. It needs no repo secret and is free for public repos.
+- **Risk:** Low. CodeRabbit comments are advisory; merging stays human-only. Keep the review profile focused (`chill`), so agent PRs aren't buried in nitpicks, and let the orchestrator triage its comments like any other review.
+- **Status:** ready
 
 ### F-05: Agent docs MCP
 
@@ -185,18 +185,18 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### F-08: Error tracking
 
-- **Outcome:** (foundation) unhandled errors in the Worker (SSR requests and the scheduled reminder job) are reported to an error tracker (default: Sentry, `@sentry/cloudflare`) with alerts to the owner; events carry no health data, emails or profile fields (scrubbed before send), and a failed reminder run is visible within minutes instead of silently.
+- **Outcome:** (foundation) production errors are visible and alerted using Cloudflare and the existing email path only, on the Workers Free plan with no new data processor: (1) the SSR error path (`src/middleware.ts` / the 500 page) and the scheduled reminder job log one structured JSON error event (error code, route or job name, request id; never health data, emails or profile fields) to Workers Logs; (2) a failed reminder run emails the owner through the existing Resend path (`src/lib/heartbeat.ts`, `REMINDER_TEST_TO`); (3) saved queries for these events in the Workers Observability dashboard, documented in `README.md`.
 - **Change ID:** error-tracking
 - **PRD refs:** NFR (privacy), FR-007
 - **Unlocks:** S-06, S-07 (reminder runs must not fail silently once real users depend on them); moved from Parked on 2026-10-05
 - **Prerequisites:** —
 - **Parallel with:** F-04–F-07
-- **Blockers:**
-  - The owner creates the error-tracker account/project and adds the DSN as a Cloudflare secret. — Owner: user.
+- **Blockers:** —
 - **Unknowns:**
-  - Vendor choice (Sentry vs Workers Logs + alerting only) and whether the vendor counts as a sub-processor for the DPIA in Open Roadmap Question 2. — Owner: user. Block: yes (implementation must not send any data until this is decided).
-- **Risk:** This is the only item that sends production data to a third party. Default to the strictest scrubbing (no request bodies, no user identifiers beyond a random id), and keep it off for local dev.
-- **Status:** proposed
+  - Resolved (2026-10-05): Cloudflare-native, not Sentry. Cloudflare and Resend already process this data, so the DPIA in Open Roadmap Question 2 gains no new sub-processor.
+  - Cloudflare custom alerts (beta, announced 2026-10-02) can alert on Workers events, but whether they run on the Free plan is undocumented. If they do, add an alert on the error event and drop nothing else; if not, the email path above is the alert. Check in the dashboard during planning. — Owner: user. Block: no.
+- **Risk:** Free-plan limits: 200,000 log events/day and 3-day retention, so errors are triaged within days, not mined later. There is no exception grouping or release tracking (Sentry's strengths); revisit a dedicated tracker only if real-user volume makes raw logs unworkable. The failure email must not include user data.
+- **Status:** ready
 
 ## Slices
 
@@ -293,11 +293,11 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01       | screening-catalog-v1        | Curate v1 screening catalog (eligibility, importance, interval) | yes                   | #17 · Done; drafter live run (3.3) → #42      |
 | F-02       | reminder-dispatch-path      | Prove scheduled email delivery on Workers in production         | yes                   | #18 · Done; post-deploy verification → #57    |
 | F-03       | unit-test-suite             | Unit test suite for catalog rules                               | yes                   | #49 · Run `/10x-plan unit-test-suite`         |
-| F-04       | pr-review-bot               | Automated AI review on every PR to main                         | no                    | Needs owner: GitHub app + secret              |
+| F-04       | pr-review-bot               | Automated CodeRabbit review on every PR to main                 | yes                   | Owner installs the CodeRabbit app first       |
 | F-05       | agent-docs-mcp              | Context7 MCP for agent docs lookups                             | yes                   | Run `/10x-plan agent-docs-mcp`                |
 | F-06       | ui-verification-script      | Playwright screenshot script for agent UI checks                | yes                   | Run `/10x-plan ui-verification-script`        |
 | F-07       | agent-stop-hook             | Stop hook: workers fix lint before finishing                    | yes                   | Run `/10x-plan agent-stop-hook`               |
-| F-08       | error-tracking              | Production error tracking with health-data scrubbing            | no                    | Needs owner: vendor decision, account, DSN    |
+| F-08       | error-tracking              | Cloudflare-native error logging and failure alerts              | yes                   | Run `/10x-plan error-tracking`                |
 | S-01       | onboarding-profile          | Onboarding: health-data consent and minimal profile             | yes                   | #19 · Done                                    |
 | S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | yes                   | #20 · Done                                    |
 | S-03       | record-appointment-date     | Record an appointment date for a recommended exam               | yes                   | #21 · Run `/10x-plan record-appointment-date` |

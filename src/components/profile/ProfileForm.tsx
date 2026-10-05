@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { CalendarDays, Cigarette, Hourglass, Save, Timer } from "lucide-react";
-import { FormField } from "@/components/auth/FormField";
-import { SubmitButton } from "@/components/auth/SubmitButton";
-import { ServerError } from "@/components/auth/ServerError";
+import React, { useEffect, useState } from "react";
+import { Save } from "lucide-react";
+import { FormField } from "@/components/forms/FormField";
+import { SubmitButton } from "@/components/forms/SubmitButton";
+import { ServerError } from "@/components/forms/ServerError";
 import { createT, type Locale } from "@/i18n";
 import {
   SEX_LABEL_KEYS,
@@ -102,6 +102,18 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
   const t = createT(locale);
   const [values, setValues] = useState<Values>(() => toValues(initial, locale));
   const [errors, setErrors] = useState<ProfileErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // Back/Forward restores the page from bfcache with React state intact; re-enable the button.
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (event.persisted) setSubmitting(false);
+    }
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
 
   function set(field: ProfileField, value: string) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -113,7 +125,9 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
     if (!result.ok) {
       e.preventDefault();
       setErrors(result.errors);
+      return;
     }
+    setSubmitting(true);
   }
 
   const errorText = (field: ProfileField) => {
@@ -141,7 +155,6 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
         placeholder={t("profile.form.birthYearPlaceholder")}
         error={errorText("birth_year")}
         hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.birthYearHint")}</p>}
-        icon={<CalendarDays className="size-4" />}
       />
 
       <ChoiceGroup
@@ -180,7 +193,6 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
             placeholder={t("profile.form.packsPerDayPlaceholder")}
             error={errorText("packs_per_day")}
             hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.packsPerDayHint")}</p>}
-            icon={<Cigarette className="size-4" />}
           />
           <FormField
             id="smoking_years"
@@ -192,7 +204,6 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
             }}
             placeholder={t("profile.form.smokingYearsPlaceholder")}
             error={errorText("smoking_years")}
-            icon={<Timer className="size-4" />}
           />
         </>
       )}
@@ -209,7 +220,6 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
           placeholder={t("profile.form.yearsSinceQuittingPlaceholder")}
           error={errorText("years_since_quitting")}
           hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.yearsSinceQuittingHint")}</p>}
-          icon={<Hourglass className="size-4" />}
         />
       )}
 
@@ -224,7 +234,7 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText={t("profile.form.pending")} icon={<Save className="size-4" />}>
+      <SubmitButton pending={submitting} pendingText={t("profile.form.pending")} icon={<Save aria-hidden="true" />}>
         {t(mode === "onboarding" ? "profile.form.submit.onboarding" : "profile.form.submit.profile")}
       </SubmitButton>
     </form>

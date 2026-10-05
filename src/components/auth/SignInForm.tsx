@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Mail, Lock, LogIn } from "lucide-react";
-import { FormField } from "@/components/auth/FormField";
-import { PasswordToggle } from "@/components/auth/PasswordToggle";
-import { SubmitButton } from "@/components/auth/SubmitButton";
-import { ServerError } from "@/components/auth/ServerError";
+import React, { useEffect, useState } from "react";
+import { LogIn } from "lucide-react";
+import { FormField } from "@/components/forms/FormField";
+import { PasswordToggle } from "@/components/forms/PasswordToggle";
+import { SubmitButton } from "@/components/forms/SubmitButton";
+import { ServerError } from "@/components/forms/ServerError";
 import { createT, type Locale } from "@/i18n";
 
 interface Props {
@@ -17,6 +17,18 @@ export default function SignInForm({ locale, serverError }: Props) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // Back/Forward restores the page from bfcache with React state intact; re-enable the button.
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (event.persisted) setSubmitting(false);
+    }
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
 
   function validate() {
     const next: typeof errors = {};
@@ -39,7 +51,9 @@ export default function SignInForm({ locale, serverError }: Props) {
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     if (!validate()) {
       e.preventDefault();
+      return;
     }
+    setSubmitting(true);
   }
 
   return (
@@ -55,7 +69,6 @@ export default function SignInForm({ locale, serverError }: Props) {
         }}
         placeholder={t("auth.form.emailPlaceholder")}
         error={errors.email}
-        icon={<Mail className="size-4" />}
       />
 
       <FormField
@@ -69,7 +82,6 @@ export default function SignInForm({ locale, serverError }: Props) {
         }}
         placeholder={t("auth.form.passwordPlaceholder")}
         error={errors.password}
-        icon={<Lock className="size-4" />}
         endContent={
           <PasswordToggle
             visible={showPassword}
@@ -83,7 +95,7 @@ export default function SignInForm({ locale, serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText={t("auth.signin.pending")} icon={<LogIn className="size-4" />}>
+      <SubmitButton pending={submitting} pendingText={t("auth.signin.pending")} icon={<LogIn aria-hidden="true" />}>
         {t("auth.signin.submit")}
       </SubmitButton>
     </form>

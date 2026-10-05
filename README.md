@@ -1,6 +1,6 @@
 # Dbam
 
-Dbam helps adults in Poland (30+) see which preventive screenings are due for their age and situation, grouped by importance, and plan them or mark them done. It does not diagnose anything: it shows recommendations from a curated screening catalog built from NFZ programmes and medical society guidelines and keeps track of what you have planned and done. Users can opt in to a reminder email before a recorded appointment.
+Dbam helps adults in Poland (30+) see which preventive screenings are due for their age and situation, grouped by importance, and plan them or mark them done. Once a planned appointment date has passed, one click confirms the exam took place on that day, and the exam comes back as due when its repeat interval elapses. It does not diagnose anything: it shows recommendations from a curated screening catalog built from NFZ programmes and medical society guidelines and keeps track of what you have planned and done. Users can opt in to a reminder email before a recorded appointment.
 
 The UI is in Polish by default, with English as a second language.
 
@@ -278,7 +278,7 @@ In production:
 
 ## Smoke test
 
-`scripts/smoke.mjs` is a dependency-free Node script that walks the whole auth flow (sign-up, sign-in, protected page, sign-out), onboarding, profile editing, planning and marking screenings done, and consent withdrawal over HTTP. Run it against the dev server or the production preview after dependency upgrades:
+`scripts/smoke.mjs` is a dependency-free Node script that walks the whole auth flow (sign-up, sign-in, protected page, sign-out), onboarding, profile editing, planning and marking screenings done, confirming an appointment planned for today (and checking a future one can't be confirmed), and consent withdrawal over HTTP. Run it against the dev server or the production preview after dependency upgrades:
 
 ```bash
 npm run dev            # or: npm run build && npm run preview

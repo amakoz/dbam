@@ -382,12 +382,12 @@ The migration is additive (a nullable column, a CHECK that existing rows satisfy
 
 #### Automated
 
-- [x] 2.1 Lint passes
-- [x] 2.2 Type check passes
-- [x] 2.3 Design-system check passes
-- [x] 2.4 Build passes
-- [x] 2.5 Smoke passes against the local preview
-- [x] 2.6 pgTAP still passes
+- [x] 2.1 Lint passes — 3a7affc
+- [x] 2.2 Type check passes — 3a7affc
+- [x] 2.3 Design-system check passes — 3a7affc
+- [x] 2.4 Build passes — 3a7affc
+- [x] 2.5 Smoke passes against the local preview — 3a7affc
+- [x] 2.6 pgTAP still passes — 3a7affc
 
 #### Manual
 
@@ -401,7 +401,7 @@ The migration is additive (a nullable column, a CHECK that existing rows satisfy
 
 #### Automated
 
-- [ ] 3.1 Formatting passes on changed docs
+- [x] 3.1 Formatting passes on changed docs
 
 #### Manual
 

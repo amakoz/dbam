@@ -222,6 +222,7 @@ export type Database = {
           created_at: string;
           id: number;
           last_done_month: string | null;
+          last_done_on: string | null;
           updated_at: string;
           user_id: string;
         };
@@ -230,6 +231,7 @@ export type Database = {
           created_at?: string;
           id?: never;
           last_done_month?: string | null;
+          last_done_on?: string | null;
           updated_at?: string;
           user_id?: string;
         };
@@ -238,6 +240,7 @@ export type Database = {
           created_at?: string;
           id?: never;
           last_done_month?: string | null;
+          last_done_on?: string | null;
           updated_at?: string;
           user_id?: string;
         };
@@ -301,6 +304,7 @@ export type Database = {
           user_id: string;
         }[];
       };
+      confirm_screening_plan: { Args: { p_slug: string }; Returns: string };
       mark_appointment_reminders_sent: {
         Args: { p_ids: number[] };
         Returns: number;

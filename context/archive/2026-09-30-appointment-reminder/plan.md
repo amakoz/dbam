@@ -481,10 +481,10 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [x] 1.1 Migration applies on a clean local database — a8a98f3
-- [x] 1.2 pgTAP passes, including the new file — a8a98f3
-- [x] 1.3 Types regenerated and committed — a8a98f3
-- [x] 1.4 Lint and type check pass — a8a98f3
+- [x] 1.1 Migration applies on a clean local database — d85fe14
+- [x] 1.2 pgTAP passes, including the new file — d85fe14
+- [x] 1.3 Types regenerated and committed — d85fe14
+- [x] 1.4 Lint and type check pass — d85fe14
 
 #### Manual
 
@@ -494,11 +494,11 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [x] 2.1 Lint passes — 23beafe
-- [x] 2.2 Type check passes — 23beafe
-- [x] 2.3 Build passes — 23beafe
-- [x] 2.4 Smoke passes against local preview — 23beafe
-- [x] 2.5 pgTAP still passes — 23beafe
+- [x] 2.1 Lint passes — d85fe14
+- [x] 2.2 Type check passes — d85fe14
+- [x] 2.3 Build passes — d85fe14
+- [x] 2.4 Smoke passes against local preview — d85fe14
+- [x] 2.5 pgTAP still passes — d85fe14
 
 #### Manual
 
@@ -509,12 +509,12 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [x] 3.1 Lint passes (including the restricted-import rule) — 289347c
-- [x] 3.2 Type check passes — 289347c
-- [x] 3.3 Build passes — 289347c
-- [x] 3.4 pgTAP passes — 289347c
-- [x] 3.5 Smoke passes against local preview — 289347c
-- [x] 3.6 Scheduled handler returns outcome ok locally with the secret key in dry run — 289347c
+- [x] 3.1 Lint passes (including the restricted-import rule) — d85fe14
+- [x] 3.2 Type check passes — d85fe14
+- [x] 3.3 Build passes — d85fe14
+- [x] 3.4 pgTAP passes — d85fe14
+- [x] 3.5 Smoke passes against local preview — d85fe14
+- [x] 3.6 Scheduled handler returns outcome ok locally with the secret key in dry run — d85fe14
 
 #### Manual
 
@@ -525,11 +525,11 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 #### Automated
 
-- [x] 4.1 Formatting passes on changed docs — dca7fbe
+- [x] 4.1 Formatting passes on changed docs — d85fe14
 
 #### Manual
 
 - [x] 4.2 Sending domain shows Verified in Resend
 - [x] 4.3 Key, sender and allowlist secrets exist on the dbam Worker before merge
-- [ ] 4.4 Owner and tester each receive one real reminder and the run succeeds
-- [ ] 4.5 No duplicate reminder the following day
+- [x] 4.4 Owner and tester each receive one real reminder and the run succeeds
+- [x] 4.5 No duplicate reminder the following day

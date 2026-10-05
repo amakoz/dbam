@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "smoke": "node scripts/smoke.mjs",
     "ui:check": "node scripts/ui-check.mjs",
+    "prepare": "husky",
     "deploy": "astro build && wrangler deploy",
     "cf:types": "wrangler types && prettier --write worker-configuration.d.ts",
     "db:types": "supabase gen types --lang=typescript --local > src/lib/database.types.ts && prettier --write src/lib/database.types.ts",

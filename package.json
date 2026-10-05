@@ -1,5 +1,5 @@
 {
-  "name": "10x-astro-starter",
+  "name": "dbam",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -73,7 +73,7 @@
     "*.{json,css,md}": [
       "prettier --write"
     ],
-    "{src/pages/dashboard.astro,src/pages/dev/kitchen-sink.astro,src/components/AppHeader.astro,src/components/LanguageSwitcher.astro,src/components/recommendations/*.{astro,ts}}": [
+    "{src/pages/index.astro,src/pages/dashboard.astro,src/pages/dev/kitchen-sink.astro,src/components/AppHeader.astro,src/components/LanguageSwitcher.astro,src/components/recommendations/*.{astro,ts}}": [
       "node scripts/ui-check.mjs"
     ]
   },

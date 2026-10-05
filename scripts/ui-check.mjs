@@ -10,6 +10,7 @@ import path from "node:path";
 // Files migrated to the design system. Follow-up changes append their files here, and to the matching lint-staged
 // glob in package.json. `<dir>/*<suffix>` expands to every file directly in <dir> whose name ends with <suffix>.
 const MIGRATED = [
+  "src/pages/index.astro",
   "src/pages/dashboard.astro",
   "src/pages/dev/kitchen-sink.astro",
   "src/components/AppHeader.astro",

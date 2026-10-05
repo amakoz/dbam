@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-10x Astro Starter: an Astro 7 SSR app with React 19 islands, Tailwind 4, Supabase auth (`@supabase/ssr`), and shadcn/ui, deployed to Cloudflare Workers.
+Dbam (preventive-screening reminders for adults in Poland): an Astro 7 SSR app with React 19 islands, Tailwind 4, Supabase auth (`@supabase/ssr`), and shadcn/ui, deployed to Cloudflare Workers.
 
 ## Hard rules
 

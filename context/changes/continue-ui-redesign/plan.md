@@ -379,8 +379,8 @@ No database or production changes. Left on the owner's side:
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits
-- [x] 3.2 Build succeeds: `npm run build`
+- [x] 3.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits — 22a77ce
+- [x] 3.2 Build succeeds: `npm run build` — 22a77ce
 
 #### Manual
 
@@ -392,12 +392,12 @@ No database or production changes. Left on the owner's side:
 
 #### Automated
 
-- [ ] 4.1 `npm run ui:check` passes with `src/pages/index.astro` listed
-- [ ] 4.2 No starter name remains outside `context/`
-- [ ] 4.3 Lock file is consistent: `npm ci` succeeds
-- [ ] 4.4 Linting passes: `npm run lint`
-- [ ] 4.5 Type and template check passes: `npx astro check`
-- [ ] 4.6 Build succeeds: `npm run build`
+- [x] 4.1 `npm run ui:check` passes with `src/pages/index.astro` listed
+- [x] 4.2 No starter name remains outside `context/`
+- [x] 4.3 Lock file is consistent: `npm ci` succeeds
+- [x] 4.4 Linting passes: `npm run lint`
+- [x] 4.5 Type and template check passes: `npx astro check`
+- [x] 4.6 Build succeeds: `npm run build`
 - [ ] 4.7 pgTAP tests pass on the renamed local stack: `npx supabase test db`
 
 #### Manual

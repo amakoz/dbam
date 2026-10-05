@@ -1,6 +1,8 @@
-# 10x Astro Starter
+# Dbam
 
-A modern, opinionated starter template for building fast, accessible web applications.
+Dbam helps adults in Poland (30+) see which preventive screenings are due for their age and situation, grouped by importance, and plan them or mark them done. It does not diagnose anything: it shows recommendations from a curated screening catalog built from NFZ programmes and medical society guidelines and keeps track of what you have planned and done. Users can opt in to a reminder email before a recorded appointment.
+
+The UI is in Polish by default, with English as a second language.
 
 ## Tech Stack
 
@@ -21,8 +23,8 @@ A modern, opinionated starter template for building fast, accessible web applica
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
+git clone https://github.com/amakoz/dbam.git
+cd dbam
 ```
 
 2. Install dependencies:
@@ -83,6 +85,7 @@ The UI uses theme A "Len i szałwia" (linen and sage), light and dark from the s
 - **Browser support:** Baseline 2024 — Chrome/Edge 123+, Firefox 120+, Safari/iOS 17.5+ (the PRD's "last two major versions"). `vite.build.cssTarget` keeps `light-dark()` native; older browsers render without token colours.
 - **Components:** shadcn/ui ("new-york") in `src/components/ui/`. Add missing ones with `npx shadcn@latest add <name>`.
 - **Kitchen sink:** `/dev/kitchen-sink` renders the tokens and components; dev only (404 in production).
+- **Migrated views:** the landing page (`/`) and the dashboard (`/dashboard`, with the app header, language switcher and recommendation components), plus the kitchen sink. The exact file list is `MIGRATED` in `scripts/ui-check.mjs`; the auth, error, onboarding and profile pages are not migrated yet.
 - **Check:** `npm run ui:check` (`scripts/ui-check.mjs`) scans the migrated views for Tailwind palette classes, hex/rgb/hsl/oklch literals and arbitrary px/rem values, prints `file:line` hits and exits 1. It runs in CI and in the pre-commit hook. Only the files listed in the script are checked; when a follow-up change migrates a view, it appends the files to that list and to the matching lint-staged glob in `package.json`.
 
 ## Supabase Configuration
@@ -171,7 +174,7 @@ Users can then sign in immediately after sign-up without clicking a confirmation
 | `/auth/signup`        | Email/password sign-up form                                                                                                                                                                    |
 | `/auth/confirm-email` | Post-signup "check your inbox" page                                                                                                                                                            |
 | `/api/auth/callback`  | Confirmation-email target: exchanges the PKCE `code` and signs the user in (other browser/device → sign-in page with "email confirmed"). Its URL must be allowed in Supabase **Redirect URLs** |
-| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated)                                                                                                                        |
+| `/dashboard`          | Screening recommendations for the signed-in user (redirects to `/auth/signin` if unauthenticated)                                                                                              |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
 
@@ -282,7 +285,7 @@ The full run signs up a real `smoke-*@example.com` account, so the script refuse
 SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smoke
 ```
 
-> **Note:** this script exists primarily to guard the development of the starter itself — it is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter or the Supabase auth flow. It is **not** a substitute for a real test suite. Once you build your own product on top of this starter, add proper tests (unit, integration, end-to-end) suited to your application.
+> **Note:** this script is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter, the Supabase auth flow or the main user flows. It is **not** a substitute for a real test suite: no unit suite is configured yet, and the database access rules are covered separately by the pgTAP tests (`npx supabase test db`).
 
 ## CI
 

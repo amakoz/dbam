@@ -1,6 +1,12 @@
 ---
-import { CircleAlert, CircleCheck, CircleQuestionMark, ClipboardList, ListChecks, Undo2 } from "lucide-react";
+import { CircleAlert, CircleCheck, CircleQuestionMark, ClipboardList, ListChecks, LogIn, Undo2 } from "lucide-react";
+import { createElement } from "react";
 import AppHeader from "@/components/AppHeader.astro";
+import { ChoiceGroup } from "@/components/forms/ChoiceGroup";
+import { FormField } from "@/components/forms/FormField";
+import { PasswordToggle } from "@/components/forms/PasswordToggle";
+import { ServerError } from "@/components/forms/ServerError";
+import { SubmitButton } from "@/components/forms/SubmitButton";
 import DoneItem from "@/components/recommendations/DoneItem.astro";
 import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
 import PlanItem from "@/components/recommendations/PlanItem.astro";
@@ -13,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Layout from "@/layouts/Layout.astro";
 import { createT } from "@/i18n";
+import { SEX_LABEL_KEYS, SEX_VALUES } from "@/lib/profile";
 import type { MaybeRecommendation, Recommendation } from "@/lib/catalog/recommend";
 import type { CatalogEntry } from "@/lib/catalog/schema";
 import { screeningFormBounds } from "@/lib/screenings/format";
@@ -176,8 +183,16 @@ function fixtures(scheme: Scheme) {
 
 const columns = SCHEMES.map((column) => ({ ...column, data: fixtures(column.scheme) }));
 
+// The form kit (src/components/forms) rendered statically, without a client directive: handlers are inert no-ops.
+// Element props (`endContent`, `icon`) are built with createElement: Astro markup is not a React node.
+const noop = () => undefined;
+const passwordToggle = createElement(PasswordToggle, { visible: false, onToggle: noop, t });
+const signInIcon = createElement(LogIn, { "aria-hidden": "true" });
+const sexOptions = SEX_VALUES.map((value) => ({ value, label: t(SEX_LABEL_KEYS[value]) }));
+
 // The 7-state matrix of /10x-ui (.claude/skills/10x-ui/SKILL.md, "Definition of done").
-const LEGEND = [
+// Typed explicitly so the N/A styling below stays valid even when no state is currently N/A.
+const LEGEND: readonly { state: string; status: "Shown" | "Live" | "N/A"; note: string }[] = [
   { state: "default", status: "Shown", note: "Every block below, built from theme A tokens and src/components/ui." },
   {
     state: "hover",
@@ -192,22 +207,26 @@ const LEGEND = [
   {
     state: "disabled",
     status: "Shown",
-    note: "Buttons and fields block: shadcn disabled styles (dimmed, not clickable, still readable).",
+    note:
+      "Buttons and fields block: shadcn disabled styles (dimmed, not clickable, still readable). Forms block: the " +
+      "disabled field and the pending submit button.",
   },
   {
     state: "error",
     status: "Shown",
-    note: "Open form with an inline destructive alert and the date field marked invalid; the top error alert.",
+    note:
+      "Open form with an inline destructive alert and the date field marked invalid; the top error alert. Forms " +
+      "block: the invalid field with its error text, the choice group error and the server error alert.",
   },
   { state: "empty", status: "Shown", note: "The empty-state card shown when no tier has items." },
   {
     state: "loading",
-    status: "N/A",
+    status: "Shown",
     note:
-      "Server-rendered page with plain POST forms (Post/Redirect/Get): there is no async data after render, and a " +
-      "submit is a full page load. No no-JS pending guard is trivial, so none is added.",
+      "Forms block: the island submit shows a pending spinner on a disabled button. The plain Astro POST forms " +
+      "(dashboard, consent, reminders, withdraw) remain a full page load (Post/Redirect/Get) with no pending state.",
   },
-] as const;
+];
 ---
 
 <Layout title="Kitchen sink" hideLanguageSwitcher>
@@ -451,6 +470,89 @@ const LEGEND = [
                     />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Forms: fields, choices, submit, alerts
+            </p>
+            <Card>
+              <CardContent className="space-y-4">
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    id={`kit-default-${scheme}`}
+                    type="email"
+                    label={t("auth.form.email")}
+                    value=""
+                    onChange={noop}
+                    placeholder={t("auth.form.emailPlaceholder")}
+                  />
+                  <FormField
+                    id={`kit-hint-${scheme}`}
+                    label={t("profile.form.birthYear")}
+                    value="1980"
+                    onChange={noop}
+                    placeholder={t("profile.form.birthYearPlaceholder")}
+                    hint={t("profile.form.birthYearHint")}
+                  />
+                  <FormField
+                    id={`kit-invalid-${scheme}`}
+                    type="email"
+                    label={t("auth.form.email")}
+                    value="not-an-email"
+                    onChange={noop}
+                    placeholder={t("auth.form.emailPlaceholder")}
+                    error={t("auth.form.emailInvalid")}
+                  />
+                  <FormField
+                    id={`kit-disabled-${scheme}`}
+                    type="email"
+                    label={t("auth.form.email")}
+                    value="you@example.com"
+                    onChange={noop}
+                    disabled
+                  />
+                  <FormField
+                    id={`kit-password-${scheme}`}
+                    type="password"
+                    label={t("auth.form.password")}
+                    value="fixture-password"
+                    onChange={noop}
+                    placeholder={t("auth.form.passwordPlaceholder")}
+                    endContent={passwordToggle}
+                  />
+                </div>
+                <ChoiceGroup
+                  name={`kit-sex-${scheme}`}
+                  legend={t("profile.form.sex")}
+                  hint={t("profile.form.sexHint")}
+                  options={sexOptions}
+                  value="female"
+                  onChange={noop}
+                />
+                <ChoiceGroup
+                  name={`kit-sex-error-${scheme}`}
+                  legend={t("profile.form.sex")}
+                  options={sexOptions}
+                  value=""
+                  onChange={noop}
+                  error={t("profile.errors.sexRequired")}
+                />
+                <div class="grid gap-3 sm:grid-cols-2">
+                  <SubmitButton pending={false} pendingText={t("auth.signin.pending")} icon={signInIcon}>
+                    {t("auth.signin.submit")}
+                  </SubmitButton>
+                  <SubmitButton pending pendingText={t("auth.signin.pending")} icon={signInIcon}>
+                    {t("auth.signin.submit")}
+                  </SubmitButton>
+                </div>
+                <ServerError message={t("errors.auth.invalid_credentials")} />
+                <Alert role="status" className="border-success/40">
+                  <CircleCheck aria-hidden="true" />
+                  <AlertDescription className="text-foreground">{t("auth.signin.confirmed")}</AlertDescription>
+                </Alert>
               </CardContent>
             </Card>
           </div>

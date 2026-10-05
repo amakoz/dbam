@@ -116,7 +116,10 @@ const consentSections = [
           <p class="text-sm text-muted-foreground">{t("onboarding.profile.intro")}</p>
         </CardHeader>
         <CardContent className="space-y-8">
-          <ProfileForm locale={locale} mode="onboarding" serverError={serverError} client:load />
+          {/* The island renders inside a display:contents <astro-island>, which ignores space-y margins; the div keeps the gap. */}
+          <div>
+            <ProfileForm locale={locale} mode="onboarding" serverError={serverError} client:load />
+          </div>
           {/* Consent is active from here on, so withdrawing it must be possible before a profile exists (Art. 7(3)). */}
           <WithdrawConsentForm from="onboarding" error={withdrawError} />
         </CardContent>

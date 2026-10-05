@@ -15,6 +15,7 @@ interface FormFieldProps {
   error?: string;
   hint?: ReactNode;
   endContent?: ReactNode;
+  disabled?: boolean;
 }
 
 export function FormField({
@@ -28,6 +29,7 @@ export function FormField({
   error,
   hint,
   endContent,
+  disabled,
 }: FormFieldProps) {
   const descriptionId = `${id}-description`;
   const hasDescription = Boolean(error) || Boolean(hint);
@@ -44,6 +46,7 @@ export function FormField({
             onChange(e.target.value);
           }}
           placeholder={placeholder}
+          disabled={disabled}
           aria-invalid={error ? true : undefined}
           aria-describedby={hasDescription ? descriptionId : undefined}
           className={cn(endContent != null && "pr-10")}

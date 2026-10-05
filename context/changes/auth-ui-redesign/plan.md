@@ -751,9 +751,9 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Manual
 
-- [ ] 1.7 Sign-in empty submit shows destructive field errors under the inputs
-- [ ] 1.8 Valid submit disables the button and shows the pending text
-- [ ] 1.9 Back/forward after a failed sign-in leaves the button enabled
+- [x] 1.7 Sign-in empty submit shows destructive field errors under the inputs — 071ffff
+- [x] 1.8 Valid submit disables the button and shows the pending text — 071ffff
+- [x] 1.9 Back/forward after a failed sign-in leaves the button enabled — 071ffff
 
 ### Phase 2: Auth pages
 
@@ -768,10 +768,10 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Manual
 
-- [ ] 2.7 Auth pages in light and dark at desktop and ~375px with a wordmark link to `/`
-- [ ] 2.8 Signed-in visits to auth pages redirect to `/dashboard`
-- [ ] 2.9 `?confirmed=1` shows the success alert and `?error=` the destructive alert
-- [ ] 2.10 Landing header looks unchanged
+- [x] 2.7 Auth pages in light and dark at desktop and ~375px with a wordmark link to `/` — 3e7f7a3
+- [x] 2.8 Signed-in visits to auth pages redirect to `/dashboard` — 3e7f7a3
+- [x] 2.9 `?confirmed=1` shows the success alert and `?error=` the destructive alert — 3e7f7a3
+- [x] 2.10 Landing header looks unchanged — 3e7f7a3
 
 ### Phase 3: Onboarding
 
@@ -785,9 +785,9 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Manual
 
-- [ ] 3.6 Fresh account: consent and profile steps on theme A, conditional fields and pack-years readable
-- [ ] 3.7 Keyboard ring visible on radios, checkbox, fields and buttons
-- [ ] 3.8 Withdraw from onboarding: error alert without the box, success alert with it
+- [x] 3.6 Fresh account: consent and profile steps on theme A, conditional fields and pack-years readable — 417b6a1
+- [x] 3.7 Keyboard ring visible on radios, checkbox, fields and buttons — 417b6a1
+- [x] 3.8 Withdraw from onboarding: error alert without the box, success alert with it — 417b6a1
 
 ### Phase 4: Profile
 
@@ -801,9 +801,9 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Manual
 
-- [ ] 4.6 Profile in light and dark at desktop and ~375px with app header and three cards
-- [ ] 4.7 Reminders on/off shows the saved alert and switches the badge
-- [ ] 4.8 Dashboard reminders hint link scrolls to the reminders card
+- [x] 4.6 Profile in light and dark at desktop and ~375px with app header and three cards — 971abdb
+- [x] 4.7 Reminders on/off shows the saved alert and switches the badge — 971abdb
+- [x] 4.8 Dashboard reminders hint link scrolls to the reminders card — 971abdb
 
 ### Phase 5: Error pages
 
@@ -818,8 +818,8 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Manual
 
-- [ ] 5.7 404 in light and dark at desktop and ~375px with a working home link
-- [ ] 5.8 500 page reviewed on theme A with both links
+- [x] 5.7 404 in light and dark at desktop and ~375px with a working home link — 86fc8ad
+- [x] 5.8 500 page reviewed on theme A with both links — 86fc8ad
 
 ### Phase 6: States and visual gate
 
@@ -831,9 +831,9 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Manual
 
-- [ ] 6.4 Screenshots of every listed page at 1280px and 375px, light and dark, saved and attached
-- [ ] 6.5 Contrast spot-check in both schemes
-- [ ] 6.6 Kitchen-sink forms block reviewed in both columns
+- [x] 6.4 Screenshots of every listed page at 1280px and 375px, light and dark, saved and attached — 8cab72a
+- [x] 6.5 Contrast spot-check in both schemes — 8cab72a
+- [x] 6.6 Kitchen-sink forms block reviewed in both columns — 8cab72a
 
 ### Phase 7: Retire `bg-cosmic`, guard and docs
 
@@ -850,7 +850,7 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Manual
 
-- [ ] 7.9 Full flow on a fresh account in light and dark without cosmic remnants
+- [x] 7.9 Full flow on a fresh account in light and dark without cosmic remnants — 4a5f130
 - [ ] 7.10 Pre-commit hook blocks a test literal in `src/pages/profile.astro`
 
 ### Phase 8: Strong passwords
@@ -869,7 +869,7 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 - [x] 8.8 Sign-up shows live rules; compliant submits, weak is blocked under the field — 9be5681
 - [x] 8.9 A weak password posted past client validation lands on the weak-password alert — 9be5681
-- [ ] 8.10 Owner sets the policy in the production Supabase dashboard
+- [x] 8.10 Owner sets the policy in the production Supabase dashboard — 9be5681
 
 ### Phase 9: Quieter consent withdrawal on onboarding
 

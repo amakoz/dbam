@@ -376,7 +376,7 @@ The migration is additive (a nullable column, a CHECK that existing rows satisfy
 
 #### Manual
 
-- [ ] 1.5 Local psql confirm of a past-dated plan returns confirmed with the expected month and day
+- [x] 1.5 Local psql confirm of a past-dated plan returns confirmed with the expected month and day
 
 ### Phase 2: Confirm on the dashboard
 
@@ -391,18 +391,18 @@ The migration is additive (a nullable column, a CHECK that existing rows satisfy
 
 #### Manual
 
-- [ ] 2.7 Seeded past plan shows the prompt in Polish and English and confirms into Done with the exact day
-- [ ] 2.8 Change date on a passed plan opens empty and accepts a future date
-- [ ] 2.9 Confirming a no-interval exam shows the no-interval note
-- [ ] 2.10 Reminders hint hidden when the only dated plan is past
-- [ ] 2.11 Kitchen-sink cells look right in both themes and widths
+- [x] 2.7 Seeded past plan shows the prompt in Polish and English and confirms into Done with the exact day
+- [x] 2.8 Change date on a passed plan opens empty and accepts a future date
+- [x] 2.9 Confirming a no-interval exam shows the no-interval note
+- [x] 2.10 Reminders hint hidden when the only dated plan is past
+- [x] 2.11 Kitchen-sink cells look right in both themes and widths
 
 ### Phase 3: Docs and roadmap cleanup
 
 #### Automated
 
-- [x] 3.1 Formatting passes on changed docs
+- [x] 3.1 Formatting passes on changed docs — 203eec0
 
 #### Manual
 
-- [ ] 3.2 Issue #23 title and roadmap S-05 text read correctly
+- [x] 3.2 Issue #23 title and roadmap S-05 text read correctly

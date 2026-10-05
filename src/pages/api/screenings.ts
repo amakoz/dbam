@@ -63,10 +63,22 @@ export const POST: APIRoute = async (context) => {
   if (intent === "confirm") {
     if (!slug) return fail("invalid_request");
     const { data, error } = await supabase.rpc("confirm_screening_plan", { p_slug: slug });
+    // 42501: RLS refused the write. Without an active consent the user finishes onboarding first, as for plan and
+    // done; with one, the exam's catalog entry is no longer active.
+    if (error?.code === "42501") {
+      try {
+        const onboarding = await getOnboardingState(supabase, user.id);
+        if (onboarding.state !== "complete") return context.redirect("/onboarding");
+      } catch {
+        return fail("save_failed");
+      }
+      return fail("screening_not_available");
+    }
     if (error) return fail("save_failed");
     if (data === "confirmed") return succeed(slug);
     if (data === "not_due") return fail("appointment_not_passed");
-    return fail("invalid_request");
+    // No such plan any more: a double submit (the first one confirmed it) or a stale page. The row shows what is true.
+    return context.redirect(`/dashboard#screening-${slug}`);
   }
 
   // Without an active consent and a profile nothing may be stored; send the user back to onboarding. (RLS enforces

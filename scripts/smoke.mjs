@@ -58,7 +58,7 @@ async function request(path, { method = "GET", form } = {}) {
 }
 
 // Plan and done dates relative to the run date, as Warsaw calendar values like the app uses (`YYYY-MM-DD`), so the
-// steps never age and never flake around midnight.
+// steps never age. Only "plan for today" can flake: a run that crosses Warsaw midnight plans a day that has passed.
 function warsawToday() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date());
 }

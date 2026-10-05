@@ -3,7 +3,7 @@
 -- Plans are dated relative to today in Warsaw, the calendar the function uses; now() is fixed for the transaction.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(45);
+select plan(50);
 
 -- Fixtures, inserted as postgres: active catalog rows and one retired, so the test doesn't depend on snapshot data.
 insert into public.screening_catalog (
@@ -35,6 +35,10 @@ select ok(
 select ok(
   has_function_privilege('authenticated', 'public.confirm_screening_plan(text)', 'EXECUTE'),
   'authenticated can execute confirm_screening_plan'
+);
+select ok(
+  not has_function_privilege('service_role', 'public.confirm_screening_plan(text)', 'EXECUTE'),
+  'service_role cannot execute confirm_screening_plan'
 );
 select ok(
   has_column_privilege('authenticated', 'public.screening_completions', 'last_done_on', 'INSERT')
@@ -179,10 +183,28 @@ select is(
   'the upsert keeps one done record'
 );
 
--- Mark done (month only) must clear the day: another month with the old day breaks the check, with null it works.
-select throws_ok(
-  $$ update public.screening_completions set last_done_month = '2020-05-01' where catalog_slug = 'test-a' $$,
-  '23514', null, 'changing the month alone leaves a day outside it'
+-- Mark done (month only) clears the day. A pre-S-05 Worker changes the month alone: the trigger clears the day, so
+-- neither another month nor "don't know" breaks the check.
+select lives_ok(
+  $$ update public.screening_completions set last_done_month = '2020-04-01' where catalog_slug = 'test-a' $$,
+  'changing the month alone (a pre-S-05 Worker) succeeds'
+);
+select is(
+  (select last_done_on from public.screening_completions where catalog_slug = 'test-a'), null::date,
+  'changing the month alone clears the day'
+);
+select lives_ok(
+  $$ update public.screening_completions set last_done_month = date_trunc('month', current_date)::date,
+       last_done_on = current_date where catalog_slug = 'test-a' $$,
+  'a month and day set together are kept'
+);
+select is(
+  (select last_done_on from public.screening_completions where catalog_slug = 'test-a'), current_date,
+  'the trigger keeps a day the statement sets'
+);
+select lives_ok(
+  $$ update public.screening_completions set last_done_month = null where catalog_slug = 'test-a' $$,
+  '"don''t know" over a confirmed day succeeds and clears it'
 );
 select lives_ok(
   $$ update public.screening_completions set last_done_month = '2020-05-01', last_done_on = null

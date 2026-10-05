@@ -1,7 +1,7 @@
 ---
 change_id: confirm-exam-and-recurrence
 title: Confirm exam and recurrence
-status: implemented
+status: impl_reviewed
 created: 2026-10-05
 updated: 2026-10-05
 archived_at: null

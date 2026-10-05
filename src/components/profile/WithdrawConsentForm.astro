@@ -13,11 +13,9 @@ interface Props {
 
 const { from, error } = Astro.props;
 const t = createT(Astro.locals.locale);
-// On onboarding the form sits under the profile form in one card, so a divider separates them; on profile it has its
-// own card.
 ---
 
-<section aria-labelledby="withdraw-heading" class:list={[from === "onboarding" && "border-t border-border pt-6"]}>
+<section aria-labelledby="withdraw-heading">
   <form method="POST" action="/api/consent/withdraw" class="space-y-4">
     <input type="hidden" name="from" value={from} />
     <h2 id="withdraw-heading" class="font-heading text-lg font-semibold">

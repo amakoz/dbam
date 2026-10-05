@@ -183,6 +183,7 @@ export const en: Record<MessageKey, string> = {
   "onboarding.profile.heading": "A few questions about you",
   "onboarding.profile.intro":
     "We use your answers to match preventive screenings to your age, sex and smoking history.",
+  "onboarding.withdraw.toggle": "Want to withdraw your consent?",
 
   "profile.title": "Your profile",
   "profile.intro": "Update your details if anything has changed — we use them to match your screenings.",

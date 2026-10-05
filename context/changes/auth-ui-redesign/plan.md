@@ -658,6 +658,47 @@ Added on 2026-10-05 at the owner's request, after Phases 1–7 were implemented:
 
 ---
 
+## Phase 9: Quieter consent withdrawal on onboarding
+
+### Overview
+
+Added on 2026-10-05 at the owner's request: the full withdraw section should not compete with the profile form on onboarding's profile step. It cannot be removed. Once consent is given in step 1, withdrawing must stay possible before a profile exists (GDPR Art. 7(3)). The S-01 change put it there, and smoke checks it. The owner chose a collapsed toggle.
+
+### Changes Required:
+
+#### 1. Collapsed withdrawal
+
+**File**: `src/pages/onboarding.astro`, `src/components/profile/WithdrawConsentForm.astro`, `src/i18n/pl.ts`, `src/i18n/en.ts`
+
+**Intent**: Keep withdrawal one click away but visually quiet.
+
+**Contract**:
+
+- On the profile step, `WithdrawConsentForm` sits inside a `<details>` under the form, with a top `border-border` divider.
+- Its `<summary>` follows the dashboard's summary pattern (`ScreeningActions.astro:64`), in `text-muted-foreground`. Copy: `onboarding.withdraw.toggle`, "Chcesz wycofać zgodę?" / "Want to withdraw your consent?".
+- The `<details>` is `open` when a withdraw attempt came back with an error.
+- The form's own onboarding-only divider is removed.
+- The form stays in the HTML, so smoke's `action="/api/consent/withdraw"` check on `/onboarding` holds. Profile is unchanged.
+
+### Success Criteria:
+
+#### Automated Verification:
+
+- Hardcoded-value scan on `src/pages/onboarding.astro` and `src/components/profile/WithdrawConsentForm.astro` returns 0 hits.
+- Linting passes: `npm run lint`.
+- Type and template check passes: `npx astro check`.
+- Build succeeds: `npm run build`.
+- Smoke passes against a local dev server: `npm run smoke`. This includes "onboarding offers withdrawal before a profile exists".
+
+#### Manual Verification:
+
+- On the onboarding profile step, withdrawal shows only as the muted "Chcesz wycofać zgodę?" toggle. Opening it shows the full form, and withdrawing still works.
+- A withdraw attempt without the confirm box reopens the page with the toggle expanded and the error visible.
+
+**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
+
+---
+
 ## Testing Strategy
 
 ### Unit Tests:
@@ -816,16 +857,31 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 8.1 Hardcoded-value scan on SignUpForm and the kitchen sink returns 0 hits
-- [x] 8.2 Local Supabase rejects a weak password directly after the restart
-- [x] 8.3 Linting passes: `npm run lint`
-- [x] 8.4 Type and template check passes: `npx astro check`
-- [x] 8.5 Build succeeds: `npm run build`
-- [x] 8.6 `npm run ui:check` passes
-- [x] 8.7 Smoke passes, including the weak-password step: `npm run smoke`
+- [x] 8.1 Hardcoded-value scan on SignUpForm and the kitchen sink returns 0 hits — 9be5681
+- [x] 8.2 Local Supabase rejects a weak password directly after the restart — 9be5681
+- [x] 8.3 Linting passes: `npm run lint` — 9be5681
+- [x] 8.4 Type and template check passes: `npx astro check` — 9be5681
+- [x] 8.5 Build succeeds: `npm run build` — 9be5681
+- [x] 8.6 `npm run ui:check` passes — 9be5681
+- [x] 8.7 Smoke passes, including the weak-password step: `npm run smoke` — 9be5681
 
 #### Manual
 
-- [ ] 8.8 Sign-up shows live rules; compliant submits, weak is blocked under the field
-- [ ] 8.9 A weak password posted past client validation lands on the weak-password alert
+- [x] 8.8 Sign-up shows live rules; compliant submits, weak is blocked under the field — 9be5681
+- [x] 8.9 A weak password posted past client validation lands on the weak-password alert — 9be5681
 - [ ] 8.10 Owner sets the policy in the production Supabase dashboard
+
+### Phase 9: Quieter consent withdrawal on onboarding
+
+#### Automated
+
+- [x] 9.1 Hardcoded-value scan on onboarding and WithdrawConsentForm returns 0 hits
+- [x] 9.2 Linting passes: `npm run lint`
+- [x] 9.3 Type and template check passes: `npx astro check`
+- [x] 9.4 Build succeeds: `npm run build`
+- [x] 9.5 Smoke passes, including onboarding withdrawal: `npm run smoke`
+
+#### Manual
+
+- [ ] 9.6 Onboarding shows withdrawal as a muted toggle that opens the full form
+- [ ] 9.7 A failed withdraw reopens with the toggle expanded and the error visible

@@ -187,6 +187,7 @@ export const pl = {
   "onboarding.profile.heading": "Kilka pytań o Ciebie",
   "onboarding.profile.intro":
     "Na tej podstawie dobierzemy badania profilaktyczne do Twojego wieku, płci i historii palenia.",
+  "onboarding.withdraw.toggle": "Chcesz wycofać zgodę?",
 
   "profile.title": "Twój profil",
   "profile.intro": "Popraw swoje dane, jeśli coś się zmieniło — na ich podstawie dobieramy badania.",

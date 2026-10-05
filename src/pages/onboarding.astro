@@ -120,8 +120,17 @@ const consentSections = [
           <div>
             <ProfileForm locale={locale} mode="onboarding" serverError={serverError} client:load />
           </div>
-          {/* Consent is active from here on, so withdrawing it must be possible before a profile exists (Art. 7(3)). */}
-          <WithdrawConsentForm from="onboarding" error={withdrawError} />
+          {/* Consent is active from here on, so withdrawing it must be possible before a profile exists (Art. 7(3)).
+              It stays one click away but collapsed, so it does not compete with the profile form; it opens when a
+              withdraw attempt came back with an error. */}
+          <details class="border-t border-border pt-4" open={withdrawError !== null}>
+            <summary class="w-fit cursor-pointer rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+              {t("onboarding.withdraw.toggle")}
+            </summary>
+            <div class="mt-4">
+              <WithdrawConsentForm from="onboarding" error={withdrawError} />
+            </div>
+          </details>
         </CardContent>
       </Card>
     )}

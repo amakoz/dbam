@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { UserPlus } from "lucide-react";
 import { FormField } from "@/components/forms/FormField";
+import { PasswordRules } from "@/components/forms/PasswordRules";
 import { PasswordToggle } from "@/components/forms/PasswordToggle";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import { ServerError } from "@/components/forms/ServerError";
 import { createT, type Locale } from "@/i18n";
-
-const MIN_PASSWORD_LENGTH = 6;
+import { PASSWORD_MIN_LENGTH, passwordIssues } from "@/lib/password";
 
 interface Props {
   locale: Locale;
@@ -43,10 +43,13 @@ export default function SignUpForm({ locale, serverError }: Props) {
       next.email = t("auth.form.emailInvalid");
     }
 
+    const issues = passwordIssues(password);
     if (!password) {
       next.password = t("auth.form.passwordRequired");
-    } else if (password.length < MIN_PASSWORD_LENGTH) {
-      next.password = t.plural("auth.form.passwordTooShort", MIN_PASSWORD_LENGTH);
+    } else if (issues.includes("too_short")) {
+      next.password = t.plural("auth.form.passwordTooShort", PASSWORD_MIN_LENGTH);
+    } else if (issues.includes("needs_letter_and_digit")) {
+      next.password = t("auth.form.passwordNeedsLetterAndDigit");
     }
 
     if (!confirmPassword) {
@@ -70,11 +73,6 @@ export default function SignUpForm({ locale, serverError }: Props) {
     }
     setSubmitting(true);
   }
-
-  const passwordHint =
-    !errors.password && password.length > 0 && password.length < MIN_PASSWORD_LENGTH ? (
-      <p>{t.plural("auth.form.passwordRemaining", MIN_PASSWORD_LENGTH - password.length)}</p>
-    ) : undefined;
 
   return (
     <form method="POST" action="/api/auth/signup" className="space-y-4" onSubmit={handleSubmit} noValidate>
@@ -100,9 +98,9 @@ export default function SignUpForm({ locale, serverError }: Props) {
           setPassword(v);
           clearError("password");
         }}
-        placeholder={t.plural("auth.form.passwordMinPlaceholder", MIN_PASSWORD_LENGTH)}
+        placeholder={t.plural("auth.form.passwordMinPlaceholder", PASSWORD_MIN_LENGTH)}
         error={errors.password}
-        hint={passwordHint}
+        hint={<PasswordRules password={password} t={t} />}
         endContent={
           <PasswordToggle
             visible={showPassword}

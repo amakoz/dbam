@@ -4,6 +4,7 @@ import { createElement } from "react";
 import AppHeader from "@/components/AppHeader.astro";
 import { ChoiceGroup } from "@/components/forms/ChoiceGroup";
 import { FormField } from "@/components/forms/FormField";
+import { PasswordRules } from "@/components/forms/PasswordRules";
 import { PasswordToggle } from "@/components/forms/PasswordToggle";
 import { ServerError } from "@/components/forms/ServerError";
 import { SubmitButton } from "@/components/forms/SubmitButton";
@@ -19,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Layout from "@/layouts/Layout.astro";
 import { createT } from "@/i18n";
+import { PASSWORD_MIN_LENGTH } from "@/lib/password";
 import { SEX_LABEL_KEYS, SEX_VALUES } from "@/lib/profile";
 import type { MaybeRecommendation, Recommendation } from "@/lib/catalog/recommend";
 import type { CatalogEntry } from "@/lib/catalog/schema";
@@ -187,6 +189,9 @@ const columns = SCHEMES.map((column) => ({ ...column, data: fixtures(column.sche
 // Element props (`endContent`, `icon`) are built with createElement: Astro markup is not a React node.
 const noop = () => undefined;
 const passwordToggle = createElement(PasswordToggle, { visible: false, onToggle: noop, t });
+// Long enough but without a digit: one rule met, one unmet.
+const weakPassword = "fixturepassword";
+const passwordRules = createElement(PasswordRules, { password: weakPassword, t });
 const signInIcon = createElement(LogIn, { "aria-hidden": "true" });
 const sexOptions = SEX_VALUES.map((value) => ({ value, label: t(SEX_LABEL_KEYS[value]) }));
 
@@ -521,6 +526,16 @@ const LEGEND: readonly { state: string; status: "Shown" | "Live" | "N/A"; note: 
                     value="fixture-password"
                     onChange={noop}
                     placeholder={t("auth.form.passwordPlaceholder")}
+                    endContent={passwordToggle}
+                  />
+                  <FormField
+                    id={`kit-password-rules-${scheme}`}
+                    type="password"
+                    label={t("auth.form.password")}
+                    value={weakPassword}
+                    onChange={noop}
+                    placeholder={t.plural("auth.form.passwordMinPlaceholder", PASSWORD_MIN_LENGTH)}
+                    hint={passwordRules}
                     endContent={passwordToggle}
                   />
                 </div>

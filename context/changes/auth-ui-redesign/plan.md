@@ -576,6 +576,88 @@ Delete the legacy utility, put every migrated file under the guard, and update t
 
 ---
 
+## Phase 8: Strong passwords
+
+### Overview
+
+Added on 2026-10-05 at the owner's request, after Phases 1–7 were implemented: sign-up requires a strong password. The policy (owner decision) is **at least 12 characters, containing at least one letter and one digit**. Supabase Auth enforces it on the server, the sign-up endpoint checks it before calling Supabase, and the form shows the rules live.
+
+### Changes Required:
+
+#### 1. Shared policy
+
+**File**: `src/lib/password.ts` (new)
+
+**Intent**: One definition of "strong", used by the form and the endpoint.
+
+**Contract**:
+
+- `PASSWORD_MIN_LENGTH = 12`.
+- `passwordIssues(password)` returns the unmet rules out of `"too_short"` and `"needs_letter_and_digit"`.
+- A letter is ASCII `A–Z`/`a–z` and a digit is `0–9`. This mirrors Supabase's `letters_digits`, which counts only those characters, so the client never accepts a password the server rejects.
+
+#### 2. Server enforcement
+
+**File**: `src/pages/api/auth/signup.ts`, `supabase/config.toml`
+
+**Intent**: The policy holds even when the client check is bypassed.
+
+**Contract**:
+
+- `signup.ts`: when `passwordIssues` is non-empty, redirect to `/auth/signup?error=weak_password` before calling Supabase. The code and its copy already exist (`errors.auth.weak_password`), and the endpoint keeps the redirect-with-code shape.
+- `config.toml`: `minimum_password_length = 12`, `password_requirements = "letters_digits"`. This is local only. Production is set by the owner in the Supabase dashboard, never with `config push` (CLAUDE.md hard rule).
+
+#### 3. Sign-up form
+
+**File**: `src/components/auth/SignUpForm.tsx`, `src/i18n/pl.ts`, `src/i18n/en.ts`, `src/pages/dev/kitchen-sink.astro`
+
+**Intent**: The user sees the rules before submitting, not only an error afterwards.
+
+**Contract**:
+
+- Validation uses `passwordIssues`. "Too short" reuses `auth.form.passwordTooShort` with the new count. "Needs a letter and a digit" gets the new key `auth.form.passwordNeedsLetterAndDigit`.
+- The password hint becomes a live two-item rule list:
+  - the items are length ≥ 12, and a letter plus a digit;
+  - each shows met or unmet with an `aria-hidden` icon, using `text-success` for met and `text-muted-foreground` for unmet;
+  - each rule's state is also in text, not colour alone.
+- `passwordRemaining_*` keys are removed if unused.
+- The placeholder reflects 12.
+- The kitchen-sink Forms block shows the rule list with one rule met and one unmet.
+
+#### 4. Smoke and docs
+
+**File**: `scripts/smoke.mjs`, `README.md`, `CLAUDE.md`
+
+**Intent**: The policy is tested and the production setting is not forgotten.
+
+**Contract**:
+
+- Smoke adds `signup rejects a weak password` (POST with a short, digit-free password) → 302 to `/auth/signup?error=weak_password`, before the real sign-up. The existing smoke password (`Smoke-Test-Passw0rd!`) already complies.
+- README states the policy and the matching dashboard setting.
+- CLAUDE.md gains one line: the policy lives in `src/lib/password.ts` and must match `config.toml` and the production dashboard.
+
+### Success Criteria:
+
+#### Automated Verification:
+
+- Hardcoded-value scan on `src/components/auth/SignUpForm.tsx` and `src/pages/dev/kitchen-sink.astro` returns 0 hits.
+- After the local stack restarts with the new `config.toml`, Supabase rejects a weak password directly: `POST /auth/v1/signup` with `short1` returns `weak_password`.
+- Linting passes: `npm run lint`.
+- Type and template check passes: `npx astro check`.
+- Build succeeds: `npm run build`.
+- `npm run ui:check` passes.
+- Smoke passes against a local dev server, including the new weak-password step: `npm run smoke`.
+
+#### Manual Verification:
+
+- On sign-up, typing a password updates both rules live. A compliant password submits, and a weak one is blocked with the error under the field.
+- Posting a weak password with client validation bypassed (e.g. devtools) lands on the weak-password alert.
+- The owner sets the same policy in the production Supabase dashboard: Authentication → Email → minimum length 12, "Letters and digits".
+
+**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
+
+---
+
 ## Testing Strategy
 
 ### Unit Tests:
@@ -716,16 +798,34 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 7.1 `npm run ui:check` passes with the extended list
-- [x] 7.2 No cosmic theme remains in src
-- [x] 7.3 No palette classes remain outside `ui/`
-- [x] 7.4 Linting passes: `npm run lint`
-- [x] 7.5 Type and template check passes: `npx astro check`
-- [x] 7.6 Build succeeds: `npm run build`
-- [x] 7.7 Smoke passes against a local dev server: `npm run smoke`
-- [x] 7.8 pgTAP tests still pass: `npx supabase test db`
+- [x] 7.1 `npm run ui:check` passes with the extended list — 4a5f130
+- [x] 7.2 No cosmic theme remains in src — 4a5f130
+- [x] 7.3 No palette classes remain outside `ui/` — 4a5f130
+- [x] 7.4 Linting passes: `npm run lint` — 4a5f130
+- [x] 7.5 Type and template check passes: `npx astro check` — 4a5f130
+- [x] 7.6 Build succeeds: `npm run build` — 4a5f130
+- [x] 7.7 Smoke passes against a local dev server: `npm run smoke` — 4a5f130
+- [x] 7.8 pgTAP tests still pass: `npx supabase test db` — 4a5f130
 
 #### Manual
 
 - [ ] 7.9 Full flow on a fresh account in light and dark without cosmic remnants
 - [ ] 7.10 Pre-commit hook blocks a test literal in `src/pages/profile.astro`
+
+### Phase 8: Strong passwords
+
+#### Automated
+
+- [x] 8.1 Hardcoded-value scan on SignUpForm and the kitchen sink returns 0 hits
+- [x] 8.2 Local Supabase rejects a weak password directly after the restart
+- [x] 8.3 Linting passes: `npm run lint`
+- [x] 8.4 Type and template check passes: `npx astro check`
+- [x] 8.5 Build succeeds: `npm run build`
+- [x] 8.6 `npm run ui:check` passes
+- [x] 8.7 Smoke passes, including the weak-password step: `npm run smoke`
+
+#### Manual
+
+- [ ] 8.8 Sign-up shows live rules; compliant submits, weak is blocked under the field
+- [ ] 8.9 A weak password posted past client validation lands on the weak-password alert
+- [ ] 8.10 Owner sets the policy in the production Supabase dashboard

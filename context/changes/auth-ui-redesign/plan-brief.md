@@ -31,18 +31,19 @@ Every page is theme A in the system scheme, with one `<main>`, visible focus rin
 
 ## Key Decisions Made
 
-| Decision                               | Choice                                                                          | Why (1 sentence)                                                                                 | Source              |
-| -------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------- |
-| Kit vs onboarding/profile (C5)         | Fold #63 into this change                                                       | One consistent flow from landing to dashboard; no interim dark-on-dark                           | Plan (user)         |
-| Extra pages                            | Confirm-email, 500 and a new 404                                                | Closes #62 completely                                                                            | Plan (user)         |
-| Signed-in at `/auth/signin`, `/signup` | Redirect to `/dashboard`                                                        | Same as `/`; no auth form for someone already in                                                 | Plan (user)         |
-| Confirm-email                          | Signed in → `/dashboard`; signed out → "check your email"                       | Correct in every confirmation setting; verified that sign-up signs in when confirmations are off | Plan (user) + probe |
-| Headers                                | `AppHeader` on profile; slim `PublicHeader` (wordmark + sign-out) on onboarding | Profile joins the app; onboarding stays a focused gated step                                     | Plan (user)         |
-| Field icons                            | Dropped (password eye toggle stays)                                             | Matches the migrated views and theme A's calm look                                               | Plan (user)         |
-| Pending state                          | `SubmitButton pending` prop, set after valid submit, reset on bfcache restore   | `useFormStatus` never fires for URL actions                                                      | Research + Plan     |
-| Kit location                           | `src/components/forms/`                                                         | It serves auth and profile, not only auth                                                        | Plan                |
-| Checkboxes and radios                  | Native inputs with tokens, no shadcn Radix controls                             | Consent, withdraw and reminders are plain Astro forms that would not hydrate Radix               | Plan                |
-| New tokens                             | None                                                                            | All values exist                                                                                 | Research            |
+| Decision                                | Choice                                                                                                        | Why (1 sentence)                                                                                                     | Source              |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| Kit vs onboarding/profile (C5)          | Fold #63 into this change                                                                                     | One consistent flow from landing to dashboard; no interim dark-on-dark                                               | Plan (user)         |
+| Extra pages                             | Confirm-email, 500 and a new 404                                                                              | Closes #62 completely                                                                                                | Plan (user)         |
+| Signed-in at `/auth/signin`, `/signup`  | Redirect to `/dashboard`                                                                                      | Same as `/`; no auth form for someone already in                                                                     | Plan (user)         |
+| Confirm-email                           | Signed in → `/dashboard`; signed out → "check your email"                                                     | Correct in every confirmation setting; verified that sign-up signs in when confirmations are off                     | Plan (user) + probe |
+| Headers                                 | `AppHeader` on profile; slim `PublicHeader` (wordmark + sign-out) on onboarding                               | Profile joins the app; onboarding stays a focused gated step                                                         | Plan (user)         |
+| Field icons                             | Dropped (password eye toggle stays)                                                                           | Matches the migrated views and theme A's calm look                                                                   | Plan (user)         |
+| Pending state                           | `SubmitButton pending` prop, set after valid submit, reset on bfcache restore                                 | `useFormStatus` never fires for URL actions                                                                          | Research + Plan     |
+| Kit location                            | `src/components/forms/`                                                                                       | It serves auth and profile, not only auth                                                                            | Plan                |
+| Checkboxes and radios                   | Native inputs with tokens, no shadcn Radix controls                                                           | Consent, withdraw and reminders are plain Astro forms that would not hydrate Radix                                   | Plan                |
+| New tokens                              | None                                                                                                          | All values exist                                                                                                     | Research            |
+| Password strength (added after Phase 7) | ≥ 12 characters with a letter and a digit; checked in `signup.ts` and by Supabase; live rule list in the form | Length is what resists guessing; one shared rule (`src/lib/password.ts`) keeps client, endpoint and Supabase in step | Plan (user)         |
 
 ## Scope
 
@@ -77,6 +78,7 @@ Static Astro pages render React `ui/*` server-side. Islands (sign-in, sign-up, p
 | 5. Error pages                        | Theme-A 500, new 404                                                            | 404 status kept for unknown routes and the prod kitchen sink |
 | 6. States and visual gate             | Kitchen-sink forms block, 7-state matrix, screenshots                           | Destructive contrast in dark                                 |
 | 7. Retire `bg-cosmic`, guard and docs | Utility deleted, `ui:check` covers all views                                    | A missed palette class fails the guard (intended)            |
+| 8. Strong passwords                   | Policy in `src/lib/password.ts`, endpoint check, live hints, smoke step         | Production Supabase dashboard must be set by the owner       |
 
 **Prerequisites:** the local Supabase `dbam` stack is running and the dev server is on :4322 (both are up).
 **Estimated effort:** ~2–3 sessions across 7 phases.

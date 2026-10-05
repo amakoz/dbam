@@ -1,4 +1,8 @@
 ---
+import { Bell, BellOff, CircleAlert, CircleCheck } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { createT } from "@/i18n";
 
 interface Props {
@@ -13,49 +17,41 @@ interface Props {
 const { enabled, saved, error } = Astro.props;
 const t = createT(Astro.locals.locale);
 const state = enabled ? "on" : "off";
+// `scroll-mt-6` keeps the card's top edge in view when the dashboard hint links to `/profile#reminders`.
 ---
 
-<section id="reminders" aria-labelledby="reminders-heading" class="border-t border-white/10 pt-6">
+<section id="reminders" aria-labelledby="reminders-heading" class="scroll-mt-6">
   <form method="POST" action="/api/reminders" class="space-y-4" data-reminders={state}>
     <input type="hidden" name="enabled" value={enabled ? "off" : "on"} />
-    <h2 id="reminders-heading" class="text-lg font-semibold">
-      {t("profile.reminders.heading")}
-    </h2>
-    <p class="text-sm text-blue-100/80">{t("profile.reminders.disclosure")}</p>
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 id="reminders-heading" class="font-heading text-lg font-semibold">
+        {t("profile.reminders.heading")}
+      </h2>
+      <Badge variant={enabled ? "secondary" : "outline"}>
+        {enabled ? <Bell aria-hidden="true" /> : <BellOff aria-hidden="true" />}
+        {t(enabled ? "profile.reminders.state.on" : "profile.reminders.state.off")}
+      </Badge>
+    </div>
+    <p class="text-sm text-muted-foreground">{t("profile.reminders.disclosure")}</p>
 
     {saved && (
-      <p class="rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200" role="status">
-        {t(saved === "on" ? "profile.reminders.saved.on" : "profile.reminders.saved.off")}
-      </p>
+      <Alert role="status" className="border-success/40">
+        <CircleCheck aria-hidden="true" />
+        <AlertDescription className="text-foreground">
+          {t(saved === "on" ? "profile.reminders.saved.on" : "profile.reminders.saved.off")}
+        </AlertDescription>
+      </Alert>
     )}
 
     {error && (
-      <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
-        {error}
-      </p>
+      <Alert variant="destructive">
+        <CircleAlert aria-hidden="true" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
     )}
 
-    <p
-      class:list={[
-        "rounded-lg border px-3 py-2 text-sm",
-        enabled
-          ? "border-purple-400/30 bg-purple-900/30 text-purple-100"
-          : "border-white/20 bg-white/5 text-blue-100/80",
-      ]}
-    >
-      {t(enabled ? "profile.reminders.state.on" : "profile.reminders.state.off")}
-    </p>
-
-    <button
-      type="submit"
-      class:list={[
-        "w-full rounded-lg px-4 py-2 font-medium transition-colors",
-        enabled
-          ? "border border-white/20 bg-white/10 text-white hover:bg-white/20"
-          : "bg-purple-600 text-white hover:bg-purple-500",
-      ]}
-    >
+    <Button type="submit" variant={enabled ? "outline" : "default"} className="w-full">
       {t(enabled ? "profile.reminders.turnOff" : "profile.reminders.turnOn")}
-    </button>
+    </Button>
   </form>
 </section>

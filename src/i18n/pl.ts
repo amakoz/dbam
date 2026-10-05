@@ -191,7 +191,6 @@ export const pl = {
   "profile.title": "Twój profil",
   "profile.intro": "Popraw swoje dane, jeśli coś się zmieniło — na ich podstawie dobieramy badania.",
   "profile.saved": "Zmiany zostały zapisane.",
-  "profile.back": "Wróć do panelu",
   "profile.withdraw.heading": "Wycofanie zgody",
   "profile.withdraw.intro": "Możesz w każdej chwili wycofać zgodę na przechowywanie danych o zdrowiu.",
   "profile.withdraw.deleted":

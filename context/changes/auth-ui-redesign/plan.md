@@ -654,11 +654,11 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan on onboarding, ProfileForm, WithdrawConsentForm and ChoiceGroup returns 0 hits
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Type and template check passes: `npx astro check`
-- [x] 3.4 Build succeeds: `npm run build`
-- [x] 3.5 Smoke passes against a local dev server: `npm run smoke`
+- [x] 3.1 Hardcoded-value scan on onboarding, ProfileForm, WithdrawConsentForm and ChoiceGroup returns 0 hits — 417b6a1
+- [x] 3.2 Linting passes: `npm run lint` — 417b6a1
+- [x] 3.3 Type and template check passes: `npx astro check` — 417b6a1
+- [x] 3.4 Build succeeds: `npm run build` — 417b6a1
+- [x] 3.5 Smoke passes against a local dev server: `npm run smoke` — 417b6a1
 
 #### Manual
 
@@ -670,11 +670,11 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [ ] 4.1 Hardcoded-value scan on profile and RemindersForm returns 0 hits
-- [ ] 4.2 Linting passes: `npm run lint`
-- [ ] 4.3 Type and template check passes: `npx astro check`
-- [ ] 4.4 Build succeeds: `npm run build`
-- [ ] 4.5 Smoke passes against a local dev server: `npm run smoke`
+- [x] 4.1 Hardcoded-value scan on profile and RemindersForm returns 0 hits
+- [x] 4.2 Linting passes: `npm run lint`
+- [x] 4.3 Type and template check passes: `npx astro check`
+- [x] 4.4 Build succeeds: `npm run build`
+- [x] 4.5 Smoke passes against a local dev server: `npm run smoke`
 
 #### Manual
 

@@ -1,8 +1,12 @@
 ---
+import { CircleCheck } from "lucide-react";
+import AppHeader from "@/components/AppHeader.astro";
 import Layout from "@/layouts/Layout.astro";
 import ProfileForm from "@/components/profile/ProfileForm";
 import RemindersForm from "@/components/profile/RemindersForm.astro";
 import WithdrawConsentForm from "@/components/profile/WithdrawConsentForm.astro";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 import { createT } from "@/i18n";
 import { getOnboardingState } from "@/lib/consent";
 import { errorMessageKey } from "@/lib/errors";
@@ -46,44 +50,44 @@ const remindersParam = Astro.url.searchParams.get("reminders");
 const remindersSaved = remindersParam === "on" || remindersParam === "off" ? remindersParam : null;
 ---
 
-<Layout title={t("profile.title")}>
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-lg space-y-8 rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
-      <section aria-labelledby="profile-heading">
-        <h1
-          id="profile-heading"
-          class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent"
-        >
-          {t("profile.title")}
-        </h1>
-        <p class="mb-6 text-sm text-blue-100/80">{t("profile.intro")}</p>
+<Layout title={t("profile.title")} hideLanguageSwitcher>
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+  <AppHeader />
 
-        {saved && (
-          <p
-            class="mb-4 rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200"
-            role="status"
-          >
-            {t("profile.saved")}
-          </p>
-        )}
-
-        <ProfileForm locale={locale} mode="profile" initial={initial} serverError={profileError} client:load />
-      </section>
-
-      <RemindersForm enabled={profile.reminders_enabled} saved={remindersSaved} error={remindersError} />
-
-      <WithdrawConsentForm from="profile" error={withdrawError} />
-
-      <div class="flex items-center justify-between gap-4 text-sm">
-        <a href="/dashboard" class="text-purple-300 hover:underline">
-          {t("profile.back")}
-        </a>
-        <form method="POST" action="/api/auth/signout">
-          <button type="submit" class="text-purple-300 hover:underline">
-            {t("nav.signout")}
-          </button>
-        </form>
-      </div>
+  <main id="main" class="mx-auto w-full max-w-3xl space-y-6 bg-background px-4 py-8 sm:px-6">
+    <div class="space-y-2">
+      <h1 class="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">{t("profile.title")}</h1>
+      <p class="text-muted-foreground">{t("profile.intro")}</p>
     </div>
-  </div>
+
+    {saved && (
+      <Alert role="status" className="border-success/40">
+        <CircleCheck aria-hidden="true" />
+        <AlertDescription className="text-foreground">{t("profile.saved")}</AlertDescription>
+      </Alert>
+    )}
+
+    <Card>
+      <CardContent>
+        <ProfileForm locale={locale} mode="profile" initial={initial} serverError={profileError} client:load />
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardContent>
+        <RemindersForm enabled={profile.reminders_enabled} saved={remindersSaved} error={remindersError} />
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardContent>
+        <WithdrawConsentForm from="profile" error={withdrawError} />
+      </CardContent>
+    </Card>
+  </main>
 </Layout>

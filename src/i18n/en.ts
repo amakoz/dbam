@@ -187,7 +187,6 @@ export const en: Record<MessageKey, string> = {
   "profile.title": "Your profile",
   "profile.intro": "Update your details if anything has changed — we use them to match your screenings.",
   "profile.saved": "Your changes have been saved.",
-  "profile.back": "Back to dashboard",
   "profile.withdraw.heading": "Withdrawing consent",
   "profile.withdraw.intro": "You can withdraw your consent to storing your health data at any time.",
   "profile.withdraw.deleted":

@@ -13,7 +13,8 @@ export default defineConfig({
   site: "https://dbam.amadeuszkozlowski.workers.dev",
   // Sessions and the Images binding are unused; disabling them keeps wrangler from auto-provisioning a KV namespace.
   session: false,
-  integrations: [react(), sitemap()],
+  // Dev-only pages (`/dev/*`, 404 in production) stay out of the sitemap.
+  integrations: [react(), sitemap({ filter: (page) => !page.includes("/dev/") })],
   // Theme A fonts (context/changes/ui-refactor/directions.md §A), downloaded at build time and self-hosted: no CDN at runtime.
   // `latin-ext` carries the Polish diacritics (ą ć ę ł ń ś ź ż); the default `latin` subset lacks them.
   fonts: [
@@ -21,7 +22,8 @@ export default defineConfig({
       provider: fontProviders.fontsource(),
       name: "Fraunces",
       cssVariable: "--font-fraunces",
-      weights: ["100 900"],
+      // Headings use only font-semibold.
+      weights: [600],
       styles: ["normal"],
       subsets: ["latin", "latin-ext"],
       fallbacks: ["serif"],

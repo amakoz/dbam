@@ -81,13 +81,14 @@ Following the `/10x-ui` method: 5 charges, each with file:line and the effect on
    - **Feedback after saving:** it redirects to `/dashboard?saved=<intent>#screening-<slug>` (`src/pages/api/screenings.ts:47`). The browser jumps to the item, which may have moved to another section, while the `role="status"` message renders at the top (`dashboard.astro:117-124`).
    - **User effect:** the first thing on screen is a long disclaimer rather than "what should I do next", and after saving, the user may never see the confirmation.
 
-**Additional findings (candidates to fold into phases or record as deferred):**
-- h3 and h4 are almost the same size (`dashboard.astro:135,152,175,188` vs `*Item.astro` h4).
-- The viewport meta lacks `initial-scale=1` (`Layout.astro:19`).
-- The fixed bottom-right `LanguageSwitcher` (`LanguageSwitcher.astro:14`, `z-50`) can cover the last item or the sign-out button on phones.
-- The greeting shows the raw email (`dashboard.astro:109`).
-- The starter branding is still there: `meta.title` / `home.title` = "10x Astro Starter" (`src/i18n/pl.ts:4,16`, `en.ts:6,18`). The landing page is out of scope; the page title is shared.
-- Unused leftovers: `Banner.astro` and `ui/LibBadge.astro` are imported nowhere, and `public/template.png` is referenced only in the README.
+**Additional findings (candidates to fold into phases or record as deferred; status after implementation, 2026-10-05):**
+- h3 and h4 are almost the same size (`dashboard.astro:135,152,175,188` vs `*Item.astro` h4). **Resolved** in Phases 2–3: h1, then h2 per section, then h3 per row.
+- The viewport meta lacks `initial-scale=1` (`Layout.astro:19`). **Resolved** in Phase 1.
+- The fixed bottom-right `LanguageSwitcher` (`LanguageSwitcher.astro:14`, `z-50`) can cover the last item or the sign-out button on phones. **Resolved** in Phase 2: the dashboard renders the switcher inline in `AppHeader`. Other pages keep the pill until #61–#63.
+- The greeting shows the raw email (`dashboard.astro:109`). **Resolved** in Phase 2: the greeting was removed.
+- Tier rows "still not clean enough" (owner, Phase 3 manual check 3.10). **Deferred** to #67.
+- The starter branding is still there: `meta.title` / `home.title` = "10x Astro Starter" (`src/i18n/pl.ts:4,16`, `en.ts:6,18`). The landing page is out of scope; the page title is shared. **Partly resolved:** `meta.title` became "Dbam" in Phase 1. `home.*` is **deferred** to #61.
+- Unused leftovers: `Banner.astro` and `ui/LibBadge.astro` are imported nowhere, and `public/template.png` is referenced only in the README. **Deferred** to #61.
 
 ## Detailed Findings
 

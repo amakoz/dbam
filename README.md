@@ -82,6 +82,7 @@ npm run dev
 The UI uses theme A "Len i szałwia" (linen and sage), light and dark from the system colour scheme.
 
 - **Tokens:** `src/styles/global.css` — colours are `light-dark()` values under `color-scheme: light dark`, published to Tailwind via `@theme inline` (including the tier-1..3 and success tokens). Views reference roles (`bg-primary`, `text-muted-foreground`, `bg-tier-1`), never raw colours.
+- **Browser support:** Baseline 2024 — Chrome/Edge 123+, Firefox 120+, Safari/iOS 17.5+ (the PRD's "last two major versions"). `vite.build.cssTarget` keeps `light-dark()` native; older browsers render without token colours.
 - **Components:** shadcn/ui ("new-york") in `src/components/ui/`. Add missing ones with `npx shadcn@latest add <name>`.
 - **Kitchen sink:** `/dev/kitchen-sink` renders the tokens and components; dev only (404 in production).
 - **Check:** `npm run ui:check` (`scripts/ui-check.mjs`) scans the migrated views for Tailwind palette classes, hex/rgb/hsl/oklch literals and arbitrary px/rem values, prints `file:line` hits and exits 1. It runs in CI and in the pre-commit hook. Only the files listed in the script are checked; when a follow-up change migrates a view, it appends the files to that list and to the matching lint-staged glob in `package.json`.

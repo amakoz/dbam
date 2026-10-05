@@ -40,6 +40,7 @@ const name = locale === "pl" ? entry.name_pl : entry.name_en;
   data-slug={entry.slug}
   data-tier={tier}
   data-last-done={lastDone ? anchorMonth(lastDone).slice(0, 7) : undefined}
+  data-saved={saved?.tone}
   class:list={["-mx-3 scroll-mt-4 px-3 py-4", saved ? SAVED_ROW_CLASS[saved.tone] : "first:pt-0 last:pb-0"]}
 >
   <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">

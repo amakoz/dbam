@@ -13,7 +13,6 @@ export const en: Record<MessageKey, string> = {
   "nav.signin": "Sign in",
   "nav.signup": "Sign up",
   "nav.signout": "Sign out",
-  "nav.notSignedIn": "Not signed in",
   "nav.profile": "Profile",
   "nav.skipToContent": "Skip to content",
 

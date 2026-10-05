@@ -11,7 +11,6 @@ export const pl = {
   "nav.signin": "Zaloguj się",
   "nav.signup": "Zarejestruj się",
   "nav.signout": "Wyloguj się",
-  "nav.notSignedIn": "Nie zalogowano",
   "nav.profile": "Profil",
   "nav.skipToContent": "Przejdź do treści",
 

@@ -328,4 +328,6 @@ export const en: Record<MessageKey, string> = {
   "errorPage.message": "We couldn't load this page right now. Please try again in a moment.",
   "errorPage.retry": "Try again",
   "errorPage.home": "Home",
+  "notFound.title": "Page not found",
+  "notFound.message": "This page doesn't exist or has moved. Check the address or go back to the home page.",
 };

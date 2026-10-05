@@ -670,11 +670,11 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 4.1 Hardcoded-value scan on profile and RemindersForm returns 0 hits
-- [x] 4.2 Linting passes: `npm run lint`
-- [x] 4.3 Type and template check passes: `npx astro check`
-- [x] 4.4 Build succeeds: `npm run build`
-- [x] 4.5 Smoke passes against a local dev server: `npm run smoke`
+- [x] 4.1 Hardcoded-value scan on profile and RemindersForm returns 0 hits — 971abdb
+- [x] 4.2 Linting passes: `npm run lint` — 971abdb
+- [x] 4.3 Type and template check passes: `npx astro check` — 971abdb
+- [x] 4.4 Build succeeds: `npm run build` — 971abdb
+- [x] 4.5 Smoke passes against a local dev server: `npm run smoke` — 971abdb
 
 #### Manual
 
@@ -686,12 +686,12 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [ ] 5.1 Hardcoded-value scan on 500 and 404 returns 0 hits
-- [ ] 5.2 Linting passes: `npm run lint`
-- [ ] 5.3 Type and template check passes: `npx astro check`
-- [ ] 5.4 Build succeeds: `npm run build`
-- [ ] 5.5 Production preview returns 404 with the new page for an unknown path and the kitchen sink
-- [ ] 5.6 Smoke passes against a local dev server: `npm run smoke`
+- [x] 5.1 Hardcoded-value scan on 500 and 404 returns 0 hits
+- [x] 5.2 Linting passes: `npm run lint`
+- [x] 5.3 Type and template check passes: `npx astro check`
+- [x] 5.4 Build succeeds: `npm run build`
+- [x] 5.5 Production preview returns 404 with the new page for an unknown path and the kitchen sink
+- [x] 5.6 Smoke passes against a local dev server: `npm run smoke`
 
 #### Manual
 

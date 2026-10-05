@@ -332,4 +332,6 @@ export const pl = {
   "errorPage.message": "Nie udało się teraz wczytać tej strony. Spróbuj ponownie za chwilę.",
   "errorPage.retry": "Spróbuj ponownie",
   "errorPage.home": "Strona główna",
+  "notFound.title": "Nie ma takiej strony",
+  "notFound.message": "Ta strona nie istnieje albo została przeniesiona. Sprawdź adres lub wróć na stronę główną.",
 } satisfies Record<string, string>;

@@ -1,6 +1,6 @@
 ---
 project: Dbam
-version: 3
+version: 4
 status: draft
 created: 2026-09-26
 updated: 2026-10-05
@@ -26,6 +26,7 @@ milestone_status: open
 - **Source materials:** `context/foundation/prd.md` (v3); catalog and compliance research in `context/foundation/screening-catalog-research.md` (resolves the catalog-source and AI-consent decisions)
 - **Done when:** every F-NN and S-NN below is `done`.
 - **Scope anchors:** FR-001–FR-009, FR-011, FR-012 (all must-have FRs); US-01, US-02, US-03. FR-010 (nice-to-have) is parked.
+- **Agent-workflow foundations (added 2026-10-05):** F-04–F-07 harden the verification path for agent-driven changes (an orchestrator agent runs S-06/S-07 through the 10x chain with worker agents, up to an open PR). They come from the owner's tooling review, not from the PRD; each one is a verification or safety path for the remaining slices.
 
 ## Vision recap
 
@@ -44,6 +45,10 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done     |
 | F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done     |
 | F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | ready    |
+| F-04 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —             | —                                                  | ready    |
+| F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —             | NFR (testing)                                      | ready    |
+| F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —             | NFR (testing)                                      | ready    |
+| F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —             | NFR (privacy), FR-007                              | ready    |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done     |
 | S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done     |
@@ -56,11 +61,12 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme                       | Chain                             | Note                                                                                                                                                      |
-| ------ | --------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A      | Profile and recommendations | `S-01` → `S-02` → `S-03`          | Shortest path to the north star; `S-02` also joins Stream B at `F-01`.                                                                                    |
-| B      | Catalog and recurrence      | `F-01` → `S-05`; `F-03`           | Catalog built from Polish NFZ programs and society guidelines; `S-05` joins Stream A at `S-03`; `F-03` (unit tests for the catalog rules) follows `S-02`. |
-| C      | Reminders                   | `F-02` → `S-04` → `S-06` / `S-07` | Proves the delivery path early; `S-04` joins A at `S-03`, `S-06`/`S-07` join B at `S-05`.                                                                 |
+| Stream | Theme                       | Chain                                     | Note                                                                                                                                                      |
+| ------ | --------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A      | Profile and recommendations | `S-01` → `S-02` → `S-03`                  | Shortest path to the north star; `S-02` also joins Stream B at `F-01`.                                                                                    |
+| B      | Catalog and recurrence      | `F-01` → `S-05`; `F-03`                   | Catalog built from Polish NFZ programs and society guidelines; `S-05` joins Stream A at `S-03`; `F-03` (unit tests for the catalog rules) follows `S-02`. |
+| C      | Reminders                   | `F-02` → `S-04` → `S-06` / `S-07`         | Proves the delivery path early; `S-04` joins A at `S-03`, `S-06`/`S-07` join B at `S-05`.                                                                 |
+| D      | Agent workflow              | `F-03` / `F-06` → `F-05` / `F-04`; `F-07` | No prerequisites; suggested order puts verification first (`F-03`, `F-06`), so later agent-run slices are checked.                                        |
 
 ## Baseline
 
@@ -119,6 +125,61 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** S-02 ships its rule engine without unit tests (owner decision), so until F-03 lands the branch-evaluation edge cases rely on smoke, pgTAP and manual test profiles. Added during S-02 planning; first cases are listed in `context/changes/screening-recommendations/plan.md` §Testing Strategy.
+- **Status:** ready
+
+### F-04: Agent docs MCP
+
+- **Outcome:** (foundation) a committed `.mcp.json` registers the Context7 MCP server, so every Claude Code session and worker worktree can pull current Astro, Supabase, Cloudflare Workers and Tailwind docs during `/10x-research` and `/10x-plan`; `CLAUDE.md` tells agents when to use it.
+- **Change ID:** agent-docs-mcp
+- **PRD refs:** —
+- **Unlocks:** research quality for S-06, S-07 (external-research leg of the 10x chain)
+- **Prerequisites:** —
+- **Parallel with:** F-05, F-06
+- **Blockers:** —
+- **Unknowns:**
+  - Context7 works without an API key at a lower rate limit; add a key only if limits bite (stored outside the repo). — Owner: user. Block: no.
+- **Risk:** Low. Project-scoped MCP servers need a one-time approval per machine; no secrets in `.mcp.json`.
+- **Status:** ready
+
+### F-05: UI verification script
+
+- **Outcome:** (foundation) `npm run ui:shots` (Playwright, run as a script, not an MCP server) signs in a seeded fixture user against `BASE_URL`, and screenshots the dashboard, onboarding, profile and kitchen sink in light and dark at 1440px and 390px into a gitignored folder. Agents use it in `/10x-implement` manual-verification gates and attach the paths to PRs.
+- **Change ID:** ui-verification-script
+- **PRD refs:** NFR (testing)
+- **Unlocks:** verification path for UI work in S-06/S-07 (reminder settings, nudges) without a human at the screen
+- **Prerequisites:** —
+- **Parallel with:** F-04, F-06
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Must use the local Supabase only (refuse a non-local `BASE_URL`, like `scripts/smoke.mjs`), and must not add Playwright browsers to the production build or the Worker bundle.
+- **Status:** ready
+
+### F-06: Agent stop hook
+
+- **Outcome:** (foundation) a committed `.claude/settings.json` (un-ignored in `.gitignore`) adds a Claude Code `Stop` hook that runs ESLint on the files changed against `origin/main` and blocks the turn from ending while errors remain, so worker agents fix lint before reporting `done`. The hook runs only in worker sessions (`DBAM_CHANGE` set), so interactive human sessions are not slowed.
+- **Change ID:** agent-stop-hook
+- **PRD refs:** NFR (testing)
+- **Unlocks:** verification path "workers self-check before handing back" for S-06, S-07 and every later agent-run change
+- **Prerequisites:** —
+- **Parallel with:** F-03, F-04, F-05
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** A hook that always fails can trap an agent in a loop; cap it (for example, pass after 3 consecutive blocks and report) and keep it to changed files so it stays fast. Un-ignoring only `.claude/settings.json` must keep `.claude/skills/` and local settings ignored.
+- **Status:** ready
+
+### F-07: Error tracking
+
+- **Outcome:** (foundation) production errors are visible and alerted using Cloudflare and the existing email path only, on the Workers Free plan with no new data processor: (1) the SSR error path (`src/middleware.ts` / the 500 page) and the scheduled reminder job log one structured JSON error event (error code, route or job name, request id; never health data, emails or profile fields) to Workers Logs; (2) a failed reminder run emails the owner through the existing Resend path (`src/lib/heartbeat.ts`, `REMINDER_TEST_TO`); (3) saved queries for these events in the Workers Observability dashboard, documented in `README.md`.
+- **Change ID:** error-tracking
+- **PRD refs:** NFR (privacy), FR-007
+- **Unlocks:** S-06, S-07 (reminder runs must not fail silently once real users depend on them); moved from Parked on 2026-10-05
+- **Prerequisites:** —
+- **Parallel with:** F-04–F-06
+- **Blockers:** —
+- **Unknowns:**
+  - Resolved (2026-10-05): Cloudflare-native, not Sentry. Cloudflare and Resend already process this data, so the DPIA in Open Roadmap Question 2 gains no new sub-processor.
+  - Cloudflare custom alerts (beta, announced 2026-10-02) can alert on Workers events, but whether they run on the Free plan is undocumented. If they do, add an alert on the error event and drop nothing else; if not, the email path above is the alert. Check in the dashboard during planning. — Owner: user. Block: no.
+- **Risk:** Free-plan limits: 200,000 log events/day and 3-day retention, so errors are triaged within days, not mined later. There is no exception grouping or release tracking (Sentry's strengths); revisit a dedicated tracker only if real-user volume makes raw logs unworkable. The failure email must not include user data.
 - **Status:** ready
 
 ## Slices
@@ -216,6 +277,10 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01       | screening-catalog-v1        | Curate v1 screening catalog (eligibility, importance, interval) | yes                   | #17 · Done; drafter live run (3.3) → #42      |
 | F-02       | reminder-dispatch-path      | Prove scheduled email delivery on Workers in production         | yes                   | #18 · Done; post-deploy verification → #57    |
 | F-03       | unit-test-suite             | Unit test suite for catalog rules                               | yes                   | #49 · Run `/10x-plan unit-test-suite`         |
+| F-04       | agent-docs-mcp              | Context7 MCP for agent docs lookups                             | yes                   | Run `/10x-plan agent-docs-mcp`                |
+| F-05       | ui-verification-script      | Playwright screenshot script for agent UI checks                | yes                   | Run `/10x-plan ui-verification-script`        |
+| F-06       | agent-stop-hook             | Stop hook: workers fix lint before finishing                    | yes                   | Run `/10x-plan agent-stop-hook`               |
+| F-07       | error-tracking              | Cloudflare-native error logging and failure alerts              | yes                   | Run `/10x-plan error-tracking`                |
 | S-01       | onboarding-profile          | Onboarding: health-data consent and minimal profile             | yes                   | #19 · Done                                    |
 | S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | yes                   | #20 · Done                                    |
 | S-03       | record-appointment-date     | Record an appointment date for a recommended exam               | yes                   | #21 · Run `/10x-plan record-appointment-date` |
@@ -239,8 +304,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Family / shared accounts** — Why parked: PRD §Non-Goals; single user per account for v1.
 - **Optional follow-up profiling (FR-010)** — Why parked: nice-to-have; `main_goal: speed` keeps the milestone on must-have FRs only.
 - **AI at runtime (LLM-generated recommendations, "ask about this exam" chatbot)** — Why parked: research decision; rules are deterministic and the profile is never sent to an AI model. A chatbot is v2 and would get only the exam ID.
+- **AI PR review bot (CodeRabbit)** — Why parked: owner decision (2026-10-05), parked until the owner changes their mind. Chosen tool if revived: CodeRabbit (free with Pro features for public repos, GitHub app, no repo secret) with a committed `.coderabbit.yaml` whose `path_instructions` restate the `CLAUDE.md` hard rules and skip generated files; the owner installs the app. Until then the 10x `/10x-impl-review` reviewer agent and the human are the PR reviewers.
 - **Automated post-deploy verification of the reminder dispatch path** (#57) — Why parked: user decision (2026-09-29, F-02). With many PRs merging, a `deploy` step that sends a real email on every `main` deploy is noise, and cron changes take up to 15 min to propagate, which is longer than the current post-deploy retry window. Revisit once reminders reach real users. Likely shape: a secret-protected trigger endpoint the `deploy` job calls, or a send-log check. See `context/changes/reminder-dispatch-path/research.md` §E.
-- **Error tracking beyond Workers observability** — Why parked: no PRD requirement demands it for v1; revisit if reminder runs fail silently.
 
 ## Milestone History
 

@@ -19,25 +19,27 @@ const retry = Astro.url.pathname + Astro.url.search;
   >
     {t("nav.skipToContent")}
   </a>
-  <PublicHeader />
+  <div class="flex min-h-dvh flex-col">
+    <PublicHeader />
 
-  <main id="main" class="mx-auto w-full max-w-md px-4 pt-8 pb-24 sm:pt-16">
-    <Card className="text-center" role="alert">
-      <CardHeader className="justify-items-center">
-        <CloudOff aria-hidden="true" className="size-10 text-muted-foreground" />
-        <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("errorPage.title")}</h1>
-      </CardHeader>
-      <CardContent>
-        <p class="leading-relaxed text-muted-foreground">{t("errorPage.message")}</p>
-      </CardContent>
-      <CardFooter className="flex-col gap-3 sm:flex-row sm:justify-center">
-        <a href={retry} class:list={[buttonVariants(), "w-full sm:w-auto"]}>
-          {t("errorPage.retry")}
-        </a>
-        <a href="/" class:list={[buttonVariants({ variant: "outline" }), "w-full sm:w-auto"]}>
-          {t("errorPage.home")}
-        </a>
-      </CardFooter>
-    </Card>
-  </main>
+    <main id="main" class="mx-auto w-full max-w-md px-4 flex flex-1 flex-col justify-center pt-8 pb-24">
+      <Card className="text-center" role="alert">
+        <CardHeader className="justify-items-center">
+          <CloudOff aria-hidden="true" className="size-10 text-muted-foreground" />
+          <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("errorPage.title")}</h1>
+        </CardHeader>
+        <CardContent>
+          <p class="leading-relaxed text-muted-foreground">{t("errorPage.message")}</p>
+        </CardContent>
+        <CardFooter className="flex-col gap-3 sm:flex-row sm:justify-center">
+          <a href={retry} class:list={[buttonVariants(), "w-full sm:w-auto"]}>
+            {t("errorPage.retry")}
+          </a>
+          <a href="/" class:list={[buttonVariants({ variant: "outline" }), "w-full sm:w-auto"]}>
+            {t("errorPage.home")}
+          </a>
+        </CardFooter>
+      </Card>
+    </main>
+  </div>
 </Layout>

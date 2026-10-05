@@ -18,22 +18,24 @@ const t = createT(Astro.locals.locale);
   >
     {t("nav.skipToContent")}
   </a>
-  <PublicHeader />
+  <div class="flex min-h-dvh flex-col">
+    <PublicHeader />
 
-  <main id="main" class="mx-auto w-full max-w-md px-4 pt-8 pb-24 sm:pt-16">
-    <Card className="text-center">
-      <CardHeader className="justify-items-center">
-        <Compass aria-hidden="true" className="size-10 text-primary" />
-        <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("notFound.title")}</h1>
-      </CardHeader>
-      <CardContent>
-        <p class="leading-relaxed text-muted-foreground">{t("notFound.message")}</p>
-      </CardContent>
-      <CardFooter className="justify-center">
-        <a href="/" class:list={[buttonVariants(), "w-full sm:w-auto"]}>
-          {t("errorPage.home")}
-        </a>
-      </CardFooter>
-    </Card>
-  </main>
+    <main id="main" class="mx-auto w-full max-w-md px-4 flex flex-1 flex-col justify-center pt-8 pb-24">
+      <Card className="text-center">
+        <CardHeader className="justify-items-center">
+          <Compass aria-hidden="true" className="size-10 text-primary" />
+          <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("notFound.title")}</h1>
+        </CardHeader>
+        <CardContent>
+          <p class="leading-relaxed text-muted-foreground">{t("notFound.message")}</p>
+        </CardContent>
+        <CardFooter className="justify-center">
+          <a href="/" class:list={[buttonVariants(), "w-full sm:w-auto"]}>
+            {t("errorPage.home")}
+          </a>
+        </CardFooter>
+      </Card>
+    </main>
+  </div>
 </Layout>

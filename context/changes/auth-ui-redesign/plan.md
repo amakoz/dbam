@@ -699,6 +699,55 @@ Added on 2026-10-05 at the owner's request: the full withdraw section should not
 
 ---
 
+## Phase 10: Vertically centred auth and error pages, working pre-commit hook
+
+### Overview
+
+Added on 2026-10-05 after the manual review:
+
+- **Centring (owner request):** the sign-in, sign-up, confirm-email, 404 and 500 cards are centred vertically instead of sitting near the top.
+- **Pre-commit hook (fixes manual check 7.10):** the hook check failed because `package.json` never had a `prepare` script, so husky was never installed in any clone and the documented pre-commit `ui:check` never ran. The fix landed in `58ee70b`.
+
+### Changes Required:
+
+#### 1. Centred shell
+
+**File**: `src/pages/auth/{signin,signup,confirm-email}.astro`, `src/pages/404.astro`, `src/pages/500.astro`
+
+**Intent**: The card is the focus of these single-task pages.
+
+**Contract**:
+
+- `PublicHeader` and `<main>` sit in a `flex min-h-dvh flex-col` wrapper.
+- `<main>` is `flex flex-1 flex-col justify-center` and keeps `pb-24`, so the floating language pill never covers the card on mobile. The card therefore sits slightly above true centre.
+
+#### 2. Pre-commit hook
+
+**File**: `package.json`
+
+**Intent**: The hook described in CLAUDE.md is installed on `npm install` / `npm ci`.
+
+**Contract**: The `"prepare": "husky"` script sets `core.hooksPath = .husky/_`. Note that this config is shared by every worktree of the repo.
+
+### Success Criteria:
+
+#### Automated Verification:
+
+- Hardcoded-value scan on the five pages returns 0 hits.
+- Linting passes: `npm run lint`.
+- Type and template check passes: `npx astro check`.
+- Build succeeds: `npm run build`.
+- `npm run ui:check` passes.
+- Smoke passes against a local dev server: `npm run smoke`.
+
+#### Manual Verification:
+
+- Sign-in, sign-up, confirm-email, 404 and 500 show the card vertically centred at desktop and 375px, light and dark.
+
+**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
+
+---
+
 ## Testing Strategy
 
 ### Unit Tests:
@@ -851,7 +900,7 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 #### Manual
 
 - [x] 7.9 Full flow on a fresh account in light and dark without cosmic remnants — 4a5f130
-- [ ] 7.10 Pre-commit hook blocks a test literal in `src/pages/profile.astro`
+- [x] 7.10 Pre-commit hook blocks a test literal in `src/pages/profile.astro` — 58ee70b
 
 ### Phase 8: Strong passwords
 
@@ -885,3 +934,18 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 - [x] 9.6 Onboarding shows withdrawal as a muted toggle that opens the full form — 4bac509
 - [x] 9.7 A failed withdraw reopens with the toggle expanded and the error visible — 4bac509
+
+### Phase 10: Vertically centred auth and error pages, working pre-commit hook
+
+#### Automated
+
+- [x] 10.1 Hardcoded-value scan on the five pages returns 0 hits
+- [x] 10.2 Linting passes: `npm run lint`
+- [x] 10.3 Type and template check passes: `npx astro check`
+- [x] 10.4 Build succeeds: `npm run build`
+- [x] 10.5 `npm run ui:check` passes
+- [x] 10.6 Smoke passes against a local dev server: `npm run smoke`
+
+#### Manual
+
+- [ ] 10.7 Auth and error cards vertically centred at desktop and 375px, light and dark

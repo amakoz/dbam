@@ -26,27 +26,29 @@ const focusRing = "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ou
   >
     {t("nav.skipToContent")}
   </a>
-  <PublicHeader />
+  <div class="flex min-h-dvh flex-col">
+    <PublicHeader />
 
-  <main id="main" class="mx-auto w-full max-w-md px-4 pt-8 pb-24 sm:pt-16">
-    <Card>
-      <CardHeader>
-        <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("auth.signup.title")}</h1>
-      </CardHeader>
-      <CardContent>
-        <SignUpForm locale={locale} serverError={serverError} client:load />
-      </CardContent>
-      <CardFooter className="justify-center text-sm text-muted-foreground">
-        <p>
-          {t("auth.signup.hasAccount")}{" "}
-          <a
-            href="/auth/signin"
-            class:list={["rounded-sm font-medium text-primary underline-offset-4 hover:underline", focusRing]}
-          >
-            {t("auth.signup.signinLink")}
-          </a>
-        </p>
-      </CardFooter>
-    </Card>
-  </main>
+    <main id="main" class="mx-auto w-full max-w-md px-4 flex flex-1 flex-col justify-center pt-8 pb-24">
+      <Card>
+        <CardHeader>
+          <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("auth.signup.title")}</h1>
+        </CardHeader>
+        <CardContent>
+          <SignUpForm locale={locale} serverError={serverError} client:load />
+        </CardContent>
+        <CardFooter className="justify-center text-sm text-muted-foreground">
+          <p>
+            {t("auth.signup.hasAccount")}{" "}
+            <a
+              href="/auth/signin"
+              class:list={["rounded-sm font-medium text-primary underline-offset-4 hover:underline", focusRing]}
+            >
+              {t("auth.signup.signinLink")}
+            </a>
+          </p>
+        </CardFooter>
+      </Card>
+    </main>
+  </div>
 </Layout>

@@ -362,11 +362,11 @@ No database or production changes. Left on the owner's side:
 
 #### Automated
 
-- [x] 2.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits
-- [x] 2.2 No starter copy or components remain in the landing, components and i18n
-- [x] 2.3 Linting passes: `npm run lint`
-- [x] 2.4 Type and template check passes: `npx astro check`
-- [x] 2.5 Build succeeds: `npm run build`
+- [x] 2.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits — 8c27883
+- [x] 2.2 No starter copy or components remain in the landing, components and i18n — 8c27883
+- [x] 2.3 Linting passes: `npm run lint` — 8c27883
+- [x] 2.4 Type and template check passes: `npx astro check` — 8c27883
+- [x] 2.5 Build succeeds: `npm run build` — 8c27883
 
 #### Manual
 
@@ -379,8 +379,8 @@ No database or production changes. Left on the owner's side:
 
 #### Automated
 
-- [ ] 3.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits
-- [ ] 3.2 Build succeeds: `npm run build`
+- [x] 3.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits
+- [x] 3.2 Build succeeds: `npm run build`
 
 #### Manual
 

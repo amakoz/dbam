@@ -1,28 +1,52 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import PublicHeader from "@/components/PublicHeader.astro";
 import SignUpForm from "@/components/auth/SignUpForm";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import Layout from "@/layouts/Layout.astro";
 import { createT } from "@/i18n";
 import { authErrorMessageKey } from "@/lib/auth-errors";
+
+// Auth forms are for signed-out visitors only; the dashboard sends unfinished onboarding on to /onboarding.
+if (Astro.locals.user) {
+  return Astro.redirect("/dashboard");
+}
 
 const { locale } = Astro.locals;
 const t = createT(locale);
 const errorCode = Astro.url.searchParams.get("error");
 const serverError = errorCode ? t(authErrorMessageKey(errorCode)) : null;
+
+const focusRing = "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
 ---
 
 <Layout title={t("auth.signup.title")}>
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
-        {t("auth.signup.title")}
-      </h1>
-      <SignUpForm locale={locale} serverError={serverError} client:load />
-      <p class="mt-4 text-center text-sm text-blue-100/60">
-        {t("auth.signup.hasAccount")}{" "}
-        <a href="/auth/signin" class="text-purple-300 hover:underline">
-          {t("auth.signup.signinLink")}
-        </a>
-      </p>
-    </div>
-  </div>
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+  <PublicHeader />
+
+  <main id="main" class="mx-auto w-full max-w-md px-4 pt-8 pb-24 sm:pt-16">
+    <Card>
+      <CardHeader>
+        <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("auth.signup.title")}</h1>
+      </CardHeader>
+      <CardContent>
+        <SignUpForm locale={locale} serverError={serverError} client:load />
+      </CardContent>
+      <CardFooter className="justify-center text-sm text-muted-foreground">
+        <p>
+          {t("auth.signup.hasAccount")}{" "}
+          <a
+            href="/auth/signin"
+            class:list={["rounded-sm font-medium text-primary underline-offset-4 hover:underline", focusRing]}
+          >
+            {t("auth.signup.signinLink")}
+          </a>
+        </p>
+      </CardFooter>
+    </Card>
+  </main>
 </Layout>

@@ -257,9 +257,6 @@ export const pl = {
   "auth.signup.hasAccount": "Masz już konto?",
   "auth.signup.signinLink": "Zaloguj się",
 
-  "auth.confirm.success.title": "Rejestracja zakończona",
-  "auth.confirm.success.description": "Twoje konto zostało utworzone. Możesz się teraz zalogować.",
-  "auth.confirm.success.link": "Przejdź do logowania",
   "auth.confirm.pending.title": "Sprawdź skrzynkę e-mail",
   "auth.confirm.pending.description":
     "Wysłaliśmy link potwierdzający na Twój adres e-mail. Kliknij go, aby aktywować konto.",

@@ -1,0 +1,22 @@
+---
+import { createT } from "@/i18n";
+
+// The top bar of pages outside the app (landing, auth): the wordmark links back to `/`, and the default slot holds
+// one optional right-side action. The language switcher stays the floating pill from Layout.
+
+const t = createT(Astro.locals.locale);
+const isHome = Astro.url.pathname === "/";
+
+const focusRing = "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
+---
+
+<header class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+  <a
+    href="/"
+    aria-current={isHome ? "page" : undefined}
+    class:list={["rounded-md font-heading text-xl font-semibold text-foreground", focusRing]}
+  >
+    {t("meta.title")}
+  </a>
+  <slot />
+</header>

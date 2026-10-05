@@ -1,34 +1,61 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import { CircleCheck } from "lucide-react";
+import PublicHeader from "@/components/PublicHeader.astro";
 import SignInForm from "@/components/auth/SignInForm";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import Layout from "@/layouts/Layout.astro";
 import { createT } from "@/i18n";
 import { authErrorMessageKey } from "@/lib/auth-errors";
+
+// Auth forms are for signed-out visitors only; the dashboard sends unfinished onboarding on to /onboarding.
+if (Astro.locals.user) {
+  return Astro.redirect("/dashboard");
+}
 
 const { locale } = Astro.locals;
 const t = createT(locale);
 const errorCode = Astro.url.searchParams.get("error");
 const serverError = errorCode ? t(authErrorMessageKey(errorCode)) : null;
 const confirmed = Astro.url.searchParams.has("confirmed");
+
+const focusRing = "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
 ---
 
 <Layout title={t("auth.signin.title")}>
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
-        {t("auth.signin.title")}
-      </h1>
-      {confirmed && (
-        <p class="mb-4 rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200">
-          {t("auth.signin.confirmed")}
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+  <PublicHeader />
+
+  <main id="main" class="mx-auto w-full max-w-md space-y-4 px-4 pt-8 pb-24 sm:pt-16">
+    {confirmed && (
+      <Alert role="status" className="border-success/40">
+        <CircleCheck aria-hidden="true" />
+        <AlertDescription className="text-foreground">{t("auth.signin.confirmed")}</AlertDescription>
+      </Alert>
+    )}
+    <Card>
+      <CardHeader>
+        <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("auth.signin.title")}</h1>
+      </CardHeader>
+      <CardContent>
+        <SignInForm locale={locale} serverError={serverError} client:load />
+      </CardContent>
+      <CardFooter className="justify-center text-sm text-muted-foreground">
+        <p>
+          {t("auth.signin.noAccount")}{" "}
+          <a
+            href="/auth/signup"
+            class:list={["rounded-sm font-medium text-primary underline-offset-4 hover:underline", focusRing]}
+          >
+            {t("auth.signin.signupLink")}
+          </a>
         </p>
-      )}
-      <SignInForm locale={locale} serverError={serverError} client:load />
-      <p class="mt-4 text-center text-sm text-blue-100/60">
-        {t("auth.signin.noAccount")}{" "}
-        <a href="/auth/signup" class="text-purple-300 hover:underline">
-          {t("auth.signin.signupLink")}
-        </a>
-      </p>
-    </div>
-  </div>
+      </CardFooter>
+    </Card>
+  </main>
 </Layout>

@@ -619,12 +619,12 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 1.1 Hardcoded-value scan on `src/components/forms/*.tsx` returns 0 hits
-- [x] 1.2 No old kit paths or `useFormStatus` remain in src
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 Type and template check passes: `npx astro check`
-- [x] 1.5 Build succeeds: `npm run build`
-- [x] 1.6 Smoke passes against a local dev server: `npm run smoke`
+- [x] 1.1 Hardcoded-value scan on `src/components/forms/*.tsx` returns 0 hits — 071ffff
+- [x] 1.2 No old kit paths or `useFormStatus` remain in src — 071ffff
+- [x] 1.3 Linting passes: `npm run lint` — 071ffff
+- [x] 1.4 Type and template check passes: `npx astro check` — 071ffff
+- [x] 1.5 Build succeeds: `npm run build` — 071ffff
+- [x] 1.6 Smoke passes against a local dev server: `npm run smoke` — 071ffff
 
 #### Manual
 
@@ -636,12 +636,12 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [ ] 2.1 Hardcoded-value scan on auth pages, auth islands and PublicHeader returns 0 hits
-- [ ] 2.2 No DEV switch, success-copy keys or bg-cosmic remain in auth pages
-- [ ] 2.3 Linting passes: `npm run lint`
-- [ ] 2.4 Type and template check passes: `npx astro check`
-- [ ] 2.5 Build succeeds: `npm run build`
-- [ ] 2.6 Smoke passes against a local dev server: `npm run smoke`
+- [x] 2.1 Hardcoded-value scan on auth pages, auth islands and PublicHeader returns 0 hits
+- [x] 2.2 No DEV switch, success-copy keys or bg-cosmic remain in auth pages
+- [x] 2.3 Linting passes: `npm run lint`
+- [x] 2.4 Type and template check passes: `npx astro check`
+- [x] 2.5 Build succeeds: `npm run build`
+- [x] 2.6 Smoke passes against a local dev server: `npm run smoke`
 
 #### Manual
 

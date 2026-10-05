@@ -254,9 +254,6 @@ export const en: Record<MessageKey, string> = {
   "auth.signup.hasAccount": "Already have an account?",
   "auth.signup.signinLink": "Sign in",
 
-  "auth.confirm.success.title": "Registration successful",
-  "auth.confirm.success.description": "Your account has been created. You can now sign in.",
-  "auth.confirm.success.link": "Go to sign in",
   "auth.confirm.pending.title": "Check your email",
   "auth.confirm.pending.description":
     "We've sent a confirmation link to your email address. Click it to activate your account.",

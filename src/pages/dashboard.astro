@@ -1,26 +1,18 @@
 ---
-import {
-  CalendarClock,
-  CalendarPlus,
-  CircleAlert,
-  CircleCheck,
-  CircleQuestionMark,
-  ClipboardList,
-  Stethoscope,
-  Undo2,
-} from "lucide-react";
+import { CircleAlert, CircleCheck, CircleQuestionMark, ClipboardList, Undo2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader.astro";
 import DoneItem from "@/components/recommendations/DoneItem.astro";
 import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
 import PlanItem from "@/components/recommendations/PlanItem.astro";
 import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
+import TierSection from "@/components/recommendations/TierSection.astro";
 import type { SavedFeedback } from "@/components/recommendations/saved";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import Layout from "@/layouts/Layout.astro";
 import { createT, type MessageKey } from "@/i18n";
 import { getActiveCatalog, getCatalogEntries } from "@/lib/catalog/read";
-import { recommend, type Tier } from "@/lib/catalog/recommend";
+import { recommend } from "@/lib/catalog/recommend";
 import { getOnboardingState } from "@/lib/consent";
 import { errorMessageKey } from "@/lib/errors";
 import { SEX_LABEL_KEYS, SMOKING_STATUS_LABEL_KEYS, type Sex, type SmokingStatus } from "@/lib/profile";
@@ -72,25 +64,9 @@ const bounds = screeningFormBounds(now, profile.birth_year, locale);
 // Nudge towards reminders once there is an appointment date to be reminded of.
 const showRemindersHint = !profile.reminders_enabled && planRows.some(({ appointment_date }) => appointment_date);
 
-const TIER_HEADING_KEYS = {
-  1: "dashboard.recommendations.tier.1",
-  2: "dashboard.recommendations.tier.2",
-  3: "dashboard.recommendations.tier.3",
-} as const satisfies Record<Tier, MessageKey>;
 const tierGroups = ([1, 2, 3] as const)
   .map((tier) => ({ tier, items: tiers[tier] }))
   .filter(({ items }) => items.length > 0);
-// Tier 1 is the strongest card (tier-1 border and header band); every tier heading carries an icon, not colour alone.
-const TIER_STYLES = {
-  1: {
-    Icon: CalendarClock,
-    card: "overflow-hidden border-2 border-tier-1-solid pt-0",
-    header: "bg-tier-1 py-4 text-tier-1-foreground",
-    icon: "text-tier-1-foreground",
-  },
-  2: { Icon: CalendarPlus, card: "", header: "", icon: "text-tier-2-solid" },
-  3: { Icon: Stethoscope, card: "", header: "", icon: "text-tier-3-solid" },
-} as const satisfies Record<Tier, { Icon: typeof CalendarClock; card: string; header: string; icon: string }>;
 // The intro's status line: exams in "Your plans", and the exams in the tier sections that still wait for a decision.
 const openCount = tierGroups.reduce((count, { items }) => count + items.length, 0);
 
@@ -226,39 +202,21 @@ const summary = [
             </CardContent>
           </Card>
         ) : (
-          tierGroups.map(({ tier, items }) => {
-            const { Icon, card, header, icon } = TIER_STYLES[tier];
-            return (
-              <section aria-labelledby={`tier-${tier}-heading`}>
-                <Card className={card}>
-                  <CardHeader className={header}>
-                    <h2 id={`tier-${tier}-heading`} class="flex items-center gap-2 font-heading text-xl font-semibold">
-                      <Icon aria-hidden="true" className={cn("size-5", icon)} />
-                      {t(TIER_HEADING_KEYS[tier])}
-                    </h2>
-                    {tier === 3 && (
-                      <p class="text-sm text-muted-foreground">{t("dashboard.recommendations.tier.3.note")}</p>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <ul class="divide-y divide-border">
-                      {items.map((recommendation) => (
-                        <RecommendationItem
-                          recommendation={recommendation}
-                          age={age}
-                          bounds={bounds}
-                          lastDone={lastDone.get(recommendation.entry.slug)}
-                          error={errorFor(recommendation.entry.slug)}
-                          invalidField={invalidFieldFor(recommendation.entry.slug)}
-                          saved={savedFor(recommendation.entry.slug)}
-                        />
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </section>
-            );
-          })
+          tierGroups.map(({ tier, items }) => (
+            <TierSection tier={tier}>
+              {items.map((recommendation) => (
+                <RecommendationItem
+                  recommendation={recommendation}
+                  age={age}
+                  bounds={bounds}
+                  lastDone={lastDone.get(recommendation.entry.slug)}
+                  error={errorFor(recommendation.entry.slug)}
+                  invalidField={invalidFieldFor(recommendation.entry.slug)}
+                  saved={savedFor(recommendation.entry.slug)}
+                />
+              ))}
+            </TierSection>
+          ))
         )}
       </div>
 

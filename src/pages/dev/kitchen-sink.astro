@@ -12,6 +12,7 @@ import DoneItem from "@/components/recommendations/DoneItem.astro";
 import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
 import PlanItem from "@/components/recommendations/PlanItem.astro";
 import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
+import TierSection from "@/components/recommendations/TierSection.astro";
 import type { SavedFeedback } from "@/components/recommendations/saved";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -337,17 +338,15 @@ const LEGEND: readonly { state: string; status: "Shown" | "Live" | "N/A"; note: 
 
           <div class="space-y-2">
             <p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-              Tier rows: 1 (with last done), 2, 3
+              Tier sections: 1 (with last done), 2 (not NFZ, referral), 3
             </p>
-            <Card>
-              <CardContent>
-                <ul class="divide-y divide-border">
-                  {data.tiers.map(({ recommendation: item, lastDone }) => (
-                    <RecommendationItem recommendation={item} age={age} bounds={bounds} lastDone={lastDone} />
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            <div class="grid gap-6">
+              {data.tiers.map(({ recommendation: item, lastDone }) => (
+                <TierSection tier={item.tier} headingLevel="h3" headingId={`${scheme}-tier-${item.tier}-heading`}>
+                  <RecommendationItem recommendation={item} age={age} bounds={bounds} lastDone={lastDone} />
+                </TierSection>
+              ))}
+            </div>
           </div>
 
           <div class="space-y-2">

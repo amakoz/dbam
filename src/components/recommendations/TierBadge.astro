@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { createT, type MessageKey } from "@/i18n";
 import type { Tier } from "@/lib/catalog/recommend";
 
-// An exam's tier as a label plus an icon, never colour alone. The icons match the tier section headings
-// (`TIER_STYLES` in dashboard.astro).
+// An exam's tier as a label plus an icon, never colour alone, for rows outside a tier section ("Your plans"). Rows
+// inside a tier section don't carry it: the section heading already says the tier. The icons match the tier section
+// headings (`TIER_STYLES` in TierSection.astro).
 
 interface Props {
   tier: Tier;

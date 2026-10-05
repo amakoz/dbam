@@ -18,7 +18,7 @@ import { errorMessageKey } from "@/lib/errors";
 import { SEX_LABEL_KEYS, SMOKING_STATUS_LABEL_KEYS, type Sex, type SmokingStatus } from "@/lib/profile";
 import { screeningFormBounds } from "@/lib/screenings/format";
 import { getUserScreenings } from "@/lib/screenings/read";
-import { partitionDashboard } from "@/lib/screenings/rules";
+import { partitionDashboard, warsawToday } from "@/lib/screenings/rules";
 import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
@@ -61,8 +61,12 @@ const { plans, done, tiers, maybe, lastDone } = partitionDashboard(
   now,
 );
 const bounds = screeningFormBounds(now, profile.birth_year, locale);
-// Nudge towards reminders once there is an appointment date to be reminded of.
-const showRemindersHint = !profile.reminders_enabled && planRows.some(({ appointment_date }) => appointment_date);
+// Nudge towards reminders once there is an appointment date to be reminded of: reminders go out only for dates after
+// today (Warsaw), so a passed date doesn't count.
+const today = warsawToday(now);
+const showRemindersHint =
+  !profile.reminders_enabled &&
+  planRows.some(({ appointment_date }) => appointment_date !== null && appointment_date > today);
 
 const tierGroups = ([1, 2, 3] as const)
   .map((tier) => ({ tier, items: tiers[tier] }))
@@ -78,6 +82,7 @@ const SAVED_KEYS = {
   unplan: "dashboard.screenings.saved.unplan",
   done: "dashboard.screenings.saved.done",
   undone: "dashboard.screenings.saved.undone",
+  confirm: "dashboard.screenings.saved.confirm",
 } as const satisfies Record<string, MessageKey>;
 // Errors about one field of the plan/done panel mark that field invalid.
 const INVALID_FIELDS = {
@@ -96,7 +101,10 @@ const rowSlug = slugParam && itemSlugs.has(slugParam) ? slugParam : null;
 const savedParam = Astro.url.searchParams.get("saved");
 const savedKey = Object.entries(SAVED_KEYS).find(([intent]) => intent === savedParam)?.[1];
 const saved: SavedFeedback | null = savedKey
-  ? { text: t(savedKey), tone: savedParam === "plan" || savedParam === "done" ? "success" : "neutral" }
+  ? {
+      text: t(savedKey),
+      tone: savedParam === "plan" || savedParam === "done" || savedParam === "confirm" ? "success" : "neutral",
+    }
   : null;
 const savedSlug = saved ? rowSlug : null;
 const pageSaved = saved && !savedSlug ? saved : null;

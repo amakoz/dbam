@@ -33,6 +33,7 @@ const name = locale === "pl" ? entry.name_pl : entry.name_en;
   data-done
   data-slug={entry.slug}
   data-next-due={nextDue ? nextDue.slice(0, 7) : ""}
+  data-last-done-on={completion.last_done_on ?? ""}
   data-saved={saved?.tone}
   class:list={["-mx-3 scroll-mt-4 px-3 py-4", saved ? SAVED_ROW_CLASS[saved.tone] : "first:pt-0 last:pb-0"]}
 >

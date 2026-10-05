@@ -8,9 +8,10 @@ import { parseDoneForm, parsePlanForm, SLUG_PATTERN, warsawMonth, warsawToday } 
 import { createClient } from "@/lib/supabase";
 
 // Plans and done records for the dashboard's exam items: `plan` (optional appointment date), `unplan`, `done`
-// (optional month of the last exam) and `undone`. Every outcome redirects back to the dashboard, to the item's anchor.
+// (optional month of the last exam), `undone` and `confirm` (a plan whose appointment day has come becomes a done
+// record on that day). Every outcome redirects back to the dashboard, to the item's anchor.
 
-const INTENTS = ["plan", "unplan", "done", "undone"] as const;
+const INTENTS = ["plan", "unplan", "done", "undone", "confirm"] as const;
 type Intent = (typeof INTENTS)[number];
 
 function isIntent(value: unknown): value is Intent {
@@ -54,6 +55,18 @@ export const POST: APIRoute = async (context) => {
     const { error } = await supabase.from(table).delete().eq("user_id", user.id).eq("catalog_slug", slug);
     if (error) return fail("save_failed");
     return succeed(slug);
+  }
+
+  // Confirming a plan needs no profile or recommendation check either: the function reads the plan's date and checks
+  // it against Warsaw today itself, and runs as the caller, so RLS still requires an active consent and an active
+  // catalog entry (those failures come back as an error).
+  if (intent === "confirm") {
+    if (!slug) return fail("invalid_request");
+    const { data, error } = await supabase.rpc("confirm_screening_plan", { p_slug: slug });
+    if (error) return fail("save_failed");
+    if (data === "confirmed") return succeed(slug);
+    if (data === "not_due") return fail("appointment_not_passed");
+    return fail("invalid_request");
   }
 
   // Without an active consent and a profile nothing may be stored; send the user back to onboarding. (RLS enforces
@@ -105,11 +118,12 @@ export const POST: APIRoute = async (context) => {
     return succeed(target);
   }
 
-  // Write the done record before deleting the plan: a failed write must never lose the plan.
+  // Write the done record before deleting the plan: a failed write must never lose the plan. A month-only record
+  // clears the exact day of an earlier confirm (it would be stale, or outside the new month).
   const { error } = await supabase
     .from("screening_completions")
     .upsert(
-      { catalog_slug: target, last_done_month: parsed.value.last_done_month },
+      { catalog_slug: target, last_done_month: parsed.value.last_done_month, last_done_on: null },
       { onConflict: "user_id,catalog_slug" },
     );
   if (error) return fail("save_failed");

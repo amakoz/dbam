@@ -222,18 +222,49 @@ const accountSteps = [
     () => request("/api/screenings", { method: "POST", form: { intent: "plan", slug: "lung-ldct-nfz-program" } }),
     { status: 302, location: "/dashboard?error=screening_not_available" },
   ],
+  // Confirming a plan (S-05): only once its appointment day has come (Warsaw), and it records that exact day.
+  [
+    "confirm rejects a plan whose day has not come",
+    () => screening({ intent: "confirm" }),
+    { status: 302, location: "/dashboard?error=appointment_not_passed" },
+  ],
+  [
+    "plan for today is saved",
+    () => screening({ intent: "plan", appointment_date: today }),
+    { status: 302, location: "/dashboard?saved=plan" },
+  ],
+  [
+    "dashboard asks to confirm the plan for today",
+    () => request("/dashboard"),
+    {
+      status: 200,
+      bodyIncludes: `data-plan data-slug="${mammography}" data-appointment="${today}" data-awaiting-confirmation`,
+    },
+  ],
+  ["confirm is saved", () => screening({ intent: "confirm" }), { status: 302, location: "/dashboard?saved=confirm" }],
+  [
+    "dashboard shows the exam done on the confirmed day",
+    () => request("/dashboard"),
+    {
+      status: 200,
+      // Mammography is the only done exam, so the day belongs to its row.
+      bodyIncludes: [`data-done data-slug="${mammography}"`, `data-last-done-on="${today}"`],
+      bodyExcludes: [`data-slug="${mammography}" data-tier`, "data-plan"],
+    },
+  ],
   [
     "done last month is saved",
     () => screening({ intent: "done", done_month: lastMonth.month, done_year: lastMonth.year }),
     { status: 302, location: "/dashboard?saved=done" },
   ],
+  // A month-only mark done clears the confirmed day; the empty value renders as a bare `data-last-done-on`.
   [
     "dashboard shows the exam as done, not planned",
     () => request("/dashboard"),
     {
       status: 200,
-      bodyIncludes: `data-done data-slug="${mammography}"`,
-      bodyExcludes: [`data-slug="${mammography}" data-tier`, "data-plan"],
+      bodyIncludes: [`data-done data-slug="${mammography}"`, "data-last-done-on"],
+      bodyExcludes: [`data-slug="${mammography}" data-tier`, "data-plan", 'data-last-done-on="'],
     },
   ],
   ["undone is saved", () => screening({ intent: "undone" }), { status: 302, location: "/dashboard?saved=undone" }],

@@ -44,12 +44,18 @@ export function formatMonth(month: string, locale: Locale): string {
   return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(month));
 }
 
-/** "Last done: …", or "Marked done in …" when the user didn't know the month (it then counts from the save). */
+/**
+ * "Last done: …" with the exact day when a confirmed plan recorded it, else with the month, or "Marked done in …"
+ * when the user didn't know the month (it then counts from the save).
+ */
 export function describeLastDone(
-  completion: Pick<ScreeningCompletion, "last_done_month" | "updated_at">,
+  completion: Pick<ScreeningCompletion, "last_done_month" | "last_done_on" | "updated_at">,
   t: Translate,
   locale: Locale,
 ): string {
+  if (completion.last_done_on) {
+    return t("dashboard.screenings.done.lastDoneOn", { date: formatDay(completion.last_done_on, locale) });
+  }
   return completion.last_done_month
     ? t("dashboard.screenings.done.lastDone", { month: formatMonth(completion.last_done_month, locale) })
     : t("dashboard.screenings.done.markedIn", { month: formatMonth(anchorMonth(completion), locale) });

@@ -95,13 +95,13 @@ function recommendation(entry: CatalogEntry, tier: Recommendation["tier"], inter
   return { entry, tier, matchedBranch: entry.eligibility[0], interval } satisfies Recommendation;
 }
 
-function completion(slug: string, lastDoneMonth: string | null): ScreeningCompletion {
+function completion(slug: string, lastDoneMonth: string | null, lastDoneOn: string | null = null): ScreeningCompletion {
   return {
     catalog_slug: slug,
     created_at: `${FIXTURE_DATE}T10:00:00Z`,
     id: 0,
     last_done_month: lastDoneMonth,
-    last_done_on: null,
+    last_done_on: lastDoneOn,
     updated_at: `${FIXTURE_DATE}T10:00:00Z`,
     user_id: "00000000-0000-0000-0000-000000000000",
   };
@@ -144,7 +144,9 @@ function fixtures(scheme: Scheme) {
   const planned = entry("planned", "Kolonoskopia (z datą)", "Colonoscopy (dated)");
   const plannedNoDate = entry("planned-no-date", "Densytometria (bez daty)", "Bone density (no date)");
   const plannedSaved = entry("planned-saved", "Badanie oczu (zapisano)", "Eye exam (saved)", { evidence_level: 2 });
+  const plannedPassed = entry("planned-passed", "Cytologia (termin minął)", "Pap smear (date passed)");
   const done = entry("done", "Pomiar ciśnienia (zrobione)", "Blood pressure (done)");
+  const doneOnDay = entry("done-on-day", "Spirometria (potwierdzone)", "Spirometry (confirmed)");
   const doneNoInterval = entry("done-no-interval", "Przegląd szczepień (zrobione)", "Vaccination review (done)", {
     interval_kind: "no_known_interval",
     interval_months: null,
@@ -155,9 +157,18 @@ function fixtures(scheme: Scheme) {
   const savedUndo: SavedFeedback = { text: t("dashboard.screenings.saved.unplan"), tone: "neutral" };
 
   const plans: { view: PlanView; saved?: SavedFeedback }[] = [
-    { view: { plan: plan(planned.slug, "2026-11-12"), entry: planned, tier: 1 } },
-    { view: { plan: plan(plannedNoDate.slug, null), entry: plannedNoDate, tier: null } },
-    { view: { plan: plan(plannedSaved.slug, "2027-01-20"), entry: plannedSaved, tier: 2 }, saved: savedSuccess },
+    // Awaiting confirmation is set by hand: the fixture dates are literal, not relative to today.
+    {
+      view: { plan: plan(plannedPassed.slug, FIXTURE_DATE), entry: plannedPassed, tier: 1, awaitingConfirmation: true },
+    },
+    { view: { plan: plan(planned.slug, "2026-11-12"), entry: planned, tier: 1, awaitingConfirmation: false } },
+    {
+      view: { plan: plan(plannedNoDate.slug, null), entry: plannedNoDate, tier: null, awaitingConfirmation: false },
+    },
+    {
+      view: { plan: plan(plannedSaved.slug, "2027-01-20"), entry: plannedSaved, tier: 2, awaitingConfirmation: false },
+      saved: savedSuccess,
+    },
   ];
   const tiers: { recommendation: Recommendation; lastDone?: ScreeningCompletion }[] = [
     {
@@ -169,6 +180,7 @@ function fixtures(scheme: Scheme) {
   ];
   const doneViews: DoneView[] = [
     { completion: completion(done.slug, "2026-06-01"), entry: done, nextDue: "2027-06-01" },
+    { completion: completion(doneOnDay.slug, "2026-09-01", FIXTURE_DATE), entry: doneOnDay, nextDue: "2028-09-01" },
     { completion: completion(doneNoInterval.slug, null), entry: doneNoInterval, nextDue: null },
   ];
   const maybeItems: MaybeRecommendation[] = [

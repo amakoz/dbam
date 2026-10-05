@@ -369,10 +369,10 @@ The migration is additive (a nullable column, a CHECK that existing rows satisfy
 
 #### Automated
 
-- [x] 1.1 Migration applies on a clean local database
-- [x] 1.2 pgTAP passes, including the new file
-- [x] 1.3 Types regenerated and committed
-- [x] 1.4 Lint and type check pass
+- [x] 1.1 Migration applies on a clean local database — 9fe3027
+- [x] 1.2 pgTAP passes, including the new file — 9fe3027
+- [x] 1.3 Types regenerated and committed — 9fe3027
+- [x] 1.4 Lint and type check pass — 9fe3027
 
 #### Manual
 
@@ -382,12 +382,12 @@ The migration is additive (a nullable column, a CHECK that existing rows satisfy
 
 #### Automated
 
-- [ ] 2.1 Lint passes
-- [ ] 2.2 Type check passes
-- [ ] 2.3 Design-system check passes
-- [ ] 2.4 Build passes
-- [ ] 2.5 Smoke passes against the local preview
-- [ ] 2.6 pgTAP still passes
+- [x] 2.1 Lint passes
+- [x] 2.2 Type check passes
+- [x] 2.3 Design-system check passes
+- [x] 2.4 Build passes
+- [x] 2.5 Smoke passes against the local preview
+- [x] 2.6 pgTAP still passes
 
 #### Manual
 

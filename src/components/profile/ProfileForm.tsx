@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Save } from "lucide-react";
+import { ChoiceGroup } from "@/components/forms/ChoiceGroup";
 import { FormField } from "@/components/forms/FormField";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import { ServerError } from "@/components/forms/ServerError";
@@ -15,7 +16,6 @@ import {
   type ProfileField,
   type ProfileInput,
 } from "@/lib/profile";
-import { cn } from "@/lib/utils";
 
 interface Props {
   locale: Locale;
@@ -36,66 +36,6 @@ function toValues(initial: ProfileInput | null | undefined, locale: Locale): Val
     smoking_years: initial?.smoking_years == null ? "" : String(initial.smoking_years),
     years_since_quitting: initial?.years_since_quitting == null ? "" : String(initial.years_since_quitting),
   };
-}
-
-interface ChoiceGroupProps {
-  name: ProfileField;
-  legend: string;
-  hint?: string;
-  options: readonly { value: string; label: string }[];
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-}
-
-function ChoiceGroup({ name, legend, hint, options, value, onChange, error }: ChoiceGroupProps) {
-  const hintId = `${name}-hint`;
-  const errorId = `${name}-error`;
-  return (
-    <fieldset
-      aria-describedby={
-        [hint ? hintId : null, error ? errorId : null].filter((id) => id !== null).join(" ") || undefined
-      }
-    >
-      <legend className="mb-1 block text-sm text-blue-100/80">{legend}</legend>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className={cn(
-              "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors focus-within:ring-2",
-              value === option.value
-                ? "border-purple-400 bg-purple-500/20 text-white"
-                : "border-white/20 bg-white/10 text-blue-100/80 hover:bg-white/15",
-              error ? "focus-within:ring-red-400" : "focus-within:ring-purple-400",
-            )}
-          >
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => {
-                onChange(option.value);
-              }}
-              className="accent-purple-500"
-            />
-            {option.label}
-          </label>
-        ))}
-      </div>
-      {hint && (
-        <p id={hintId} className="mt-1 text-xs text-blue-100/50">
-          {hint}
-        </p>
-      )}
-      {error && (
-        <p id={errorId} className="mt-1 text-xs text-red-300">
-          {error}
-        </p>
-      )}
-    </fieldset>
-  );
 }
 
 export default function ProfileForm({ locale, mode, initial, serverError }: Props) {
@@ -154,7 +94,7 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
         }}
         placeholder={t("profile.form.birthYearPlaceholder")}
         error={errorText("birth_year")}
-        hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.birthYearHint")}</p>}
+        hint={<p>{t("profile.form.birthYearHint")}</p>}
       />
 
       <ChoiceGroup
@@ -192,7 +132,7 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
             }}
             placeholder={t("profile.form.packsPerDayPlaceholder")}
             error={errorText("packs_per_day")}
-            hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.packsPerDayHint")}</p>}
+            hint={<p>{t("profile.form.packsPerDayHint")}</p>}
           />
           <FormField
             id="smoking_years"
@@ -219,16 +159,16 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
           }}
           placeholder={t("profile.form.yearsSinceQuittingPlaceholder")}
           error={errorText("years_since_quitting")}
-          hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.yearsSinceQuittingHint")}</p>}
+          hint={<p>{t("profile.form.yearsSinceQuittingHint")}</p>}
         />
       )}
 
       {showPackYears && (
-        <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm" aria-live="polite">
-          <p className="font-medium text-white">
+        <div className="border-border bg-muted rounded-md border px-3 py-2 text-sm" aria-live="polite">
+          <p className="text-foreground font-medium">
             {t("profile.form.packYears", { value: new Intl.NumberFormat(locale).format(packYears(packs, years)) })}
           </p>
-          <p className="text-xs text-blue-100/50">{t("profile.form.packYearsHint")}</p>
+          <p className="text-muted-foreground text-xs">{t("profile.form.packYearsHint")}</p>
         </div>
       )}
 

@@ -636,12 +636,12 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 2.1 Hardcoded-value scan on auth pages, auth islands and PublicHeader returns 0 hits
-- [x] 2.2 No DEV switch, success-copy keys or bg-cosmic remain in auth pages
-- [x] 2.3 Linting passes: `npm run lint`
-- [x] 2.4 Type and template check passes: `npx astro check`
-- [x] 2.5 Build succeeds: `npm run build`
-- [x] 2.6 Smoke passes against a local dev server: `npm run smoke`
+- [x] 2.1 Hardcoded-value scan on auth pages, auth islands and PublicHeader returns 0 hits — 3e7f7a3
+- [x] 2.2 No DEV switch, success-copy keys or bg-cosmic remain in auth pages — 3e7f7a3
+- [x] 2.3 Linting passes: `npm run lint` — 3e7f7a3
+- [x] 2.4 Type and template check passes: `npx astro check` — 3e7f7a3
+- [x] 2.5 Build succeeds: `npm run build` — 3e7f7a3
+- [x] 2.6 Smoke passes against a local dev server: `npm run smoke` — 3e7f7a3
 
 #### Manual
 
@@ -654,11 +654,11 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [ ] 3.1 Hardcoded-value scan on onboarding, ProfileForm, WithdrawConsentForm and ChoiceGroup returns 0 hits
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Type and template check passes: `npx astro check`
-- [ ] 3.4 Build succeeds: `npm run build`
-- [ ] 3.5 Smoke passes against a local dev server: `npm run smoke`
+- [x] 3.1 Hardcoded-value scan on onboarding, ProfileForm, WithdrawConsentForm and ChoiceGroup returns 0 hits
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Type and template check passes: `npx astro check`
+- [x] 3.4 Build succeeds: `npm run build`
+- [x] 3.5 Smoke passes against a local dev server: `npm run smoke`
 
 #### Manual
 

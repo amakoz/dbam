@@ -1,36 +1,48 @@
 ---
+import { MailCheck } from "lucide-react";
+import PublicHeader from "@/components/PublicHeader.astro";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import Layout from "@/layouts/Layout.astro";
 import { createT } from "@/i18n";
 
-const t = createT(Astro.locals.locale);
-const isAutoConfirmed = import.meta.env.DEV;
+// With email confirmations off, sign-up starts a session and the user is already signed in: nothing to check.
+if (Astro.locals.user) {
+  return Astro.redirect("/dashboard");
+}
 
-const content = isAutoConfirmed
-  ? {
-      emoji: "✅",
-      heading: t("auth.confirm.success.title"),
-      description: t("auth.confirm.success.description"),
-      linkText: t("auth.confirm.success.link"),
-    }
-  : {
-      emoji: "📧",
-      heading: t("auth.confirm.pending.title"),
-      description: t("auth.confirm.pending.description"),
-      linkText: t("auth.confirm.pending.link"),
-    };
+const t = createT(Astro.locals.locale);
+
+const focusRing = "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
 ---
 
-<Layout title={content.heading}>
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl">
-      <div class="mb-4 text-5xl">{content.emoji}</div>
-      <h1 class="mb-3 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-        {content.heading}
-      </h1>
-      <p class="mb-6 text-blue-100/80">{content.description}</p>
-      <a href="/auth/signin" class="text-sm text-purple-300 hover:underline">
-        {content.linkText}
-      </a>
-    </div>
+<Layout title={t("auth.confirm.pending.title")}>
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+  <div class="flex min-h-dvh flex-col">
+    <PublicHeader />
+
+    <main id="main" class="mx-auto w-full max-w-md px-4 flex flex-1 flex-col justify-center pt-8 pb-24">
+      <Card className="text-center">
+        <CardHeader className="justify-items-center">
+          <MailCheck aria-hidden="true" className="size-10 text-primary" />
+          <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("auth.confirm.pending.title")}</h1>
+        </CardHeader>
+        <CardContent>
+          <p class="leading-relaxed text-muted-foreground">{t("auth.confirm.pending.description")}</p>
+        </CardContent>
+        <CardFooter className="justify-center text-sm">
+          <a
+            href="/auth/signin"
+            class:list={["rounded-sm font-medium text-primary underline-offset-4 hover:underline", focusRing]}
+          >
+            {t("auth.confirm.pending.link")}
+          </a>
+        </CardFooter>
+      </Card>
+    </main>
   </div>
 </Layout>

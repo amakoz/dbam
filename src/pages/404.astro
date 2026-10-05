@@ -1,0 +1,41 @@
+---
+import { Compass } from "lucide-react";
+import PublicHeader from "@/components/PublicHeader.astro";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import Layout from "@/layouts/Layout.astro";
+import { createT } from "@/i18n";
+
+// Rendered by Astro for unknown routes and for any page that returns an empty 404 (e.g. /dev/kitchen-sink in a
+// production build); the response keeps status 404.
+const t = createT(Astro.locals.locale);
+---
+
+<Layout title={t("notFound.title")}>
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+  <div class="flex min-h-dvh flex-col">
+    <PublicHeader />
+
+    <main id="main" class="mx-auto w-full max-w-md px-4 flex flex-1 flex-col justify-center pt-8 pb-24">
+      <Card className="text-center">
+        <CardHeader className="justify-items-center">
+          <Compass aria-hidden="true" className="size-10 text-primary" />
+          <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("notFound.title")}</h1>
+        </CardHeader>
+        <CardContent>
+          <p class="leading-relaxed text-muted-foreground">{t("notFound.message")}</p>
+        </CardContent>
+        <CardFooter className="justify-center">
+          <a href="/" class:list={[buttonVariants(), "w-full sm:w-auto"]}>
+            {t("errorPage.home")}
+          </a>
+        </CardFooter>
+      </Card>
+    </main>
+  </div>
+</Layout>

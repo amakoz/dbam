@@ -1,7 +1,12 @@
 ---
+import { CircleAlert, CircleCheck, LogOut } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
+import PublicHeader from "@/components/PublicHeader.astro";
 import ProfileForm from "@/components/profile/ProfileForm";
 import WithdrawConsentForm from "@/components/profile/WithdrawConsentForm.astro";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { createT } from "@/i18n";
 import { HEALTH_DATA_CONSENT_VERSION, getOnboardingState } from "@/lib/consent";
 import { errorMessageKey } from "@/lib/errors";
@@ -38,77 +43,96 @@ const consentSections = [
 ---
 
 <Layout title={t("onboarding.title")}>
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
-      {withdrawn && (
-        <p
-          class="mb-4 rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200"
-          role="status"
-        >
-          {t("onboarding.withdrawn")}
-        </p>
-      )}
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+  <PublicHeader>
+    <form method="POST" action="/api/auth/signout">
+      <Button type="submit" variant="ghost" size="sm">
+        <LogOut aria-hidden="true" />
+        {t("nav.signout")}
+      </Button>
+    </form>
+  </PublicHeader>
 
-      {state === "needs_consent" ? (
-        <form method="POST" action="/api/consent/grant" class="space-y-4">
-          <input type="hidden" name="version" value={HEALTH_DATA_CONSENT_VERSION} />
-          <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-            {t("onboarding.consent.heading")}
-          </h1>
-          <p class="text-sm text-blue-100/80">{t("onboarding.consent.intro")}</p>
-          <dl class="space-y-3 text-sm">
-            {consentSections.map(([heading, body]) => (
-              <div>
-                <dt class="font-semibold text-white">{t(heading)}</dt>
-                <dd class="text-blue-100/80">{t(body)}</dd>
-              </div>
-            ))}
-          </dl>
-          <p class="text-sm text-blue-100/60">{t("onboarding.consent.voluntary")}</p>
+  <main id="main" class="mx-auto w-full max-w-xl space-y-4 px-4 pt-8 pb-24 sm:pt-16">
+    {withdrawn && (
+      <Alert role="status" className="border-success/40">
+        <CircleCheck aria-hidden="true" />
+        <AlertDescription className="text-foreground">{t("onboarding.withdrawn")}</AlertDescription>
+      </Alert>
+    )}
 
-          <label class="flex items-start gap-3 rounded-lg border border-white/20 bg-white/5 p-3 text-sm">
-            <input
-              type="checkbox"
-              name="consent"
-              value="yes"
-              required
-              class="mt-0.5 size-4 shrink-0 accent-purple-500"
-            />
-            <span>{t("onboarding.consent.checkbox")}</span>
-          </label>
+    {state === "needs_consent" ? (
+      <Card>
+        <CardHeader>
+          <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("onboarding.consent.heading")}</h1>
+          <p class="text-sm text-muted-foreground">{t("onboarding.consent.intro")}</p>
+        </CardHeader>
+        <CardContent>
+          <form method="POST" action="/api/consent/grant" class="space-y-4">
+            <input type="hidden" name="version" value={HEALTH_DATA_CONSENT_VERSION} />
+            <dl class="space-y-3 text-sm">
+              {consentSections.map(([heading, body]) => (
+                <div>
+                  <dt class="font-semibold text-foreground">{t(heading)}</dt>
+                  <dd class="text-muted-foreground">{t(body)}</dd>
+                </div>
+              ))}
+            </dl>
+            <p class="text-sm text-muted-foreground">{t("onboarding.consent.voluntary")}</p>
 
-          {serverError && (
-            <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
-              {serverError}
-            </p>
-          )}
+            <label class="flex items-start gap-3 rounded-md border border-input bg-card p-3 text-sm">
+              <input
+                type="checkbox"
+                name="consent"
+                value="yes"
+                required
+                class="mt-0.5 size-4 shrink-0 accent-primary"
+              />
+              <span>{t("onboarding.consent.checkbox")}</span>
+            </label>
 
-          <button
-            type="submit"
-            class="w-full rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500"
-          >
-            {t("onboarding.consent.submit")}
-          </button>
-        </form>
-      ) : (
-        <>
-          <h1 class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-            {t("onboarding.profile.heading")}
-          </h1>
-          <p class="mb-6 text-sm text-blue-100/80">{t("onboarding.profile.intro")}</p>
-          <ProfileForm locale={locale} mode="onboarding" serverError={serverError} client:load />
-          {/* Consent is active from here on, so withdrawing it must be possible before a profile exists (Art. 7(3)). */}
-          <div class="mt-8">
-            <WithdrawConsentForm from="onboarding" error={withdrawError} />
+            {serverError && (
+              <Alert variant="destructive">
+                <CircleAlert aria-hidden="true" />
+                <AlertDescription>{serverError}</AlertDescription>
+              </Alert>
+            )}
+
+            <Button type="submit" className="w-full">
+              {t("onboarding.consent.submit")}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    ) : (
+      <Card>
+        <CardHeader>
+          <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("onboarding.profile.heading")}</h1>
+          <p class="text-sm text-muted-foreground">{t("onboarding.profile.intro")}</p>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          {/* The island renders inside a display:contents <astro-island>, which ignores space-y margins; the div keeps the gap. */}
+          <div>
+            <ProfileForm locale={locale} mode="onboarding" serverError={serverError} client:load />
           </div>
-        </>
-      )}
-
-      <form method="POST" action="/api/auth/signout" class="mt-6 text-center">
-        <button type="submit" class="text-sm text-purple-300 hover:underline">
-          {t("nav.signout")}
-        </button>
-      </form>
-    </div>
-  </div>
+          {/* Consent is active from here on, so withdrawing it must be possible before a profile exists (Art. 7(3)).
+              It stays one click away but collapsed, so it does not compete with the profile form; it opens when a
+              withdraw attempt came back with an error. */}
+          <details class="border-t border-border pt-4" open={withdrawError !== null}>
+            <summary class="w-fit cursor-pointer rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+              {t("onboarding.withdraw.toggle")}
+            </summary>
+            <div class="mt-4">
+              <WithdrawConsentForm from="onboarding" error={withdrawError} />
+            </div>
+          </details>
+        </CardContent>
+      </Card>
+    )}
+  </main>
 </Layout>

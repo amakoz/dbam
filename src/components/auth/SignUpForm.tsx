@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { Mail, Lock, UserPlus } from "lucide-react";
-import { FormField } from "@/components/auth/FormField";
-import { PasswordToggle } from "@/components/auth/PasswordToggle";
-import { SubmitButton } from "@/components/auth/SubmitButton";
-import { ServerError } from "@/components/auth/ServerError";
+import React, { useEffect, useState } from "react";
+import { UserPlus } from "lucide-react";
+import { FormField } from "@/components/forms/FormField";
+import { PasswordRules } from "@/components/forms/PasswordRules";
+import { PasswordToggle } from "@/components/forms/PasswordToggle";
+import { SubmitButton } from "@/components/forms/SubmitButton";
+import { ServerError } from "@/components/forms/ServerError";
 import { createT, type Locale } from "@/i18n";
-
-const MIN_PASSWORD_LENGTH = 6;
+import { PASSWORD_MIN_LENGTH, passwordIssues } from "@/lib/password";
 
 interface Props {
   locale: Locale;
@@ -21,6 +21,18 @@ export default function SignUpForm({ locale, serverError }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // Back/Forward restores the page from bfcache with React state intact; re-enable the button.
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (event.persisted) setSubmitting(false);
+    }
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
 
   function validate() {
     const next: typeof errors = {};
@@ -31,10 +43,13 @@ export default function SignUpForm({ locale, serverError }: Props) {
       next.email = t("auth.form.emailInvalid");
     }
 
+    const issues = passwordIssues(password);
     if (!password) {
       next.password = t("auth.form.passwordRequired");
-    } else if (password.length < MIN_PASSWORD_LENGTH) {
-      next.password = t.plural("auth.form.passwordTooShort", MIN_PASSWORD_LENGTH);
+    } else if (issues.includes("too_short")) {
+      next.password = t.plural("auth.form.passwordTooShort", PASSWORD_MIN_LENGTH);
+    } else if (issues.includes("needs_letter_and_digit")) {
+      next.password = t("auth.form.passwordNeedsLetterAndDigit");
     }
 
     if (!confirmPassword) {
@@ -54,15 +69,10 @@ export default function SignUpForm({ locale, serverError }: Props) {
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     if (!validate()) {
       e.preventDefault();
+      return;
     }
+    setSubmitting(true);
   }
-
-  const passwordHint =
-    !errors.password && password.length > 0 && password.length < MIN_PASSWORD_LENGTH ? (
-      <p className="mt-1 text-xs text-blue-100/50">
-        {t.plural("auth.form.passwordRemaining", MIN_PASSWORD_LENGTH - password.length)}
-      </p>
-    ) : undefined;
 
   return (
     <form method="POST" action="/api/auth/signup" className="space-y-4" onSubmit={handleSubmit} noValidate>
@@ -77,7 +87,6 @@ export default function SignUpForm({ locale, serverError }: Props) {
         }}
         placeholder={t("auth.form.emailPlaceholder")}
         error={errors.email}
-        icon={<Mail className="size-4" />}
       />
 
       <FormField
@@ -89,10 +98,9 @@ export default function SignUpForm({ locale, serverError }: Props) {
           setPassword(v);
           clearError("password");
         }}
-        placeholder={t.plural("auth.form.passwordMinPlaceholder", MIN_PASSWORD_LENGTH)}
+        placeholder={t.plural("auth.form.passwordMinPlaceholder", PASSWORD_MIN_LENGTH)}
         error={errors.password}
-        hint={passwordHint}
-        icon={<Lock className="size-4" />}
+        hint={<PasswordRules password={password} t={t} />}
         endContent={
           <PasswordToggle
             visible={showPassword}
@@ -116,7 +124,6 @@ export default function SignUpForm({ locale, serverError }: Props) {
         }}
         placeholder={t("auth.form.confirmPasswordPlaceholder")}
         error={errors.confirmPassword}
-        icon={<Lock className="size-4" />}
         endContent={
           <PasswordToggle
             visible={showConfirmPassword}
@@ -130,7 +137,7 @@ export default function SignUpForm({ locale, serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText={t("auth.signup.pending")} icon={<UserPlus className="size-4" />}>
+      <SubmitButton pending={submitting} pendingText={t("auth.signup.pending")} icon={<UserPlus aria-hidden="true" />}>
         {t("auth.signup.submit")}
       </SubmitButton>
     </form>

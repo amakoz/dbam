@@ -13,19 +13,23 @@ export const en: Record<MessageKey, string> = {
   "nav.signin": "Sign in",
   "nav.signup": "Sign up",
   "nav.signout": "Sign out",
-  "nav.notSignedIn": "Not signed in",
   "nav.profile": "Profile",
   "nav.skipToContent": "Skip to content",
 
-  "home.title": "10x Astro Starter",
-  "home.subtitle": "A production-ready starter with authentication, modern tooling, and a cosmic developer experience.",
-  "home.features.auth.title": "Authentication Ready",
-  "home.features.auth.description":
-    "Built-in Supabase auth with sign in, sign up, and protected routes out of the box.",
-  "home.features.stack.title": "Modern Stack",
-  "home.features.stack.description": "Astro 7, React 19, Tailwind 4, and TypeScript — the latest tools, ready to go.",
-  "home.features.dx.title": "Developer Experience",
-  "home.features.dx.description": "ESLint, Prettier, and pre-commit hooks keep your codebase clean from day one.",
+  "home.title": "See which preventive screenings are due for you",
+  "home.subtitle":
+    "Enter your birth year and a few details about yourself. Dbam shows the screenings that fit your age and situation, based on NFZ programmes and medical society guidelines.",
+  "home.how.heading": "How it works",
+  "home.features.profile.title": "A short profile",
+  "home.features.profile.description": "Birth year, sex and smoking — only what is needed to match the screenings.",
+  "home.features.tiers.title": "A list by importance",
+  "home.features.tiers.description":
+    "Screenings in three groups: “Important — schedule now”, “Worth planning” and “Talk to your doctor”.",
+  "home.features.track.title": "Plan it, tick it off",
+  "home.features.track.description":
+    "Save the appointment date or mark a screening as done — it comes back to the list when it is due again.",
+  "home.note":
+    "Dbam does not diagnose — it suggests which screenings are worth doing. Other users never see your data.",
 
   "dashboard.title": "Dashboard",
   "dashboard.status.plans_one": "{count} planned screening",
@@ -179,11 +183,11 @@ export const en: Record<MessageKey, string> = {
   "onboarding.profile.heading": "A few questions about you",
   "onboarding.profile.intro":
     "We use your answers to match preventive screenings to your age, sex and smoking history.",
+  "onboarding.withdraw.toggle": "Want to withdraw your consent?",
 
   "profile.title": "Your profile",
   "profile.intro": "Update your details if anything has changed — we use them to match your screenings.",
   "profile.saved": "Your changes have been saved.",
-  "profile.back": "Back to dashboard",
   "profile.withdraw.heading": "Withdrawing consent",
   "profile.withdraw.intro": "You can withdraw your consent to storing your health data at any time.",
   "profile.withdraw.deleted":
@@ -250,9 +254,6 @@ export const en: Record<MessageKey, string> = {
   "auth.signup.hasAccount": "Already have an account?",
   "auth.signup.signinLink": "Sign in",
 
-  "auth.confirm.success.title": "Registration successful",
-  "auth.confirm.success.description": "Your account has been created. You can now sign in.",
-  "auth.confirm.success.link": "Go to sign in",
   "auth.confirm.pending.title": "Check your email",
   "auth.confirm.pending.description":
     "We've sent a confirmation link to your email address. Click it to activate your account.",
@@ -273,10 +274,14 @@ export const en: Record<MessageKey, string> = {
   "auth.form.passwordTooShort_few": "Password must be at least {count} characters",
   "auth.form.passwordTooShort_many": "Password must be at least {count} characters",
   "auth.form.passwordTooShort_other": "Password must be at least {count} characters",
-  "auth.form.passwordRemaining_one": "{count} more character needed",
-  "auth.form.passwordRemaining_few": "{count} more characters needed",
-  "auth.form.passwordRemaining_many": "{count} more characters needed",
-  "auth.form.passwordRemaining_other": "{count} more characters needed",
+  "auth.form.passwordNeedsLetterAndDigit": "Password must contain at least one letter and one digit",
+  "auth.form.passwordRuleLength_one": "At least {count} character",
+  "auth.form.passwordRuleLength_few": "At least {count} characters",
+  "auth.form.passwordRuleLength_many": "At least {count} characters",
+  "auth.form.passwordRuleLength_other": "At least {count} characters",
+  "auth.form.passwordRuleLetterAndDigit": "At least one letter and one digit",
+  "auth.form.passwordRuleMet": "met",
+  "auth.form.passwordRuleUnmet": "not met",
   "auth.form.confirmPassword": "Confirm password",
   "auth.form.confirmPasswordPlaceholder": "Re-enter your password",
   "auth.form.confirmPasswordRequired": "Please confirm your password",
@@ -328,4 +333,6 @@ export const en: Record<MessageKey, string> = {
   "errorPage.message": "We couldn't load this page right now. Please try again in a moment.",
   "errorPage.retry": "Try again",
   "errorPage.home": "Home",
+  "notFound.title": "Page not found",
+  "notFound.message": "This page doesn't exist or has moved. Check the address or go back to the home page.",
 };

@@ -20,7 +20,9 @@ const { title = t("meta.title"), hideLanguageSwitcher = false } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {/* Preload only the body font's basic Latin file; Fraunces (headings) is used on few pages and loads on demand. */}
     <Font cssVariable="--font-fraunces" />
     <Font cssVariable="--font-figtree" preload={[{ subset: "latin" }]} />

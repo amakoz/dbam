@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
 import { CircleAlert } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-
-const inputBase =
-  "w-full rounded-lg bg-white/10 border px-3 py-2 pl-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-colors";
 
 interface FormFieldProps {
   id: string;
@@ -15,8 +14,8 @@ interface FormFieldProps {
   placeholder?: string;
   error?: string;
   hint?: ReactNode;
-  icon: ReactNode;
   endContent?: ReactNode;
+  disabled?: boolean;
 }
 
 export function FormField({
@@ -29,18 +28,16 @@ export function FormField({
   placeholder,
   error,
   hint,
-  icon,
   endContent,
+  disabled,
 }: FormFieldProps) {
   const descriptionId = `${id}-description`;
+  const hasDescription = Boolean(error) || Boolean(hint);
   return (
-    <div>
-      <label htmlFor={id} className="mb-1 block text-sm text-blue-100/80">
-        {label}
-      </label>
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
       <div className="relative">
-        <span className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40">{icon}</span>
-        <input
+        <Input
           id={id}
           name={name ?? id}
           type={type}
@@ -49,25 +46,25 @@ export function FormField({
             onChange(e.target.value);
           }}
           placeholder={placeholder}
+          disabled={disabled}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error || hint ? descriptionId : undefined}
-          className={cn(
-            inputBase,
-            error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
-          )}
+          aria-describedby={hasDescription ? descriptionId : undefined}
+          className={cn(endContent != null && "pr-10")}
         />
         {endContent}
       </div>
-      <div id={descriptionId}>
-        {error ? (
-          <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
-            <CircleAlert className="size-3" />
-            {error}
-          </p>
-        ) : (
-          hint
-        )}
-      </div>
+      {hasDescription && (
+        <div id={descriptionId} className="text-muted-foreground text-sm">
+          {error ? (
+            <p className="text-destructive flex items-center gap-1 text-sm">
+              <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
+              {error}
+            </p>
+          ) : (
+            hint
+          )}
+        </div>
+      )}
     </div>
   );
 }

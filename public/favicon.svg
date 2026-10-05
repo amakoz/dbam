@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    Dbam mark: a sage leaf on a linen tile (theme A "Len i szałwia").
+    Literal colours are the light values of two theme tokens in src/styles/global.css, converted to sRGB hex
+    (custom-property dashes left out: a double hyphen is not allowed inside an XML comment):
+    #fdfaf4 = background token, light value oklch(0.985 0.008 85)
+    #306751 = primary token, light value oklch(0.47 0.07 165)
+  -->
+  <rect width="32" height="32" rx="7" fill="#fdfaf4"/>
+  <path d="M7 25C7 14 13.5 7.5 25.5 6.5 25.5 18.5 19 25 7 25Z" fill="#306751"/>
+  <path d="M7 25 18.5 13.5" fill="none" stroke="#fdfaf4" stroke-width="1.75" stroke-linecap="round"/>
+</svg>

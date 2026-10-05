@@ -1,4 +1,8 @@
 ---
+import { CloudOff } from "lucide-react";
+import PublicHeader from "@/components/PublicHeader.astro";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import Layout from "@/layouts/Layout.astro";
 import { createT } from "@/i18n";
 
@@ -9,26 +13,33 @@ const retry = Astro.url.pathname + Astro.url.search;
 ---
 
 <Layout title={t("errorPage.title")}>
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div
-      class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl"
-      role="alert"
-    >
-      <h1 class="mb-3 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-        {t("errorPage.title")}
-      </h1>
-      <p class="mb-6 text-blue-100/80">{t("errorPage.message")}</p>
-      <div class="flex flex-col items-center gap-3">
-        <a
-          href={retry}
-          class="w-full rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500"
-        >
-          {t("errorPage.retry")}
-        </a>
-        <a href="/" class="text-sm text-purple-300 hover:underline">
-          {t("errorPage.home")}
-        </a>
-      </div>
-    </div>
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+  <div class="flex min-h-dvh flex-col">
+    <PublicHeader />
+
+    <main id="main" class="mx-auto w-full max-w-md px-4 flex flex-1 flex-col justify-center pt-8 pb-24">
+      <Card className="text-center" role="alert">
+        <CardHeader className="justify-items-center">
+          <CloudOff aria-hidden="true" className="size-10 text-muted-foreground" />
+          <h1 class="font-heading text-2xl font-semibold tracking-tight">{t("errorPage.title")}</h1>
+        </CardHeader>
+        <CardContent>
+          <p class="leading-relaxed text-muted-foreground">{t("errorPage.message")}</p>
+        </CardContent>
+        <CardFooter className="flex-col gap-3 sm:flex-row sm:justify-center">
+          <a href={retry} class:list={[buttonVariants(), "w-full sm:w-auto"]}>
+            {t("errorPage.retry")}
+          </a>
+          <a href="/" class:list={[buttonVariants({ variant: "outline" }), "w-full sm:w-auto"]}>
+            {t("errorPage.home")}
+          </a>
+        </CardFooter>
+      </Card>
+    </main>
   </div>
 </Layout>

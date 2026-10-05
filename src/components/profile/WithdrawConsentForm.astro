@@ -1,4 +1,7 @@
 ---
+import { CircleAlert } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { createT } from "@/i18n";
 
 interface Props {
@@ -12,32 +15,30 @@ const { from, error } = Astro.props;
 const t = createT(Astro.locals.locale);
 ---
 
-<section aria-labelledby="withdraw-heading" class="border-t border-white/10 pt-6">
+<section aria-labelledby="withdraw-heading">
   <form method="POST" action="/api/consent/withdraw" class="space-y-4">
     <input type="hidden" name="from" value={from} />
-    <h2 id="withdraw-heading" class="text-lg font-semibold">
+    <h2 id="withdraw-heading" class="font-heading text-lg font-semibold">
       {t("profile.withdraw.heading")}
     </h2>
-    <p class="text-sm text-blue-100/80">{t("profile.withdraw.intro")}</p>
-    <p class="text-sm text-blue-100/80">{t("profile.withdraw.deleted")}</p>
-    <p class="text-sm text-blue-100/60">{t("profile.withdraw.kept")}</p>
+    <p class="text-sm text-muted-foreground">{t("profile.withdraw.intro")}</p>
+    <p class="text-sm text-muted-foreground">{t("profile.withdraw.deleted")}</p>
+    <p class="text-sm text-muted-foreground">{t("profile.withdraw.kept")}</p>
 
-    <label class="flex items-start gap-3 rounded-lg border border-white/20 bg-white/5 p-3 text-sm">
-      <input type="checkbox" name="confirm" value="yes" class="mt-0.5 size-4 shrink-0 accent-red-500" />
+    <label class="flex items-start gap-3 rounded-md border border-input bg-card p-3 text-sm">
+      <input type="checkbox" name="confirm" value="yes" class="mt-0.5 size-4 shrink-0 accent-destructive" />
       <span>{t("profile.withdraw.checkbox")}</span>
     </label>
 
     {error && (
-      <p class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300" role="alert">
-        {error}
-      </p>
+      <Alert variant="destructive">
+        <CircleAlert aria-hidden="true" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
     )}
 
-    <button
-      type="submit"
-      class="w-full rounded-lg border border-red-500/40 bg-red-900/40 px-4 py-2 font-medium text-red-100 transition-colors hover:bg-red-800/60"
-    >
+    <Button type="submit" variant="destructive" className="w-full">
       {t("profile.withdraw.submit")}
-    </button>
+    </Button>
   </form>
 </section>

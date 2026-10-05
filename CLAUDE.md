@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-10x Astro Starter: an Astro 7 SSR app with React 19 islands, Tailwind 4, Supabase auth (`@supabase/ssr`), and shadcn/ui, deployed to Cloudflare Workers.
+Dbam (preventive-screening reminders for adults in Poland): an Astro 7 SSR app with React 19 islands, Tailwind 4, Supabase auth (`@supabase/ssr`), and shadcn/ui, deployed to Cloudflare Workers.
 
 ## Hard rules
 
@@ -11,6 +11,7 @@
 - Merging PRs to `main` is human-only: never run `gh pr merge`. Open the PR, report check status, and stop. A merge to `main` deploys to production automatically once `ci` + `smoke` pass on `main` (GitHub Actions `migrate` then `deploy` jobs, no approval step); Cloudflare Workers Builds is disconnected, so never reconnect it.
 - Against production, run `npm run smoke` only with `SMOKE_READONLY=1`: the full run signs up real `smoke-*@example.com` users in Supabase and sends confirmation emails that bounce. `scripts/smoke.mjs` refuses a non-local `BASE_URL` without it — never work around that guard.
 - Never run `supabase config push` against the production project: local `supabase/config.toml` has `enable_confirmations = false` and `site_url = "http://127.0.0.1:3000"`. Change production auth settings in the Supabase dashboard only.
+- The sign-up password policy (12+ characters, a letter and a digit) lives in `src/lib/password.ts` and must match `supabase/config.toml` (`minimum_password_length`, `password_requirements`) and the production dashboard (Authentication → Sign In / Providers → Email); change all three together.
 - Migrations reach production only through the CI `migrate` job (`supabase db push`, runs before `deploy`) — never run `supabase db push` against production by hand. Keep migrations additive-first: a Worker rollback never undoes a schema change. After a schema change run `npm run db:types` and commit `src/lib/database.types.ts`.
 - Screening catalog rows change only through `catalog/entries/<slug>.json` + `npm run catalog:migration` (checked by `npm run catalog:check` in CI, see `@catalog/README.md`) — never hand-edit a `*_screening_catalog_snapshot.sql`, and never delete an entry: set `"status": "retired"`.
 
@@ -42,6 +43,7 @@ Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}`, `prett
 - Tokens live in `src/styles/global.css` (theme A "Len i szałwia": `light-dark()` values, tier-1..3 and success tokens published via `@theme inline`). Reference them by role (`bg-primary`, `text-muted-foreground`, `bg-tier-1`); add a missing value there, not in the view.
 - Browser floor is Baseline 2024 (Chrome/Edge 123, Firefox 120, Safari/iOS 17.5): `vite.build.cssTarget` in `astro.config.mjs` keeps native `light-dark()` so `color-scheme` can force a subtree. Older browsers get no token colours — don't lower the target or add a polyfill without revisiting that trade-off.
 - Components live in `src/components/ui` — check there before creating one; add missing ones with `npx shadcn@latest add <name>`.
+- Form pieces live in `src/components/forms/` (`FormField`, `ChoiceGroup`, `PasswordToggle`, `SubmitButton` with `pending`, `ServerError`) — check there before building a field. Plain Astro forms (no island) use native checkboxes and radios styled with tokens: Radix-based shadcn controls need hydration.
 - No Tailwind palette classes (`bg-purple-600`, `text-white`), hex/rgb/oklch literals or arbitrary values (`p-[13px]`) in migrated views. The migrated files are listed in `@scripts/ui-check.mjs`; `npm run ui:check` fails on any hit (CI `ci` job and pre-commit). A view migrated by a follow-up change appends its files to that list and to the matching lint-staged glob in `package.json`.
 - The kitchen sink at `/dev/kitchen-sink` (dev only, 404 in production) renders the tokens and components.
 

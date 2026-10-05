@@ -97,6 +97,12 @@ const readonlySteps = [
 ];
 
 const accountSteps = [
+  // Rejected by the endpoint before Supabase, so it creates no user: the same email can sign up in the next step.
+  [
+    "signup rejects a weak password",
+    () => request("/api/auth/signup", { method: "POST", form: { email, password: "short" } }),
+    { status: 302, location: "/auth/signup?error=weak_password" },
+  ],
   [
     "signup creates account",
     () => request("/api/auth/signup", { method: "POST", form: { email, password } }),

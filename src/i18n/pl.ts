@@ -11,21 +11,24 @@ export const pl = {
   "nav.signin": "Zaloguj się",
   "nav.signup": "Zarejestruj się",
   "nav.signout": "Wyloguj się",
-  "nav.notSignedIn": "Nie zalogowano",
   "nav.profile": "Profil",
   "nav.skipToContent": "Przejdź do treści",
 
-  "home.title": "10x Astro Starter",
+  "home.title": "Sprawdź, które badania profilaktyczne są teraz dla ciebie",
   "home.subtitle":
-    "Gotowy do produkcji starter z uwierzytelnianiem, nowoczesnymi narzędziami i kosmicznym komfortem pracy programisty.",
-  "home.features.auth.title": "Gotowe uwierzytelnianie",
-  "home.features.auth.description":
-    "Wbudowane uwierzytelnianie Supabase: logowanie, rejestracja i chronione trasy od razu po instalacji.",
-  "home.features.stack.title": "Nowoczesny stos technologiczny",
-  "home.features.stack.description":
-    "Astro 7, React 19, Tailwind 4 i TypeScript — najnowsze narzędzia, gotowe do pracy.",
-  "home.features.dx.title": "Wygoda pracy programisty",
-  "home.features.dx.description": "ESLint, Prettier i hooki pre-commit dbają o porządek w kodzie od pierwszego dnia.",
+    "Podaj rok urodzenia i kilka informacji o sobie. Dbam pokaże badania odpowiednie do twojego wieku i sytuacji, na podstawie programów NFZ i zaleceń towarzystw medycznych.",
+  "home.how.heading": "Jak to działa",
+  "home.features.profile.title": "Krótki profil",
+  "home.features.profile.description":
+    "Rok urodzenia, płeć i palenie tytoniu — tylko to, czego potrzeba do dopasowania badań.",
+  "home.features.tiers.title": "Lista według ważności",
+  "home.features.tiers.description":
+    "Badania w trzech grupach: „Ważne – umów się teraz”, „Warto zaplanować” i „Porozmawiaj z lekarzem”.",
+  "home.features.track.title": "Zaplanuj i odhacz",
+  "home.features.track.description":
+    "Zapisz termin wizyty albo oznacz badanie jako zrobione — wróci na listę, gdy znów przyjdzie na nie pora.",
+  "home.note":
+    "Dbam nie stawia diagnoz — podpowiada, które badania warto zrobić. Twoje dane nie są widoczne dla innych użytkowników.",
 
   "dashboard.title": "Panel",
   "dashboard.status.plans_one": "{count} zaplanowane badanie",
@@ -184,11 +187,11 @@ export const pl = {
   "onboarding.profile.heading": "Kilka pytań o Ciebie",
   "onboarding.profile.intro":
     "Na tej podstawie dobierzemy badania profilaktyczne do Twojego wieku, płci i historii palenia.",
+  "onboarding.withdraw.toggle": "Chcesz wycofać zgodę?",
 
   "profile.title": "Twój profil",
   "profile.intro": "Popraw swoje dane, jeśli coś się zmieniło — na ich podstawie dobieramy badania.",
   "profile.saved": "Zmiany zostały zapisane.",
-  "profile.back": "Wróć do panelu",
   "profile.withdraw.heading": "Wycofanie zgody",
   "profile.withdraw.intro": "Możesz w każdej chwili wycofać zgodę na przechowywanie danych o zdrowiu.",
   "profile.withdraw.deleted":
@@ -254,9 +257,6 @@ export const pl = {
   "auth.signup.hasAccount": "Masz już konto?",
   "auth.signup.signinLink": "Zaloguj się",
 
-  "auth.confirm.success.title": "Rejestracja zakończona",
-  "auth.confirm.success.description": "Twoje konto zostało utworzone. Możesz się teraz zalogować.",
-  "auth.confirm.success.link": "Przejdź do logowania",
   "auth.confirm.pending.title": "Sprawdź skrzynkę e-mail",
   "auth.confirm.pending.description":
     "Wysłaliśmy link potwierdzający na Twój adres e-mail. Kliknij go, aby aktywować konto.",
@@ -277,10 +277,14 @@ export const pl = {
   "auth.form.passwordTooShort_few": "Hasło musi mieć co najmniej {count} znaki",
   "auth.form.passwordTooShort_many": "Hasło musi mieć co najmniej {count} znaków",
   "auth.form.passwordTooShort_other": "Hasło musi mieć co najmniej {count} znaku",
-  "auth.form.passwordRemaining_one": "Wpisz jeszcze {count} znak",
-  "auth.form.passwordRemaining_few": "Wpisz jeszcze {count} znaki",
-  "auth.form.passwordRemaining_many": "Wpisz jeszcze {count} znaków",
-  "auth.form.passwordRemaining_other": "Wpisz jeszcze {count} znaku",
+  "auth.form.passwordNeedsLetterAndDigit": "Hasło musi zawierać co najmniej jedną literę i jedną cyfrę",
+  "auth.form.passwordRuleLength_one": "Co najmniej {count} znak",
+  "auth.form.passwordRuleLength_few": "Co najmniej {count} znaki",
+  "auth.form.passwordRuleLength_many": "Co najmniej {count} znaków",
+  "auth.form.passwordRuleLength_other": "Co najmniej {count} znaku",
+  "auth.form.passwordRuleLetterAndDigit": "Co najmniej jedna litera i jedna cyfra",
+  "auth.form.passwordRuleMet": "spełnione",
+  "auth.form.passwordRuleUnmet": "niespełnione",
   "auth.form.confirmPassword": "Powtórz hasło",
   "auth.form.confirmPasswordPlaceholder": "Wpisz hasło ponownie",
   "auth.form.confirmPasswordRequired": "Potwierdź hasło",
@@ -333,4 +337,6 @@ export const pl = {
   "errorPage.message": "Nie udało się teraz wczytać tej strony. Spróbuj ponownie za chwilę.",
   "errorPage.retry": "Spróbuj ponownie",
   "errorPage.home": "Strona główna",
+  "notFound.title": "Nie ma takiej strony",
+  "notFound.message": "Ta strona nie istnieje albo została przeniesiona. Sprawdź adres lub wróć na stronę główną.",
 } satisfies Record<string, string>;

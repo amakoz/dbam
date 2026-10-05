@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { CalendarDays, Cigarette, Hourglass, Save, Timer } from "lucide-react";
-import { FormField } from "@/components/auth/FormField";
-import { SubmitButton } from "@/components/auth/SubmitButton";
-import { ServerError } from "@/components/auth/ServerError";
+import React, { useEffect, useState } from "react";
+import { Save } from "lucide-react";
+import { ChoiceGroup } from "@/components/forms/ChoiceGroup";
+import { FormField } from "@/components/forms/FormField";
+import { SubmitButton } from "@/components/forms/SubmitButton";
+import { ServerError } from "@/components/forms/ServerError";
 import { createT, type Locale } from "@/i18n";
 import {
   SEX_LABEL_KEYS,
@@ -15,7 +16,6 @@ import {
   type ProfileField,
   type ProfileInput,
 } from "@/lib/profile";
-import { cn } from "@/lib/utils";
 
 interface Props {
   locale: Locale;
@@ -38,70 +38,22 @@ function toValues(initial: ProfileInput | null | undefined, locale: Locale): Val
   };
 }
 
-interface ChoiceGroupProps {
-  name: ProfileField;
-  legend: string;
-  hint?: string;
-  options: readonly { value: string; label: string }[];
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-}
-
-function ChoiceGroup({ name, legend, hint, options, value, onChange, error }: ChoiceGroupProps) {
-  const hintId = `${name}-hint`;
-  const errorId = `${name}-error`;
-  return (
-    <fieldset
-      aria-describedby={
-        [hint ? hintId : null, error ? errorId : null].filter((id) => id !== null).join(" ") || undefined
-      }
-    >
-      <legend className="mb-1 block text-sm text-blue-100/80">{legend}</legend>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className={cn(
-              "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors focus-within:ring-2",
-              value === option.value
-                ? "border-purple-400 bg-purple-500/20 text-white"
-                : "border-white/20 bg-white/10 text-blue-100/80 hover:bg-white/15",
-              error ? "focus-within:ring-red-400" : "focus-within:ring-purple-400",
-            )}
-          >
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => {
-                onChange(option.value);
-              }}
-              className="accent-purple-500"
-            />
-            {option.label}
-          </label>
-        ))}
-      </div>
-      {hint && (
-        <p id={hintId} className="mt-1 text-xs text-blue-100/50">
-          {hint}
-        </p>
-      )}
-      {error && (
-        <p id={errorId} className="mt-1 text-xs text-red-300">
-          {error}
-        </p>
-      )}
-    </fieldset>
-  );
-}
-
 export default function ProfileForm({ locale, mode, initial, serverError }: Props) {
   const t = createT(locale);
   const [values, setValues] = useState<Values>(() => toValues(initial, locale));
   const [errors, setErrors] = useState<ProfileErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // Back/Forward restores the page from bfcache with React state intact; re-enable the button.
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (event.persisted) setSubmitting(false);
+    }
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
 
   function set(field: ProfileField, value: string) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -113,7 +65,9 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
     if (!result.ok) {
       e.preventDefault();
       setErrors(result.errors);
+      return;
     }
+    setSubmitting(true);
   }
 
   const errorText = (field: ProfileField) => {
@@ -140,8 +94,7 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
         }}
         placeholder={t("profile.form.birthYearPlaceholder")}
         error={errorText("birth_year")}
-        hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.birthYearHint")}</p>}
-        icon={<CalendarDays className="size-4" />}
+        hint={<p>{t("profile.form.birthYearHint")}</p>}
       />
 
       <ChoiceGroup
@@ -179,8 +132,7 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
             }}
             placeholder={t("profile.form.packsPerDayPlaceholder")}
             error={errorText("packs_per_day")}
-            hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.packsPerDayHint")}</p>}
-            icon={<Cigarette className="size-4" />}
+            hint={<p>{t("profile.form.packsPerDayHint")}</p>}
           />
           <FormField
             id="smoking_years"
@@ -192,7 +144,6 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
             }}
             placeholder={t("profile.form.smokingYearsPlaceholder")}
             error={errorText("smoking_years")}
-            icon={<Timer className="size-4" />}
           />
         </>
       )}
@@ -208,23 +159,22 @@ export default function ProfileForm({ locale, mode, initial, serverError }: Prop
           }}
           placeholder={t("profile.form.yearsSinceQuittingPlaceholder")}
           error={errorText("years_since_quitting")}
-          hint={<p className="mt-1 text-xs text-blue-100/50">{t("profile.form.yearsSinceQuittingHint")}</p>}
-          icon={<Hourglass className="size-4" />}
+          hint={<p>{t("profile.form.yearsSinceQuittingHint")}</p>}
         />
       )}
 
       {showPackYears && (
-        <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm" aria-live="polite">
-          <p className="font-medium text-white">
+        <div className="border-border bg-muted rounded-md border px-3 py-2 text-sm" aria-live="polite">
+          <p className="text-foreground font-medium">
             {t("profile.form.packYears", { value: new Intl.NumberFormat(locale).format(packYears(packs, years)) })}
           </p>
-          <p className="text-xs text-blue-100/50">{t("profile.form.packYearsHint")}</p>
+          <p className="text-muted-foreground text-xs">{t("profile.form.packYearsHint")}</p>
         </div>
       )}
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText={t("profile.form.pending")} icon={<Save className="size-4" />}>
+      <SubmitButton pending={submitting} pendingText={t("profile.form.pending")} icon={<Save aria-hidden="true" />}>
         {t(mode === "onboarding" ? "profile.form.submit.onboarding" : "profile.form.submit.profile")}
       </SubmitButton>
     </form>

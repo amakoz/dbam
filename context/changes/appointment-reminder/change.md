@@ -1,9 +1,9 @@
 ---
 change_id: appointment-reminder
 title: Appointment reminder
-status: implementing
+status: implemented
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-05
 archived_at: null
 ---
 

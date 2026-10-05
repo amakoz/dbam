@@ -531,5 +531,5 @@ The migration is additive except for revoking `service_role` privileges, which n
 
 - [x] 4.2 Sending domain shows Verified in Resend
 - [x] 4.3 Key, sender and allowlist secrets exist on the dbam Worker before merge
-- [ ] 4.4 Owner and tester each receive one real reminder and the run succeeds
-- [ ] 4.5 No duplicate reminder the following day
+- [x] 4.4 Owner and tester each receive one real reminder and the run succeeds
+- [x] 4.5 No duplicate reminder the following day

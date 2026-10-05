@@ -163,7 +163,8 @@ const accountSteps = [
   [
     "plan with a date is saved",
     () => screening({ intent: "plan", appointment_date: shiftDays(today, 30) }),
-    { status: 302, location: "/dashboard?saved=plan" },
+    // The full location: the dashboard confirms the save on the exam's row (`slug`), where the browser scrolls.
+    { status: 302, location: `/dashboard?saved=plan&slug=${mammography}#screening-${mammography}` },
   ],
   [
     "dashboard shows the plan instead of the tier item",
@@ -196,6 +197,14 @@ const accountSteps = [
     "reminders reject an invalid value",
     () => request("/api/reminders", { method: "POST", form: { enabled: "yes" } }),
     { status: 302, location: "/profile?error=" },
+  ],
+  [
+    "dashboard confirms the save on the planned row",
+    () => request(`/dashboard?saved=plan&slug=${mammography}`),
+    {
+      status: 200,
+      bodyIncludes: `data-plan data-slug="${mammography}" data-appointment="${shiftDays(today, 30)}" data-saved="success"`,
+    },
   ],
   [
     "plan rejects a past date",

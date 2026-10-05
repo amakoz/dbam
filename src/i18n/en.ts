@@ -28,7 +28,6 @@ export const en: Record<MessageKey, string> = {
   "home.features.dx.description": "ESLint, Prettier, and pre-commit hooks keep your codebase clean from day one.",
 
   "dashboard.title": "Dashboard",
-  "dashboard.greeting": "Welcome,",
   "dashboard.status.plans_one": "{count} planned screening",
   "dashboard.status.plans_few": "{count} planned screenings",
   "dashboard.status.plans_many": "{count} planned screenings",
@@ -44,7 +43,6 @@ export const en: Record<MessageKey, string> = {
   "dashboard.profile.smoking": "Smoking",
   "dashboard.profile.packYears": "Pack-years",
   "dashboard.profile.edit": "Edit profile and consent",
-  "dashboard.recommendations.heading": "Your screenings",
   "dashboard.recommendations.disclaimer":
     "This list is for information only: it is not a diagnosis, medical advice or a medical device. The sources were checked by the app's owner, not by a doctor. Talk to your POZ (primary care) doctor about which screenings are right for you.",
   "dashboard.recommendations.tier.1": "Important — schedule now",

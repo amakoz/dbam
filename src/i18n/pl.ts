@@ -28,7 +28,6 @@ export const pl = {
   "home.features.dx.description": "ESLint, Prettier i hooki pre-commit dbają o porządek w kodzie od pierwszego dnia.",
 
   "dashboard.title": "Panel",
-  "dashboard.greeting": "Witaj,",
   "dashboard.status.plans_one": "{count} zaplanowane badanie",
   "dashboard.status.plans_few": "{count} zaplanowane badania",
   "dashboard.status.plans_many": "{count} zaplanowanych badań",
@@ -44,7 +43,6 @@ export const pl = {
   "dashboard.profile.smoking": "Palenie papierosów",
   "dashboard.profile.packYears": "Paczkolata",
   "dashboard.profile.edit": "Edytuj profil i zgodę",
-  "dashboard.recommendations.heading": "Twoje badania",
   "dashboard.recommendations.disclaimer":
     "Ta lista ma charakter wyłącznie informacyjny: nie jest diagnozą, poradą medyczną ani wyrobem medycznym. Źródła sprawdził właściciel aplikacji, a nie lekarz. O tym, które badania są dla Ciebie odpowiednie, porozmawiaj z lekarzem POZ.",
   "dashboard.recommendations.tier.1": "Ważne – umów się teraz",

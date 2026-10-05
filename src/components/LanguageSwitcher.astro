@@ -9,8 +9,12 @@ interface Props {
 const { inline = false } = Astro.props;
 const { locale } = Astro.locals;
 const t = createT(locale);
-// Return to the same page (query included) after the cookie is set.
-const next = Astro.url.pathname + Astro.url.search;
+// Return to the same page after the cookie is set. One-shot feedback params are dropped, so a save confirmation or
+// an error doesn't show again in the new language.
+const params = new URLSearchParams(Astro.url.search);
+for (const key of ["saved", "error", "slug"]) params.delete(key);
+const query = params.toString();
+const next = Astro.url.pathname + (query ? `?${query}` : "");
 ---
 
 <form

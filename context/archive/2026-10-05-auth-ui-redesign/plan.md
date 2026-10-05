@@ -791,161 +791,161 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 1.1 Hardcoded-value scan on `src/components/forms/*.tsx` returns 0 hits — 071ffff
-- [x] 1.2 No old kit paths or `useFormStatus` remain in src — 071ffff
-- [x] 1.3 Linting passes: `npm run lint` — 071ffff
-- [x] 1.4 Type and template check passes: `npx astro check` — 071ffff
-- [x] 1.5 Build succeeds: `npm run build` — 071ffff
-- [x] 1.6 Smoke passes against a local dev server: `npm run smoke` — 071ffff
+- [x] 1.1 Hardcoded-value scan on `src/components/forms/*.tsx` returns 0 hits — ba40c8f
+- [x] 1.2 No old kit paths or `useFormStatus` remain in src — ba40c8f
+- [x] 1.3 Linting passes: `npm run lint` — ba40c8f
+- [x] 1.4 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 1.5 Build succeeds: `npm run build` — ba40c8f
+- [x] 1.6 Smoke passes against a local dev server: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 1.7 Sign-in empty submit shows destructive field errors under the inputs — 071ffff
-- [x] 1.8 Valid submit disables the button and shows the pending text — 071ffff
-- [x] 1.9 Back/forward after a failed sign-in leaves the button enabled — 071ffff
+- [x] 1.7 Sign-in empty submit shows destructive field errors under the inputs — ba40c8f
+- [x] 1.8 Valid submit disables the button and shows the pending text — ba40c8f
+- [x] 1.9 Back/forward after a failed sign-in leaves the button enabled — ba40c8f
 
 ### Phase 2: Auth pages
 
 #### Automated
 
-- [x] 2.1 Hardcoded-value scan on auth pages, auth islands and PublicHeader returns 0 hits — 3e7f7a3
-- [x] 2.2 No DEV switch, success-copy keys or bg-cosmic remain in auth pages — 3e7f7a3
-- [x] 2.3 Linting passes: `npm run lint` — 3e7f7a3
-- [x] 2.4 Type and template check passes: `npx astro check` — 3e7f7a3
-- [x] 2.5 Build succeeds: `npm run build` — 3e7f7a3
-- [x] 2.6 Smoke passes against a local dev server: `npm run smoke` — 3e7f7a3
+- [x] 2.1 Hardcoded-value scan on auth pages, auth islands and PublicHeader returns 0 hits — ba40c8f
+- [x] 2.2 No DEV switch, success-copy keys or bg-cosmic remain in auth pages — ba40c8f
+- [x] 2.3 Linting passes: `npm run lint` — ba40c8f
+- [x] 2.4 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 2.5 Build succeeds: `npm run build` — ba40c8f
+- [x] 2.6 Smoke passes against a local dev server: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 2.7 Auth pages in light and dark at desktop and ~375px with a wordmark link to `/` — 3e7f7a3
-- [x] 2.8 Signed-in visits to auth pages redirect to `/dashboard` — 3e7f7a3
-- [x] 2.9 `?confirmed=1` shows the success alert and `?error=` the destructive alert — 3e7f7a3
-- [x] 2.10 Landing header looks unchanged — 3e7f7a3
+- [x] 2.7 Auth pages in light and dark at desktop and ~375px with a wordmark link to `/` — ba40c8f
+- [x] 2.8 Signed-in visits to auth pages redirect to `/dashboard` — ba40c8f
+- [x] 2.9 `?confirmed=1` shows the success alert and `?error=` the destructive alert — ba40c8f
+- [x] 2.10 Landing header looks unchanged — ba40c8f
 
 ### Phase 3: Onboarding
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan on onboarding, ProfileForm, WithdrawConsentForm and ChoiceGroup returns 0 hits — 417b6a1
-- [x] 3.2 Linting passes: `npm run lint` — 417b6a1
-- [x] 3.3 Type and template check passes: `npx astro check` — 417b6a1
-- [x] 3.4 Build succeeds: `npm run build` — 417b6a1
-- [x] 3.5 Smoke passes against a local dev server: `npm run smoke` — 417b6a1
+- [x] 3.1 Hardcoded-value scan on onboarding, ProfileForm, WithdrawConsentForm and ChoiceGroup returns 0 hits — ba40c8f
+- [x] 3.2 Linting passes: `npm run lint` — ba40c8f
+- [x] 3.3 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 3.4 Build succeeds: `npm run build` — ba40c8f
+- [x] 3.5 Smoke passes against a local dev server: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 3.6 Fresh account: consent and profile steps on theme A, conditional fields and pack-years readable — 417b6a1
-- [x] 3.7 Keyboard ring visible on radios, checkbox, fields and buttons — 417b6a1
-- [x] 3.8 Withdraw from onboarding: error alert without the box, success alert with it — 417b6a1
+- [x] 3.6 Fresh account: consent and profile steps on theme A, conditional fields and pack-years readable — ba40c8f
+- [x] 3.7 Keyboard ring visible on radios, checkbox, fields and buttons — ba40c8f
+- [x] 3.8 Withdraw from onboarding: error alert without the box, success alert with it — ba40c8f
 
 ### Phase 4: Profile
 
 #### Automated
 
-- [x] 4.1 Hardcoded-value scan on profile and RemindersForm returns 0 hits — 971abdb
-- [x] 4.2 Linting passes: `npm run lint` — 971abdb
-- [x] 4.3 Type and template check passes: `npx astro check` — 971abdb
-- [x] 4.4 Build succeeds: `npm run build` — 971abdb
-- [x] 4.5 Smoke passes against a local dev server: `npm run smoke` — 971abdb
+- [x] 4.1 Hardcoded-value scan on profile and RemindersForm returns 0 hits — ba40c8f
+- [x] 4.2 Linting passes: `npm run lint` — ba40c8f
+- [x] 4.3 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 4.4 Build succeeds: `npm run build` — ba40c8f
+- [x] 4.5 Smoke passes against a local dev server: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 4.6 Profile in light and dark at desktop and ~375px with app header and three cards — 971abdb
-- [x] 4.7 Reminders on/off shows the saved alert and switches the badge — 971abdb
-- [x] 4.8 Dashboard reminders hint link scrolls to the reminders card — 971abdb
+- [x] 4.6 Profile in light and dark at desktop and ~375px with app header and three cards — ba40c8f
+- [x] 4.7 Reminders on/off shows the saved alert and switches the badge — ba40c8f
+- [x] 4.8 Dashboard reminders hint link scrolls to the reminders card — ba40c8f
 
 ### Phase 5: Error pages
 
 #### Automated
 
-- [x] 5.1 Hardcoded-value scan on 500 and 404 returns 0 hits — 86fc8ad
-- [x] 5.2 Linting passes: `npm run lint` — 86fc8ad
-- [x] 5.3 Type and template check passes: `npx astro check` — 86fc8ad
-- [x] 5.4 Build succeeds: `npm run build` — 86fc8ad
-- [x] 5.5 Production preview returns 404 with the new page for an unknown path and the kitchen sink — 86fc8ad
-- [x] 5.6 Smoke passes against a local dev server: `npm run smoke` — 86fc8ad
+- [x] 5.1 Hardcoded-value scan on 500 and 404 returns 0 hits — ba40c8f
+- [x] 5.2 Linting passes: `npm run lint` — ba40c8f
+- [x] 5.3 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 5.4 Build succeeds: `npm run build` — ba40c8f
+- [x] 5.5 Production preview returns 404 with the new page for an unknown path and the kitchen sink — ba40c8f
+- [x] 5.6 Smoke passes against a local dev server: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 5.7 404 in light and dark at desktop and ~375px with a working home link — 86fc8ad
-- [x] 5.8 500 page reviewed on theme A with both links — 86fc8ad
+- [x] 5.7 404 in light and dark at desktop and ~375px with a working home link — ba40c8f
+- [x] 5.8 500 page reviewed on theme A with both links — ba40c8f
 
 ### Phase 6: States and visual gate
 
 #### Automated
 
-- [x] 6.1 Hardcoded-value scan on the kitchen sink returns 0 hits — 8cab72a
-- [x] 6.2 Build succeeds and the kitchen sink still returns 404 in production — 8cab72a
-- [x] 6.3 Linting passes: `npm run lint` — 8cab72a
+- [x] 6.1 Hardcoded-value scan on the kitchen sink returns 0 hits — ba40c8f
+- [x] 6.2 Build succeeds and the kitchen sink still returns 404 in production — ba40c8f
+- [x] 6.3 Linting passes: `npm run lint` — ba40c8f
 
 #### Manual
 
-- [x] 6.4 Screenshots of every listed page at 1280px and 375px, light and dark, saved and attached — 8cab72a
-- [x] 6.5 Contrast spot-check in both schemes — 8cab72a
-- [x] 6.6 Kitchen-sink forms block reviewed in both columns — 8cab72a
+- [x] 6.4 Screenshots of every listed page at 1280px and 375px, light and dark, saved and attached — ba40c8f
+- [x] 6.5 Contrast spot-check in both schemes — ba40c8f
+- [x] 6.6 Kitchen-sink forms block reviewed in both columns — ba40c8f
 
 ### Phase 7: Retire `bg-cosmic`, guard and docs
 
 #### Automated
 
-- [x] 7.1 `npm run ui:check` passes with the extended list — 4a5f130
-- [x] 7.2 No cosmic theme remains in src — 4a5f130
-- [x] 7.3 No palette classes remain outside `ui/` — 4a5f130
-- [x] 7.4 Linting passes: `npm run lint` — 4a5f130
-- [x] 7.5 Type and template check passes: `npx astro check` — 4a5f130
-- [x] 7.6 Build succeeds: `npm run build` — 4a5f130
-- [x] 7.7 Smoke passes against a local dev server: `npm run smoke` — 4a5f130
-- [x] 7.8 pgTAP tests still pass: `npx supabase test db` — 4a5f130
+- [x] 7.1 `npm run ui:check` passes with the extended list — ba40c8f
+- [x] 7.2 No cosmic theme remains in src — ba40c8f
+- [x] 7.3 No palette classes remain outside `ui/` — ba40c8f
+- [x] 7.4 Linting passes: `npm run lint` — ba40c8f
+- [x] 7.5 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 7.6 Build succeeds: `npm run build` — ba40c8f
+- [x] 7.7 Smoke passes against a local dev server: `npm run smoke` — ba40c8f
+- [x] 7.8 pgTAP tests still pass: `npx supabase test db` — ba40c8f
 
 #### Manual
 
-- [x] 7.9 Full flow on a fresh account in light and dark without cosmic remnants — 4a5f130
-- [x] 7.10 Pre-commit hook blocks a test literal in `src/pages/profile.astro` — 58ee70b
+- [x] 7.9 Full flow on a fresh account in light and dark without cosmic remnants — ba40c8f
+- [x] 7.10 Pre-commit hook blocks a test literal in `src/pages/profile.astro` — ba40c8f
 
 ### Phase 8: Strong passwords
 
 #### Automated
 
-- [x] 8.1 Hardcoded-value scan on SignUpForm and the kitchen sink returns 0 hits — 9be5681
-- [x] 8.2 Local Supabase rejects a weak password directly after the restart — 9be5681
-- [x] 8.3 Linting passes: `npm run lint` — 9be5681
-- [x] 8.4 Type and template check passes: `npx astro check` — 9be5681
-- [x] 8.5 Build succeeds: `npm run build` — 9be5681
-- [x] 8.6 `npm run ui:check` passes — 9be5681
-- [x] 8.7 Smoke passes, including the weak-password step: `npm run smoke` — 9be5681
+- [x] 8.1 Hardcoded-value scan on SignUpForm and the kitchen sink returns 0 hits — ba40c8f
+- [x] 8.2 Local Supabase rejects a weak password directly after the restart — ba40c8f
+- [x] 8.3 Linting passes: `npm run lint` — ba40c8f
+- [x] 8.4 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 8.5 Build succeeds: `npm run build` — ba40c8f
+- [x] 8.6 `npm run ui:check` passes — ba40c8f
+- [x] 8.7 Smoke passes, including the weak-password step: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 8.8 Sign-up shows live rules; compliant submits, weak is blocked under the field — 9be5681
-- [x] 8.9 A weak password posted past client validation lands on the weak-password alert — 9be5681
-- [x] 8.10 Owner sets the policy in the production Supabase dashboard — 9be5681
+- [x] 8.8 Sign-up shows live rules; compliant submits, weak is blocked under the field — ba40c8f
+- [x] 8.9 A weak password posted past client validation lands on the weak-password alert — ba40c8f
+- [x] 8.10 Owner sets the policy in the production Supabase dashboard — ba40c8f
 
 ### Phase 9: Quieter consent withdrawal on onboarding
 
 #### Automated
 
-- [x] 9.1 Hardcoded-value scan on onboarding and WithdrawConsentForm returns 0 hits — 4bac509
-- [x] 9.2 Linting passes: `npm run lint` — 4bac509
-- [x] 9.3 Type and template check passes: `npx astro check` — 4bac509
-- [x] 9.4 Build succeeds: `npm run build` — 4bac509
-- [x] 9.5 Smoke passes, including onboarding withdrawal: `npm run smoke` — 4bac509
+- [x] 9.1 Hardcoded-value scan on onboarding and WithdrawConsentForm returns 0 hits — ba40c8f
+- [x] 9.2 Linting passes: `npm run lint` — ba40c8f
+- [x] 9.3 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 9.4 Build succeeds: `npm run build` — ba40c8f
+- [x] 9.5 Smoke passes, including onboarding withdrawal: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 9.6 Onboarding shows withdrawal as a muted toggle that opens the full form — 4bac509
-- [x] 9.7 A failed withdraw reopens with the toggle expanded and the error visible — 4bac509
+- [x] 9.6 Onboarding shows withdrawal as a muted toggle that opens the full form — ba40c8f
+- [x] 9.7 A failed withdraw reopens with the toggle expanded and the error visible — ba40c8f
 
 ### Phase 10: Vertically centred auth and error pages, working pre-commit hook
 
 #### Automated
 
-- [x] 10.1 Hardcoded-value scan on the five pages returns 0 hits — 9a695b0
-- [x] 10.2 Linting passes: `npm run lint` — 9a695b0
-- [x] 10.3 Type and template check passes: `npx astro check` — 9a695b0
-- [x] 10.4 Build succeeds: `npm run build` — 9a695b0
-- [x] 10.5 `npm run ui:check` passes — 9a695b0
-- [x] 10.6 Smoke passes against a local dev server: `npm run smoke` — 9a695b0
+- [x] 10.1 Hardcoded-value scan on the five pages returns 0 hits — ba40c8f
+- [x] 10.2 Linting passes: `npm run lint` — ba40c8f
+- [x] 10.3 Type and template check passes: `npx astro check` — ba40c8f
+- [x] 10.4 Build succeeds: `npm run build` — ba40c8f
+- [x] 10.5 `npm run ui:check` passes — ba40c8f
+- [x] 10.6 Smoke passes against a local dev server: `npm run smoke` — ba40c8f
 
 #### Manual
 
-- [x] 10.7 Auth and error cards vertically centred at desktop and 375px, light and dark — 9a695b0
+- [x] 10.7 Auth and error cards vertically centred at desktop and 375px, light and dark — ba40c8f

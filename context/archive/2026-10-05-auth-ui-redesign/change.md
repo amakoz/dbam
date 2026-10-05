@@ -1,10 +1,10 @@
 ---
 change_id: auth-ui-redesign
 title: Sign-up and sign-in on the design system
-status: implemented
+status: archived
 created: 2026-10-05
 updated: 2026-10-05
-archived_at: null
+archived_at: 2026-10-05T17:13:51Z
 ---
 
 ## Notes

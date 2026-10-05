@@ -73,7 +73,7 @@
     "*.{json,css,md}": [
       "prettier --write"
     ],
-    "{src/pages/index.astro,src/pages/dashboard.astro,src/pages/dev/kitchen-sink.astro,src/components/AppHeader.astro,src/components/LanguageSwitcher.astro,src/components/recommendations/*.{astro,ts}}": [
+    "{src/pages/index.astro,src/pages/dashboard.astro,src/pages/onboarding.astro,src/pages/profile.astro,src/pages/404.astro,src/pages/500.astro,src/pages/auth/*.astro,src/pages/dev/kitchen-sink.astro,src/components/AppHeader.astro,src/components/LanguageSwitcher.astro,src/components/PublicHeader.astro,src/components/auth/*.tsx,src/components/forms/*.tsx,src/components/profile/*.{tsx,astro},src/components/recommendations/*.{astro,ts}}": [
       "node scripts/ui-check.mjs"
     ]
   },

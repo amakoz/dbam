@@ -85,7 +85,8 @@ The UI uses theme A "Len i szałwia" (linen and sage), light and dark from the s
 - **Browser support:** Baseline 2024 — Chrome/Edge 123+, Firefox 120+, Safari/iOS 17.5+ (the PRD's "last two major versions"). `vite.build.cssTarget` keeps `light-dark()` native; older browsers render without token colours.
 - **Components:** shadcn/ui ("new-york") in `src/components/ui/`. Add missing ones with `npx shadcn@latest add <name>`.
 - **Kitchen sink:** `/dev/kitchen-sink` renders the tokens and components; dev only (404 in production).
-- **Migrated views:** the landing page (`/`) and the dashboard (`/dashboard`, with the app header, language switcher and recommendation components), plus the kitchen sink. The exact file list is `MIGRATED` in `scripts/ui-check.mjs`; the auth, error, onboarding and profile pages are not migrated yet.
+- **Migrated views:** every page — landing, sign-in, sign-up, confirm-email, onboarding, dashboard, profile, 404 and 500 — plus the kitchen sink. The exact file list is `MIGRATED` in `scripts/ui-check.mjs`; a new view adds its files there.
+- **Form kit:** `src/components/forms/` holds the shared form pieces (`FormField`, `ChoiceGroup`, `PasswordToggle`, `SubmitButton` with a `pending` prop, `ServerError`), built on the shadcn components. The kitchen sink shows their states.
 - **Check:** `npm run ui:check` (`scripts/ui-check.mjs`) scans the migrated views for Tailwind palette classes, hex/rgb/hsl/oklch literals and arbitrary px/rem values, prints `file:line` hits and exits 1. It runs in CI and in the pre-commit hook. Only the files listed in the script are checked; when a follow-up change migrates a view, it appends the files to that list and to the matching lint-staged glob in `package.json`.
 
 ## Supabase Configuration

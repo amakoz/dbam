@@ -702,9 +702,9 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [x] 6.1 Hardcoded-value scan on the kitchen sink returns 0 hits
-- [x] 6.2 Build succeeds and the kitchen sink still returns 404 in production
-- [x] 6.3 Linting passes: `npm run lint`
+- [x] 6.1 Hardcoded-value scan on the kitchen sink returns 0 hits — 8cab72a
+- [x] 6.2 Build succeeds and the kitchen sink still returns 404 in production — 8cab72a
+- [x] 6.3 Linting passes: `npm run lint` — 8cab72a
 
 #### Manual
 
@@ -716,14 +716,14 @@ No database, API or production-setting change. The branch is `feat/continue-ui-r
 
 #### Automated
 
-- [ ] 7.1 `npm run ui:check` passes with the extended list
-- [ ] 7.2 No cosmic theme remains in src
-- [ ] 7.3 No palette classes remain outside `ui/`
-- [ ] 7.4 Linting passes: `npm run lint`
-- [ ] 7.5 Type and template check passes: `npx astro check`
-- [ ] 7.6 Build succeeds: `npm run build`
-- [ ] 7.7 Smoke passes against a local dev server: `npm run smoke`
-- [ ] 7.8 pgTAP tests still pass: `npx supabase test db`
+- [x] 7.1 `npm run ui:check` passes with the extended list
+- [x] 7.2 No cosmic theme remains in src
+- [x] 7.3 No palette classes remain outside `ui/`
+- [x] 7.4 Linting passes: `npm run lint`
+- [x] 7.5 Type and template check passes: `npx astro check`
+- [x] 7.6 Build succeeds: `npm run build`
+- [x] 7.7 Smoke passes against a local dev server: `npm run smoke`
+- [x] 7.8 pgTAP tests still pass: `npx supabase test db`
 
 #### Manual
 

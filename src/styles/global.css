@@ -80,11 +80,6 @@
   --font-heading: var(--font-fraunces, ui-serif, Georgia, serif);
 }
 
-/* Legacy: serves the unmigrated pages (auth, errors, onboarding, profile) until their follow-up changes. */
-@utility bg-cosmic {
-  background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;

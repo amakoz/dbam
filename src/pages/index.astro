@@ -1,13 +1,87 @@
 ---
-import Welcome from "@/components/Welcome.astro";
+import { CalendarCheck, ListChecks, UserRound } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Layout from "@/layouts/Layout.astro";
+import { createT, type MessageKey } from "@/i18n";
 
 // The landing is for signed-out visitors only; the dashboard sends unfinished onboarding on to /onboarding.
 if (Astro.locals.user) {
   return Astro.redirect("/dashboard");
 }
+
+const t = createT(Astro.locals.locale);
+
+// "How it works": one idea per card, in the order a new user meets them.
+const steps = [
+  {
+    Icon: UserRound,
+    title: "home.features.profile.title",
+    description: "home.features.profile.description",
+  },
+  {
+    Icon: ListChecks,
+    title: "home.features.tiers.title",
+    description: "home.features.tiers.description",
+  },
+  {
+    Icon: CalendarCheck,
+    title: "home.features.track.title",
+    description: "home.features.track.description",
+  },
+] as const satisfies readonly { Icon: typeof UserRound; title: MessageKey; description: MessageKey }[];
 ---
 
 <Layout>
-  <Welcome />
+  <a
+    href="#main"
+    class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+  >
+    {t("nav.skipToContent")}
+  </a>
+
+  <header class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+    <p class="font-heading text-xl font-semibold text-foreground">{t("meta.title")}</p>
+    <a href="/auth/signin" class={buttonVariants({ variant: "ghost", size: "sm" })}>
+      {t("nav.signin")}
+    </a>
+  </header>
+
+  <main id="main" class="mx-auto w-full max-w-5xl space-y-16 px-4 pt-12 pb-24 sm:space-y-20 sm:px-6 sm:pt-20">
+    <div class="mx-auto max-w-3xl space-y-6 text-center">
+      <h1 class="font-heading text-4xl leading-tight font-semibold tracking-tight text-foreground sm:text-5xl">
+        {t("home.title")}
+      </h1>
+      <p class="text-lg leading-relaxed text-muted-foreground sm:text-xl">{t("home.subtitle")}</p>
+      <div class="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
+        <a href="/auth/signup" class={buttonVariants({ size: "lg" })}>
+          {t("nav.signup")}
+        </a>
+        <a href="/auth/signin" class={buttonVariants({ variant: "outline", size: "lg" })}>
+          {t("nav.signin")}
+        </a>
+      </div>
+    </div>
+
+    <section aria-labelledby="how-heading" class="space-y-6">
+      <h2 id="how-heading" class="text-center font-heading text-2xl font-semibold text-foreground sm:text-3xl">
+        {t("home.how.heading")}
+      </h2>
+      <div class="grid gap-6 sm:grid-cols-3">
+        {steps.map(({ Icon, title, description }) => (
+          <Card className="gap-4">
+            <CardHeader>
+              <Icon aria-hidden="true" className="size-5 text-primary" />
+              <h3 class="font-heading text-lg font-semibold">{t(title)}</h3>
+            </CardHeader>
+            <CardContent>
+              <p class="leading-relaxed text-muted-foreground">{t(description)}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+
+    <p class="mx-auto max-w-2xl text-center text-muted-foreground">{t("home.note")}</p>
+  </main>
 </Layout>

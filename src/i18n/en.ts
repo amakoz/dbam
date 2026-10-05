@@ -16,15 +16,20 @@ export const en: Record<MessageKey, string> = {
   "nav.profile": "Profile",
   "nav.skipToContent": "Skip to content",
 
-  "home.title": "10x Astro Starter",
-  "home.subtitle": "A production-ready starter with authentication, modern tooling, and a cosmic developer experience.",
-  "home.features.auth.title": "Authentication Ready",
-  "home.features.auth.description":
-    "Built-in Supabase auth with sign in, sign up, and protected routes out of the box.",
-  "home.features.stack.title": "Modern Stack",
-  "home.features.stack.description": "Astro 7, React 19, Tailwind 4, and TypeScript — the latest tools, ready to go.",
-  "home.features.dx.title": "Developer Experience",
-  "home.features.dx.description": "ESLint, Prettier, and pre-commit hooks keep your codebase clean from day one.",
+  "home.title": "See which preventive screenings are due for you",
+  "home.subtitle":
+    "Enter your birth year and a few details about yourself. Dbam shows the screenings that fit your age and situation, based on NFZ programmes and medical society guidelines.",
+  "home.how.heading": "How it works",
+  "home.features.profile.title": "A short profile",
+  "home.features.profile.description": "Birth year, sex and smoking — only what is needed to match the screenings.",
+  "home.features.tiers.title": "A list by importance",
+  "home.features.tiers.description":
+    "Screenings in three groups: “Important — schedule now”, “Worth planning” and “Talk to your doctor”.",
+  "home.features.track.title": "Plan it, tick it off",
+  "home.features.track.description":
+    "Save the appointment date or mark a screening as done — it comes back to the list when it is due again.",
+  "home.note":
+    "Dbam does not diagnose — it suggests which screenings are worth doing. Other users never see your data.",
 
   "dashboard.title": "Dashboard",
   "dashboard.status.plans_one": "{count} planned screening",

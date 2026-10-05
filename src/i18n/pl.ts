@@ -14,17 +14,21 @@ export const pl = {
   "nav.profile": "Profil",
   "nav.skipToContent": "Przejdź do treści",
 
-  "home.title": "10x Astro Starter",
+  "home.title": "Sprawdź, które badania profilaktyczne są teraz dla ciebie",
   "home.subtitle":
-    "Gotowy do produkcji starter z uwierzytelnianiem, nowoczesnymi narzędziami i kosmicznym komfortem pracy programisty.",
-  "home.features.auth.title": "Gotowe uwierzytelnianie",
-  "home.features.auth.description":
-    "Wbudowane uwierzytelnianie Supabase: logowanie, rejestracja i chronione trasy od razu po instalacji.",
-  "home.features.stack.title": "Nowoczesny stos technologiczny",
-  "home.features.stack.description":
-    "Astro 7, React 19, Tailwind 4 i TypeScript — najnowsze narzędzia, gotowe do pracy.",
-  "home.features.dx.title": "Wygoda pracy programisty",
-  "home.features.dx.description": "ESLint, Prettier i hooki pre-commit dbają o porządek w kodzie od pierwszego dnia.",
+    "Podaj rok urodzenia i kilka informacji o sobie. Dbam pokaże badania odpowiednie do twojego wieku i sytuacji, na podstawie programów NFZ i zaleceń towarzystw medycznych.",
+  "home.how.heading": "Jak to działa",
+  "home.features.profile.title": "Krótki profil",
+  "home.features.profile.description":
+    "Rok urodzenia, płeć i palenie tytoniu — tylko to, czego potrzeba do dopasowania badań.",
+  "home.features.tiers.title": "Lista według ważności",
+  "home.features.tiers.description":
+    "Badania w trzech grupach: „Ważne – umów się teraz”, „Warto zaplanować” i „Porozmawiaj z lekarzem”.",
+  "home.features.track.title": "Zaplanuj i odhacz",
+  "home.features.track.description":
+    "Zapisz termin wizyty albo oznacz badanie jako zrobione — wróci na listę, gdy znów przyjdzie na nie pora.",
+  "home.note":
+    "Dbam nie stawia diagnoz — podpowiada, które badania warto zrobić. Twoje dane nie są widoczne dla innych użytkowników.",
 
   "dashboard.title": "Panel",
   "dashboard.status.plans_one": "{count} zaplanowane badanie",

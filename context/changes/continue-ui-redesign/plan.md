@@ -346,11 +346,11 @@ No database or production changes. Left on the owner's side:
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Type and template check passes: `npx astro check`
-- [x] 1.3 Build succeeds: `npm run build`
-- [x] 1.4 No references remain to Topbar, Banner, LibBadge, template.png, nav.notSignedIn
-- [x] 1.5 Smoke passes against the local dev server: `npm run smoke`
+- [x] 1.1 Linting passes: `npm run lint` — 0e22752
+- [x] 1.2 Type and template check passes: `npx astro check` — 0e22752
+- [x] 1.3 Build succeeds: `npm run build` — 0e22752
+- [x] 1.4 No references remain to Topbar, Banner, LibBadge, template.png, nav.notSignedIn — 0e22752
+- [x] 1.5 Smoke passes against the local dev server: `npm run smoke` — 0e22752
 
 #### Manual
 
@@ -362,11 +362,11 @@ No database or production changes. Left on the owner's side:
 
 #### Automated
 
-- [ ] 2.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits
-- [ ] 2.2 No starter copy or components remain in the landing, components and i18n
-- [ ] 2.3 Linting passes: `npm run lint`
-- [ ] 2.4 Type and template check passes: `npx astro check`
-- [ ] 2.5 Build succeeds: `npm run build`
+- [x] 2.1 Hardcoded-value scan on `src/pages/index.astro` returns 0 hits
+- [x] 2.2 No starter copy or components remain in the landing, components and i18n
+- [x] 2.3 Linting passes: `npm run lint`
+- [x] 2.4 Type and template check passes: `npx astro check`
+- [x] 2.5 Build succeeds: `npm run build`
 
 #### Manual
 

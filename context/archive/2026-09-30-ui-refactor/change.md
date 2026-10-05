@@ -1,10 +1,10 @@
 ---
 change_id: ui-refactor
 title: Ui refactor
-status: impl_reviewed
+status: archived
 created: 2026-09-30
 updated: 2026-10-05
-archived_at: null
+archived_at: 2026-10-05T11:11:49Z
 ---
 
 ## Notes

@@ -48,7 +48,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done     |
 | S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done     |
 | S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02    | US-02, FR-006, FR-007                              | done     |
-| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary)  | proposed |
+| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary)  | done     |
 | S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)          | proposed |
 | S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05    | FR-011, FR-012                                     | proposed |
 
@@ -174,7 +174,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-05: Confirm exam and recurrence
 
-- **Outcome:** user can confirm that an exam happened on its recorded appointment date; the exam leaves the "due now" list, its next due date is computed from that date and the catalog interval, it reappears as due when that interval elapses, and an exam with no known interval is surfaced to the user instead of silently dropped. Marking an exam already done (with an optional month and year) moved to S-03.
+- **Outcome:** user can confirm that an exam happened on its recorded appointment date once that date has passed; its next due date is computed from that date and the catalog interval. Leaving the "due now" list, reappearing when the interval elapses, surfacing exams with no known interval and marking an exam already done (with an optional month and year) shipped in S-03.
 - **Change ID:** confirm-exam-and-recurrence
 - **PRD refs:** US-03, FR-008, FR-009, Success Criteria (Primary)
 - **Prerequisites:** S-03, F-01
@@ -182,7 +182,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Closes the loop that makes the product recurring rather than one-shot; depends on correct intervals from F-01.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Due-screening reminder
 
@@ -220,7 +220,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | yes                   | #20 · Done                                    |
 | S-03       | record-appointment-date     | Record an appointment date for a recommended exam               | yes                   | #21 · Run `/10x-plan record-appointment-date` |
 | S-04       | appointment-reminder        | Reminder opt-in and appointment-approaching email               | no                    | #22 · Needs S-03, F-02                        |
-| S-05       | confirm-exam-and-recurrence | Confirm or mark exam done and schedule next due date            | no                    | #23 · Needs S-03, F-01                        |
+| S-05       | confirm-exam-and-recurrence | Confirm a passed appointment and schedule next due date         | no                    | #23 · Needs S-03, F-01                        |
 | S-06       | due-screening-reminder      | Email when a screening becomes due again                        | no                    | #24 · Needs S-04, S-05                        |
 | S-07       | follow-up-nudges            | Nudges for missing dates and unconfirmed appointments           | no                    | #25 · Needs S-04, S-05                        |
 
@@ -252,3 +252,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **F-02: (foundation) a scheduled job runs in production on a timer and delivers an email to a test address; the path is exercised in CI or post-deploy verification.** — Archived 2026-09-30 → `context/archive/2026-09-29-reminder-dispatch-path/`. Lesson: —.
 - **S-03: user can plan a recommended exam, optionally with the date of an appointment booked outside the app, or mark it already done, optionally with the month and year of the last exam, so it leaves the list until it is due again; both planned and done exams are shown on the dashboard.** — Archived 2026-09-30 → `context/archive/2026-09-30-record-appointment-date/`. Lesson: —.
 - **S-04: user can opt in to (or out of) reminders and, when opted in, receives an email as a recorded appointment date approaches.** — Archived 2026-10-05 → `context/archive/2026-09-30-appointment-reminder/`. Lesson: —.
+- **S-05: user can confirm that an exam happened on its recorded appointment date once that date has passed; its next due date is computed from that date and the catalog interval.** — Archived 2026-10-05 → `context/archive/2026-10-05-confirm-exam-and-recurrence/`. Lesson: —.

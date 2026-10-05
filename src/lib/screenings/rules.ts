@@ -11,8 +11,9 @@ import type { CatalogEntry } from "@/lib/catalog/schema";
 import type { Database } from "@/lib/database.types";
 import type { Profile } from "@/lib/profile";
 
-// The date and state rules of S-03 (plans and done records), shared by `POST /api/screenings` and the dashboard.
-// Pure: no I/O and no i18n, and "now" is a parameter, so it can be unit-tested directly.
+// The date and state rules of S-03 (plans and done records) and S-05 (confirming a plan whose day has come), shared by
+// `POST /api/screenings` and the dashboard. Pure: no I/O and no i18n, and "now" is a parameter, so it can be
+// unit-tested directly.
 //
 // Dates are plain `YYYY-MM-DD` strings, which compare correctly as strings. "Today" and "this month" are Warsaw
 // calendar values, never UTC ones (`toISOString()`), so a save just after midnight in Poland lands on the right day.
@@ -184,6 +185,8 @@ export interface PlanView {
   entry: CatalogEntry;
   /** The tier when the exam is currently recommended, for its badge; null otherwise. */
   tier: Tier | null;
+  /** The appointment day has come (today or earlier in Warsaw), so the user can confirm the exam took place. */
+  awaitingConfirmation: boolean;
 }
 
 export interface DoneView {
@@ -194,7 +197,7 @@ export interface DoneView {
 }
 
 export interface DashboardPartition {
-  /** Dated plans by date ascending, then undated plans (oldest first). */
+  /** Dated plans by date ascending (so plans awaiting confirmation come first), then undated plans (oldest first). */
   plans: PlanView[];
   /** Done records that are not due again yet (or have no fixed interval), without the ones that have a plan. */
   done: DoneView[];
@@ -222,6 +225,7 @@ export function partitionDashboard(
   now: Date,
 ): DashboardPartition {
   const currentMonth = warsawMonth(now);
+  const today = warsawToday(now);
   const entryBySlug = new Map(entries.map((entry) => [entry.slug, entry]));
   const tierBySlug = new Map<string, Tier>();
   for (const tier of [1, 2, 3] as const) {
@@ -231,7 +235,14 @@ export function partitionDashboard(
   const planViews: PlanView[] = [];
   for (const plan of plans) {
     const entry = entryBySlug.get(plan.catalog_slug);
-    if (entry) planViews.push({ plan, entry, tier: tierBySlug.get(plan.catalog_slug) ?? null });
+    if (!entry) continue;
+    const date = plan.appointment_date;
+    planViews.push({
+      plan,
+      entry,
+      tier: tierBySlug.get(plan.catalog_slug) ?? null,
+      awaitingConfirmation: date !== null && date <= today,
+    });
   }
   planViews.sort((a, b) => {
     const dateA = a.plan.appointment_date;

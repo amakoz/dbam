@@ -139,6 +139,8 @@ export const en: Record<MessageKey, string> = {
   "dashboard.screenings.plan.date": "Appointment: {date}",
   "dashboard.screenings.plan.noDate": "Date not set yet",
   "dashboard.screenings.plan.remove": "Remove from plans",
+  "dashboard.screenings.confirm.prompt": "Did the exam take place on {date}?",
+  "dashboard.screenings.confirm.submit": "Yes, confirm",
   "dashboard.screenings.done.legend": "Already done?",
   "dashboard.screenings.done.monthLabel": "Month of the last exam",
   "dashboard.screenings.done.yearLabel": "Year",
@@ -146,6 +148,7 @@ export const en: Record<MessageKey, string> = {
     "Optional — if you don't remember, leave both blank. We then count the next one from this month.",
   "dashboard.screenings.done.submit": "Mark as done",
   "dashboard.screenings.done.lastDone": "Last done: {month}",
+  "dashboard.screenings.done.lastDoneOn": "Last done: {date}",
   "dashboard.screenings.done.markedIn": "Marked done in {month}",
   "dashboard.screenings.done.dueAgain": "Due again: {month}",
   "dashboard.screenings.done.noInterval":
@@ -158,6 +161,7 @@ export const en: Record<MessageKey, string> = {
   "dashboard.screenings.saved.unplan": "Removed from your plans.",
   "dashboard.screenings.saved.done": "Marked as done.",
   "dashboard.screenings.saved.undone": "The screening is no longer marked as done.",
+  "dashboard.screenings.saved.confirm": "Confirmed and marked as done.",
   "dashboard.reminders.hint": "Want an email before your appointment? Turn on reminders in your profile.",
 
   "onboarding.title": "Your health profile",
@@ -329,6 +333,8 @@ export const en: Record<MessageKey, string> = {
   "errors.screening_not_available":
     "This exam isn't on your recommendations list right now. Refresh the page and try again.",
   "errors.reminders_failed": "We couldn't save your reminder setting. Please try again.",
+  "errors.appointment_not_passed":
+    "The day of this appointment hasn't come yet. You can confirm the exam on the day of the visit or later.",
   "errorPage.title": "Something went wrong",
   "errorPage.message": "We couldn't load this page right now. Please try again in a moment.",
   "errorPage.retry": "Try again",

@@ -25,7 +25,7 @@ interface Props {
   invalidField?: "date" | "done" | null;
   /** Renders the panel expanded (e.g. after an error). */
   open?: boolean;
-  /** Set when the exam is already planned: prefills its date (null = no date yet). */
+  /** Set when the exam is already planned: prefills its date (null = no date yet; a passed date is not prefilled). */
   planned?: { appointmentDate: string | null };
 }
 
@@ -35,6 +35,9 @@ const t = createT(Astro.locals.locale);
 const id = (field: string) => `screening-${slug}-${field}`;
 // A field is marked invalid only while its form's error is shown, and then points to that error.
 const dateInvalid = Boolean(error) && invalidField === "date";
+// A passed appointment date is below `min`, so the browser would refuse to resubmit it unchanged; start empty instead.
+const plannedDate = planned?.appointmentDate;
+const dateValue = plannedDate && plannedDate >= bounds.minDate ? plannedDate : "";
 const doneInvalid = Boolean(error) && invalidField === "done";
 
 const doneFields = [
@@ -80,7 +83,7 @@ const doneFields = [
             name="appointment_date"
             min={bounds.minDate}
             max={bounds.maxDate}
-            defaultValue={planned?.appointmentDate ?? ""}
+            defaultValue={dateValue}
             aria-describedby={dateInvalid ? `${id("date-hint")} ${id("error")}` : id("date-hint")}
             aria-invalid={dateInvalid ? true : undefined}
             className="w-full bg-background tabular-nums sm:w-auto"

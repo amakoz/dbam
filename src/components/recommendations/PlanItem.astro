@@ -9,7 +9,9 @@ import { formatDay, type ScreeningFormBounds } from "@/lib/screenings/format";
 import type { PlanView } from "@/lib/screenings/rules";
 
 // A planned exam in "Your plans": its appointment date (optional), a panel to change the date or mark it done, and
-// a button to remove the plan. The app books nothing; the date is what the user arranged with the clinic.
+// a button to remove the plan. The app books nothing; the date is what the user arranged with the clinic. Once the
+// appointment day has come (`awaitingConfirmation`), the row asks whether the exam took place and offers a one-click
+// confirm that records it as done on that day.
 
 interface Props {
   view: PlanView;
@@ -23,7 +25,7 @@ interface Props {
 }
 
 const { view, bounds, error, invalidField, saved } = Astro.props;
-const { plan, entry, tier } = view;
+const { plan, entry, tier, awaitingConfirmation } = view;
 const { locale } = Astro.locals;
 const t = createT(locale);
 
@@ -36,6 +38,7 @@ const date = plan.appointment_date;
   data-plan
   data-slug={entry.slug}
   data-appointment={date ?? ""}
+  data-awaiting-confirmation={awaitingConfirmation ? "" : undefined}
   data-saved={saved?.tone}
   class:list={["-mx-3 scroll-mt-4 px-3 py-4", saved ? SAVED_ROW_CLASS[saved.tone] : "first:pt-0 last:pb-0"]}
 >
@@ -44,11 +47,25 @@ const date = plan.appointment_date;
     {tier !== null && <TierBadge tier={tier} />}
   </div>
   {saved && <SavedNote saved={saved} />}
-  <p class="mt-1 text-sm text-muted-foreground tabular-nums">
-    {date
-      ? t("dashboard.screenings.plan.date", { date: formatDay(date, locale) })
-      : t("dashboard.screenings.plan.noDate")}
-  </p>
+  {awaitingConfirmation && date ? (
+    <form method="POST" action="/api/screenings" class="mt-1 space-y-3">
+      <input type="hidden" name="intent" value="confirm" />
+      <input type="hidden" name="slug" value={entry.slug} />
+      <p class="text-sm font-medium text-foreground tabular-nums">
+        {t("dashboard.screenings.confirm.prompt", { date: formatDay(date, locale) })}
+      </p>
+      <Button type="submit">
+        {t("dashboard.screenings.confirm.submit")}
+        <span class="sr-only">: {name}</span>
+      </Button>
+    </form>
+  ) : (
+    <p class="mt-1 text-sm text-muted-foreground tabular-nums">
+      {date
+        ? t("dashboard.screenings.plan.date", { date: formatDay(date, locale) })
+        : t("dashboard.screenings.plan.noDate")}
+    </p>
+  )}
 
   <ScreeningActions
     slug={entry.slug}

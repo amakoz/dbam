@@ -143,6 +143,8 @@ export const pl = {
   "dashboard.screenings.plan.date": "Termin: {date}",
   "dashboard.screenings.plan.noDate": "Termin jeszcze nieustalony",
   "dashboard.screenings.plan.remove": "Usuń z planów",
+  "dashboard.screenings.confirm.prompt": "Czy badanie odbyło się {date}?",
+  "dashboard.screenings.confirm.submit": "Tak, potwierdzam",
   "dashboard.screenings.done.legend": "Już wykonane?",
   "dashboard.screenings.done.monthLabel": "Miesiąc ostatniego badania",
   "dashboard.screenings.done.yearLabel": "Rok",
@@ -150,6 +152,7 @@ export const pl = {
     "Opcjonalnie — jeśli nie pamiętasz, zostaw oba pola puste. Następne badanie policzymy wtedy od bieżącego miesiąca.",
   "dashboard.screenings.done.submit": "Oznacz jako wykonane",
   "dashboard.screenings.done.lastDone": "Ostatnio wykonane: {month}",
+  "dashboard.screenings.done.lastDoneOn": "Ostatnio wykonane: {date}",
   "dashboard.screenings.done.markedIn": "Oznaczone jako wykonane: {month}",
   "dashboard.screenings.done.dueAgain": "Następne badanie: {month}",
   "dashboard.screenings.done.noInterval":
@@ -162,6 +165,7 @@ export const pl = {
   "dashboard.screenings.saved.unplan": "Usunięto z Twoich planów.",
   "dashboard.screenings.saved.done": "Oznaczono badanie jako wykonane.",
   "dashboard.screenings.saved.undone": "Cofnięto oznaczenie badania jako wykonanego.",
+  "dashboard.screenings.saved.confirm": "Potwierdzono badanie i oznaczono je jako wykonane.",
   "dashboard.reminders.hint": "Chcesz dostać e-mail przed wizytą? Włącz przypomnienia w swoim profilu.",
 
   "onboarding.title": "Twój profil zdrowotny",
@@ -333,6 +337,8 @@ export const pl = {
   "errors.screening_not_available":
     "Tego badania nie ma teraz na Twojej liście zaleceń. Odśwież stronę i spróbuj ponownie.",
   "errors.reminders_failed": "Nie udało się zapisać ustawienia przypomnień. Spróbuj ponownie.",
+  "errors.appointment_not_passed":
+    "Dzień tej wizyty jeszcze nie nadszedł. Badanie możesz potwierdzić w dniu wizyty lub później.",
   "errorPage.title": "Chwilowy problem",
   "errorPage.message": "Nie udało się teraz wczytać tej strony. Spróbuj ponownie za chwilę.",
   "errorPage.retry": "Spróbuj ponownie",

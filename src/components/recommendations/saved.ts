@@ -10,6 +10,8 @@ export interface SavedFeedback {
 }
 
 export const SAVED_ROW_CLASS = {
-  success: "rounded-lg bg-tier-2 ring-2 ring-success",
+  // Success tokens only (like the success badge and the saved alert), never a tier token: a saved row must not read
+  // as tier styling, and a tier restyle must not change it.
+  success: "rounded-lg bg-success/10 ring-2 ring-success",
   neutral: "rounded-lg bg-accent ring-2 ring-muted-foreground/30",
 } as const satisfies Record<SavedTone, string>;

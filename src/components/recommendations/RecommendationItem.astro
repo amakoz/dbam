@@ -4,13 +4,17 @@ import EntryDetails from "@/components/recommendations/EntryDetails.astro";
 import SavedNote from "@/components/recommendations/SavedNote.astro";
 import { SAVED_ROW_CLASS, type SavedFeedback } from "@/components/recommendations/saved";
 import ScreeningActions from "@/components/recommendations/ScreeningActions.astro";
-import TierBadge from "@/components/recommendations/TierBadge.astro";
-import { Badge } from "@/components/ui/badge";
-import { createT } from "@/i18n";
+import { createT, type MessageKey } from "@/i18n";
 import type { Recommendation } from "@/lib/catalog/recommend";
 import { describeBranch, describeInterval } from "@/lib/catalog/wording";
 import { describeLastDone, type ScreeningFormBounds } from "@/lib/screenings/format";
 import { anchorMonth, type ScreeningCompletion } from "@/lib/screenings/rules";
+import { cn } from "@/lib/utils";
+
+// A row inside a tier section (`TierSection.astro`): the section heading carries the tier, so the row doesn't repeat
+// it (`TierBadge` stays on "Your plans" rows, which have no tier heading around them). The access facts are one quiet
+// line; the ones the user has to act on (pays out of pocket, needs a referral) use the foreground colour. Icon plus
+// text, never colour alone.
 
 interface Props {
   recommendation: Recommendation;
@@ -33,6 +37,15 @@ const { locale } = Astro.locals;
 const t = createT(locale);
 
 const name = locale === "pl" ? entry.name_pl : entry.name_en;
+
+const access = [
+  entry.nfz_funded
+    ? { Icon: BadgeCheck, key: "dashboard.recommendations.badge.nfzFunded", icon: "text-success", act: false }
+    : { Icon: Wallet, key: "dashboard.recommendations.badge.notNfzFunded", icon: "", act: true },
+  entry.referral_required
+    ? { Icon: FileText, key: "dashboard.recommendations.badge.referralRequired", icon: "", act: true }
+    : { Icon: FileCheck, key: "dashboard.recommendations.badge.noReferral", icon: "", act: false },
+] satisfies { Icon: typeof BadgeCheck; key: MessageKey; icon: string; act: boolean }[];
 ---
 
 <li
@@ -43,39 +56,20 @@ const name = locale === "pl" ? entry.name_pl : entry.name_en;
   data-saved={saved?.tone}
   class:list={["-mx-3 scroll-mt-4 px-3 py-4", saved ? SAVED_ROW_CLASS[saved.tone] : "first:pt-0 last:pb-0"]}
 >
-  <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-    <h3 class="font-semibold text-foreground">{name}</h3>
-    <TierBadge tier={tier} />
-  </div>
+  <h3 class="font-semibold text-foreground">{name}</h3>
   {saved && <SavedNote saved={saved} />}
   <p class="mt-1 text-sm text-muted-foreground">
     {t("dashboard.recommendations.howOften", { interval: describeInterval(interval, t) })}
   </p>
   {lastDone && <p class="mt-1 text-sm text-muted-foreground tabular-nums">{describeLastDone(lastDone, t, locale)}</p>}
-  <p class="mt-2 flex flex-wrap gap-2">
-    {entry.nfz_funded ? (
-      <Badge variant="success">
-        <BadgeCheck aria-hidden="true" />
-        {t("dashboard.recommendations.badge.nfzFunded")}
-      </Badge>
-    ) : (
-      <Badge variant="outline">
-        <Wallet aria-hidden="true" />
-        {t("dashboard.recommendations.badge.notNfzFunded")}
-      </Badge>
-    )}
-    {entry.referral_required ? (
-      <Badge variant="outline">
-        <FileText aria-hidden="true" />
-        {t("dashboard.recommendations.badge.referralRequired")}
-      </Badge>
-    ) : (
-      <Badge variant="outline">
-        <FileCheck aria-hidden="true" />
-        {t("dashboard.recommendations.badge.noReferral")}
-      </Badge>
-    )}
-  </p>
+  <ul class="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground" data-access>
+    {access.map(({ Icon, key, icon, act }) => (
+      <li class:list={["flex items-center gap-1.5", act && "font-medium text-foreground"]}>
+        <Icon aria-hidden="true" className={cn("size-4 shrink-0", icon)} />
+        {t(key)}
+      </li>
+    ))}
+  </ul>
 
   <ScreeningActions
     slug={entry.slug}

@@ -1,0 +1,52 @@
+---
+import { CalendarClock, CalendarPlus, Stethoscope } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { createT, type MessageKey } from "@/i18n";
+import type { Tier } from "@/lib/catalog/recommend";
+import { cn } from "@/lib/utils";
+
+// A tier section of the dashboard: a card whose header band carries the tier (icon + heading, never colour alone),
+// with the tier's rows in the default slot. The rows don't repeat the tier. Every tier gets the same band on its own
+// tier token; tier 1 adds a tier-coloured border so it stays first in weight. The icons match `TierBadge.astro`.
+
+interface Props {
+  tier: Tier;
+  /** Heading level: `h2` on the dashboard, `h3` inside the kitchen sink's scheme sections. */
+  headingLevel?: "h2" | "h3";
+  /** Heading id, unique on the page (the kitchen sink renders each tier once per scheme). */
+  headingId?: string;
+}
+
+const { tier, headingLevel = "h2", headingId = `tier-${Astro.props.tier}-heading` } = Astro.props;
+const t = createT(Astro.locals.locale);
+const Heading = headingLevel;
+
+const TIER_STYLES = {
+  1: { Icon: CalendarClock, card: "border-tier-1-solid", header: "bg-tier-1 text-tier-1-foreground" },
+  2: { Icon: CalendarPlus, card: "", header: "bg-tier-2 text-tier-2-foreground" },
+  3: { Icon: Stethoscope, card: "", header: "bg-tier-3 text-tier-3-foreground" },
+} as const satisfies Record<Tier, { Icon: typeof CalendarClock; card: string; header: string }>;
+const TIER_HEADING_KEYS = {
+  1: "dashboard.recommendations.tier.1",
+  2: "dashboard.recommendations.tier.2",
+  3: "dashboard.recommendations.tier.3",
+} as const satisfies Record<Tier, MessageKey>;
+const { Icon, card, header } = TIER_STYLES[tier];
+---
+
+<section aria-labelledby={headingId} data-tier-section={tier}>
+  <Card className={cn("gap-5 overflow-hidden pt-0", card)}>
+    <CardHeader className={cn("gap-1 py-4", header)}>
+      <Heading id={headingId} class="flex items-center gap-2 font-heading text-xl font-semibold">
+        <Icon aria-hidden="true" className="size-5 shrink-0" />
+        {t(TIER_HEADING_KEYS[tier])}
+      </Heading>
+      {tier === 3 && <p class="text-sm">{t("dashboard.recommendations.tier.3.note")}</p>}
+    </CardHeader>
+    <CardContent>
+      <ul class="divide-y divide-border">
+        <slot />
+      </ul>
+    </CardContent>
+  </Card>
+</section>

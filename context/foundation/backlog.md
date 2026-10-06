@@ -13,14 +13,6 @@
 
 ## P1
 
-### B-01 Health data in Cloudflare invocation-log URLs
-
-- **What:** `/api/screenings` redirects to `/dashboard?saved=<intent>&slug=<slug>`, or on failure `?error=<code>&slug=<slug>` (`src/pages/api/screenings.ts:42,49`). Workers Logs records each request URL, so the slug, which names the screening a user planned or marked done, can sit in logs for 3 days (7 from 2026-12-01).
-- **Next:**
-  - _Human:_ confirm whether `$workers.event.request.url` keeps the query string (F-07 manual check 3.7).
-  - _Agent:_ if it does, add a slice before S-06/S-07 that moves `slug` to a flash cookie or the URL fragment and audits other query params (auth callback `?code=`, `profile.astro` `?reminders=`).
-- **Source:** `context/archive/2026-10-06-error-tracking/follow-ups/redirect-slug-leak.md`.
-
 ### B-02 F-07 production checks not done yet
 
 - **What:** F-07 (#81) merged with its production checks still open. Until they are done, a failed reminder run may still go unnoticed.
@@ -94,5 +86,6 @@
   - the merge policy setting;
   - `astro dev --host 127.0.0.1`;
   - PR-stage manual checks.
+- B-01 Health data in Cloudflare invocation-log URLs: moved to roadmap F-09 (`redirect-query-privacy`) on 2026-10-06, owner-approved.
 - B-08 Usage limit and interruptions in orchestrated runs: done in the local orchestrator skill (a `spawn-worker.sh wait` subcommand), recorded in `context/changes/agent-docs-mcp/decisions.md`.
 - B-10 Noisy SHA write-back commits: fixed by the worker protocol (bookkeeping is committed with the phase), recorded in `context/changes/agent-docs-mcp/decisions.md`.

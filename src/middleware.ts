@@ -1,5 +1,7 @@
+import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
 import { LOCALE_COOKIE, resolveLocale } from "@/i18n";
+import { buildSsrErrorEvent, logErrorEvent, redactError, requestIdFrom } from "@/lib/observability";
 import { createClient } from "@/lib/supabase";
 
 const PROTECTED_ROUTES = [
@@ -13,6 +15,27 @@ const PROTECTED_ROUTES = [
 ];
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Every uncaught SSR error passes through here, from the middleware itself, the page or the endpoint (Astro throws it
+  // out of `next()`). Astro logs the error's `stack` and then renders the 500 page through this middleware a second
+  // time, so: always rethrow a redacted copy (Astro's own lines then carry no message), but log the event only on the
+  // first pass, never on the `/500` re-render.
+  try {
+    return await handleRequest(context, next);
+  } catch (error) {
+    if (context.routePattern !== "/500") {
+      logErrorEvent(
+        buildSsrErrorEvent({
+          error,
+          routePattern: context.routePattern,
+          requestId: requestIdFrom(context.request.headers),
+        }),
+      );
+    }
+    throw redactError(error);
+  }
+});
+
+async function handleRequest(context: APIContext, next: MiddlewareNext): Promise<Response> {
   context.locals.locale = resolveLocale(context.cookies.get(LOCALE_COOKIE)?.value);
 
   const supabase = createClient(context.request.headers, context.cookies);
@@ -38,4 +61,4 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const response = await next();
   response.headers.set("Cache-Control", "private, no-store");
   return response;
-});
+}

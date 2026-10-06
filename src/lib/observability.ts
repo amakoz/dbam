@@ -29,11 +29,12 @@ function isToken(value: string): boolean {
   return TOKEN.test(value);
 }
 
-function errorName(error: unknown): string {
+export function errorName(error: unknown): string {
   return error instanceof Error && isToken(error.name) ? error.name : "UnknownError";
 }
 
-function errorDetails(error: unknown): Record<string, string> {
+/** Whitelisted details of an error, for the failure alert's own log line. */
+export function errorDetails(error: unknown): Record<string, string> {
   const details: Record<string, string> = {};
   if (!(error instanceof Error)) return details;
   for (const key of DETAIL_KEYS) {

@@ -78,6 +78,7 @@ const workerLogsConfig = defineConfig({
   files: [
     "src/worker.ts",
     "src/lib/email.ts",
+    "src/lib/failure-alert.ts",
     "src/lib/heartbeat.ts",
     "src/lib/observability.ts",
     "src/lib/reminders/appointment.ts",

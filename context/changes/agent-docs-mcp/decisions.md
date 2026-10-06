@@ -77,3 +77,14 @@
   - Backlog: B-08 (the orchestrator `wait` subcommand, done in the local skill) and B-10 (SHA write-back noise, fixed by the worker protocol) move to Done in `context/foundation/backlog.md`.
 - Evidence: impl-review.md; research.md §1 (the committed approval is ignored in untrusted folders)
 - Decided-by: orchestrator
+
+## 2026-10-06 Archive: warnings acknowledged
+
+- Question: archive with /10x-archive's soft warnings open?
+- Options: continue archiving, or resume implementation
+- Choice: continue. The warnings:
+  - (1) 1.8 is open (0 automated, 1 manual). It's a PR-stage row, and the PR body covers it with the reviewer-pane evidence and Manual checks.
+  - (2) There is no `reviews/impl-review*.md`. The report is `impl-review.md` at the folder root, with "Reviewed phases: 1", so phase coverage is complete.
+  - (3) The Progress SHAs (`1ac45cc`) aren't on origin/main yet because the PR isn't open. There's no repoint.
+- Evidence: /10x-archive preflight; `git merge-base --is-ancestor 1ac45cc origin/main` → 1
+- Decided-by: orchestrator (standing instruction for PR-stage manual rows); worker for (2)–(3)

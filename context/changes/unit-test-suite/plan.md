@@ -309,13 +309,13 @@ None: no schema, data or runtime change. The Worker bundle is unaffected because
 
 #### Automated
 
-- [x] 2.1 Unit tests pass, including the wording suite: `npm test`
-- [x] 2.2 Lint passes: `npm run lint`
-- [x] 2.3 Type check passes: `npx astro check`
-- [x] 2.4 No stale "no unit suite" note remains: `grep -ri "no unit suite" CLAUDE.md README.md` returns nothing
-- [x] 2.5 Markdown is formatted: `npx prettier --check CLAUDE.md README.md context/foundation/prd.md`
+- [x] 2.1 Unit tests pass, including the wording suite: `npm test` — 286e2e9
+- [x] 2.2 Lint passes: `npm run lint` — 286e2e9
+- [x] 2.3 Type check passes: `npx astro check` — 286e2e9
+- [x] 2.4 No stale "no unit suite" note remains: `grep -ri "no unit suite" CLAUDE.md README.md` returns nothing — 286e2e9
+- [x] 2.5 Markdown is formatted: `npx prettier --check CLAUDE.md README.md context/foundation/prd.md` — 286e2e9
 
 #### Manual
 
-- [ ] 2.6 The `CLAUDE.md` and `README.md` testing notes read correctly and match how `npm test` actually runs
+- [x] 2.6 The `CLAUDE.md` and `README.md` testing notes read correctly and match how `npm test` actually runs — 286e2e9
 - [ ] 2.7 After the PR is open (stage 10 of the orchestrated chain), the `ci` job shows the `npm test` step running and passing

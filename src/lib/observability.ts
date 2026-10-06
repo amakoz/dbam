@@ -24,12 +24,13 @@ const TOKEN = /^[A-Za-z0-9_.:-]{1,64}$/;
 const DETAIL_KEYS = ["operation", "step", "code", "status", "resendError"] as const;
 
 /** The reminder jobs that run on the daily cron and alert the owner when they fail. */
-export type ReminderJob = "appointment-reminder" | "due-screening-reminder";
+export type ReminderJob = "appointment-reminder" | "due-screening-reminder" | "follow-up-nudge";
 
 /** The job as it reads in the alert's subject and first line. */
 const JOB_LABEL: Record<ReminderJob, string> = {
   "appointment-reminder": "appointment",
   "due-screening-reminder": "due-screening",
+  "follow-up-nudge": "follow-up nudge",
 };
 
 function isToken(value: string): boolean {

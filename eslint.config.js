@@ -83,6 +83,7 @@ const workerLogsConfig = defineConfig({
     "src/lib/observability.ts",
     "src/lib/reminders/appointment.ts",
     "src/lib/reminders/due-screening.ts",
+    "src/lib/reminders/follow-up-nudge.ts",
   ],
   rules: { "no-console": "off" },
 });

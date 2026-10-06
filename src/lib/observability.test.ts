@@ -15,7 +15,7 @@ import {
 const SCHEDULED_TIME = 1790841600000;
 const CRON = "0 8,9 * * *";
 const ADDRESS = "jan.kowalski@example.com";
-const JOBS: ReminderJob[] = ["appointment-reminder", "due-screening-reminder"];
+const JOBS: ReminderJob[] = ["appointment-reminder", "due-screening-reminder", "follow-up-nudge"];
 const SQL = 'insert into profiles (email) values ("jan.kowalski@example.com")';
 
 /** Same shape as `ReminderDatabaseError` in src/lib/reminders/errors.ts, which this module must not import. */
@@ -326,13 +326,27 @@ describe("buildReminderFailureEmail", () => {
     expect(later.idempotencyKey).not.toBe(a.idempotencyKey);
   });
 
-  it("gives the two jobs different keys for the same run, so both alerts can be sent", () => {
+  it("gives the jobs different keys for the same run, so every alert can be sent", () => {
     const [appointment, due] = JOBS.map((reminderJob) =>
       buildReminderFailureEmail({ job: reminderJob, error: new Error("x"), cron: CRON, scheduledTime: SCHEDULED_TIME }),
     );
     expect(due.idempotencyKey).toBe(`dbam-reminder-failure:due-screening-reminder:${CRON}:${SCHEDULED_TIME}`);
     expect(due.idempotencyKey).not.toBe(appointment.idempotencyKey);
     expect(due.subject).not.toBe(appointment.subject);
+  });
+
+  it("names the follow-up nudge job in its subject and body", () => {
+    const email = buildReminderFailureEmail({
+      job: "follow-up-nudge",
+      error: new StepError("claim", "42501"),
+      cron: CRON,
+      scheduledTime: SCHEDULED_TIME,
+    });
+    expect(email.subject).toBe("Dbam: follow-up nudge reminder run failed");
+    expect(email.text).toContain("The Dbam follow-up nudge reminder job failed.");
+    expect(email.text).toContain("Job: follow-up-nudge");
+    expect(email.idempotencyKey).toBe(`dbam-reminder-failure:follow-up-nudge:${CRON}:${SCHEDULED_TIME}`);
+    expect(email.text).not.toContain("appointment");
   });
 
   it("names the due job in its subject and body", () => {

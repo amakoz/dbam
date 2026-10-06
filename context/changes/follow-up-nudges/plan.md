@@ -346,18 +346,18 @@ Additive: a new table and functions, and a table comment. A Worker rollback leav
 
 #### Automated
 
-- [x] 1.1 Migration applies on the shared local stack
-- [x] 1.2 pgTAP passes, including the new file and the global service_role guard
-- [x] 1.3 Types regenerated and committed
-- [x] 1.4 Lint and type check pass
+- [x] 1.1 Migration applies on the shared local stack — a7e8590
+- [x] 1.2 pgTAP passes, including the new file and the global service_role guard — a7e8590
+- [x] 1.3 Types regenerated and committed — a7e8590
+- [x] 1.4 Lint and type check pass — a7e8590
 
 ### Phase 2: Nudge job, message, budget and chain
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass, including the new nudge-message and chain cases
-- [ ] 2.2 Lint and type check pass
-- [ ] 2.3 Build passes with the job wired into the Worker
+- [x] 2.1 Unit tests pass, including the new nudge-message and chain cases
+- [x] 2.2 Lint and type check pass
+- [x] 2.3 Build passes with the job wired into the Worker
 
 ### Phase 3: Docs and local dry run
 

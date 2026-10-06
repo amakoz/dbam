@@ -199,14 +199,14 @@ export const pl = {
   "profile.withdraw.heading": "Wycofanie zgody",
   "profile.withdraw.intro": "Możesz w każdej chwili wycofać zgodę na przechowywanie danych o zdrowiu.",
   "profile.withdraw.deleted":
-    "Usuniemy wtedy od razu Twoje dane o zdrowiu: rok urodzenia, płeć przy urodzeniu, historię palenia papierosów, zaplanowane badania z terminami wizyt i badania oznaczone jako wykonane. Wyłączymy też przypomnienia o wizytach. Przez ograniczony czas dane mogą jeszcze pozostawać w kopiach zapasowych bazy danych, z których znikną automatycznie.",
+    "Usuniemy wtedy od razu Twoje dane o zdrowiu: rok urodzenia, płeć przy urodzeniu, historię palenia papierosów, zaplanowane badania z terminami wizyt i badania oznaczone jako wykonane. Wyłączymy też przypomnienia e-mail. Przez ograniczony czas dane mogą jeszcze pozostawać w kopiach zapasowych bazy danych, z których znikną automatycznie.",
   "profile.withdraw.kept":
     "Zachowamy jedynie informację o tym, kiedy, w jakiej wersji i w jakim języku zgoda została udzielona i wycofana — jako dowód, że przetwarzaliśmy dane zgodnie z prawem. Twoje konto pozostanie aktywne.",
   "profile.withdraw.checkbox": "Rozumiem, że moje dane o zdrowiu zostaną usunięte.",
   "profile.withdraw.submit": "Wycofaj zgodę i usuń dane",
-  "profile.reminders.heading": "Przypomnienia o wizytach",
+  "profile.reminders.heading": "Przypomnienia e-mail",
   "profile.reminders.disclosure":
-    "Po włączeniu przypomnień wyślemy Ci jeden e-mail na 1–3 dni przed każdym terminem wizyty, który wpiszesz w swoich planach. Wiadomość zawiera datę wizyty i link do Dbam, ale nigdy nazwę badania. Wysyłamy ją na adres e-mail Twojego konta przez naszego dostawcę poczty e-mail (Resend). Przypomnienia możesz tu wyłączyć w każdej chwili.",
+    "Po włączeniu przypomnień wyślemy Ci e-mail w czterech sytuacjach: na 1–3 dni przed każdym terminem wizyty, który wpiszesz w swoich planach; gdy badanie oznaczone jako wykonane trzeba powtórzyć; 14 dni po zaplanowaniu badania bez wpisanego terminu wizyty; 7 dni po terminie wizyty, której nie potwierdzisz. Dwa ostatnie przypomnienia wysyłamy razem w jednej wiadomości, najwyżej raz dziennie. Wiadomość nigdy nie zawiera nazwy badania. Wysyłamy ją na adres e-mail Twojego konta przez naszego dostawcę poczty e-mail (Resend). Przypomnienia możesz tu wyłączyć w każdej chwili.",
   "profile.reminders.state.on": "Przypomnienia są włączone.",
   "profile.reminders.state.off": "Przypomnienia są wyłączone.",
   "profile.reminders.turnOn": "Włącz przypomnienia",
@@ -319,6 +319,20 @@ export const pl = {
     "Minął zalecany odstęp od {count} Twoich badań profilaktycznych. Czas je powtórzyć.",
   "email.dueScreeningReminder.dashboard": "Zobacz, których badań to dotyczy, w swoim panelu Dbam: {url}",
   "email.dueScreeningReminder.optOut": "Nie chcesz dostawać przypomnień? Wyłącz je w swoim profilu: {url}",
+
+  // Follow-up nudge email (plain text). Never name an exam: only counts.
+  "email.followUpNudge.subject": "Dbam: przypomnienie o planowanych badaniach",
+  "email.followUpNudge.greeting": "Dzień dobry,",
+  "email.followUpNudge.confirm_one": "Minął termin {count} wizyty. Potwierdź, czy się odbyła.",
+  "email.followUpNudge.confirm_few": "Minęły terminy {count} wizyt. Potwierdź, czy się odbyły.",
+  "email.followUpNudge.confirm_many": "Minęły terminy {count} wizyt. Potwierdź, czy się odbyły.",
+  "email.followUpNudge.confirm_other": "Minęły terminy {count} wizyty. Potwierdź, czy się odbyły.",
+  "email.followUpNudge.schedule_one": "{count} zaplanowane badanie nadal nie ma terminu wizyty.",
+  "email.followUpNudge.schedule_few": "{count} zaplanowane badania nadal nie mają terminu wizyty.",
+  "email.followUpNudge.schedule_many": "{count} zaplanowanych badań nadal nie ma terminu wizyty.",
+  "email.followUpNudge.schedule_other": "{count} zaplanowanego badania nadal nie ma terminu wizyty.",
+  "email.followUpNudge.dashboard": "Uzupełnij swoje plany w panelu Dbam: {url}",
+  "email.followUpNudge.optOut": "Nie chcesz dostawać takich wiadomości? Wyłącz je w swoim profilu: {url}",
 
   "errors.auth.not_configured": "Logowanie jest chwilowo niedostępne. Spróbuj ponownie później.",
   "errors.auth.missing_code": "Link potwierdzający jest niekompletny. Otwórz go ponownie z wiadomości e-mail.",

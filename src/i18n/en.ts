@@ -303,6 +303,20 @@ export const en: Record<MessageKey, string> = {
   "email.appointmentReminder.dashboard": "See the details in your Dbam dashboard: {url}",
   "email.appointmentReminder.optOut": "Don't want these reminders? Turn them off in your profile: {url}",
 
+  // Due-screening reminder email (plain text). Never name an exam: only a count.
+  "email.dueScreeningReminder.subject": "Dbam: time for a preventive screening",
+  "email.dueScreeningReminder.greeting": "Hello,",
+  "email.dueScreeningReminder.body_one":
+    "The recommended interval since one of your preventive screenings has passed. It's time to repeat it.",
+  "email.dueScreeningReminder.body_few":
+    "The recommended interval since {count} of your preventive screenings has passed. It's time to repeat them.",
+  "email.dueScreeningReminder.body_many":
+    "The recommended interval since {count} of your preventive screenings has passed. It's time to repeat them.",
+  "email.dueScreeningReminder.body_other":
+    "The recommended interval since {count} of your preventive screenings has passed. It's time to repeat them.",
+  "email.dueScreeningReminder.dashboard": "See which ones in your Dbam dashboard: {url}",
+  "email.dueScreeningReminder.optOut": "Don't want these reminders? Turn them off in your profile: {url}",
+
   "errors.auth.not_configured": "Sign-in is temporarily unavailable. Please try again later.",
   "errors.auth.missing_code": "The confirmation link is incomplete. Open it again from the email.",
   "errors.auth.link_invalid": "The confirmation link is invalid or has expired. Try signing in.",

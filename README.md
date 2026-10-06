@@ -155,12 +155,12 @@ The schema lives in `supabase/migrations/` (`health_data_consents` and `profiles
 
 If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.dev.vars` files:
 
-| Variable              | Description                                                                                                                                                                                |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SUPABASE_URL`        | Project URL from Supabase dashboard → Settings → API                                                                                                                                       |
-| `SUPABASE_KEY`        | `anon` public key from Supabase dashboard → Settings → API                                                                                                                                 |
-| `SUPABASE_SECRET_KEY` | Secret key (`sb_secret_…`), used only by the appointment reminder cron job (`src/lib/reminders/admin-client.ts`). The database lets it execute the two reminder functions and nothing else |
-| `EMAIL_FROM`          | Optional. Sender for every email, e.g. `Dbam <przypomnienia@notification.dbam.net.pl>` on the domain verified in Resend; unset falls back to Resend's sandbox sender                       |
+| Variable              | Description                                                                                                                                                                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUPABASE_URL`        | Project URL from Supabase dashboard → Settings → API                                                                                                                                                                                     |
+| `SUPABASE_KEY`        | `anon` public key from Supabase dashboard → Settings → API                                                                                                                                                                               |
+| `SUPABASE_SECRET_KEY` | Secret key (`sb_secret_…`), used only by the reminder cron jobs (appointment and due-screening, `src/lib/reminders/admin-client.ts`). The database lets it execute the five reminder functions and read the public catalog, nothing else |
+| `EMAIL_FROM`          | Optional. Sender for every email, e.g. `Dbam <przypomnienia@notification.dbam.net.pl>` on the domain verified in Resend; unset falls back to Resend's sandbox sender                                                                     |
 
 ```
 SUPABASE_URL=https://<project-ref>.supabase.co
@@ -251,7 +251,7 @@ Until `EMAIL_FROM` is set, mail falls back to `Dbam <onboarding@resend.dev>`, wh
 
 ### Scheduled jobs
 
-`src/worker.ts` is the Worker entry (`main` in `wrangler.jsonc`): HTTP requests go to the Astro adapter, and Cron Triggers (`triggers.crons`) run `scheduled()`, which runs two independent jobs: the heartbeat email from `src/lib/heartbeat.ts` and the appointment reminders from `src/lib/reminders/appointment.ts`, both sending through `src/lib/email.ts`. One failing job doesn't stop the other; the run is still marked failed. Cron runs in UTC; the shared schedule gate is `src/lib/schedule.ts`. `*/30 * * * *` sends on every run; `0 8,9 * * *` sends only on the run that is 10:00 in Europe/Warsaw, so it stays at 10:00 across daylight saving time. Any other cron string fails the run. Production runs `0 8,9 * * *`: one heartbeat email a day at 10:00 Warsaw time (the 08:00 and 09:00 UTC runs are both needed because Warsaw's UTC offset changes with daylight saving; one of them always skips).
+`src/worker.ts` is the Worker entry (`main` in `wrangler.jsonc`): HTTP requests go to the Astro adapter, and Cron Triggers (`triggers.crons`) run `scheduled()`, which runs two independent parts: the heartbeat email from `src/lib/heartbeat.ts` and the reminder chain (`src/lib/reminders/chain.ts`: the appointment reminders from `src/lib/reminders/appointment.ts`, then the due-screening reminders from `src/lib/reminders/due-screening.ts`), all sending through `src/lib/email.ts`. One failing part doesn't stop the other; the run is still marked failed. Cron runs in UTC; the shared schedule gate is `src/lib/schedule.ts`. `*/30 * * * *` sends on every run; `0 8,9 * * *` sends only on the run that is 10:00 in Europe/Warsaw, so it stays at 10:00 across daylight saving time. Any other cron string fails the run. Production runs `0 8,9 * * *`: one heartbeat email a day at 10:00 Warsaw time (the 08:00 and 09:00 UTC runs are both needed because Warsaw's UTC offset changes with daylight saving; one of them always skips).
 
 Run it locally against `npm run dev` or `npm run build && npm run preview`. With `EMAIL_DRY_RUN=true` (the `.env.example` default) it only logs a `dry-run` line and sends nothing:
 
@@ -276,21 +276,39 @@ curl 'http://localhost:4321/cdn-cgi/local/scheduled?cron=0+8%2C9+*+*+*&time=1790
 
 `outcome` is `skipped` (not the 10:00 run), `none` (nothing to send), `dry-run` or `sent`, or `failed` with the error name (plus Resend's status and error name, or the database step and SQLSTATE). `due` counts claimed users and `sent` the emails Resend accepted.
 
+**Due-screening reminders** (S-06) email an opted-in user when a screening they marked done, or confirmed after the appointment, is due again because its repeat interval has run out, without the user entering anything. They run right after the appointment job, on the same 10:00 Warsaw run (other runs log `skipped`). `get_due_screening_candidates` returns up to `DUE_CANDIDATE_LIMIT` (50, `src/lib/screenings/due.ts`) users who might owe a reminder, with the five profile fields the rules read and each done exam's anchor month, and never an email, name or exact day. `dueScreeningItems` then decides with the dashboard's own rules (the same `classifyEntries` and `partitionDashboard` that F-08 tests), so an exam the dashboard no longer recommends, one with a plan, or one without a fixed interval never fires. `claim_due_screening_reminders` re-checks live data and records one `due_screening_reminders` ledger row per completion cycle (user, exam, anchor month), so a user is reminded once per cycle and not again unless they re-date or re-mark the exam. The job sends one email per user (a count and two links, never an exam name or a due month) in one Resend batch, then marks the rows sent. A user the run could not reach, because of the 50-user candidate limit or the shared budget below, is picked up by the next daily run (the candidate order rotates daily). First-time eligibility (aged into an exam, new catalog entry) is not reminded: see `context/changes/due-screening-reminder/follow-ups/first-time-eligibility.md`. To try it locally: seed an opted-in user with consent and a done exam whose interval has run out (for example `dental-check-up`, every 6 months, last done 7 months ago), then call the daily `curl` above for the right date. The log line is:
+
+```json
+{
+  "event": "due-screening-reminder",
+  "outcome": "dry-run",
+  "cron": "0 8,9 * * *",
+  "scheduledAt": "2026-10-06T08:00:00.000Z",
+  "candidates": 1,
+  "due": 1,
+  "sent": 0
+}
+```
+
+`outcome` is `skipped` (not the 10:00 run, or `reason: "no-budget"` when the appointment job failed or used the whole budget), `none`, `dry-run`, `sent` or `failed` (error name and whitelisted details only). `candidates` counts users the database offered, `due` users the rules found due and the claim returned, `sent` emails Resend accepted. Counts only: no slug, address or subject.
+
+**Shared email budget.** Both reminder jobs share `REMINDER_EMAIL_DAILY_BUDGET` (93, `src/lib/email-budget.ts`) emails a day, appointments first: the due job may send 93 minus what the appointment job sent, and 0 when the appointment job failed (its use of the quota is then unknown). 93 comes from Resend's 3,000-a-month cap, not the 100-a-day one: 31 days × (93 reminders + 1 heartbeat + 2 possible failure alerts) = 2,976.
+
 For one real send, put a real `RESEND_API_KEY` and `REMINDER_TEST_TO` plus `EMAIL_DRY_RUN=false` in `.dev.vars`, restart the server and call the first `curl` again. Set `EMAIL_DRY_RUN=true` back afterwards.
 
 `EMAIL_DRY_RUN` accepts only the literal `true` or `false`. Any other value (`1`, `TRUE`, `yes`) fails `astro:env` validation when the Worker starts and breaks every request, not just the cron. Production leaves it unset, which means `false`; never `wrangler secret put` it.
 
 In production:
 
-- **Runs:** Cloudflare dashboard → Workers → `dbam` → Settings → Trigger Events (the last 100 invocations), and Workers Logs (one `heartbeat` and one `appointment-reminder` JSON line per run with its outcome; no recipient or key; a failed job also logs an `error` line and a failed reminder run a `failure-alert` line, see [Errors and alerts](#errors-and-alerts)). A cron change takes up to 15 minutes to take effect after a deploy.
-- **Free-plan limits:** 10 ms CPU per cron run (waiting on the network doesn't count), 50 subrequests per run, and 5 Cron Triggers per account. Resend's free tier allows 100 emails a day and 3,000 a month.
+- **Runs:** Cloudflare dashboard → Workers → `dbam` → Settings → Trigger Events (the last 100 invocations), and Workers Logs (one `heartbeat`, one `appointment-reminder` and one `due-screening-reminder` JSON line per run with its outcome; no recipient or key; a failed job also logs an `error` line and a failed reminder run a `failure-alert` line, see [Errors and alerts](#errors-and-alerts)). A cron change takes up to 15 minutes to take effect after a deploy.
+- **Free-plan limits:** 10 ms CPU per cron run (waiting on the network doesn't count), 50 subrequests per run, and 5 Cron Triggers per account. Resend's free tier allows 100 emails a day and 3,000 a month (see the shared budget above), and rate-limits API calls per second per team: the heartbeat, the two reminder batches and failure alerts can land within about a second, so `postToResend` retries a `429` once (`src/lib/email-retry.ts`: it waits `Retry-After` seconds, at most 2, or 1 s when missing, and re-sends the same body and `Idempotency-Key`).
 - **Stopping the cron:** deploy `"triggers": { "crons": [] }`. Removing or commenting out the `crons` key leaves the deployed schedule running, and `wrangler rollback` is not known to restore trigger settings.
 
 ### Errors and alerts
 
-Production errors are visible in Workers Logs (the `observability` block in `wrangler.jsonc`) and, for a failed appointment reminder run, in an email. There is no other error service: Workers Issues stays off because it stores raw error messages and stack traces.
+Production errors are visible in Workers Logs (the `observability` block in `wrangler.jsonc`) and, for a failed reminder run (appointment or due-screening), in an email. There is no other error service: Workers Issues stays off because it stores raw error messages and stack traces.
 
-**Events.** Every uncaught SSR error and every failed cron job logs one JSON line at error level (`src/lib/observability.ts`). SSR errors are caught in `src/middleware.ts`, and Astro then renders the 500 page as before. Cron errors are logged by `scheduled()` in `src/worker.ts`, once per failed job.
+**Events.** Every uncaught SSR error and every failed cron job logs one JSON line at error level (`src/lib/observability.ts`). SSR errors are caught in `src/middleware.ts`, and Astro then renders the 500 page as before. Cron errors are logged once per failed job, by `scheduled()` in `src/worker.ts` (heartbeat) and `runReminderChain` in `src/lib/reminders/chain.ts` (the reminder jobs).
 
 ```json
 {
@@ -321,16 +339,16 @@ Production errors are visible in Workers Logs (the `observability` block in `wra
 - `route` is the route pattern (`/dashboard`), not the URL. The 500 page's own re-render logs nothing, so one failure is one event.
 - `requestId` is the request's `cf-ray` for SSR (a UUID where there is no `cf-ray`, such as local runs) and `cron-<scheduledTime>` for cron.
 - `error` is the error name. The optional details `operation`, `step`, `code`, `status` and `resendError` appear when the error carries them.
-- The `heartbeat` and `appointment-reminder` outcome lines keep their shape; a failed job logs both, and their `failed` outcome carries the same error name and details under the same rules.
-- The reminder failure email logs one `failure-alert` line with `outcome`: `sent` (with `resendId`), `dry-run`, `skipped` (`reason: "no-recipient"`) or `failed` (the send threw: error name and details).
+- The `heartbeat`, `appointment-reminder` and `due-screening-reminder` outcome lines keep their shape; a failed job logs both, and their `failed` outcome carries the same error name and details under the same rules.
+- The reminder failure email logs one `failure-alert` line (with the `job`) with `outcome`: `sent` (with `resendId`), `dry-run`, `skipped` (`reason: "no-recipient"`) or `failed` (the send threw: error name and details).
 
 **Privacy rule.** Our `error` and `failure-alert` events never carry error messages, addresses or health data; they hold names, short codes, route patterns and run ids only. Astro and Cloudflare print the error's `stack` themselves, so the middleware and `scheduled()` rethrow a redacted copy (same name and frames, message `[redacted]`). When adding a failure path:
 
-- Throw a code-only error such as `DatabaseError` (`src/lib/database-error.ts`) or `ReminderDatabaseError`, never one that embeds a PostgREST, Resend or user message.
+- Throw a code-only error such as `DatabaseError` (`src/lib/database-error.ts`) or `ReminderDatabaseError` (`src/lib/reminders/errors.ts`), never one that embeds a PostgREST, Resend or user message.
 - Detail values must be static identifiers (an operation name, a SQLSTATE), never row or user values. The builders drop anything that isn't a single short token of letters, digits and `_.:-`, which blocks free text and addresses but not a value like a screening slug.
 - Local debugging: the dev server shows `<Name>: [redacted]` plus frames, without Astro's hint. To see a message, add a temporary `console.error` in the page or endpoint itself and remove it before committing; never bypass or weaken the redaction.
 
-**Failure email.** When the appointment reminder job throws, the owner gets one plain-English email at `REMINDER_TEST_TO`: the job name, run time, cron, error name and codes, and a pointer to the saved query below. It holds no user data. If the failing step is `mark`, it adds that the reminder emails were sent but not marked, so users may get a duplicate on the next run. A failed heartbeat sends no email, only the `error` line. The email is best-effort: it cannot go out when Resend itself is failing, and the run is still marked failed either way. Then check Workers Logs or Trigger Events. Locally, `EMAIL_DRY_RUN=true` logs a `failure-alert` `dry-run` line instead.
+**Failure email.** When the appointment or the due-screening reminder job throws, the owner gets one plain-English email at `REMINDER_TEST_TO` per failed job (the subject names the job; both can fail in one run, and each has its own idempotency key): the job name, run time, cron, error name and codes, and a pointer to the saved query below. It holds no user data. If the failing step is `mark`, it adds that the reminder emails were sent but not marked, so users may get a duplicate on the next run. A failed heartbeat sends no email, only the `error` line. The email is best-effort: it cannot go out when Resend itself is failing, and the run is still marked failed either way. Then check Workers Logs or Trigger Events. Locally, `EMAIL_DRY_RUN=true` logs a `failure-alert` `dry-run` line instead.
 
 **Saved queries.** In the Cloudflare dashboard → Workers → `dbam` → Observability → Query Builder, filter and use **Save Query**. They aren't created by code, so a human adds them once:
 
@@ -411,7 +429,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`,
 
 - **ci** — `catalog:check`, lint, `ui:check`, unit tests (`npm test`), `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
-  It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for every cron in the built `dist/server/wrangler.json` with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"`, so a `wrangler.jsonc` cron that `src/lib/heartbeat.ts` doesn't handle fails the PR (see [Scheduled jobs](#scheduled-jobs)). The daily run also exercises the appointment reminder job's real claim against the local Supabase with its `SECRET_KEY`, so broken wiring or a wrong grant fails the PR too.
+  It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for every cron in the built `dist/server/wrangler.json` with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"`, so a `wrangler.jsonc` cron that `src/lib/heartbeat.ts` doesn't handle fails the PR (see [Scheduled jobs](#scheduled-jobs)). The daily run also exercises the reminder jobs' real database calls (the appointment claim and the due-screening candidates query) against the local Supabase with its `SECRET_KEY`, so broken wiring or a wrong grant fails the PR too.
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).
 - **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check (`GET /api/health`: 200 `{"status":"ok"}`, or 503 `{"status":"misconfigured"}` when the Supabase secrets are missing) and the read-only smoke test against production (retried up to 3 times, 20 s apart, because a new Worker version takes up to a minute to reach every edge location).
 

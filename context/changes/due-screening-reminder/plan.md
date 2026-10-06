@@ -481,24 +481,24 @@ The migration adds a table, the anchor helper, three cron functions and grants, 
 
 #### Automated
 
-- [x] 2.1 Unit tests pass, including `due.test.ts` and the unchanged F-03/F-08 suites: `npm test`
-- [x] 2.2 Type check passes: `npx astro check`
-- [x] 2.3 Lint passes: `npm run lint`
-- [x] 2.4 Timing: `dueScreeningItems` over 100 synthetic candidates and the real catalog entries, cold in a fresh process, runs under 5 ms, and the measured cold and warm times are recorded in the PR: `npx vitest run src/lib/screenings/due.perf.test.ts`
+- [x] 2.1 Unit tests pass, including `due.test.ts` and the unchanged F-03/F-08 suites: `npm test` — 557082f
+- [x] 2.2 Type check passes: `npx astro check` — 557082f
+- [x] 2.3 Lint passes: `npm run lint` — 557082f
+- [x] 2.4 Timing: `dueScreeningItems` over 100 synthetic candidates and the real catalog entries, cold in a fresh process, runs under 5 ms, and the measured cold and warm times are recorded in the PR: `npx vitest run src/lib/screenings/due.perf.test.ts` — 557082f
 
 ### Phase 3: Due job, shared budget and failure alerts
 
 #### Automated
 
-- [ ] 3.1 Unit tests pass, including the new observability cases: `npm test`
-- [ ] 3.2 Lint passes: `npm run lint`
-- [ ] 3.3 Type check and build pass: `npx astro check && npm run build`
-- [ ] 3.4 Local dry run shows `due-screening-reminder` `dry-run` with `due: 1` and no slug, email or subject in any line
-- [ ] 3.10 `runReminderChain` and the Resend 429 retry unit tests pass: `npx vitest run src/lib/reminders/chain.test.ts src/lib/email-retry.test.ts`
+- [x] 3.1 Unit tests pass, including the new observability cases: `npm test`
+- [x] 3.2 Lint passes: `npm run lint`
+- [x] 3.3 Type check and build pass: `npx astro check && npm run build`
+- [x] 3.4 Local dry run shows `due-screening-reminder` `dry-run` with `due: 1` and no slug, email or subject in any line
+- [x] 3.10 `runReminderChain` and the Resend 429 retry unit tests pass: `npx vitest run src/lib/reminders/chain.test.ts src/lib/email-retry.test.ts`
 
 #### Manual
 
-- [ ] 3.5 Local dry run with the appointment job failing: the due job logs `skipped` / `no-budget` and the alert dry-run line appears
+- [x] 3.5 Local dry run with the appointment job failing: the due job logs `skipped` / `no-budget` and the alert dry-run line appears
 - [ ] 3.6 PR Manual checks (production, after merge): an opted-in test account with a completion past its interval receives one due-screening email at 10:00 Warsaw, with no exam name in the subject or body
 - [ ] 3.7 PR Manual checks (production): the second daily run sends nothing new for that account (ledger dedupe)
 - [ ] 3.8 PR Manual checks (production): Workers Logs for the scheduled invocation show CPU time under 10 ms and no "exceeded CPU" outcome

@@ -70,3 +70,14 @@
 - Also: `warsawToday` caches its last result by timestamp (the cron asks about the same "now" for every candidate; `formatToParts` was a visible share of the cost). The perf workload gives each candidate 6 completions, not the whole catalog; the all-fixed-entries worst case is logged too (warm numbers are about the same).
 - Evidence: scratch timing runs, `due.perf.test.ts` output (cold ≈ 2.6–2.7 ms, warm ≈ 1.4–2.3 ms for 50 candidates).
 - decided-by: worker
+
+## 2026-10-06 Phase 3 adaptations (implement)
+
+- `REMINDER_EMAIL_DAILY_BUDGET = 93` lives in `src/lib/email-budget.ts` and is re-exported from `src/lib/email.ts`. Plan said `email.ts`, but that module imports `astro:env/server`, and `chain.ts` (and its unit test) must import nothing from `astro:*`. Minor adaptation.
+- The SHA-256 batch key moved to `src/lib/reminders/batch-key.ts` (`batchKey(prefix, ids)`), shared by both jobs; the appointment key format is unchanged.
+- The due job passes `DUE_CANDIDATE_LIMIT` (50, see the Phase 2 decision) to the candidates RPC, not `MAX_BATCH_SIZE`; the due budget still caps users at `budget`.
+- `src/lib/reminders/due-screening.ts` joins the `no-console` allow-list in `eslint.config.js`, like the other Worker job modules (Workers Logs capture `console`).
+- The failure-alert log lines now carry `job`, so a run where both jobs fail gives two distinguishable lines.
+- Local dry run (shared DB lock held, seeded user removed afterwards): dry-run, `candidates: 1, due: 1`, no slug, address or subject in any line (3.4); re-dated exam → `none`; plan added → `none`; appointment claim stubbed to fail (never committed) → appointment `failed`, due `skipped` / `no-budget`, `error` event and `failure-alert` dry-run for `appointment-reminder` (3.5). Verified by the worker against `http://127.0.0.1:$DBAM_PORT`, per the orchestrator's prompt.
+- Rows 3.6–3.9 need production (real Resend delivery, Workers Logs CPU). They stay unchecked and go to the PR's Manual checks list. Epilogue runs with those four pending (orchestrator: "anything that needs production goes to the PR's Manual checks list").
+- decided-by: worker

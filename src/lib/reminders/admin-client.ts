@@ -3,7 +3,8 @@ import { SUPABASE_SECRET_KEY, SUPABASE_URL } from "astro:env/server";
 import type { Database } from "@/lib/database.types";
 
 // The only place the Supabase secret key is used. It is for the cron's reminder job alone: the database strips its
-// role (service_role) of every privilege on user tables, so all it can do is execute the two reminder functions. An
+// role (service_role) of every privilege on user tables, so all it can do is execute the five reminder functions
+// (claim and mark for appointments; candidates, claim and mark for due screenings) and read the public catalog. An
 // ESLint `no-restricted-imports` rule keeps pages, components, layouts and the middleware from importing this module.
 
 /** A secret the reminder job needs is missing on the Worker. */

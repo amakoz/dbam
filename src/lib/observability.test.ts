@@ -9,14 +9,16 @@ import {
   logErrorEvent,
   redactError,
   requestIdFrom,
+  type ReminderJob,
 } from "@/lib/observability";
 
 const SCHEDULED_TIME = 1790841600000;
 const CRON = "0 8,9 * * *";
 const ADDRESS = "jan.kowalski@example.com";
+const JOBS: ReminderJob[] = ["appointment-reminder", "due-screening-reminder"];
 const SQL = 'insert into profiles (email) values ("jan.kowalski@example.com")';
 
-/** Same shape as `ReminderDatabaseError` in src/lib/reminders/appointment.ts, which this module must not import. */
+/** Same shape as `ReminderDatabaseError` in src/lib/reminders/errors.ts, which this module must not import. */
 class StepError extends Error {
   override name = "ReminderDatabaseError";
 
@@ -56,10 +58,8 @@ describe("error events never carry the message", () => {
     for (const secret of secrets) expect(json).not.toContain(secret);
   });
 
-  it("cron event", () => {
-    const json = JSON.stringify(
-      buildCronErrorEvent({ error, job: "appointment-reminder", cron: CRON, scheduledTime: SCHEDULED_TIME }),
-    );
+  it.each(JOBS)("cron event of the %s job", (job) => {
+    const json = JSON.stringify(buildCronErrorEvent({ error, job, cron: CRON, scheduledTime: SCHEDULED_TIME }));
     for (const secret of secrets) expect(json).not.toContain(secret);
   });
 
@@ -71,12 +71,37 @@ describe("error events never carry the message", () => {
     }
   });
 
-  it("failure email", () => {
-    const email = buildReminderFailureEmail({ error, cron: CRON, scheduledTime: SCHEDULED_TIME });
+  it.each(JOBS)("failure email of the %s job", (job) => {
+    const email = buildReminderFailureEmail({ job, error, cron: CRON, scheduledTime: SCHEDULED_TIME });
     for (const secret of secrets) {
       expect(email.subject).not.toContain(secret);
       expect(email.text).not.toContain(secret);
+      expect(email.idempotencyKey).not.toContain(secret);
     }
+  });
+
+  it("failure email of the due job, for a candidates-step database error carrying the same leaky text", () => {
+    const leaking = Object.assign(new StepError("candidates", "XX000"), { message: `${ADDRESS}: ${SQL}` });
+    const email = buildReminderFailureEmail({
+      job: "due-screening-reminder",
+      error: leaking,
+      cron: CRON,
+      scheduledTime: SCHEDULED_TIME,
+    });
+    const event = JSON.stringify(
+      buildCronErrorEvent({
+        error: leaking,
+        job: "due-screening-reminder",
+        cron: CRON,
+        scheduledTime: SCHEDULED_TIME,
+      }),
+    );
+    for (const secret of secrets) {
+      expect(email.text).not.toContain(secret);
+      expect(event).not.toContain(secret);
+    }
+    expect(email.text).toContain("step: candidates");
+    expect(event).toContain('"step":"candidates"');
   });
 });
 
@@ -280,21 +305,52 @@ describe("name token rule", () => {
 });
 
 describe("buildReminderFailureEmail", () => {
-  it("uses a stable idempotency key per run", () => {
-    const a = buildReminderFailureEmail({ error: new Error("x"), cron: CRON, scheduledTime: SCHEDULED_TIME });
+  const job = "appointment-reminder";
+
+  it("uses a stable idempotency key per job and run", () => {
+    const a = buildReminderFailureEmail({ job, error: new Error("x"), cron: CRON, scheduledTime: SCHEDULED_TIME });
     const b = buildReminderFailureEmail({
+      job,
       error: new StepError("claim", "1"),
       cron: CRON,
       scheduledTime: SCHEDULED_TIME,
     });
-    const later = buildReminderFailureEmail({ error: new Error("x"), cron: CRON, scheduledTime: SCHEDULED_TIME + 1 });
-    expect(a.idempotencyKey).toBe(`dbam-reminder-failure:${CRON}:${SCHEDULED_TIME}`);
+    const later = buildReminderFailureEmail({
+      job,
+      error: new Error("x"),
+      cron: CRON,
+      scheduledTime: SCHEDULED_TIME + 1,
+    });
+    expect(a.idempotencyKey).toBe(`dbam-reminder-failure:appointment-reminder:${CRON}:${SCHEDULED_TIME}`);
     expect(b.idempotencyKey).toBe(a.idempotencyKey);
     expect(later.idempotencyKey).not.toBe(a.idempotencyKey);
   });
 
+  it("gives the two jobs different keys for the same run, so both alerts can be sent", () => {
+    const [appointment, due] = JOBS.map((reminderJob) =>
+      buildReminderFailureEmail({ job: reminderJob, error: new Error("x"), cron: CRON, scheduledTime: SCHEDULED_TIME }),
+    );
+    expect(due.idempotencyKey).toBe(`dbam-reminder-failure:due-screening-reminder:${CRON}:${SCHEDULED_TIME}`);
+    expect(due.idempotencyKey).not.toBe(appointment.idempotencyKey);
+    expect(due.subject).not.toBe(appointment.subject);
+  });
+
+  it("names the due job in its subject and body", () => {
+    const email = buildReminderFailureEmail({
+      job: "due-screening-reminder",
+      error: new StepError("claim", "42501"),
+      cron: CRON,
+      scheduledTime: SCHEDULED_TIME,
+    });
+    expect(email.subject).toBe("Dbam: due-screening reminder run failed");
+    expect(email.text).toContain("The Dbam due-screening reminder job failed.");
+    expect(email.text).toContain("Job: due-screening-reminder");
+    expect(email.text).not.toContain("appointment");
+  });
+
   it("names the run and lists the details", () => {
     const email = buildReminderFailureEmail({
+      job,
       error: new StepError("claim", "42501"),
       cron: CRON,
       scheduledTime: SCHEDULED_TIME,
@@ -309,14 +365,13 @@ describe("buildReminderFailureEmail", () => {
     expect(email.text).toContain("Workers Logs");
   });
 
-  it("warns about duplicates only for the mark step", () => {
+  it.each(JOBS)("warns about duplicates only for the mark step of the %s job", (reminderJob) => {
     const sentence = "The reminder emails were sent but not marked; users may get a duplicate on the next run.";
-    const mark = buildReminderFailureEmail({ error: new StepError("mark", "42501"), cron: CRON, scheduledTime: 1 });
-    const claim = buildReminderFailureEmail({ error: new StepError("claim", "42501"), cron: CRON, scheduledTime: 1 });
-    const other = buildReminderFailureEmail({ error: new Error("x"), cron: CRON, scheduledTime: 1 });
-    expect(mark.text).toContain(sentence);
-    expect(claim.text).not.toContain(sentence);
-    expect(other.text).not.toContain(sentence);
+    const email = (error: unknown) =>
+      buildReminderFailureEmail({ job: reminderJob, error, cron: CRON, scheduledTime: 1 });
+    expect(email(new StepError("mark", "42501")).text).toContain(sentence);
+    expect(email(new StepError("claim", "42501")).text).not.toContain(sentence);
+    expect(email(new Error("x")).text).not.toContain(sentence);
   });
 });
 

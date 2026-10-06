@@ -306,6 +306,20 @@ export const pl = {
   "email.appointmentReminder.dashboard": "Szczegóły znajdziesz w swoim panelu Dbam: {url}",
   "email.appointmentReminder.optOut": "Nie chcesz dostawać przypomnień? Wyłącz je w swoim profilu: {url}",
 
+  // Due-screening reminder email (plain text). Never name an exam: only a count.
+  "email.dueScreeningReminder.subject": "Dbam: czas na badanie profilaktyczne",
+  "email.dueScreeningReminder.greeting": "Dzień dobry,",
+  "email.dueScreeningReminder.body_one":
+    "Minął zalecany odstęp od jednego z Twoich badań profilaktycznych. Czas je powtórzyć.",
+  "email.dueScreeningReminder.body_few":
+    "Minął zalecany odstęp od {count} Twoich badań profilaktycznych. Czas je powtórzyć.",
+  "email.dueScreeningReminder.body_many":
+    "Minął zalecany odstęp od {count} Twoich badań profilaktycznych. Czas je powtórzyć.",
+  "email.dueScreeningReminder.body_other":
+    "Minął zalecany odstęp od {count} Twoich badań profilaktycznych. Czas je powtórzyć.",
+  "email.dueScreeningReminder.dashboard": "Zobacz, których badań to dotyczy, w swoim panelu Dbam: {url}",
+  "email.dueScreeningReminder.optOut": "Nie chcesz dostawać przypomnień? Wyłącz je w swoim profilu: {url}",
+
   "errors.auth.not_configured": "Logowanie jest chwilowo niedostępne. Spróbuj ponownie później.",
   "errors.auth.missing_code": "Link potwierdzający jest niekompletny. Otwórz go ponownie z wiadomości e-mail.",
   "errors.auth.link_invalid": "Link potwierdzający jest nieprawidłowy lub wygasł. Spróbuj się zalogować.",

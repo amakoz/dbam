@@ -101,6 +101,44 @@ export type Database = {
           },
         ];
       };
+      follow_up_nudges: {
+        Row: {
+          created_at: string;
+          cycle_on: string;
+          id: number;
+          kind: string;
+          plan_id: number;
+          sent_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          cycle_on: string;
+          id?: never;
+          kind: string;
+          plan_id: number;
+          sent_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          cycle_on?: string;
+          id?: never;
+          kind?: string;
+          plan_id?: number;
+          sent_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_nudges_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: false;
+            referencedRelation: "screening_plans";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       health_data_consents: {
         Row: {
           consent_version: string;
@@ -351,6 +389,22 @@ export type Database = {
           user_id: string;
         }[];
       };
+      claim_follow_up_nudges: {
+        Args: {
+          p_confirm_after: number;
+          p_limit: number;
+          p_schedule_after: number;
+          p_today: string;
+        };
+        Returns: {
+          confirm_count: number;
+          email: string;
+          locale: string;
+          nudge_ids: number[];
+          schedule_count: number;
+          user_id: string;
+        }[];
+      };
       confirm_screening_plan: { Args: { p_slug: string }; Returns: string };
       get_due_screening_candidates: {
         Args: { p_limit: number; p_today: string };
@@ -372,6 +426,7 @@ export type Database = {
         Args: { p_ids: number[] };
         Returns: number;
       };
+      mark_follow_up_nudges_sent: { Args: { p_ids: number[] }; Returns: number };
       screening_anchor_month: {
         Args: { p_last_done_month: string; p_updated_at: string };
         Returns: string;

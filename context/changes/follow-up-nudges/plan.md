@@ -346,10 +346,10 @@ Additive: a new table and functions, and a table comment. A Worker rollback leav
 
 #### Automated
 
-- [ ] 1.1 Migration applies on the shared local stack
-- [ ] 1.2 pgTAP passes, including the new file and the global service_role guard
-- [ ] 1.3 Types regenerated and committed
-- [ ] 1.4 Lint and type check pass
+- [x] 1.1 Migration applies on the shared local stack
+- [x] 1.2 pgTAP passes, including the new file and the global service_role guard
+- [x] 1.3 Types regenerated and committed
+- [x] 1.4 Lint and type check pass
 
 ### Phase 2: Nudge job, message, budget and chain
 

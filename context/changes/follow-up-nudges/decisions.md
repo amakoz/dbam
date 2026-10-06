@@ -35,3 +35,14 @@
   - F3: order by `count(*) filter (where r.kind = 'confirm') > 0 desc`, with an md5 tiebreak; `::int` on both counts; the order test's fixture ids are chosen so that md5 alone would put the schedule-only user first.
 - Evidence: `reviews/plan-review.md`.
 - decided-by: orchestrator
+
+## 2026-10-06 Roadmap flip skipped (implement)
+
+- Question: `/10x-implement` flips the roadmap item to `in-progress` on entry.
+- Choice: skipped, per the worker protocol (no `roadmap.md` status change before `/10x-archive`; Prettier realigns the table and parallel PRs conflict).
+- decided-by: worker
+
+## 2026-10-06 Phase 1 pgTAP fixtures
+
+- The re-save and re-date cases call the claim once (`lives_ok`) before counting rows: the claim inserts the new cycle's row, and the outer query's snapshot would not see it in the same statement.
+- decided-by: worker

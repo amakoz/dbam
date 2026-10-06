@@ -123,3 +123,11 @@
   - **F3 — Accept.** `tie-b` gets `name_en: "Bbb"` so the en `low`/`tie-b` order no longer rests on sort stability.
 - **Evidence:** impl-review F1–F3; source of the deferred cases `context/archive/2026-09-30-record-appointment-date/plan.md:430-439`.
 - **Decided by:** orchestrator
+
+## 2026-10-06 Archive with Progress 2.7 pending
+
+- **Question:** Archive the change while Progress 2.7 (the `ci` job shows `npm test` running and passing on the PR) is still unchecked?
+- **Options:** (a) archive now (b) wait for the PR and tick 2.7 first (c) cancel
+- **Choice:** (a). Row 2.7 stays unchecked in the archived plan. The PR's `ci` check confirms it instead, and the archive is not edited afterwards. The PR description links the follow-up at its archived path, `context/archive/2026-10-05-unit-test-suite/follow-ups/recurrence-tests.md`.
+- **Evidence:** /10x-archive warnings: 0 automated and 1 manual row pending; impl-review covers phases 1 and 2; no PR exists yet, so no SHA repointing.
+- **Decided by:** orchestrator

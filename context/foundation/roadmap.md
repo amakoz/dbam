@@ -40,22 +40,22 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 ## At a glance
 
-| ID   | Change ID                   | Outcome (user can …)                                                                                                                      | Prerequisites | PRD refs                                           | Status      |
-| ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------- | ----------- |
-| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done        |
-| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done        |
-| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | in-progress |
-| F-04 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —             | —                                                  | ready       |
-| F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —             | NFR (testing)                                      | ready       |
-| F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —             | NFR (testing)                                      | ready       |
-| F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —             | NFR (privacy), FR-007                              | ready       |
-| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done        |
-| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done        |
-| S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done        |
-| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02    | US-02, FR-006, FR-007                              | done        |
-| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary)  | done        |
-| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)          | proposed    |
-| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05    | FR-011, FR-012                                     | proposed    |
+| ID   | Change ID                   | Outcome (user can …)                                                                                                                      | Prerequisites | PRD refs                                           | Status   |
+| ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------- | -------- |
+| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done     |
+| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done     |
+| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | done     |
+| F-04 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —             | —                                                  | ready    |
+| F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —             | NFR (testing)                                      | ready    |
+| F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —             | NFR (testing)                                      | ready    |
+| F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —             | NFR (privacy), FR-007                              | ready    |
+| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
+| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done     |
+| S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done     |
+| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02    | US-02, FR-006, FR-007                              | done     |
+| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary)  | done     |
+| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)          | proposed |
+| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05    | FR-011, FR-012                                     | proposed |
 
 ## Streams
 
@@ -125,7 +125,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Resolved by F-03. S-02 shipped its rule engine without unit tests (owner decision); F-03 covers the branch-evaluation edge cases listed in `context/archive/2026-09-28-screening-recommendations/plan.md` §Testing Strategy.
-- **Status:** in-progress
+- **Status:** done
 
 ### F-04: Agent docs MCP
 
@@ -318,3 +318,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-03: user can plan a recommended exam, optionally with the date of an appointment booked outside the app, or mark it already done, optionally with the month and year of the last exam, so it leaves the list until it is due again; both planned and done exams are shown on the dashboard.** — Archived 2026-09-30 → `context/archive/2026-09-30-record-appointment-date/`. Lesson: —.
 - **S-04: user can opt in to (or out of) reminders and, when opted in, receives an email as a recorded appointment date approaches.** — Archived 2026-10-05 → `context/archive/2026-09-30-appointment-reminder/`. Lesson: —.
 - **S-05: user can confirm that an exam happened on its recorded appointment date once that date has passed; its next due date is computed from that date and the catalog interval.** — Archived 2026-10-05 → `context/archive/2026-10-05-confirm-exam-and-recurrence/`. Lesson: —.
+- **F-03: (foundation) a unit-test runner (Vitest) runs in CI and covers the catalog eligibility, tier and interval rules (`src/lib/catalog/recommend.ts`, `wording.ts`).** — Archived 2026-10-06 → `context/archive/2026-10-05-unit-test-suite/`. Lesson: —.

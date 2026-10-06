@@ -321,9 +321,9 @@ None: no schema, no app code. Each full run leaves one `ui-shots-*@example.com` 
 
 #### Automated
 
-- [x] 2.1 Formatting passes: `npx prettier --check README.md CLAUDE.md`
-- [x] 2.2 Lint still passes: `npm run lint`
+- [x] 2.1 Formatting passes: `npx prettier --check README.md CLAUDE.md` — fae6fb1
+- [x] 2.2 Lint still passes: `npm run lint` — fae6fb1
 
 #### Manual
 
-- [x] 2.3 Following only the new README section on a fresh checkout (browser install, dev server, run) is enough to produce the 20 PNGs
+- [x] 2.3 Following only the new README section on a fresh checkout (browser install, dev server, run) is enough to produce the 20 PNGs — fae6fb1

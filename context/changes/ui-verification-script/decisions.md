@@ -153,3 +153,9 @@
   - `.astro/` types must exist for lint (`npx astro sync`) in a fresh worktree.
 - **Evidence:** full run exit 0, 20 PNGs, 6 `fixture:` lines; the opened shots show the planned and done rows, the reminders hint, no dev toolbar, and 390px width without overflow.
 - **Decided by:** worker
+
+## 2026-10-06 Phase 2 documentation
+
+- **Question:** how to verify the README manual item and where to judge visual quality.
+- **Choice:** the worker followed the new worker commands (`npx astro sync`, `npx astro dev --port $DBAM_PORT --host 127.0.0.1`, DB lock, `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots`): exit 0, 6 `fixture:` lines, 20 PNGs, clean `git status`. The first `astro dev` start straight after `astro sync` exited before ready; an immediate retry worked. Visual-quality judgement of `kitchen-sink-*` and `profile-mobile-*` goes to the PR's "Manual checks for the human" list.
+- **Decided by:** orchestrator (instruction), worker

@@ -12,7 +12,7 @@ const t = createT(locale);
 // Return to the same page after the cookie is set. One-shot feedback params are dropped, so a save confirmation or
 // an error doesn't show again in the new language.
 const params = new URLSearchParams(Astro.url.search);
-for (const key of ["saved", "error", "slug"]) params.delete(key);
+for (const key of ["saved", "error"]) params.delete(key);
 const query = params.toString();
 const next = Astro.url.pathname + (query ? `?${query}` : "");
 ---

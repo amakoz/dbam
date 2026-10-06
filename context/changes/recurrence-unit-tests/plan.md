@@ -285,9 +285,9 @@ Not applicable: no schema, data or runtime change.
 
 #### Automated
 
-- [x] 2.1 Unit tests pass, including both new files: `npm test`
-- [x] 2.2 Lint and formatting pass: `npm run lint && npx prettier --check CLAUDE.md README.md`
-- [x] 2.3 Type check passes: `npx astro check`
+- [x] 2.1 Unit tests pass, including both new files: `npm test` — a242d88
+- [x] 2.2 Lint and formatting pass: `npm run lint && npx prettier --check CLAUDE.md README.md` — a242d88
+- [x] 2.3 Type check passes: `npx astro check` — a242d88
 
 #### Manual
 

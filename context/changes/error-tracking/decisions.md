@@ -107,3 +107,11 @@
 - **Choice:** (b). The orchestrator's instruction for this run: production items (saved queries, field filterability, custom alerts on Free, `REMINDER_TEST_TO` in production, rayId correlation, real Resend delivery, invocation-log query string) go to the PR's Manual checks list. Execution mode: implemented in context, since the phase is documentation only.
 - **Evidence:** `/10x-implement error-tracking phase 3` arguments; `follow-ups/redirect-slug-leak.md` keeps its **Open** answer as pending until the human check.
 - **Decided by:** orchestrator
+
+## 2026-10-06 Implementation review: report path and triage
+
+- **Question:** Where does the impl-review report go, and who triages it?
+- **Options:** (a) The skill default, `reviews/impl-review.md`, with triage done by the worker. (b) `impl-review.md` at the change root, with no worker triage.
+- **Choice:** (b). The report is at `context/changes/error-tracking/impl-review.md` and every finding is left `PENDING` for the orchestrator. Verdict: APPROVED (1 warning, 6 observations, no critical findings).
+- **Evidence:** The orchestrator's `/10x-impl-review` arguments ("Write the report to context/changes/error-tracking/impl-review.md. Triage nothing yourself.").
+- **Decided by:** orchestrator

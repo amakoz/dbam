@@ -232,7 +232,7 @@ No data migration. A bookmarked old URL with `&slug=` now renders the message at
 
 #### Automated
 
-- [x] 2.1 Prettier passes on changed Markdown
+- [x] 2.1 Prettier passes on changed Markdown — 2160c30
 
 #### Manual
 

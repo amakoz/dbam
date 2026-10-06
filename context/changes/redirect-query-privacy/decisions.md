@@ -47,3 +47,10 @@
 - **Choice:** accept all. F1: Progress 2.2 is post-merge, human, non-blocking (B-01 check); 1.7–1.9 run as a headless Playwright check by the implementer. F2: `dashboardLocation` accepts `null` feedback and every `/dashboard` redirect in `api/screenings.ts` (including `:29`, `:81`) goes through it, with a test case. F3: 1.7 stays a real-browser check.
 - **Evidence:** `reviews/plan-review.md` (verdict SOUND, 3 observations).
 - **Decided-by:** orchestrator
+
+## 2026-10-06 Implement: manual rows 1.7–1.9 and 2.2
+
+- Question: who covers the Phase 1 manual rows, and does 2.2 block close-out?
+- Choice: the worker ran a headless Playwright script against the local dev server (:4332, DB lock held) and flipped 1.7–1.9 with the evidence in the Progress rows; 2.2 (production Workers Logs check) stays open, post-merge, human, non-blocking.
+- Evidence: `Set-Cookie` on the POST 302 (`Max-Age=60; Path=/dashboard; HttpOnly; SameSite=Lax`) and on the dashboard 200 (`Max-Age=0`); no request URL carried the slug outside the fragment.
+- decided-by: orchestrator

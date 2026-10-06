@@ -57,7 +57,7 @@ The following claims were checked against the code and hold:
   - Tradeoff: local workerd doesn't enforce or report the production CPU accounting, so the number is only indicative.
   - Confidence: LOW — local wall time is a proxy at best.
   - Blind spot: same as Fix A.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — Fix A (sort-free core on the cron path + automated timing criterion over 100 synthetic candidates in a fresh process, result in the PR) (decided by: orchestrator, 2026-10-06)
 
 ### F2 — The ledger's unique key (due month) and dedupe key (anchor) disagree
 
@@ -77,7 +77,7 @@ The following claims were checked against the code and hold:
   - Tradeoff: an interval that shortens for the same anchor (turning 40) no longer gets a second reminder. The first was already sent for that cycle, so this matches "no repeats".
   - Confidence: HIGH — the scenario follows from the plan's own contracts and the override data (`catalog/entries/blood-pressure-measurement.json`, `moje-zdrowie-health-check.json`).
   - Blind spot: the brief's wording "each (user, exam, due month)" would need updating.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — unique key (user_id, catalog_slug, anchor_month), due_month kept as data, two pgTAP cases (decided by: orchestrator, 2026-10-06)
 
 ### F3 — The definer claim trusts the caller's anchor and due month
 
@@ -103,7 +103,7 @@ The following claims were checked against the code and hold:
   - Tradeoff: duplicates the anchor expression a second time in SQL. A shared SQL helper function, or F8's approach, keeps it in one place.
   - Confidence: HIGH — the S-04 claim is the direct precedent.
   - Blind spot: None significant.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — p_today on the claim, four live re-checks in insert and return, three pgTAP cases (decided by: orchestrator, 2026-10-06)
 
 ### F4 — Resend's per-second rate limit isn't budgeted
 
@@ -121,7 +121,7 @@ The following claims were checked against the code and hold:
   - Tradeoff: touches the shared `email.ts` used by S-04 and the heartbeat.
   - Confidence: MED — the limit comes from Resend's published defaults and wasn't checked against this account.
   - Blind spot: whether Resend counts a batch call as one request for the rate limit (documented as one request).
-- **Decision**: PENDING
+- **Decision**: ACCEPT — on 429 wait retry-after (≤ 2 s) and retry once with the same idempotency key; unit case; README note (decided by: orchestrator, 2026-10-06)
 
 ### F5 — The `scheduled()` chain is verified only by a manual stub
 
@@ -133,7 +133,7 @@ The following claims were checked against the code and hold:
   - The new control flow decides the budget arithmetic, `budget: 0` after an appointment rejection, one alert per failed reminder job and which failure is rethrown. Those rules decide both the quota and whether the owner is alerted.
   - 3.5 checks this only with "a stubbed RPC error in the working tree, never committed". That leaves no regression guard, and the lesson "Grep gates are heuristics; privacy tests are the guard" asks for tests on each output path.
 - **Fix**: Move the chain into a small function with injected jobs and an injected alert, for example `runReminderChain(run, { appointment, due, alert })` in `src/lib/reminders/chain.ts`. Unit-test four things: budget = 97 − sent; a rejection gives budget 0 and an alert; two failures give two alerts with different keys; the first failure is rethrown redacted. Keep 3.5 as a manual smoke.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — runReminderChain with injected jobs and alert in src/lib/reminders/chain.ts, four unit tests; 3.5 stays a manual smoke (decided by: orchestrator, 2026-10-06)
 
 ### F6 — The 3,000/month Resend quota is left out of the daily budget
 
@@ -146,7 +146,7 @@ The following claims were checked against the code and hold:
   - At a saturated 97 plus 1 heartbeat, a 31-day month comes to 3,038 emails, so the last days' batches would fail with a quota error, and so would the alerts.
   - This is unlikely at MVP volume, but the plan says the budget "keeps both jobs inside the quota".
 - **Fix**: Set the budget to 93 (31 × (93 + 1 + 2) = 2,976), or state in the README and decisions.md that the monthly cap is accepted as a risk at current volume.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — daily budget 93 (monthly quota) (decided by: orchestrator, 2026-10-06)
 
 ### F7 — The candidates RPC returns raw `updated_at`, and TS re-derives the anchor
 
@@ -159,7 +159,7 @@ The following claims were checked against the code and hold:
   - The SQL already computes the anchor for the filter. TS then recomputes it with `Intl` from `updated_at`, so the plan depends on two implementations agreeing at month boundaries in Warsaw.
   - It also spends a `formatToParts` call per "don't know" completion on the CPU budget.
 - **Fix**: Return `anchor_month` computed in SQL instead of `last_done_month` and `updated_at`. `dueScreeningItems` passes `{ last_done_month: anchor_month, updated_at: anchor_month }`, so `anchorMonth` returns the SQL anchor unchanged. The SQL and TS anchors then agree by construction, the claim (F3) can use the same expression, and no exact timestamp leaves the database. Keep the TS test "a don't-know completion anchors on the Warsaw month of `updated_at`" in `rules.test.ts`, where it already lives.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — return SQL-computed anchor_month; no updated_at leaves the database (decided by: orchestrator, 2026-10-06)
 
 ### F8 — Type narrowing misses `partitionDashboard(profile)`, and two comments go stale
 
@@ -172,4 +172,4 @@ The following claims were checked against the code and hold:
   - `src/lib/reminders/admin-client.ts` says the key can "only execute the two reminder functions". That will be five functions plus the catalog read.
   - `src/lib/observability.test.ts:19` says `ReminderDatabaseError` lives in `appointment.ts`, which Phase 3 moves to `errors.ts`.
 - **Fix**: Add `profile: RuleProfile` to the `partitionDashboard` contract, and list the `admin-client.ts` header and the `observability.test.ts:19` comment among the Phase 3 edits.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — profile: RuleProfile in partitionDashboard, plus the admin-client.ts header and observability.test.ts:19 comment in Phase 3 (decided by: orchestrator, 2026-10-06)

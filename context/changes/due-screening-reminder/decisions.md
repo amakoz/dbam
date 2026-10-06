@@ -40,9 +40,24 @@
 ## 2026-10-06 Plan shape (worker's call, delegated)
 
 - Complexity MEDIUM, 0 interview questions (settled-input exception: every design question pre-answered), 3 phases (database, pure rules, job and wiring).
-- Daily email budget: `REMINDER_EMAIL_DAILY_BUDGET = 97` = Resend free 100/day minus 1 heartbeat minus 2 possible failure alerts. The appointment claim limit drops from 100 to 97 so the two reminder jobs together stay inside the quota. Evidence: `src/lib/heartbeat.ts` sends daily; S-04 `research.md:59`.
+- Daily email budget (superseded by review F6 below: now 93): `REMINDER_EMAIL_DAILY_BUDGET = 97` = Resend free 100/day minus 1 heartbeat minus 2 possible failure alerts. The appointment claim limit drops from 100 to 97 so the two reminder jobs together stay inside the quota. Evidence: `src/lib/heartbeat.ts` sends daily; S-04 `research.md:59`.
 - Candidate selection: a SQL pre-filter that is a strict superset of the TS rule (anchor + the smallest interval the entry can resolve to ≤ current month; fixed, active entry; no plan for the slug; no sent ledger row for the same anchor month — the ledger stores `anchor_month`, so re-dating an exam to an earlier month starts a new cycle). TS decides. Candidates are ordered by `md5(user_id || p_today)` so repeated non-due candidates cannot starve others across days, and a retried run sees the same order.
 - Job order: the appointment job runs first, then the due job with the remaining budget; if the appointment job fails, the due job skips that run (budget unknown) and its users roll over. The heartbeat stays independent.
 - Type narrowing: `recommend`, `resolveInterval`, `evaluateBranch` and `partitionDashboard` accept the subset of profile/completion fields they read, so the cron can pass minimal rows; the dashboard compiles unchanged.
 - Failure alert: one alert per failed reminder job, job name in subject and idempotency key (a shared key would make Resend reject the second alert with 409).
 - decided-by: worker (orchestrator: "complexity, question budget and phase split are your call")
+
+## 2026-10-06 Plan-review triage (plan-review.md, verdict REVISE)
+
+- Question: how to resolve findings F1–F8.
+- Choice: all ACCEPT.
+  - F1, Fix A: a sort-free core `classifyEntries` on the cron path (no `Intl.Collator`), plus an automated cold-process timing case (`due.perf.test.ts`, 100 synthetic candidates, under 5 ms). The result goes in the PR. New Progress row 2.4.
+  - F2: ledger unique key `(user_id, catalog_slug, anchor_month)`, with `due_month` kept as data, and two pgTAP cases. This supersedes the earlier "dedupe per (user, slug, due month)": the dedupe is now one reminder per completion cycle.
+  - F3: `claim_due_screening_reminders(p_today, p_items)` re-checks the live anchor, `anchor < due ≤ this month`, no plan, and that the entry is active and fixed, in both the insert and the return. Three pgTAP cases.
+  - F4: on a Resend 429, wait `retry-after` (≤ 2 s, 1 s default) and retry once with the same idempotency key (`src/lib/email-retry.ts`). Unit cases and a README note.
+  - F5: `runReminderChain` with injected jobs and alert in `src/lib/reminders/chain.ts`, with four unit tests. New Progress row 3.10. Row 3.5 stays as a manual smoke check and moves to Manual; its title is unchanged.
+  - F6: daily budget 93, so that 31 × (93 + 1 + 2) = 2,976 stays under 3,000 a month.
+  - F7: the candidates RPC returns the SQL-computed `anchor_month` through one helper, `screening_anchor_month`, which the claim also uses. No `updated_at` leaves the database.
+  - F8: `partitionDashboard` takes `profile: RuleProfile`. The `admin-client.ts` header and the `observability.test.ts:19` comment are fixed in Phase 3.
+- Evidence: `plan-review.md`.
+- decided-by: orchestrator

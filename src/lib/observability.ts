@@ -23,7 +23,14 @@ const TOKEN = /^[A-Za-z0-9_.:-]{1,64}$/;
 /** Own properties of an error that may reach the logs and the email, in output order. */
 const DETAIL_KEYS = ["operation", "step", "code", "status", "resendError"] as const;
 
-const REMINDER_JOB = "appointment-reminder";
+/** The reminder jobs that run on the daily cron and alert the owner when they fail. */
+export type ReminderJob = "appointment-reminder" | "due-screening-reminder";
+
+/** The job as it reads in the alert's subject and first line. */
+const JOB_LABEL: Record<ReminderJob, string> = {
+  "appointment-reminder": "appointment",
+  "due-screening-reminder": "due-screening",
+};
 
 function isToken(value: string): boolean {
   return TOKEN.test(value);
@@ -151,21 +158,24 @@ function redactedCopy(error: unknown): Error {
   return redacted;
 }
 
-/** The owner's email for a failed appointment reminder run. No addresses, no user data, no message text. */
+/** The owner's email for a failed reminder run. No addresses, no user data, no message text. */
 export function buildReminderFailureEmail({
+  job,
   error,
   cron,
   scheduledTime,
 }: {
+  job: ReminderJob;
   error: unknown;
   cron: string;
   scheduledTime: number;
 }): ReminderFailureEmail {
   const details = errorDetails(error);
+  const label = JOB_LABEL[job];
   const lines = [
-    "The Dbam appointment reminder job failed.",
+    `The Dbam ${label} reminder job failed.`,
     "",
-    `Job: ${REMINDER_JOB}`,
+    `Job: ${job}`,
     `Run: ${isoTime(scheduledTime)}`,
     `Cron: ${cron}`,
     `Error: ${errorName(error)}`,
@@ -178,9 +188,10 @@ export function buildReminderFailureEmail({
   lines.push('Details are in Workers Logs: see "Errors and alerts" in the README, saved query "Dbam cron errors".');
 
   return {
-    subject: "Dbam: appointment reminder run failed",
+    subject: `Dbam: ${label} reminder run failed`,
     text: lines.join("\n"),
-    idempotencyKey: `dbam-reminder-failure:${cron}:${scheduledTime}`,
+    // The job is in the key: both jobs can fail in one run, and Resend rejects a reused key with a different body.
+    idempotencyKey: `dbam-reminder-failure:${job}:${cron}:${scheduledTime}`,
   };
 }
 

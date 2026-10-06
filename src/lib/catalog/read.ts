@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { CatalogEntrySchema, type CatalogEntry } from "@/lib/catalog/schema";
+import { isRuleEntry } from "@/lib/catalog/rule-entry";
+import { CatalogEntrySchema, type CatalogEntry, type RuleEntry } from "@/lib/catalog/schema";
 import { DatabaseError } from "@/lib/database-error";
 import type { Database } from "@/lib/database.types";
 
@@ -49,4 +50,31 @@ export async function getCatalogEntries(supabase: SupabaseClient<Database>, slug
     .in("status", ["active", "retired"]);
   if (error) throw new DatabaseError("read-catalog-entries", error.code);
   return validEntries(data);
+}
+
+// The columns the rules read (`RuleEntry`): all the cron's due-screening job needs, so it neither fetches nor validates
+// the sources, quotes and display text.
+const RULE_COLUMNS =
+  "slug, status, eligibility, interval_kind, interval_months, interval_overrides, evidence_level, reviewed_by";
+
+/** Checks rule rows with `isRuleEntry`: an invalid row is logged by slug and skipped, like `validEntries`. */
+export function validRuleEntries(rows: unknown[]): RuleEntry[] {
+  const entries: RuleEntry[] = [];
+  for (const row of rows) {
+    if (isRuleEntry(row)) {
+      entries.push(row);
+    } else {
+      const slug = typeof row === "object" && row !== null && "slug" in row ? String(row.slug) : "(unknown)";
+      // eslint-disable-next-line no-console
+      console.error(`Skipping invalid catalog entry ${slug}`);
+    }
+  }
+  return entries;
+}
+
+/** The active entries' rule fields, for the cron path (see `rule-entry.ts`). Throws on a database error. */
+export async function getActiveRuleCatalog(supabase: SupabaseClient<Database>): Promise<RuleEntry[]> {
+  const { data, error } = await supabase.from("screening_catalog").select(RULE_COLUMNS).eq("status", "active");
+  if (error) throw new DatabaseError("read-catalog", error.code);
+  return validRuleEntries(data);
 }

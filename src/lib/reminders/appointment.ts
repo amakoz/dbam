@@ -1,8 +1,10 @@
 import { createT, resolveLocale } from "@/i18n";
 import type { Database } from "@/lib/database.types";
-import { MAX_BATCH_SIZE, sendEmailBatch, type BatchEmailMessage } from "@/lib/email";
+import { REMINDER_EMAIL_DAILY_BUDGET, sendEmailBatch, type BatchEmailMessage } from "@/lib/email";
 import { errorDetails, errorName } from "@/lib/observability";
 import { createReminderClient } from "@/lib/reminders/admin-client";
+import { batchKey } from "@/lib/reminders/batch-key";
+import { ReminderDatabaseError } from "@/lib/reminders/errors";
 import { isDailySendRun } from "@/lib/schedule";
 import { formatDay } from "@/lib/screenings/format";
 import { warsawToday } from "@/lib/screenings/rules";
@@ -12,8 +14,9 @@ import { warsawToday } from "@/lib/screenings/rules";
 // days ahead, not yet reminded for that date) and returns each user's account email. The job sends one email per
 // user in one Resend batch, then marks the reminders sent. A failed send leaves them unsent for the next run, and
 // a retry of the same run reuses the batch key, so Resend deduplicates it. With EMAIL_DRY_RUN=true nothing is sent and
-// nothing is marked. Emails and logs never name an exam; logs carry counts and error names only, never recipients,
-// subjects or error messages.
+// nothing is marked. At most REMINDER_EMAIL_DAILY_BUDGET users are claimed: the due-screening job shares that daily
+// budget and runs after this one. Emails and logs never name an exam; logs carry counts and error names only, never
+// recipients, subjects or error messages.
 
 /** Remind a plan when its appointment is 1 to this many Warsaw days ahead. */
 export const APPOINTMENT_REMINDER_LEAD_DAYS = 3;
@@ -22,37 +25,26 @@ export type AppointmentReminderOutcome = "none" | "skipped" | "dry-run" | "sent"
 
 type ClaimedReminder = Database["public"]["Functions"]["claim_due_appointment_reminders"]["Returns"][number];
 
-/** A reminder database call failed. Carries the SQLSTATE only, never Postgres' message (it can quote row values). */
-export class ReminderDatabaseError extends Error {
-  override name = "ReminderDatabaseError";
-
-  constructor(
-    readonly step: "claim" | "mark",
-    readonly code: string,
-  ) {
-    super(`Reminder ${step} failed (${code})`);
-  }
-}
-
+/** `sent` is the number of emails Resend accepted: 0 unless the outcome is `sent`. The due job spends what is left. */
 export async function runAppointmentReminders({
   cron,
   scheduledTime,
 }: {
   cron: string;
   scheduledTime: number;
-}): Promise<AppointmentReminderOutcome> {
+}): Promise<{ outcome: AppointmentReminderOutcome; sent: number }> {
   const scheduledAt = new Date(scheduledTime).toISOString();
   try {
     if (!isDailySendRun(cron, scheduledTime)) {
       log({ outcome: "skipped", cron, scheduledAt });
-      return "skipped";
+      return { outcome: "skipped", sent: 0 };
     }
 
     const supabase = createReminderClient();
     const { data: claimed, error } = await supabase.rpc("claim_due_appointment_reminders", {
       p_today: warsawToday(new Date(scheduledTime)),
       p_lead_days: APPOINTMENT_REMINDER_LEAD_DAYS,
-      p_limit: MAX_BATCH_SIZE,
+      p_limit: REMINDER_EMAIL_DAILY_BUDGET,
     });
     if (error) {
       throw new ReminderDatabaseError("claim", error.code);
@@ -60,18 +52,18 @@ export async function runAppointmentReminders({
 
     if (claimed.length === 0) {
       log({ outcome: "none", cron, scheduledAt, due: 0, sent: 0 });
-      return "none";
+      return { outcome: "none", sent: 0 };
     }
 
     const ids = claimed.flatMap((row) => row.reminder_ids);
     const result = await sendEmailBatch({
       messages: claimed.map((row) => buildMessage(row)),
-      idempotencyKey: await batchKey(ids),
+      idempotencyKey: await batchKey("dbam-appointment-reminder", ids),
     });
     if ("dryRun" in result) {
       // Marks nothing, so local and CI runs never consume reminders.
       log({ outcome: "dry-run", cron, scheduledAt, due: claimed.length, sent: 0 });
-      return "dry-run";
+      return { outcome: "dry-run", sent: 0 };
     }
 
     const marked = await supabase.rpc("mark_appointment_reminders_sent", { p_ids: ids });
@@ -79,7 +71,7 @@ export async function runAppointmentReminders({
       throw new ReminderDatabaseError("mark", marked.error.code);
     }
     log({ outcome: "sent", cron, scheduledAt, due: claimed.length, sent: result.ids.length });
-    return "sent";
+    return { outcome: "sent", sent: result.ids.length };
   } catch (error) {
     // The error name and the whitelisted details only (src/lib/observability.ts), never `message`.
     log({ outcome: "failed", cron, scheduledAt, error: errorName(error), ...errorDetails(error) });
@@ -105,14 +97,6 @@ function buildMessage(row: ClaimedReminder): BatchEmailMessage {
     "",
   ].join("\n");
   return { to: row.email, subject: t("email.appointmentReminder.subject"), text };
-}
-
-/** Resend `Idempotency-Key` for this set of reminders: the same claim retried gives the same key. */
-async function batchKey(ids: number[]): Promise<string> {
-  const sorted = [...ids].sort((a, b) => a - b).join(",");
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(sorted));
-  const hex = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-  return `dbam-appointment-reminder:${hex}`;
 }
 
 function log(fields: Record<string, string | number>): void {

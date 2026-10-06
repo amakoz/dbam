@@ -56,7 +56,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02             | US-02, FR-005, FR-009 (partial: mark already done) | done     |
 | S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02       | US-02, FR-006, FR-007                              | done     |
 | S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01       | US-03, FR-008, FR-009, Success Criteria (Primary)  | done     |
-| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05, F-08 | US-03, FR-009, Success Criteria (Primary)          | proposed |
+| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05, F-08 | US-03, FR-009, Success Criteria (Primary)          | done     |
 | S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05       | FR-011, FR-012                                     | proposed |
 
 ## Streams
@@ -270,7 +270,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Completes the primary success criterion; reminders for many users can land on the same dates, which is where the scheduled-run CPU cap from F-02 bites.
-- **Status:** proposed
+- **Status:** done
 
 ### S-07: Follow-up nudges
 
@@ -340,3 +340,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **F-07: (foundation) production errors are visible and alerted using Cloudflare and the existing email path only, on the Workers Free plan with no new data processor: (1) the SSR error path (`src/middleware.ts` / the 500 page) and the scheduled reminder job log one structured JSON error event (error code, route or job name, request id; never health data, emails or profile fields) to Workers Logs; (2) a failed reminder run emails the owner through the existing Resend path (`src/lib/heartbeat.ts`, `REMINDER_TEST_TO`); (3) saved queries for these events in the Workers Observability dashboard, documented in `README.md`.** — Archived 2026-10-06 → `context/archive/2026-10-06-error-tracking/`. Lesson: —.
 - **F-05: (foundation) `npm run ui:shots` (Playwright, run as a script, not an MCP server) signs in a seeded fixture user against `BASE_URL`, and screenshots the dashboard, onboarding, profile and kitchen sink in light and dark at 1440px and 390px into a gitignored folder. Agents use it in `/10x-implement` manual-verification gates and attach the paths to PRs.** — Archived 2026-10-06 → `context/archive/2026-10-06-ui-verification-script/`. Lesson: —.
 - **F-04: (foundation) a committed `.mcp.json` registers the Context7 MCP server, so every Claude Code session and worker worktree can pull current Astro, Supabase, Cloudflare Workers and Tailwind docs during `/10x-research` and `/10x-plan`; `CLAUDE.md` tells agents when to use it.** — Archived 2026-10-06 → `context/archive/2026-10-06-agent-docs-mcp/`. Lesson: —.
+- **S-06: an opted-in user receives an email when a screening becomes due — including when a confirmed exam's repeat interval elapses — without re-entering the exam.** — Archived 2026-10-06 → `context/archive/2026-10-06-due-screening-reminder/`. Lesson: —.

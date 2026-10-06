@@ -256,6 +256,18 @@ export const CatalogEntrySchema = z
   .describe("A screening catalog entry: one row of public.screening_catalog.");
 
 export type CatalogEntry = z.infer<typeof CatalogEntrySchema>;
+/** What the eligibility, tier and interval rules read of an entry; every `CatalogEntry` is one (see `rule-entry.ts`). */
+export type RuleEntry = Pick<
+  CatalogEntry,
+  | "slug"
+  | "status"
+  | "eligibility"
+  | "interval_kind"
+  | "interval_months"
+  | "interval_overrides"
+  | "evidence_level"
+  | "reviewed_by"
+>;
 export type Branch = z.infer<typeof BranchSchema>;
 export type Condition = z.infer<typeof ConditionSchema>;
 export type IntervalOverride = z.infer<typeof IntervalOverrideSchema>;

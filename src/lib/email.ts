@@ -1,7 +1,11 @@
 import { EMAIL_DRY_RUN, EMAIL_FROM, RESEND_API_KEY } from "astro:env/server";
+import { withRateLimitRetry } from "@/lib/email-retry";
+
+export { REMINDER_EMAIL_DAILY_BUDGET } from "@/lib/email-budget";
 
 // Transactional email from the Worker over Resend's REST API (one `fetch`, no SDK). With EMAIL_DRY_RUN=true it only
-// logs, so local dev and CI never send and need no key. Logs never contain the API key or the recipient address.
+// logs, so local dev and CI never send and need no key. Logs never contain the API key or the recipient address. A
+// 429 is retried once with the same body and `Idempotency-Key` (src/lib/email-retry.ts).
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const RESEND_BATCH_ENDPOINT = "https://api.resend.com/emails/batch";
@@ -114,22 +118,28 @@ async function postToResend(
     throw new EmailConfigError("RESEND_API_KEY is not set");
   }
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": idempotencyKey,
-    },
-    body: JSON.stringify(payload),
-    // A hung Resend call would otherwise hold the cron run open until the platform's wall-time limit.
-    signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
-  });
-  const body = await readJson(response);
+  const body = JSON.stringify(payload);
+  const response = await withRateLimitRetry(() =>
+    fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": idempotencyKey,
+      },
+      body,
+      // A hung Resend call would otherwise hold the cron run open until the platform's wall-time limit.
+      signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
+    }),
+  );
+  const responseBody = await readJson(response);
   if (!response.ok) {
-    throw new EmailSendError(response.status, typeof body?.name === "string" ? body.name : "unknown_error");
+    throw new EmailSendError(
+      response.status,
+      typeof responseBody?.name === "string" ? responseBody.name : "unknown_error",
+    );
   }
-  return { response, body };
+  return { response, body: responseBody };
 }
 
 function readId(item: unknown): string | null {

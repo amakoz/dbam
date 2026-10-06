@@ -87,7 +87,7 @@ Manual items:
   - Tradeoff: A stale non-local value in an unused file, such as `.env.production`, would refuse the run, so the user must clean it up or the guard needs an allowlist.
   - Confidence: HIGH — wrangler's file list was read from the installed `cli.js`.
   - Blind spot: Vite's own `loadEnv` precedence for `astro:env` in dev was not traced. The broad pattern covers it anyway.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-06). Fixed: the guard reads every `.dev.vars*`/`.env*` file at the repo root except `.env.example`, takes the last matching line in each, and refuses on any non-local value. The README and header wording are updated. Verified: a prod URL in `.env.local` → exit 2; a `.dev.vars.staging` whose last line is prod → exit 2; one whose last line is local passes the guard (kitchen-sink run exit 0).
 
 ### F2 — Docs omit the reproducible first-start failure of `astro dev`
 
@@ -100,7 +100,7 @@ Manual items:
   - `decisions.md` ("Phase 2 documentation") records the same behaviour, but neither README nor CLAUDE.md mentions it. A worker following only the docs gets exit 1 and may report `blocked`.
   - Item 2.3 ("following only the new README section on a fresh checkout") is checked. However, its evidence is a run in the existing worktree, with Chromium already installed, by a worker who already knew about the retry. That is weaker than the criterion states.
 - **Fix**: Add one line to the README worker section and append "(retry once if it exits before ready)" to the CLAUDE.md bullet: if `astro dev` exits with "exited before becoming ready", run it again; `npx astro dev logs` shows why.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-06). Fixed: the README worker section has a retry line (`npx astro dev logs` shows why), and the CLAUDE.md bullet says "(retry once if it exits before ready)".
 
 ### F3 — A trailing slash in BASE_URL breaks the run with a misleading error
 
@@ -113,4 +113,4 @@ Manual items:
   - With `BASE_URL=http://127.0.0.1:4332/`, requests go to `//dashboard` and the `Origin` header carries a trailing slash. The run then fails at the first fixture step or checked navigation (exit 1) with a status/redirect message that doesn't point at the slash.
   - `scripts/smoke.mjs:46,51` behaves the same way, so the script is consistent with existing code. This was not run in this review; it is inferred from the code.
 - **Fix**: After the guards, use `baseUrl.origin` for URL building and the `Origin` header.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-06). Fixed: URLs, the `lang` cookie, the `Origin` header and the summary line use `baseUrl.origin`. Verified: `BASE_URL=http://127.0.0.1:4332/ … --only kitchen-sink` → exit 0, 4 PNGs.

@@ -11,13 +11,14 @@
 //
 // Local only: it refuses (exit 2, before any request) a BASE_URL or SUPABASE_URL that is not localhost/127.0.0.1,
 // and port 4321 in a worker session (DBAM_CHANGE set), which belongs to the human's dev server. SUPABASE_URL is read
-// from this script's environment and from `.dev.vars` and `.env` at the repo root. Limitation: that is not the
-// environment the dev server was started with, so a server launched with a shell-exported production SUPABASE_URL
-// is not detected.
+// from this script's environment and from every `.dev.vars*` and `.env*` file at the repo root except `.env.example`
+// (the last matching line in each, as dotenv's override does); any non-local value refuses. Limitation: that is not
+// the environment the dev server was started with, so a server launched with a shell-exported production
+// SUPABASE_URL is not detected.
 // Exit codes: 0 done, 1 run failure (browser missing, unexpected status or redirect, failed step), 2 refusal or usage.
 // Every full run signs up one throwaway `ui-shots-*@example.com` user in the local Supabase.
 
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -63,8 +64,11 @@ if (!LOCAL_HOSTS.includes(baseUrl.hostname)) {
 if (process.env.DBAM_CHANGE && baseUrl.port === "4321") {
   refuse("Refusing port 4321 in a worker session: it is the human's dev server. Set BASE_URL to your $DBAM_PORT.");
 }
+// Scheme, host and port only: a trailing slash or path in BASE_URL would build `//dashboard` and a bad Origin header.
+const origin = baseUrl.origin;
 
-// The value of SUPABASE_URL from a dotenv-style file; commented lines don't match. A missing file is skipped.
+// The value of SUPABASE_URL from a dotenv-style file, from its last matching line (later lines override earlier
+// ones); commented lines don't match. An unreadable file is skipped.
 function readEnvFile(file) {
   let text;
   try {
@@ -72,20 +76,26 @@ function readEnvFile(file) {
   } catch {
     return undefined;
   }
-  const line = text.split(/\r?\n/).find((l) => /^\s*(export\s+)?SUPABASE_URL\s*=/.test(l));
+  const line = text.split(/\r?\n/).findLast((l) => /^\s*(export\s+)?SUPABASE_URL\s*=/.test(l));
   if (line === undefined) return undefined;
   const value = line.slice(line.indexOf("=") + 1).trim();
   return /^(["']).*\1$/.test(value) ? value.slice(1, -1) : value;
 }
 
+// Every env file wrangler or Vite may load in dev (`.env.local`, `.env.<mode>`, `.dev.vars.<env>`, …), without
+// modelling their precedence: one non-local value anywhere refuses.
 const repoRoot = path.resolve(import.meta.dirname, "..");
+const envFiles = readdirSync(repoRoot)
+  .filter((name) => /^\.(dev\.vars|env)($|\.)/.test(name) && name !== ".env.example")
+  .sort();
 const supabaseUrls = [
   ["the environment", process.env.SUPABASE_URL],
-  [".dev.vars", readEnvFile(path.join(repoRoot, ".dev.vars"))],
-  [".env", readEnvFile(path.join(repoRoot, ".env"))],
+  ...envFiles.map((name) => [name, readEnvFile(path.join(repoRoot, name))]),
 ].filter(([, value]) => value !== undefined);
 if (supabaseUrls.length === 0) {
-  refuse("Refusing to run: no SUPABASE_URL found in the environment, .dev.vars or .env, so it can't be shown local.");
+  refuse(
+    "Refusing to run: no SUPABASE_URL found in the environment or the .dev.vars*/.env* files, so it can't be shown local.",
+  );
 }
 for (const [source, value] of supabaseUrls) {
   let host;
@@ -154,7 +164,7 @@ async function launch() {
 async function warmUp(page, paths) {
   for (const route of [...paths, "/auth/signin"]) {
     try {
-      await page.goto(BASE_URL + route);
+      await page.goto(origin + route);
       await page.waitForLoadState("networkidle", { timeout: 15_000 });
     } catch {
       // Redirects, errors and timeouts are fine here.
@@ -165,7 +175,7 @@ async function warmUp(page, paths) {
 // A navigation that must land on the requested path with a 200; anything else means the fixture state or the
 // server is wrong.
 async function open(page, route) {
-  const response = await page.goto(BASE_URL + route);
+  const response = await page.goto(origin + route);
   const status = response?.status();
   if (route === "/dev/kitchen-sink" && status === 404) {
     throw new Error("/dev/kitchen-sink answered 404: the server is a production build. Run against `npm run dev`.");
@@ -202,10 +212,10 @@ async function shoot(page, name, route) {
 
 // A form POST that must answer 302 to `location` (the query string only needs the expected prefix).
 async function step(context, label, route, form, location) {
-  const response = await context.request.post(BASE_URL + route, {
+  const response = await context.request.post(origin + route, {
     form,
     maxRedirects: 0,
-    headers: { Origin: BASE_URL },
+    headers: { Origin: origin },
   });
   const actual = response.headers().location ?? "";
   const [actualPath] = actual.split("?");
@@ -221,7 +231,7 @@ async function run() {
   const browser = await launch();
   try {
     const context = await browser.newContext({ deviceScaleFactor: 1, reducedMotion: "reduce" });
-    await context.addCookies([{ name: "lang", value: "pl", url: BASE_URL }]);
+    await context.addCookies([{ name: "lang", value: "pl", url: origin }]);
     const page = await context.newPage();
 
     const pathOf = { onboarding: "/onboarding", dashboard: "/dashboard", profile: "/profile" };
@@ -232,7 +242,7 @@ async function run() {
       await step(context, "signed in", "/api/auth/signin", { email, password }, "/dashboard");
       if (selected.includes("onboarding")) await shoot(page, "onboarding-consent", "/onboarding");
 
-      const onboarding = await context.request.get(`${BASE_URL}/onboarding`, { maxRedirects: 0 });
+      const onboarding = await context.request.get(`${origin}/onboarding`, { maxRedirects: 0 });
       const version = /name="version" value="([^"]+)"/.exec(await onboarding.text())?.[1];
       if (version === undefined) throw new Error("The consent version is missing from /onboarding.");
       await step(context, "consent granted", "/api/consent/grant", { consent: "yes", version }, "/onboarding");
@@ -258,7 +268,7 @@ async function run() {
     for (const view of selected.filter((v) => v !== "onboarding")) {
       await shoot(page, view, pathOf[view] ?? "/dev/kitchen-sink");
     }
-    console.log(`${shots} screenshots in ${display(outDir)} from ${BASE_URL}`);
+    console.log(`${shots} screenshots in ${display(outDir)} from ${origin}`);
   } finally {
     await browser.close();
   }

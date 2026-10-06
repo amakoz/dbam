@@ -169,3 +169,16 @@
   - The review also confirmed that the build output and the wrangler dry-run Worker bundle contain no Playwright, and that `playwright` is a dev-only dependency.
 - **Evidence:** `context/changes/ui-verification-script/impl-review.md`
 - **Decided by:** orchestrator
+
+## 2026-10-06 Implementation review triage
+
+- **Question:** which impl-review findings to apply.
+- **Choice:** all three accepted and fixed.
+  - **F1:** the `SUPABASE_URL` guard checks every `.dev.vars*` and `.env*` file at the repo root except `.env.example`, taking the last matching line in each (dotenv override semantics), and refuses if any value is not local. The tradeoff is accepted: a stale non-local value in an unused file such as `.env.production` also refuses the run (the README says to remove it).
+  - **F2:** the README worker section and the CLAUDE.md bullet document the first-start retry of `astro dev`.
+  - **F3:** URL building, the `lang` cookie, the `Origin` header and the summary line use `baseUrl.origin`, so a trailing slash or path in `BASE_URL` is harmless.
+- **Evidence:**
+  - Every refusal path exits 2, including the new `.env.local` and last-line `.dev.vars.staging` cases.
+  - `--only kitchen-sink` against `astro dev` on `$DBAM_PORT` with a trailing-slash `BASE_URL` exits 0 with 4 PNGs.
+  - lint, `ui:check`, `astro check` and build pass. See `impl-review.md`.
+- **Decided by:** orchestrator

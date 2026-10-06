@@ -319,7 +319,7 @@ Files are written to `ui-shots/` (gitignored) as `<view>-<desktop|mobile>-<light
 - `--out <dir>` writes elsewhere, e.g. `--out context/changes/<id>/screenshots` when a PR needs images committed.
 - A full run signs up one `ui-shots-*@example.com` user in the local Supabase (as smoke leaves `smoke-*` users).
 
-It is local only. It exits 2 before any request when `BASE_URL` or any `SUPABASE_URL` it can see (its own environment, `.dev.vars`, `.env`) is not `localhost`/`127.0.0.1`. The guard cannot see the environment the dev server was started with, so a server launched with a shell-exported production `SUPABASE_URL` is not detected: don't start one that way.
+It is local only. It exits 2 before any request when `BASE_URL` or any `SUPABASE_URL` it can see (its own environment and the `.dev.vars*`/`.env*` files at the repo root, except `.env.example`; the last matching line in each file counts) is not `localhost`/`127.0.0.1`. A stale non-local value in an unused file such as `.env.production` also refuses the run: remove it. The guard cannot see the environment the dev server was started with, so a server launched with a shell-exported production `SUPABASE_URL` is not detected: don't start one that way.
 
 ### In worker sessions
 
@@ -332,6 +332,7 @@ BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots
 ```
 
 - `--host 127.0.0.1` is needed because Astro 7's dev server binds `::1` only, so `http://127.0.0.1:$DBAM_PORT` is otherwise unreachable.
+- The first `astro dev` start (often straight after `astro sync`) can exit 1 with "Dev server process exited before becoming ready". Run the same command again; `npx astro dev logs` shows why it stopped.
 - Take the shared DB lock around a full run, as for smoke (see the worker protocol): `until mkdir ~/.cache/dbam/db.lock 2>/dev/null; do sleep 15; done; echo "$DBAM_CHANGE" > ~/.cache/dbam/db.lock/owner`, then `rm -rf ~/.cache/dbam/db.lock` afterwards, even when the run fails. A `--only kitchen-sink` run needs no lock.
 - A freshly started dev server optimizes dependencies on its first requests, which can fail the first run (exit 1, "Execution context was destroyed"). The script warms the server up first; if a run still fails that way, rerun it.
 

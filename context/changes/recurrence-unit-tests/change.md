@@ -1,7 +1,7 @@
 ---
 change_id: recurrence-unit-tests
 title: Unit tests for screening recurrence rules and last-done formatting
-status: implementing
+status: impl_reviewed
 created: 2026-10-06
 updated: 2026-10-06
 archived_at: null

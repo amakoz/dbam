@@ -83,3 +83,9 @@
   - Extra, beyond the plan: deleting `...planned` from `hidden` (`rules.ts:271`), removing `planViews.sort`, and dropping the `created_at` tie-break each fail the precedence or sort test.
 - **Adaptation:** `recs()` checks `typeof e.interval_months === "number"` rather than `!== null`, because `interval_months` is `number | null | undefined` on `CatalogEntry`.
 - **Decided by:** worker
+
+## 2026-10-06 Implementation review
+
+- **Question:** How is the implementation review run and where does the report go?
+- **Choice:** The review ran inline (2 test files and 2 doc lines, so no sub-agents). The report is at `impl-review.md` in the change root, as the orchestrator asked. The orchestrator triages it; the worker decided nothing. One extra mutation (`isIsoDate` checking only the month range) survived, which is F1.
+- **Decided by:** orchestrator (report path, no triage), worker (inline review)

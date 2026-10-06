@@ -89,3 +89,14 @@
 - **Question:** How is the implementation review run and where does the report go?
 - **Choice:** The review ran inline (2 test files and 2 doc lines, so no sub-agents). The report is at `impl-review.md` in the change root, as the orchestrator asked. The orchestrator triages it; the worker decided nothing. One extra mutation (`isIsoDate` checking only the month range) survived, which is F1.
 - **Decided by:** orchestrator (report path, no triage), worker (inline review)
+
+## 2026-10-06 Impl-review triage (impl-review.md F1–F3)
+
+- **Question:** How should the three implementation-review findings be resolved? The verdict was APPROVED, with 1 warning and 2 observations.
+- **Options:** accept or reject each finding.
+- **Choice:** All three accepted.
+  - **F1:** the impossible-date input `2026-02-30` is replaced with `2027-02-29`, which lies inside the accepted window (today `2026-10-06` to today + 2 years) so only the calendar check can reject it.
+  - **F2:** the missing-entry test is renamed to what it asserts ("skips a plan or completion whose entry is missing; the completion does not hide its tier item"). No production change. The plan-side behaviour (a missing-entry plan still hides its tier item and completion, `rules.ts:257`) goes to `follow-ups/missing-entry-plan.md` for the PR description.
+  - **F3:** plan.md 1.5 cites the impl review as the independent confirmation.
+- **Evidence:** F1: with `isIsoDate` mutated to check only the month range, `rejects the impossible date 2027-02-29` fails (1 failed, 60 passed); before the fix the same mutation passed 61/61. `rules.ts` restored, `git diff` empty.
+- **Decided by:** orchestrator

@@ -195,7 +195,7 @@ describe("parsePlanForm", () => {
     });
   });
 
-  it.each(["2026-02-30", "2026-13-01"])("rejects the impossible date %s", (date) => {
+  it.each(["2027-02-29", "2026-13-01"])("rejects the impossible date %s", (date) => {
     expect(parse({ appointment_date: date })).toEqual(invalidDate);
   });
 
@@ -415,7 +415,7 @@ describe("partitionDashboard", () => {
     ]);
   });
 
-  it("skips a plan or completion whose entry is missing, without hiding the tier item", () => {
+  it("skips a plan or completion whose entry is missing; the completion does not hide its tier item", () => {
     const result = partitionDashboard(
       recs([exam]),
       [plan("ghost", "2026-11-01")],

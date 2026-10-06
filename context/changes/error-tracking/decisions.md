@@ -115,3 +115,18 @@
 - **Choice:** (b). The report is at `context/changes/error-tracking/impl-review.md` and every finding is left `PENDING` for the orchestrator. Verdict: APPROVED (1 warning, 6 observations, no critical findings).
 - **Evidence:** The orchestrator's `/10x-impl-review` arguments ("Write the report to context/changes/error-tracking/impl-review.md. Triage nothing yourself.").
 - **Decided by:** orchestrator
+
+## 2026-10-06 Implementation review triage
+
+- **Question:** How is each finding in `impl-review.md` (F1–F7) resolved?
+- **Options:** Per finding: accept and fix in this change, record as a lesson, or leave as is.
+- **Choices:**
+  - **F1 ACCEPT.** `redactError` accepts the header only when `stack === header` or it continues with `header + "\n"`; an empty message uses the name alone as the header. It stops at the first non-frame line and drops frame lines containing `@`. The three probe cases are in `observability.test.ts`. Worker detail: Vitest's source-map rewrite prints `TypeError: ` (trailing `: `) for an empty message, so both `name` and `name: ` are accepted there; neither contains message text. Dropping `@` frames also drops dev-server frames under `node_modules/@scope/…`; accepted, since our own `src/` frames and the bundled Worker's frames keep no `@`.
+  - **F2 ACCEPT.** The log call has its own `try/catch` in `src/middleware.ts` and `src/worker.ts`. A module-level `WeakSet` in `observability.ts` tracks redacted copies (`isRedacted()`); the middleware rethrows one as-is without logging, and `redactError` returns one unchanged. Worker detail: `scheduled()` still logs and alerts for every failed job (no nested pass exists there); `redactError` also falls back to `UnknownError: [redacted]` when reading the error throws.
+  - **F3 LESSON.** No ESLint rule. Captured via `/10x-lesson` as "Grep gates are heuristics; privacy tests are the guard" in `context/foundation/lessons.md`; wording drafted by the worker from the orchestrator's triage instead of the skill's interview.
+  - **F4 ACCEPT.** Both older `failed` outcome lines (`heartbeat.ts`, `reminders/appointment.ts`) use `errorName()`/`errorDetails()`; the README bullet saying they were unchanged is updated.
+  - **F5 ACCEPT.** `isoTime` is exported and reused in `failure-alert.ts`; the recipient fallback stays.
+  - **F6 ACCEPT.** README "Errors and alerts" gets the local-debugging note.
+  - **F7 ACCEPT.** Comment at the `redactError` rethrow in the middleware (and in `scheduled()`).
+- **Evidence:** `context/changes/error-tracking/impl-review.md`; the orchestrator's triage prompt.
+- **Decided by:** orchestrator

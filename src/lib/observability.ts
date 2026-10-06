@@ -47,7 +47,7 @@ export function errorDetails(error: unknown): Record<string, string> {
   return details;
 }
 
-function isoTime(time: number): string {
+export function isoTime(time: number): string {
   return Number.isFinite(time) ? new Date(time).toISOString() : "unknown";
 }
 
@@ -99,11 +99,33 @@ export function buildCronErrorEvent({
   };
 }
 
+/** Errors made by `redactError`, so an entry point that sees one again rethrows it as-is instead of logging it twice. */
+const redactedErrors = new WeakSet<Error>();
+
+export function isRedacted(error: unknown): error is Error {
+  return error instanceof Error && redactedErrors.has(error);
+}
+
 /**
  * A copy of the error that is safe to rethrow into Astro's and Cloudflare's own logging, which print `stack` and
  * `message`. The name and the frame lines survive; the message does not, even when it spans lines or imitates a frame.
+ * An already redacted error is returned as-is, and an error whose properties throw on read becomes an `UnknownError`.
  */
 export function redactError(error: unknown): Error {
+  if (isRedacted(error)) return error;
+  let redacted: Error;
+  try {
+    redacted = redactedCopy(error);
+  } catch {
+    redacted = new Error("[redacted]");
+    redacted.name = "UnknownError";
+    redacted.stack = "UnknownError: [redacted]";
+  }
+  redactedErrors.add(redacted);
+  return redacted;
+}
+
+function redactedCopy(error: unknown): Error {
   const name = errorName(error);
   const redacted = new Error("[redacted]");
   redacted.name = name;
@@ -111,12 +133,17 @@ export function redactError(error: unknown): Error {
   const frames: string[] = [];
   if (error instanceof Error && typeof error.stack === "string") {
     const { name: rawName, message, stack } = error;
-    // Cut the exact `name: message` header, however many lines the message spans. Anything after it that looks like a
-    // frame is then a real frame. If the stack does not start with that header, trust none of it.
-    const header = `${rawName}: ${message}`;
-    if (stack.startsWith(header)) {
-      for (const line of stack.slice(header.length).split("\n")) {
-        if (/^\s+at /.test(line)) frames.push(line);
+    // Cut the exact header that was printed (`name: message`; for an empty message V8 prints the name alone, source-map
+    // rewriters `name: `), however many lines the message spans, and only when the whole header is followed by a line
+    // break. Then keep the frame lines up to the first line that is not one (a library-appended `Caused by:` chain ends
+    // the run). A frame with an `@` is dropped: a function named after a user value prints that value. If the stack
+    // does not start with the header, trust none of it: the message was changed after the stack was captured.
+    const headers = message === "" ? [rawName, `${rawName}: `] : [`${rawName}: ${message}`];
+    const header = headers.find((candidate) => stack === candidate || stack.startsWith(`${candidate}\n`));
+    if (header !== undefined) {
+      for (const line of stack.slice(header.length + 1).split("\n")) {
+        if (!/^\s+at /.test(line)) break;
+        if (!line.includes("@")) frames.push(line);
       }
     }
   }

@@ -26,12 +26,17 @@ export default {
       result.status === "rejected" ? [{ job: jobs[index].job, error: result.reason as unknown }] : [],
     );
     for (const { job, error } of failures) {
-      logErrorEvent(buildCronErrorEvent({ error, job, ...run }));
+      try {
+        logErrorEvent(buildCronErrorEvent({ error, job, ...run }));
+      } catch {
+        // Building the event read a throwing property: skip the line, but still send the alert and rethrow redacted.
+      }
       if (job === "appointment-reminder") {
         await sendReminderFailureAlert(run, error);
       }
     }
     if (failures.length > 0) {
+      // The rethrow replaces the error object, so anything that compares errors by identity sees a different one.
       throw redactError(failures[0].error);
     }
   },

@@ -5,6 +5,7 @@ import {
   buildCronErrorEvent,
   buildReminderFailureEmail,
   buildSsrErrorEvent,
+  isRedacted,
   logErrorEvent,
   redactError,
   requestIdFrom,
@@ -185,6 +186,72 @@ describe("redactError", () => {
     const error = new Error("boom");
     error.stack = `Something else entirely ${ADDRESS}\n    at somewhere (file.ts:1:1)`;
     expect(redactError(error).stack).toBe("Error: [redacted]");
+  });
+
+  it("keeps the frames of an error with an empty message", () => {
+    const redacted = redactError(new TypeError());
+    const [header, ...frames] = (redacted.stack ?? "").split("\n");
+    expect(header).toBe("TypeError: [redacted]");
+    expect(frames.length).toBeGreaterThan(0);
+
+    // V8 itself prints the name alone; Vitest's source-map rewrite prints `TypeError: `.
+    const plain = new TypeError();
+    plain.stack = "TypeError\n    at handler (worker.js:1:1)";
+    expect(redactError(plain).stack).toBe("TypeError: [redacted]\n    at handler (worker.js:1:1)");
+  });
+
+  it("trusts no frame when the message was shortened after the stack was captured", () => {
+    const error = new Error(`boom ${ADDRESS}\n    at ${ADDRESS}`);
+    expect(error.stack).toContain(ADDRESS);
+    error.message = "boom";
+    expect(redactError(error).stack).toBe("Error: [redacted]");
+  });
+
+  it("stops at an appended cause chain", () => {
+    const error = new Error("boom");
+    const cause = new Error(`cause\n    at ${ADDRESS}`);
+    error.stack = `${error.stack ?? ""}\nCaused by: ${cause.stack ?? ""}`;
+    const redacted = redactError(error);
+    expect(redacted.stack).not.toContain(ADDRESS);
+    expect(redacted.stack).not.toContain("Caused by");
+    expect(redacted.stack?.split("\n").length).toBeGreaterThan(1);
+  });
+
+  it("drops a frame whose function is named after a user value", () => {
+    const thrower = {
+      [ADDRESS]: () => {
+        throw new Error("boom");
+      },
+    };
+    let error: unknown;
+    try {
+      thrower[ADDRESS]();
+    } catch (caught) {
+      error = caught;
+    }
+    expect((error as Error).stack).toContain(ADDRESS);
+    const redacted = redactError(error);
+    expect(redacted.stack).not.toContain(ADDRESS);
+    expect(redacted.stack?.split("\n").length).toBeGreaterThan(1);
+  });
+
+  it("returns an already redacted error as-is", () => {
+    const redacted = redactError(leakyError());
+    expect(isRedacted(redacted)).toBe(true);
+    expect(redactError(redacted)).toBe(redacted);
+    expect(isRedacted(leakyError())).toBe(false);
+  });
+
+  it("returns an UnknownError when reading the error throws", () => {
+    const error = new Error(`boom ${ADDRESS}`);
+    Object.defineProperty(error, "stack", {
+      get() {
+        throw new Error(ADDRESS);
+      },
+    });
+    const redacted = redactError(error);
+    expect(redacted.stack).toBe("UnknownError: [redacted]");
+    expect(isRedacted(redacted)).toBe(true);
   });
 
   it("returns an UnknownError for a non-Error value", () => {

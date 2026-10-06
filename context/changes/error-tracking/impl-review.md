@@ -72,7 +72,7 @@
   Nothing in `src/` mutates a message, appends a cause or names functions after user values, so this is not a leak today. Side effect: an error with an empty message (stack header `TypeError`, with no `: `) gets the header-only fallback and loses its frames. That is safe, but the debugging context is gone.
 
 - **Fix**: Accept the header only when `stack === header || stack.startsWith(header + "\n")`, and use `rawName` alone as the header when `message === ""`. Stop at the first non-frame line (`break`, not skip), and optionally drop frame lines containing `@`. Add the three probe cases to `observability.test.ts`.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator) — fixed. The header is accepted only when `stack` equals it or continues with a line break; for an empty message both `name` (V8) and `name: ` (Vitest's source-map rewrite) are accepted. The frame scan stops at the first non-frame line, and frames containing `@` are dropped. Probe cases (shortened message, cause chain, user-named function) plus the empty-message case are in `observability.test.ts`.
 
 ### F2 — "Log once, redact always" holds only on today's request paths
 
@@ -91,7 +91,7 @@
   There are no `rewrite(` calls in `src/`, and no error class has getters, so neither happens today.
 
 - **Fix**: Wrap the log call in its own `try {} catch {}` on both entry points. Rethrow an error that is already redacted (tracked in a module-level `WeakSet` in `observability.ts`) as-is, without logging.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator) — fixed. The log call is wrapped in its own `try/catch` on both entry points. `redactError` records its copies in a module-level `WeakSet` (`isRedacted()`) and returns an already redacted error as-is; the middleware rethrows one without logging. `redactError` also falls back to `UnknownError: [redacted]` if reading the error throws.
 
 ### F3 — Grep gate 1.4 can be bypassed by destructuring
 
@@ -101,7 +101,7 @@
 - **Location**: plan.md:222 (criterion 1.4); src/lib/observability.ts:113
 - **Detail**: The gate was met honestly: `message` is never output (see the Privacy answer above). But the destructuring in `redactError` shows that a future `const { message } = error; throw new Error(\`… ${message}\`)` would also pass the gate. So the gate is a weak regression guard. The real guard is the privacy unit test, and that covers only the builders, not new throw sites.
 - **Fix**: Treat the grep as a heuristic, not a gate, in future plans. If a hard guard is wanted, add an ESLint `no-restricted-syntax` rule for `.message` reads and `{ message }` destructuring under `src/lib/**` and `src/pages/**`, with `observability.ts` exempt. Or record it as a lesson.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED as lesson (orchestrator) — no ESLint rule. Recorded in `context/foundation/lessons.md` ("Grep gates are heuristics; privacy tests are the guard").
 
 ### F4 — Detail values rely on convention; the older outcome lines skip even the token rule
 
@@ -118,7 +118,7 @@
      - Resend's `body.name` (`resendError`) goes into them unchecked.
      - Resend's names are a fixed documented list, and plan.md:87 deliberately left these lines unchanged.
 - **Fix**: In a follow-up, have both outcome lines use `errorName()`/`errorDetails()`, so one rule covers every line.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator) — fixed in this change rather than a follow-up: the `heartbeat` and `appointment-reminder` `failed` outcome lines use `errorName()`/`errorDetails()`; README bullet updated.
 
 ### F5 — `failure-alert.ts` repeats logic that already exists
 
@@ -133,7 +133,7 @@
   A further side effect: `REMINDER_TEST_TO=""` gives `skipped` even when `EMAIL_DRY_RUN` is on (`??` does not catch an empty string). That is negligible.
 
 - **Fix**: Export `isoTime` from `observability.ts` and use it. Leave the recipient fallback as it is, or extract an `ownerRecipient()` helper when a third caller appears.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator) — fixed. `isoTime` is exported from `observability.ts` and used in `failure-alert.ts`; the recipient fallback is left as is.
 
 ### F6 — Redaction under `astro dev` hides messages and AstroError hints
 
@@ -148,7 +148,7 @@
     - the dev handler's `isAstroError` branch (`dev-handler.js:19`) only covers middleware-contract errors raised outside our `try`.
   - The risk is social: debugging pain may tempt someone to weaken the redaction later.
 - **Fix**: No change. If needed, put a one-line note in the README's "Errors and alerts" section: during local debugging, read the message from a temporary `console.error` in the page itself, not by bypassing the redaction.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator) — README note added under "Errors and alerts" (temporary `console.error` in the page, never weaken the redaction).
 
 ### F7 — A future switch to Astro's `astro/fetch` handler would change error-layer behaviour
 
@@ -161,7 +161,7 @@
   - The redacted copy breaks that identity, so the 500 would render in a different layer.
   - The Cloudflare adapter's `handle()` uses `app.render` and is not affected today.
 - **Fix**: Add a comment at the `redactError` rethrow that the rethrow replaces the error object's identity, so a future handler migration rechecks it.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator) — comment added at the `redactError` rethrow in `src/middleware.ts` (and a short one in `src/worker.ts`).
 
 ## Evidence
 

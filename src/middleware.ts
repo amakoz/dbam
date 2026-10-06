@@ -1,7 +1,7 @@
 import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
 import { LOCALE_COOKIE, resolveLocale } from "@/i18n";
-import { buildSsrErrorEvent, logErrorEvent, redactError, requestIdFrom } from "@/lib/observability";
+import { buildSsrErrorEvent, isRedacted, logErrorEvent, redactError, requestIdFrom } from "@/lib/observability";
 import { createClient } from "@/lib/supabase";
 
 const PROTECTED_ROUTES = [
@@ -18,19 +18,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Every uncaught SSR error passes through here, from the middleware itself, the page or the endpoint (Astro throws it
   // out of `next()`). Astro logs the error's `stack` and then renders the 500 page through this middleware a second
   // time, so: always rethrow a redacted copy (Astro's own lines then carry no message), but log the event only on the
-  // first pass, never on the `/500` re-render.
+  // first pass, never on the `/500` re-render. An error that is already redacted was logged by an inner pass of this
+  // middleware (an Astro rewrite re-runs it inside `next()`), so it is rethrown unlogged.
   try {
     return await handleRequest(context, next);
   } catch (error) {
+    if (isRedacted(error)) throw error;
     if (context.routePattern !== "/500") {
-      logErrorEvent(
-        buildSsrErrorEvent({
-          error,
-          routePattern: context.routePattern,
-          requestId: requestIdFrom(context.request.headers),
-        }),
-      );
+      try {
+        logErrorEvent(
+          buildSsrErrorEvent({
+            error,
+            routePattern: context.routePattern,
+            requestId: requestIdFrom(context.request.headers),
+          }),
+        );
+      } catch {
+        // Building the event read a throwing property: skip the line rather than let that error escape unredacted.
+      }
     }
+    // The rethrow replaces the error object, so a handler that compares errors by identity (Astro's `astro/fetch`
+    // middleware fallback does `err === nextError`) would take another path: recheck this on a handler migration.
     throw redactError(error);
   }
 });

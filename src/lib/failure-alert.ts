@@ -1,6 +1,6 @@
 import { EMAIL_DRY_RUN, REMINDER_TEST_TO } from "astro:env/server";
 import { sendEmail } from "@/lib/email";
-import { buildReminderFailureEmail, errorDetails, errorName } from "@/lib/observability";
+import { buildReminderFailureEmail, errorDetails, errorName, isoTime } from "@/lib/observability";
 
 // Best-effort email to the owner when the appointment reminder job fails (`scheduled()` in src/worker.ts). It never
 // throws, so it cannot mask the failure it reports, and it logs its own outcome so a failed alert is visible too. Logs
@@ -13,7 +13,7 @@ export async function sendReminderFailureAlert(
   { cron, scheduledTime }: { cron: string; scheduledTime: number },
   error: unknown,
 ): Promise<void> {
-  const scheduledAt = Number.isFinite(scheduledTime) ? new Date(scheduledTime).toISOString() : "unknown";
+  const scheduledAt = isoTime(scheduledTime);
   try {
     const to = REMINDER_TEST_TO ?? (EMAIL_DRY_RUN ? DRY_RUN_RECIPIENT : undefined);
     if (!to) {

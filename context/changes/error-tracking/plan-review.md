@@ -76,7 +76,7 @@ These are recorded so the claims aren't re-checked. The evidence is in `node_mod
     - Disabling invocation logs loses `$workers.outcome`, request metadata and the `rayId` correlation the plan relies on (research.md §3).
   - Confidence: MED — either variant needs its own design pass.
   - Blind spot: the auth callback's `?code=` and other query params were not audited.
-- **Decision**: PENDING
+- **Decision**: FIX A — orchestrator, 2026-10-06. The README privacy rule is scoped to our own `error`/`failure-alert` events, with a Known gaps bullet for invocation-log URLs (`/dashboard?…&slug=`). PR manual check 3.7 asks whether `$workers.event.request.url` keeps the query string. The follow-up is recorded in `follow-ups/redirect-slug-leak.md` (move `slug` out of the redirect query; audit other params such as the auth callback's `?code=`) for the PR body. Roadmap slices are not edited; the owner decides on a slice.
 
 ### F2 — The `/500` guard skips redaction as well as logging, so a second-run error leaks unredacted
 
@@ -97,7 +97,7 @@ These are recorded so the claims aren't re-checked. The evidence is in `node_mod
   - Tradeoff: a few more lines in the middleware.
   - Confidence: HIGH — the dev-handler and default-handler paths were traced line by line.
   - Blind spot: none significant.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — orchestrator, 2026-10-06. On `/500` the middleware keeps a catch that rethrows `redactError(error)` without logging. Contract: exactly one `logErrorEvent` per request; every rethrow is redacted.
 
 ### F3 — Manual SSR check runs only Astro's dev error handler, and its expectation is off
 
@@ -116,7 +116,7 @@ These are recorded so the claims aren't re-checked. The evidence is in `node_mod
   - Tradeoff: one extra build and preview cycle.
   - Confidence: HIGH — the dev and production handler split is explicit in `vite-plugin-app/index.js:25` and `environment/dev-nonrunnable.js:147`.
   - Blind spot: none significant.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — orchestrator, 2026-10-06. Check 2.7 now expects exactly one `ssr` event, with every Astro error line `[redacted]`, under both `astro dev` (kitchen-sink throw) and `npm run build && npm run preview` (temporary throw in `src/pages/index.astro`), reverted.
 
 ### F4 — Redaction and whitelist leave small gaps in the "no free text" invariant
 
@@ -133,7 +133,7 @@ These are recorded so the claims aren't re-checked. The evidence is in `node_mod
   - In `redactError`, cut the exact `${name}: ${message}` prefix from `stack` before filtering frames. When `stack` doesn't start with that prefix, emit the header only, with no frames.
   - Add a unit case for each of (a) and (b).
   - State (c) in the README privacy rule: detail values must be static identifiers, never row or user values.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — orchestrator, 2026-10-06. The token rule applies to `name` (fallback `UnknownError`). `redactError` cuts the exact `name: message` prefix before filtering frames, and emits the header only when the prefix doesn't match. There are unit cases for both. The README states that detail values must be static identifiers.
 
 ### F5 — Success criterion 1.4 errors in zsh and isn't pass/fail
 
@@ -145,7 +145,7 @@ These are recorded so the claims aren't re-checked. The evidence is in `node_mod
   - The command as written errors in zsh. `grep -rn 'error\.message' src --include=*.ts --include=*.astro` fails with "no matches found", because zsh expands the unquoted globs and this worker's shell is zsh.
   - Even when it runs, "returns no throw sites" needs judgment. The sub-agent found no other `error.message` use in `src/`, so after the change the grep should return nothing at all.
 - **Fix**: Make 1.4 `grep -rn 'error\.message' src --include='*.ts' --include='*.astro'` "returns no output".
-- **Decision**: PENDING
+- **Decision**: ACCEPT — orchestrator, 2026-10-06. 1.4 is now `grep -rn 'error\.message' src --include='*.ts' --include='*.astro'` and "returns no output".
 
 ### F6 — `ErrorEvent` type name shadows the Workers global
 
@@ -155,4 +155,4 @@ These are recorded so the claims aren't re-checked. The evidence is in `node_mod
 - **Location**: Phase 1 §3 contract (`ErrorEvent`)
 - **Detail**: `worker-configuration.d.ts:1491` declares a global `class ErrorEvent extends Event`. A module-level `ErrorEvent` type is legal, but it shadows that global in every importer (`middleware.ts`, `worker.ts`, `failure-alert.ts`) and is confusing to read.
 - **Fix**: Name it `ErrorLogEvent`, or `ObservedErrorEvent`.
-- **Decision**: PENDING
+- **Decision**: ACCEPT — orchestrator, 2026-10-06. The type is renamed `ErrorLogEvent`.

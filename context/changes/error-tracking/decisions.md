@@ -86,3 +86,16 @@
   - The alert must not mask the original failure (research.md, Architecture Insights).
   - Idempotency key: `dbam-reminder-failure:<cron>:<scheduledTime>`, mirroring `heartbeat.ts:41`. It dedupes a retried run, a question that is unresolved in the archived docs.
 - **Decided by:** worker
+
+## 2026-10-06 Plan-review triage (plan-review.md F1–F6)
+
+- **Question:** How should each plan-review finding be resolved?
+- **Choices:**
+  - **F1 Fix A.** Invocation-log URLs carry `slug`. The README privacy rule is scoped to our own `error`/`failure-alert` events, with a Known gaps bullet, PR manual check 3.7 (does `$workers.event.request.url` keep the query string?), and a follow-up record `follow-ups/redirect-slug-leak.md` (move `slug` out of the redirect query; audit `?code=` and other params) for the PR body. No roadmap slice edits; the owner decides.
+  - **F2 ACCEPT.** On `/500`, a catch rethrows `redactError(error)` without logging: redact always, log once.
+  - **F3 ACCEPT.** Check 2.7 runs under `astro dev` and under `npm run preview` (the production handler), and expects one `ssr` event with every Astro error line redacted.
+  - **F4 ACCEPT.** The token rule applies to `name` (fallback `UnknownError`). `redactError` cuts the exact `name: message` prefix before filtering frames (header only otherwise), with unit cases for both. The README says detail values must be static identifiers.
+  - **F5 ACCEPT.** Criterion 1.4 uses quoted globs and expects "returns no output".
+  - **F6 ACCEPT.** The type is renamed `ErrorLogEvent`.
+- **Evidence:** `context/changes/error-tracking/plan-review.md`. F1 rests on `src/pages/api/screenings.ts:42,49` and `src/pages/dashboard.astro:92`.
+- **Decided by:** orchestrator

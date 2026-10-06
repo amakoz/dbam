@@ -482,9 +482,9 @@ No schema or config migration. A Worker rollback simply restores the previous lo
 
 #### Manual
 
-- [x] 2.5 An unknown cron logs one heartbeat cron error event, sends no failure email, and the run reports failure
+- [x] 2.5 An unknown cron logs one heartbeat cron error event, sends no failure email, and the run reports failure — a028cb9
 - [x] 2.6 A failing reminder claim logs one appointment-reminder error event with step claim, one failure-alert dry-run line, and no address — a028cb9
-- [x] 2.7 A temporary SSR throw yields exactly one ssr event and every Astro error line shows [redacted] with no address, under both astro dev and the preview server; the 500 page renders; the throws are reverted
+- [x] 2.7 A temporary SSR throw yields exactly one ssr event and every Astro error line shows [redacted] with no address, under both astro dev and the preview server; the 500 page renders; the throws are reverted — a028cb9
 - [x] 2.8 A normal daily cron run shows no error or failure-alert lines — a028cb9
 
 ### Phase 3: Documentation and production checks

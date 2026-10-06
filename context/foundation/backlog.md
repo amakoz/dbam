@@ -86,6 +86,6 @@
   - the merge policy setting;
   - `astro dev --host 127.0.0.1`;
   - PR-stage manual checks.
-- B-01 Health data in Cloudflare invocation-log URLs: moved to roadmap F-09 on 2026-10-06, owner-approved. Change: `context/changes/redirect-query-privacy/` (plan: the slug moves to a short-lived `HttpOnly` flash cookie). The human check (does `$workers.event.request.url` keep the query string?) is still open and does not block F-09.
+- B-01 Health data in Cloudflare invocation-log URLs: done as roadmap F-09 (owner-approved 2026-10-06). The screening slug moved from the `/dashboard` redirect query to a short-lived `HttpOnly` flash cookie; the URL keeps only the `?saved=`/`?error=` code and the `#screening-<slug>` fragment. Change: `context/archive/2026-10-06-redirect-query-privacy/`. Still open, human, non-blocking: after deploy, check in Workers Observability that new `/dashboard` invocation entries carry no `slug=` (and whether the query string is kept at all).
 - B-08 Usage limit and interruptions in orchestrated runs: done in the local orchestrator skill (a `spawn-worker.sh wait` subcommand), recorded in `context/changes/agent-docs-mcp/decisions.md`.
 - B-10 Noisy SHA write-back commits: fixed by the worker protocol (bookkeeping is committed with the phase), recorded in `context/changes/agent-docs-mcp/decisions.md`.

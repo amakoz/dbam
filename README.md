@@ -298,7 +298,7 @@ The full run signs up a real `smoke-*@example.com` account, so the script refuse
 SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smoke
 ```
 
-> **Note:** this script is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter, the Supabase auth flow or the main user flows. It is **not** a substitute for a real test suite: the catalog rules are covered by the Vitest unit tests (`npm test`), and the database access rules are covered separately by the pgTAP tests (`npx supabase test db`).
+> **Note:** this script is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter, the Supabase auth flow or the main user flows. It is **not** a substitute for a real test suite: the catalog and screening recurrence rules are covered by the Vitest unit tests (`npm test`), and the database access rules are covered separately by the pgTAP tests (`npx supabase test db`).
 
 ## CI
 

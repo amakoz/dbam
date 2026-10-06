@@ -50,7 +50,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —                | NFR (testing)                                      | ready    |
 | F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —                | NFR (testing)                                      | done     |
 | F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —                | NFR (privacy), FR-007                              | ready    |
-| F-08 | recurrence-unit-tests       | (foundation) unit tests cover the recurrence rules (`rules.ts`) and `describeLastDone` (`format.ts`)                                      | F-03             | FR-008, FR-009, NFR (testing)                      | ready    |
+| F-08 | recurrence-unit-tests       | (foundation) unit tests cover the recurrence rules (`rules.ts`) and `describeLastDone` (`format.ts`)                                      | F-03             | FR-008, FR-009, NFR (testing)                      | done     |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —                | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01       | US-01, FR-004, Guardrail (no diagnosis)            | done     |
 | S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02             | US-02, FR-005, FR-009 (partial: mark already done) | done     |
@@ -195,7 +195,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** S-05 shipped its recurrence logic without unit tests, and S-06 reads the due dates it computes. Added 2026-10-06 by the owner from F-03's impl-review follow-up; first cases are listed in `context/archive/2026-10-05-unit-test-suite/follow-ups/recurrence-tests.md`.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -336,3 +336,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-05: user can confirm that an exam happened on its recorded appointment date once that date has passed; its next due date is computed from that date and the catalog interval.** — Archived 2026-10-05 → `context/archive/2026-10-05-confirm-exam-and-recurrence/`. Lesson: —.
 - **F-03: (foundation) a unit-test runner (Vitest) runs in CI and covers the catalog eligibility, tier and interval rules (`src/lib/catalog/recommend.ts`, `wording.ts`).** — Archived 2026-10-06 → `context/archive/2026-10-05-unit-test-suite/`. Lesson: —.
 - **F-06: (foundation) a committed `.claude/settings.json` (un-ignored in `.gitignore`) adds a Claude Code `Stop` hook that runs ESLint on the files changed against `origin/main` and blocks the turn from ending while errors remain, so worker agents fix lint before reporting `done`. The hook runs only in worker sessions (`DBAM_CHANGE` set), so interactive human sessions are not slowed.** — Archived 2026-10-06 → `context/archive/2026-10-05-agent-stop-hook/`. Lesson: —.
+- **F-08: (foundation) unit tests cover the recurrence rules in `src/lib/screenings/rules.ts` (`nextDueMonth`, `addMonths`/`addYears`, `partitionDashboard`, Warsaw midnight, Feb 29) and `describeLastDone` in `src/lib/screenings/format.ts`.** — Archived 2026-10-06 → `context/archive/2026-10-06-recurrence-unit-tests/`. Lesson: —.

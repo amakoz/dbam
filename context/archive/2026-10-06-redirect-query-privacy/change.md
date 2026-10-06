@@ -1,10 +1,10 @@
 ---
 change_id: redirect-query-privacy
 title: Keep user-derived health data out of request URLs logged by Workers Logs
-status: impl_reviewed
+status: archived
 created: 2026-10-06
 updated: 2026-10-06
-archived_at: null
+archived_at: 2026-10-06T20:40:04Z
 ---
 
 ## Notes

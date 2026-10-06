@@ -355,18 +355,18 @@ Additive: a new table and functions, and a table comment. A Worker rollback leav
 
 #### Automated
 
-- [x] 2.1 Unit tests pass, including the new nudge-message and chain cases
-- [x] 2.2 Lint and type check pass
-- [x] 2.3 Build passes with the job wired into the Worker
+- [x] 2.1 Unit tests pass, including the new nudge-message and chain cases — f0a733e
+- [x] 2.2 Lint and type check pass — f0a733e
+- [x] 2.3 Build passes with the job wired into the Worker — f0a733e
 
 ### Phase 3: Docs and local dry run
 
 #### Automated
 
-- [ ] 3.1 Lint, type check and build pass
-- [ ] 3.2 Unit and pgTAP suites still pass
-- [ ] 3.3 Local dry run logs the nudge for a seeded user and none after a same-day reminder
-- [ ] 3.4 npm run ui:check passes
+- [x] 3.1 Lint, type check and build pass
+- [x] 3.2 Unit and pgTAP suites still pass
+- [x] 3.3 Local dry run logs the nudge for a seeded user and none after a same-day reminder
+- [x] 3.4 npm run ui:check passes
 
 #### Manual
 

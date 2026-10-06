@@ -155,13 +155,13 @@ None. Rollback is to delete `.mcp.json` and the settings key. If a pane blocks o
 
 #### Automated
 
-- [x] 1.1 `.mcp.json` declares exactly the keyless HTTP server
-- [x] 1.2 No secret-shaped content in `.mcp.json`
-- [x] 1.3 Settings approve only context7 and keep the Stop hook
-- [x] 1.4 Approval resolves in this worktree (`claude mcp list` → `✔ Connected`)
-- [x] 1.5 A fresh non-interactive session can call `resolve-library-id`
-- [x] 1.6 CLAUDE.md names the current tool and the new guidance
-- [x] 1.7 Formatting is clean (Prettier check)
+- [x] 1.1 `.mcp.json` declares exactly the keyless HTTP server — 2fb3acb
+- [x] 1.2 No secret-shaped content in `.mcp.json` — 2fb3acb
+- [x] 1.3 Settings approve only context7 and keep the Stop hook — 2fb3acb
+- [x] 1.4 Approval resolves in this worktree (`claude mcp list` → `✔ Connected`) — 2fb3acb
+- [x] 1.5 A fresh non-interactive session can call `resolve-library-id` — 2fb3acb
+- [x] 1.6 CLAUDE.md names the current tool and the new guidance — 2fb3acb
+- [x] 1.7 Formatting is clean (Prettier check) — 2fb3acb
 
 #### Manual
 

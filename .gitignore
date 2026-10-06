@@ -34,3 +34,6 @@ pnpm-debug.log*
 
 # catalog drafter audit files (npm run catalog:draft)
 catalog/.draft-runs/
+
+# screenshots from `npm run ui:shots` (default output folder)
+ui-shots/

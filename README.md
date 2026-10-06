@@ -58,6 +58,7 @@ npm run dev
 - `npm run smoke` - Smoke test the auth flow against a running server (`BASE_URL`, defaults to `http://localhost:4321`)
 - `npm test` - Run the Vitest unit tests (colocated `src/**/*.test.ts`) once
 - `npm run ui:check` - Fail on hardcoded colours and arbitrary values in the views migrated to the design system (see [Design system](#design-system))
+- `npm run ui:shots` - Save light/dark screenshots of the key views at 1440px and 390px from a running dev server (see [UI screenshots](#ui-screenshots))
 - `npm run db:types` - Regenerate `src/lib/database.types.ts` from the local database
 - `npm run cf:types` - Regenerate `worker-configuration.d.ts` (Worker runtime types and `Env`) from `wrangler.jsonc` and `.dev.vars` (commit it)
 - `npm run catalog:check` - Validate the screening catalog entries and check they match the newest snapshot migration
@@ -364,6 +365,41 @@ SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smo
 ```
 
 > **Note:** this script is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter, the Supabase auth flow or the main user flows. It is **not** a substitute for a real test suite: the catalog and screening recurrence rules are covered by the Vitest unit tests (`npm test`), and the database access rules are covered separately by the pgTAP tests (`npx supabase test db`).
+
+## UI screenshots
+
+`scripts/ui-shots.mjs` drives headless Chromium (Playwright, a dev dependency) so a UI change can be looked at without a human at the screen. It signs up and onboards a throwaway fixture user through the app's own endpoints, then saves full-page screenshots of onboarding (consent and profile steps), the dashboard, the profile page and the kitchen sink, each in light and dark at 1440px (desktop) and 390px (mobile): 20 PNGs.
+
+One-time setup per machine, then run it against the dev server (not a production build: the kitchen sink at `/dev/kitchen-sink` is dev-only and answers 404 there) with local Supabase running:
+
+```bash
+npx playwright install chromium --only-shell   # once; never installed by an npm lifecycle script
+npm run dev                                    # in another terminal, with local Supabase up
+BASE_URL=http://localhost:4321 npm run ui:shots
+```
+
+Files are written to `ui-shots/` (gitignored) as `<view>-<desktop|mobile>-<light|dark>.png`, with `onboarding-consent-*` and `onboarding-profile-*` for the two onboarding steps. The script prints each path as it saves it and a closing summary with the count, the folder and the `BASE_URL` the shots came from. Same-named files are overwritten and nothing is deleted, so **read only the paths a run printed**: the folder keeps older PNGs from earlier or `--only` runs.
+
+- `--only <view>` limits the run and can be repeated. Views: `onboarding`, `dashboard`, `profile`, `kitchen-sink`. A kitchen-sink-only run creates no fixture user and makes no API calls.
+- `--out <dir>` writes elsewhere, e.g. `--out context/changes/<id>/screenshots` when a PR needs images committed.
+- A full run signs up one `ui-shots-*@example.com` user in the local Supabase (as smoke leaves `smoke-*` users).
+
+It is local only. It exits 2 before any request when `BASE_URL` or any `SUPABASE_URL` it can see (its own environment and the `.dev.vars*`/`.env*` files at the repo root, except `.env.example`; the last matching line in each file counts) is not `localhost`/`127.0.0.1`. A stale non-local value in an unused file such as `.env.production` also refuses the run: remove it. The guard cannot see the environment the dev server was started with, so a server launched with a shell-exported production `SUPABASE_URL` is not detected: don't start one that way.
+
+### In worker sessions
+
+Port 4321 belongs to the human's dev server, so a worker session (`DBAM_CHANGE` set) uses `$DBAM_PORT`, and the script refuses 4321 there, whether explicit or the default. Always spell out `BASE_URL`:
+
+```bash
+npx astro sync                                              # once on a fresh worktree: generates .astro/ types
+npx astro dev --port $DBAM_PORT --host 127.0.0.1            # daemonizes; stop it with: npx astro dev stop
+BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots
+```
+
+- `--host 127.0.0.1` is needed because Astro 7's dev server binds `::1` only, so `http://127.0.0.1:$DBAM_PORT` is otherwise unreachable.
+- The first `astro dev` start (often straight after `astro sync`) can exit 1 with "Dev server process exited before becoming ready". Run the same command again; `npx astro dev logs` shows why it stopped.
+- Take the shared DB lock around a full run, as for smoke (see the worker protocol): `until mkdir ~/.cache/dbam/db.lock 2>/dev/null; do sleep 15; done; echo "$DBAM_CHANGE" > ~/.cache/dbam/db.lock/owner`, then `rm -rf ~/.cache/dbam/db.lock` afterwards, even when the run fails. A `--only kitchen-sink` run needs no lock.
+- A freshly started dev server optimizes dependencies on its first requests, which can fail the first run (exit 1, "Execution context was destroyed"). The script warms the server up first; if a run still fails that way, rerun it.
 
 ## CI
 

@@ -58,3 +58,11 @@
   - 1.8 stays unchecked until the PR body lists the orchestrator's pane checks, so change.md stays `implementing`.
 - Evidence: 10x-implement "Roadmap status sync"; worker protocol "Git and commits"
 - Decided-by: worker
+
+## 2026-10-06 Impl review: report path and triage
+
+- Question: where to write the impl-review report, and who triages
+- Options: skill default `reviews/impl-review.md` vs orchestrator path `impl-review.md`; worker vs orchestrator triage
+- Choice: `context/changes/agent-docs-mcp/impl-review.md`; findings left `PENDING` for the orchestrator. Pane check for 1.8 (first): context7 connected in the impl-review pane.
+- Evidence: orchestrator prompt; impl-review.md § Success criteria evidence
+- Decided-by: orchestrator

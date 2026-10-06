@@ -1,7 +1,7 @@
 ---
 change_id: agent-docs-mcp
 title: Committed .mcp.json registers Context7 so agent sessions can query current library docs
-status: implementing
+status: impl_reviewed
 created: 2026-10-06
 updated: 2026-10-06
 archived_at: null

@@ -182,3 +182,13 @@
   - `--only kitchen-sink` against `astro dev` on `$DBAM_PORT` with a trailing-slash `BASE_URL` exits 0 with 4 PNGs.
   - lint, `ui:check`, `astro check` and build pass. See `impl-review.md`.
 - **Decided by:** orchestrator
+
+## 2026-10-06 Archive before the PR
+
+- **Question:** archive now, before the PR exists?
+- **Choice:** yes, without SHA repointing.
+  - All Progress rows are done, so there are no PR-stage manual rows to defer.
+  - The impl-review covers phases 1 and 2. It lives at `impl-review.md`, not `reviews/`, by the orchestrator's choice.
+  - The Progress SHAs `a61fc18` and `fae6fb1` are not in `origin/main` (66c008f) only because the branch is unmerged. With no implementation PR, there is no integration commit to map them to, and the archived plan keeps the branch SHAs.
+- **Evidence:** /10x-archive checks; precedent: `context/archive/2026-10-05-unit-test-suite/decisions.md` ("no PR exists yet, so no SHA repointing").
+- **Decided by:** orchestrator (archive instruction), worker

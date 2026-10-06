@@ -475,17 +475,17 @@ No schema or config migration. A Worker rollback simply restores the previous lo
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `npm test`
-- [x] 2.2 Lint passes with no new warnings in changed files: `npm run lint`
-- [x] 2.3 Types check: `npx astro check`
-- [x] 2.4 Production build succeeds: `npm run build`
+- [x] 2.1 Unit tests pass: `npm test` — a028cb9
+- [x] 2.2 Lint passes with no new warnings in changed files: `npm run lint` — a028cb9
+- [x] 2.3 Types check: `npx astro check` — a028cb9
+- [x] 2.4 Production build succeeds: `npm run build` — a028cb9
 
 #### Manual
 
 - [x] 2.5 An unknown cron logs one heartbeat cron error event, sends no failure email, and the run reports failure
-- [x] 2.6 A failing reminder claim logs one appointment-reminder error event with step claim, one failure-alert dry-run line, and no address
+- [x] 2.6 A failing reminder claim logs one appointment-reminder error event with step claim, one failure-alert dry-run line, and no address — a028cb9
 - [x] 2.7 A temporary SSR throw yields exactly one ssr event and every Astro error line shows [redacted] with no address, under both astro dev and the preview server; the 500 page renders; the throws are reverted
-- [x] 2.8 A normal daily cron run shows no error or failure-alert lines
+- [x] 2.8 A normal daily cron run shows no error or failure-alert lines — a028cb9
 
 ### Phase 3: Documentation and production checks
 

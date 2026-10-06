@@ -89,3 +89,10 @@
 - **Choice:** implement in this context. It is one ~190-line file whose decision order was already fixed by the plan, so a subagent adds a re-read for no gain.
 - **Also chosen (within plan intent):** an empty lintable list resets the counter to 0 like a clean lint; after a successful `astro sync` the script touches `.astro/types.d.ts` so the mtime check does not re-sync every run; ESLint and `astro sync` have 150 s / 90 s timeouts that fail open, inside the hook's 180 s limit.
 - **Decided by:** worker
+
+## 2026-10-06 Implementation review output location and triage
+
+- **Question:** Where to save the implementation review, and who triages it?
+- **Choice:** save to `context/changes/agent-stop-hook/impl-review.md` (not the skill's default `reviews/impl-review.md`) and leave every finding `Decision: PENDING`. Verdict APPROVED: 1 warning (F1, cap release skips lint), 3 observations (F2-F4).
+- **Evidence:** orchestrator's `/10x-impl-review` arguments ("Write the report to …/impl-review.md. Triage nothing yourself.").
+- **Decided by:** orchestrator

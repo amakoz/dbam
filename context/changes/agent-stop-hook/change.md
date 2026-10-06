@@ -1,7 +1,7 @@
 ---
 change_id: agent-stop-hook
 title: Stop hook that blocks worker turns until ESLint passes on changed files
-status: implemented
+status: impl_reviewed
 created: 2026-10-05
 updated: 2026-10-06
 archived_at: null

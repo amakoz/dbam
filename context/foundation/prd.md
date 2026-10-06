@@ -139,7 +139,7 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
 - The product remains usable on the latest two major versions of mainstream desktop and mobile browsers.
 - The interface remains fully usable on mobile-sized screens, with no loss of core functionality compared to desktop.
 - Core flows are operable via keyboard and compatible with screen readers (baseline accessibility commitment; no formal certification target for v1).
-- The catalog rule logic (eligibility, importance tier, repeat interval) is covered by unit tests, tracked as roadmap foundation F-03 (#49); until then it is covered by smoke checks, pgTAP and manual test profiles.
+- The catalog rule logic (eligibility, importance tier, repeat interval) is covered by unit tests, delivered as roadmap foundation F-03 (#49).
 
 ## Business Logic
 

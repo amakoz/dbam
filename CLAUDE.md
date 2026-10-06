@@ -24,6 +24,7 @@ Dbam (preventive-screening reminders for adults in Poland): an Astro 7 SSR app w
 - `npm run dev` / `build` / `preview` — Cloudflare workerd runtime.
 - `npm run lint` / `lint:fix` — ESLint with type-checked rules.
 - `npm run format` — Prettier.
+- `npm test` — Vitest unit tests over colocated `src/**/*.test.ts`, run in CI's `ci` job.
 - `npm run smoke` — smoke test of auth, onboarding, profile edit and withdrawal against a running server (`BASE_URL` env), see `@scripts/smoke.mjs`.
 - `npx supabase test db` — pgTAP tests for database access rules (`supabase/tests/`).
 - `npm run ui:check` — hardcoded-value check over the views migrated to the design system, see `@scripts/ui-check.mjs`.
@@ -51,7 +52,7 @@ Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}`, `prett
 
 ## Testing Guidelines
 
-No unit suite is configured yet. Database access rules (RLS, grants, the withdraw function) are covered by pgTAP tests in `supabase/tests/` (`npx supabase test db`, run in CI's `smoke` job); add a case there for every new policy or grant. `npm run smoke` (`@scripts/smoke.mjs`) is an HTTP-level check of the auth and onboarding flows, not a substitute for unit tests — see `@README.md`.
+Unit tests run with Vitest (`npm test`) and live next to the code as `*.test.ts` (today: catalog rules and their wording in `src/lib/catalog/`). Keep logic testable by making it pure and passing "now"/`currentYear` as a parameter. Add a case when you change catalog eligibility, tier or interval rules or their wording; if the wording tests fail after a Node update with no code change, re-probe the strings and re-pin them. Database access rules (RLS, grants, the withdraw function) are covered by pgTAP tests in `supabase/tests/` (`npx supabase test db`, run in CI's `smoke` job); add a case there for every new policy or grant. `npm run smoke` (`@scripts/smoke.mjs`) is an HTTP-level check of the auth and onboarding flows, not a substitute for unit tests — see `@README.md`.
 
 ## Commit & Pull Request Guidelines
 

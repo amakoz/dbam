@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
+    "test": "vitest run",
     "smoke": "node scripts/smoke.mjs",
     "ui:check": "node scripts/ui-check.mjs",
     "prepare": "husky",
@@ -65,6 +66,7 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.3",
     "wrangler": "^4.141.0"
   },
   "lint-staged": {

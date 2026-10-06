@@ -56,6 +56,7 @@ npm run dev
 - `npm run lint:fix` - Auto-fix ESLint issues
 - `npm run format` - Run Prettier
 - `npm run smoke` - Smoke test the auth flow against a running server (`BASE_URL`, defaults to `http://localhost:4321`)
+- `npm test` - Run the Vitest unit tests (colocated `src/**/*.test.ts`) once
 - `npm run ui:check` - Fail on hardcoded colours and arbitrary values in the views migrated to the design system (see [Design system](#design-system))
 - `npm run db:types` - Regenerate `src/lib/database.types.ts` from the local database
 - `npm run cf:types` - Regenerate `worker-configuration.d.ts` (Worker runtime types and `Env`) from `wrangler.jsonc` and `.dev.vars` (commit it)
@@ -297,13 +298,13 @@ The full run signs up a real `smoke-*@example.com` account, so the script refuse
 SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smoke
 ```
 
-> **Note:** this script is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter, the Supabase auth flow or the main user flows. It is **not** a substitute for a real test suite: no unit suite is configured yet, and the database access rules are covered separately by the pgTAP tests (`npx supabase test db`).
+> **Note:** this script is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter, the Supabase auth flow or the main user flows. It is **not** a substitute for a real test suite: the catalog rules are covered by the Vitest unit tests (`npm test`), and the database access rules are covered separately by the pgTAP tests (`npx supabase test db`).
 
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`, and on manual `workflow_dispatch`:
 
-- **ci** — `catalog:check`, lint, `ui:check`, `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
+- **ci** — `catalog:check`, lint, `ui:check`, unit tests (`npm test`), `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
   It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for every cron in the built `dist/server/wrangler.json` with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"`, so a `wrangler.jsonc` cron that `src/lib/heartbeat.ts` doesn't handle fails the PR (see [Scheduled jobs](#scheduled-jobs)). The daily run also exercises the appointment reminder job's real claim against the local Supabase with its `SECRET_KEY`, so broken wiring or a wrong grant fails the PR too.
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).

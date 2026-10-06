@@ -1,10 +1,12 @@
 import type { Locale } from "@/i18n";
-import { FACTORS } from "@/lib/catalog/factors";
+import { FACTORS, type RuleProfile } from "@/lib/catalog/factors";
 import type { Branch, CatalogEntry, Condition } from "@/lib/catalog/schema";
-import type { Profile, Sex } from "@/lib/profile";
+import type { Sex } from "@/lib/profile";
 
 // The eligibility, tier and interval rules of S-02, implementing the semantics documented in `factors.ts`. Pure: no
 // I/O, no Supabase and no i18n, so it can be unit-tested directly.
+
+export type { RuleProfile };
 
 /** `unknown`: every known part holds, but a condition is on a factor the profile doesn't collect. */
 export type BranchResult = "match" | "unknown" | "no";
@@ -41,7 +43,7 @@ interface Rule {
   requires?: Condition[];
 }
 
-function evaluateCondition(condition: Condition, profile: Profile): BranchResult {
+function evaluateCondition(condition: Condition, profile: RuleProfile): BranchResult {
   const factor = FACTORS[condition.factor];
   if (!factor.collected) return "unknown";
 
@@ -67,7 +69,7 @@ function holds({ op, value }: Condition, actual: string | number): boolean {
  * False beats unknown: `no` when any known part fails (sex, age, or a condition on a collected factor, including a
  * null profile value); otherwise `unknown` when a condition is on an uncollected factor; otherwise `match`.
  */
-export function evaluateBranch(branch: Rule, profile: Profile, age: number): BranchResult {
+export function evaluateBranch(branch: Rule, profile: RuleProfile, age: number): BranchResult {
   if (branch.sex !== undefined && branch.sex !== profile.sex) return "no";
   if (branch.age_min !== undefined && age < branch.age_min) return "no";
   if (branch.age_max !== undefined && age > branch.age_max) return "no";
@@ -79,7 +81,7 @@ export function evaluateBranch(branch: Rule, profile: Profile, age: number): Bra
 }
 
 /** For `fixed`, the first override whose `when` matches wins; an `unknown` override is skipped, not applied. */
-export function resolveInterval(entry: CatalogEntry, profile: Profile, age: number): Interval {
+export function resolveInterval(entry: CatalogEntry, profile: RuleProfile, age: number): Interval {
   if (entry.interval_kind !== "fixed") return { kind: entry.interval_kind };
 
   const override = entry.interval_overrides.find((o) => evaluateBranch(o.when, profile, age) === "match");
@@ -97,15 +99,10 @@ function tierOf(evidenceLevel: number): Tier {
 
 /**
  * The entries due for the profile, grouped by tier, plus the ones that may apply depending on uncollected factors.
- * Only active entries with a review stamp are considered (the launch gate). Within a tier, entries are sorted by
- * burden weight (highest first), then by name in the given locale.
+ * Only active entries with a review stamp are considered (the launch gate). The lists are in catalog order: the
+ * cron path calls this core, which never builds an `Intl.Collator` (a cold one alone can use the Worker's CPU cap).
  */
-export function recommend(
-  entries: CatalogEntry[],
-  profile: Profile,
-  currentYear: number,
-  locale: Locale,
-): Recommendations {
+export function classifyEntries(entries: CatalogEntry[], profile: RuleProfile, currentYear: number): Recommendations {
   const age = currentYear - profile.birth_year;
   const tiers: Record<Tier, Recommendation[]> = { 1: [], 2: [], 3: [] };
   const maybe: MaybeRecommendation[] = [];
@@ -131,12 +128,24 @@ export function recommend(
     }
   }
 
+  return { tiers, maybe, age };
+}
+
+/** `classifyEntries` for display: within a tier, entries are sorted by burden weight (highest first), then by name in the given locale. */
+export function recommend(
+  entries: CatalogEntry[],
+  profile: RuleProfile,
+  currentYear: number,
+  locale: Locale,
+): Recommendations {
+  const recommendations = classifyEntries(entries, profile, currentYear);
+
   const collator = new Intl.Collator(locale);
   const name = (entry: CatalogEntry) => (locale === "pl" ? entry.name_pl : entry.name_en);
   const byBurdenThenName = (a: { entry: CatalogEntry }, b: { entry: CatalogEntry }) =>
     b.entry.burden_weight - a.entry.burden_weight || collator.compare(name(a.entry), name(b.entry));
-  for (const list of Object.values(tiers)) list.sort(byBurdenThenName);
-  maybe.sort(byBurdenThenName);
+  for (const list of Object.values(recommendations.tiers)) list.sort(byBurdenThenName);
+  recommendations.maybe.sort(byBurdenThenName);
 
-  return { tiers, maybe, age };
+  return recommendations;
 }

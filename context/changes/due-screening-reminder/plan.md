@@ -469,22 +469,22 @@ The migration adds a table, the anchor helper, three cron functions and grants, 
 
 #### Automated
 
-- [x] 1.1 Migration applies on the shared local stack (DB lock held): `npx supabase migration up`
-- [x] 1.2 pgTAP passes, old and new files: `npx supabase test db`
-- [x] 1.3 Types regenerated and committed with no further diff: `npm run db:types && git diff --exit-code src/lib/database.types.ts`
+- [x] 1.1 Migration applies on the shared local stack (DB lock held): `npx supabase migration up` — f766071
+- [x] 1.2 pgTAP passes, old and new files: `npx supabase test db` — f766071
+- [x] 1.3 Types regenerated and committed with no further diff: `npm run db:types && git diff --exit-code src/lib/database.types.ts` — f766071
 
 #### Manual
 
-- [x] 1.4 Reviewer confirms the migration only adds objects (no `alter`/`drop` on existing objects) and revokes service_role on the new table
+- [x] 1.4 Reviewer confirms the migration only adds objects (no `alter`/`drop` on existing objects) and revokes service_role on the new table — f766071
 
 ### Phase 2: Pure due-item rule
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass, including `due.test.ts` and the unchanged F-03/F-08 suites: `npm test`
-- [ ] 2.2 Type check passes: `npx astro check`
-- [ ] 2.3 Lint passes: `npm run lint`
-- [ ] 2.4 Timing: `dueScreeningItems` over 100 synthetic candidates and the real catalog entries, cold in a fresh process, runs under 5 ms, and the measured cold and warm times are recorded in the PR: `npx vitest run src/lib/screenings/due.perf.test.ts`
+- [x] 2.1 Unit tests pass, including `due.test.ts` and the unchanged F-03/F-08 suites: `npm test`
+- [x] 2.2 Type check passes: `npx astro check`
+- [x] 2.3 Lint passes: `npm run lint`
+- [x] 2.4 Timing: `dueScreeningItems` over 100 synthetic candidates and the real catalog entries, cold in a fresh process, runs under 5 ms, and the measured cold and warm times are recorded in the PR: `npx vitest run src/lib/screenings/due.perf.test.ts`
 
 ### Phase 3: Due job, shared budget and failure alerts
 

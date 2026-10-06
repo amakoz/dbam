@@ -61,3 +61,12 @@
   - F8: `partitionDashboard` takes `profile: RuleProfile`. The `admin-client.ts` header and the `observability.test.ts:19` comment are fixed in Phase 3.
 - Evidence: `plan-review.md`.
 - decided-by: orchestrator
+
+## 2026-10-06 Candidate limit 50, not 100 (implement, Phase 2)
+
+- Question: `due.perf.test.ts` (plan 2.4) asserts 100 synthetic candidates run cold in under 5 ms. Measured cold in Node: 4.7–7.3 ms for 100 (also in a plain `tsx` script, not only under Vitest), against 0.95 ms warm; 50 candidates take about 2.5 ms cold. The cold cost is V8 warm-up, so it does not shrink with code tweaks.
+- Options: (a) loosen the 5 ms budget; (b) lower the candidate limit, the plan's own fallback ("lower the candidate limit (a constant) first"); (c) keep a flaky test.
+- Choice: (b). `DUE_CANDIDATE_LIMIT = 50` in `src/lib/screenings/due.ts`; Phase 3's job passes it to `get_due_screening_candidates` instead of `MAX_BATCH_SIZE`. The perf test asserts the cold budget at that limit and logs the 100-candidate figure. Consequence: the due job evaluates at most 50 users a run and sends at most 50 emails; the rest roll to the next daily run (the rotating order keeps that fair).
+- Also: `warsawToday` caches its last result by timestamp (the cron asks about the same "now" for every candidate; `formatToParts` was a visible share of the cost). The perf workload gives each candidate 6 completions, not the whole catalog; the all-fixed-entries worst case is logged too (warm numbers are about the same).
+- Evidence: scratch timing runs, `due.perf.test.ts` output (cold ≈ 2.6–2.7 ms, warm ≈ 1.4–2.3 ms for 50 candidates).
+- decided-by: worker

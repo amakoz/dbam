@@ -16,7 +16,13 @@ import { SMOKING_STATUSES, type Profile } from "@/lib/profile";
 // - Interval: `interval_months` applies when `interval_kind = 'fixed'`. The FIRST `interval_overrides` entry whose
 //   `when` matches replaces it. Other kinds have no computable next due date and must be shown as such.
 
-type ProfileColumn = keyof Profile;
+/** The profile fields the eligibility and interval rules read; the cron passes only these. */
+export type RuleProfile = Pick<
+  Profile,
+  "birth_year" | "sex" | "smoking_status" | "pack_years" | "years_since_quitting"
+>;
+
+type ProfileColumn = keyof RuleProfile;
 
 type FactorKind = { kind: "number" } | { kind: "boolean" } | { kind: "enum"; values: readonly [string, ...string[]] };
 

@@ -27,6 +27,7 @@ milestone_status: open
 - **Done when:** every F-NN and S-NN below is `done`.
 - **Scope anchors:** FR-001–FR-009, FR-011, FR-012 (all must-have FRs); US-01, US-02, US-03. FR-010 (nice-to-have) is parked.
 - **Agent-workflow foundations (added 2026-10-05):** F-04–F-07 harden the verification path for agent-driven changes (an orchestrator agent runs S-06/S-07 through the 10x chain with worker agents, up to an open PR). They come from the owner's tooling review, not from the PRD; each one is a verification or safety path for the remaining slices.
+- **F-08 added 2026-10-06** by the owner from F-03's impl-review follow-up.
 
 ## Vision recap
 
@@ -40,33 +41,34 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 ## At a glance
 
-| ID   | Change ID                   | Outcome (user can …)                                                                                                                      | Prerequisites | PRD refs                                           | Status   |
-| ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------- | -------- |
-| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —             | FR-004, FR-009, Business Logic                     | done     |
-| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —             | FR-007, FR-009, FR-011, FR-012                     | done     |
-| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02          | FR-004, FR-009, NFR (testing)                      | done     |
-| F-04 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —             | —                                                  | ready    |
-| F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —             | NFR (testing)                                      | ready    |
-| F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —             | NFR (testing)                                      | ready    |
-| F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —             | NFR (privacy), FR-007                              | ready    |
-| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —             | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
-| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01    | US-01, FR-004, Guardrail (no diagnosis)            | done     |
-| S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02          | US-02, FR-005, FR-009 (partial: mark already done) | done     |
-| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02    | US-02, FR-006, FR-007                              | done     |
-| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01    | US-03, FR-008, FR-009, Success Criteria (Primary)  | done     |
-| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05    | US-03, FR-009, Success Criteria (Primary)          | proposed |
-| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05    | FR-011, FR-012                                     | proposed |
+| ID   | Change ID                   | Outcome (user can …)                                                                                                                      | Prerequisites    | PRD refs                                           | Status   |
+| ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | -------------------------------------------------- | -------- |
+| F-01 | screening-catalog-v1        | (foundation) curated screening catalog with eligibility, importance, and interval                                                         | —                | FR-004, FR-009, Business Logic                     | done     |
+| F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —                | FR-007, FR-009, FR-011, FR-012                     | done     |
+| F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02             | FR-004, FR-009, NFR (testing)                      | done     |
+| F-04 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —                | —                                                  | ready    |
+| F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —                | NFR (testing)                                      | ready    |
+| F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —                | NFR (testing)                                      | ready    |
+| F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —                | NFR (privacy), FR-007                              | ready    |
+| F-08 | recurrence-unit-tests       | (foundation) unit tests cover the recurrence rules (`rules.ts`) and `describeLastDone` (`format.ts`)                                      | F-03             | FR-008, FR-009, NFR (testing)                      | ready    |
+| S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —                | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
+| S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01       | US-01, FR-004, Guardrail (no diagnosis)            | done     |
+| S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02             | US-02, FR-005, FR-009 (partial: mark already done) | done     |
+| S-04 | appointment-reminder        | user opts in or out of reminders and gets an email as an appointment approaches                                                           | S-03, F-02       | US-02, FR-006, FR-007                              | done     |
+| S-05 | confirm-exam-and-recurrence | user confirms an exam happened on its recorded appointment date and sees its next due date computed from it                               | S-03, F-01       | US-03, FR-008, FR-009, Success Criteria (Primary)  | done     |
+| S-06 | due-screening-reminder      | user gets an email when a screening becomes due again                                                                                     | S-04, S-05, F-08 | US-03, FR-009, Success Criteria (Primary)          | proposed |
+| S-07 | follow-up-nudges            | user gets nudged to log a missing date or confirm a past appointment                                                                      | S-04, S-05       | FR-011, FR-012                                     | proposed |
 
 ## Streams
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme                       | Chain                                     | Note                                                                                                                                                      |
-| ------ | --------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A      | Profile and recommendations | `S-01` → `S-02` → `S-03`                  | Shortest path to the north star; `S-02` also joins Stream B at `F-01`.                                                                                    |
-| B      | Catalog and recurrence      | `F-01` → `S-05`; `F-03`                   | Catalog built from Polish NFZ programs and society guidelines; `S-05` joins Stream A at `S-03`; `F-03` (unit tests for the catalog rules) follows `S-02`. |
-| C      | Reminders                   | `F-02` → `S-04` → `S-06` / `S-07`         | Proves the delivery path early; `S-04` joins A at `S-03`, `S-06`/`S-07` join B at `S-05`.                                                                 |
-| D      | Agent workflow              | `F-03` / `F-06` → `F-05` / `F-04`; `F-07` | No prerequisites; suggested order puts verification first (`F-03`, `F-06`), so later agent-run slices are checked.                                        |
+| Stream | Theme                       | Chain                                     | Note                                                                                                                                                                                                                 |
+| ------ | --------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A      | Profile and recommendations | `S-01` → `S-02` → `S-03`                  | Shortest path to the north star; `S-02` also joins Stream B at `F-01`.                                                                                                                                               |
+| B      | Catalog and recurrence      | `F-01` → `S-05`; `F-03` → `F-08` → `S-06` | Catalog built from Polish NFZ programs and society guidelines; `S-05` joins Stream A at `S-03`; `F-03` (unit tests for the catalog rules) follows `S-02`; `F-08` (unit tests for the recurrence rules) gates `S-06`. |
+| C      | Reminders                   | `F-02` → `S-04` → `S-06` / `S-07`         | Proves the delivery path early; `S-04` joins A at `S-03`, `S-06`/`S-07` join B at `S-05`.                                                                                                                            |
+| D      | Agent workflow              | `F-03` / `F-06` → `F-05` / `F-04`; `F-07` | No prerequisites; suggested order puts verification first (`F-03`, `F-06`), so later agent-run slices are checked.                                                                                                   |
 
 ## Baseline
 
@@ -119,7 +121,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Outcome:** (foundation) a unit-test runner (Vitest) runs in CI and covers the catalog eligibility, tier and interval rules (`src/lib/catalog/recommend.ts`, `wording.ts`).
 - **Change ID:** unit-test-suite
 - **PRD refs:** FR-004, FR-009, NFR (testing)
-- **Unlocks:** safer changes to S-05's recurrence logic
+- **Unlocks:** F-08 (recurrence unit tests), then S-06
 - **Prerequisites:** S-02
 - **Parallel with:** S-03, F-02
 - **Blockers:** —
@@ -180,6 +182,19 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Resolved (2026-10-05): Cloudflare-native, not Sentry. Cloudflare and Resend already process this data, so the DPIA in Open Roadmap Question 2 gains no new sub-processor.
   - Cloudflare custom alerts (beta, announced 2026-10-02) can alert on Workers events, but whether they run on the Free plan is undocumented. If they do, add an alert on the error event and drop nothing else; if not, the email path above is the alert. Check in the dashboard during planning. — Owner: user. Block: no.
 - **Risk:** Free-plan limits: 200,000 log events/day and 3-day retention, so errors are triaged within days, not mined later. There is no exception grouping or release tracking (Sentry's strengths); revisit a dedicated tracker only if real-user volume makes raw logs unworkable. The failure email must not include user data.
+- **Status:** ready
+
+### F-08: Recurrence unit tests
+
+- **Outcome:** (foundation) unit tests cover the recurrence rules in `src/lib/screenings/rules.ts` (`nextDueMonth`, `addMonths`/`addYears`, `partitionDashboard`, Warsaw midnight, Feb 29) and `describeLastDone` in `src/lib/screenings/format.ts`.
+- **Change ID:** recurrence-unit-tests
+- **PRD refs:** FR-008, FR-009, NFR (testing)
+- **Unlocks:** safer S-06 (the due-screening reminder builds on these rules)
+- **Prerequisites:** F-03
+- **Parallel with:** F-04–F-07
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** S-05 shipped its recurrence logic without unit tests, and S-06 reads the due dates it computes. Added 2026-10-06 by the owner from F-03's impl-review follow-up; first cases are listed in `context/archive/2026-10-05-unit-test-suite/follow-ups/recurrence-tests.md`.
 - **Status:** ready
 
 ## Slices
@@ -250,7 +265,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Outcome:** an opted-in user receives an email when a screening becomes due — including when a confirmed exam's repeat interval elapses — without re-entering the exam.
 - **Change ID:** due-screening-reminder
 - **PRD refs:** US-03, FR-009, Success Criteria (Primary)
-- **Prerequisites:** S-04, S-05
+- **Prerequisites:** S-04, S-05, F-08
 - **Parallel with:** S-07
 - **Blockers:** —
 - **Unknowns:** —
@@ -281,12 +296,13 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-05       | ui-verification-script      | Playwright screenshot script for agent UI checks                | yes                   | Run `/10x-plan ui-verification-script`        |
 | F-06       | agent-stop-hook             | Stop hook: workers fix lint before finishing                    | yes                   | Run `/10x-plan agent-stop-hook`               |
 | F-07       | error-tracking              | Cloudflare-native error logging and failure alerts              | yes                   | Run `/10x-plan error-tracking`                |
+| F-08       | recurrence-unit-tests       | Unit tests for recurrence rules and describeLastDone            | yes                   | Run `/10x-plan recurrence-unit-tests`         |
 | S-01       | onboarding-profile          | Onboarding: health-data consent and minimal profile             | yes                   | #19 · Done                                    |
 | S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | yes                   | #20 · Done                                    |
 | S-03       | record-appointment-date     | Record an appointment date for a recommended exam               | yes                   | #21 · Run `/10x-plan record-appointment-date` |
 | S-04       | appointment-reminder        | Reminder opt-in and appointment-approaching email               | no                    | #22 · Needs S-03, F-02                        |
 | S-05       | confirm-exam-and-recurrence | Confirm a passed appointment and schedule next due date         | no                    | #23 · Needs S-03, F-01                        |
-| S-06       | due-screening-reminder      | Email when a screening becomes due again                        | no                    | #24 · Needs S-04, S-05                        |
+| S-06       | due-screening-reminder      | Email when a screening becomes due again                        | no                    | #24 · Needs S-04, S-05, F-08                  |
 | S-07       | follow-up-nudges            | Nudges for missing dates and unconfirmed appointments           | no                    | #25 · Needs S-04, S-05                        |
 
 ## Open Roadmap Questions

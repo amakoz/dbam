@@ -52,6 +52,7 @@ A dependency-free Node script (`scripts/stop-lint.mjs`) holds all the logic. `.c
    - `DBAM_ROLE=review`;
    - the final `STATUS:` line is not `done`. This branch also resets the counter to 0 (plan-review F1).
 2. **Pass after the cap:** the counter has reached 3. The script resets it to 0 and prints a `systemMessage`.
+   - Changed by impl-review F1: the cap check now runs after ESLint (see decisions.md).
 3. **Pass when nothing is lintable:** the list of changed lintable files is empty.
 4. **Fail open:** git, `origin/main`, `astro sync` or the ESLint binary is unavailable, or ESLint exits 2. The script passes and prints a `systemMessage` saying the hook skipped and why.
 5. **Run ESLint** on the list:

@@ -39,4 +39,4 @@
 - **Location**: src/lib/reminders/admin-client.ts:8-9
 - **Detail**: The header was edited to say "seven reminder functions", but the paragraph was not re-wrapped: line 8 ends at "An" and the sentence continues on line 9. This is cosmetic only.
 - **Fix**: Re-wrap the comment paragraph to the file's 120-column width.
-- **Decision**: PENDING
+- **Decision**: ACCEPT (orchestrator): re-wrapped to 120 columns.

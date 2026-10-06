@@ -227,7 +227,8 @@ const accountSteps = [
   [
     "dashboard marks the date invalid on the row",
     () => request("/dashboard?error=invalid_appointment_date"),
-    { status: 200, bodyIncludes: 'aria-invalid="true"' },
+    // The error alert's id exists only on the row (`screening-<slug>-error`), so this fails on a page-level error.
+    { status: 200, bodyIncludes: ['aria-invalid="true"', `id="screening-${mammography}-error"`] },
   ],
   [
     "plan rejects an exam that is not recommended (draft entry)",

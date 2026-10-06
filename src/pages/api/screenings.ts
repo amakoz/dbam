@@ -90,8 +90,10 @@ export const POST: APIRoute = async (context) => {
     if (error) return fail("save_failed");
     if (data === "confirmed") return succeed(slug);
     if (data === "not_due") return fail("appointment_not_passed");
-    // No such plan any more: a double submit (the first one confirmed it) or a stale page. The row shows what is true.
-    return toDashboard(null, slug);
+    // No such plan any more: a double submit (the first one confirmed it) or a stale page. The row shows what is true;
+    // nothing is placed on it, so only the fragment carries the slug and no flash cookie is set.
+    clearFlash();
+    return context.redirect(dashboardLocation(null, slug));
   }
 
   // Without an active consent and a profile nothing may be stored; send the user back to onboarding. (RLS enforces

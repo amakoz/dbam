@@ -43,7 +43,7 @@ Reviewed commits 549de58 (p1), 2160c30 (p2) and bf0f637 (epilogue) against the p
 - **Location**: src/pages/api/screenings.ts:94
 - **Detail**: Plan §3 says the `:81` redirect uses the builder "and clear[s] the cookie"; `toDashboard(null, slug)` sets `screening_flash=<slug>` because the slug is known. Harmless: with no `saved`/`error` in the query the dashboard places nothing on a row (`dashboard.astro` gating) and consumes the cookie on that render. The only cost is one extra cookie carrying the slug for one render.
 - **Fix**: Either accept as is (record in the plan's Progress note), or call `clearFlash()` and `context.redirect(dashboardLocation(null, slug))` at that site.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-06): fixed — the stale-confirm site calls `clearFlash()` and redirects to `dashboardLocation(null, slug)`.
 
 ### F2 — Row-level invalid check in smoke is not row-specific
 
@@ -53,4 +53,4 @@ Reviewed commits 549de58 (p1), 2160c30 (p2) and bf0f637 (epilogue) against the p
 - **Location**: scripts/smoke.mjs:228
 - **Detail**: `bodyIncludes: 'aria-invalid="true"'` passes on any invalid control. Today only the flash-named row can render it (`invalidFieldFor` gates on `itemErrorSlug`), so the step does prove the cookie reached the dashboard, but a future page-level form error would make it pass without row placement.
 - **Fix**: Optional: also assert the row's open panel (e.g. a `data-slug="${mammography}"`-anchored string), as the save-confirmation step does.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-06): fixed — the smoke step also asserts the row-anchored error alert id.

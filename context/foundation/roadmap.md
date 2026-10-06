@@ -48,7 +48,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02             | FR-004, FR-009, NFR (testing)                      | done     |
 | F-04 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —                | —                                                  | ready    |
 | F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —                | NFR (testing)                                      | ready    |
-| F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —                | NFR (testing)                                      | ready    |
+| F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —                | NFR (testing)                                      | done     |
 | F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —                | NFR (privacy), FR-007                              | ready    |
 | F-08 | recurrence-unit-tests       | (foundation) unit tests cover the recurrence rules (`rules.ts`) and `describeLastDone` (`format.ts`)                                      | F-03             | FR-008, FR-009, NFR (testing)                      | done     |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —                | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
@@ -167,7 +167,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** A hook that always fails can trap an agent in a loop; cap it (for example, pass after 3 consecutive blocks and report) and keep it to changed files so it stays fast. Un-ignoring only `.claude/settings.json` must keep `.claude/skills/` and local settings ignored.
-- **Status:** ready
+- **Status:** done
 
 ### F-07: Error tracking
 
@@ -335,4 +335,5 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-04: user can opt in to (or out of) reminders and, when opted in, receives an email as a recorded appointment date approaches.** — Archived 2026-10-05 → `context/archive/2026-09-30-appointment-reminder/`. Lesson: —.
 - **S-05: user can confirm that an exam happened on its recorded appointment date once that date has passed; its next due date is computed from that date and the catalog interval.** — Archived 2026-10-05 → `context/archive/2026-10-05-confirm-exam-and-recurrence/`. Lesson: —.
 - **F-03: (foundation) a unit-test runner (Vitest) runs in CI and covers the catalog eligibility, tier and interval rules (`src/lib/catalog/recommend.ts`, `wording.ts`).** — Archived 2026-10-06 → `context/archive/2026-10-05-unit-test-suite/`. Lesson: —.
+- **F-06: (foundation) a committed `.claude/settings.json` (un-ignored in `.gitignore`) adds a Claude Code `Stop` hook that runs ESLint on the files changed against `origin/main` and blocks the turn from ending while errors remain, so worker agents fix lint before reporting `done`. The hook runs only in worker sessions (`DBAM_CHANGE` set), so interactive human sessions are not slowed.** — Archived 2026-10-06 → `context/archive/2026-10-05-agent-stop-hook/`. Lesson: —.
 - **F-08: (foundation) unit tests cover the recurrence rules in `src/lib/screenings/rules.ts` (`nextDueMonth`, `addMonths`/`addYears`, `partitionDashboard`, Warsaw midnight, Feb 29) and `describeLastDone` in `src/lib/screenings/format.ts`.** — Archived 2026-10-06 → `context/archive/2026-10-06-recurrence-unit-tests/`. Lesson: —.

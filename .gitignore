@@ -27,7 +27,9 @@ pnpm-debug.log*
 # software setting folder
 .idea/
 .vscode/
-.claude/
+# only the shared Claude Code project settings are tracked; skills/prompts symlinks and local settings stay ignored
+.claude/*
+!.claude/settings.json
 .10x-cli.json
 
 # catalog drafter audit files (npm run catalog:draft)

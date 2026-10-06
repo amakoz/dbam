@@ -99,3 +99,11 @@
   - **F6 ACCEPT.** The type is renamed `ErrorLogEvent`.
 - **Evidence:** `context/changes/error-tracking/plan-review.md`. F1 rests on `src/pages/api/screenings.ts:42,49` and `src/pages/dashboard.astro:92`.
 - **Decided by:** orchestrator
+
+## 2026-10-06 Phase 3 closes with production checks left to the PR
+
+- **Question:** Phase 3's manual rows (3.3–3.7) need production; how does the phase and the epilogue close with them pending?
+- **Options:** (a) Pause for the human at the manual gate and the stragglers prompt. (b) Commit the docs, leave 3.3–3.7 unchecked, list them in the PR's Manual checks, and run the epilogue.
+- **Choice:** (b). The orchestrator's instruction for this run: production items (saved queries, field filterability, custom alerts on Free, `REMINDER_TEST_TO` in production, rayId correlation, real Resend delivery, invocation-log query string) go to the PR's Manual checks list. Execution mode: implemented in context, since the phase is documentation only.
+- **Evidence:** `/10x-implement error-tracking phase 3` arguments; `follow-ups/redirect-slug-leak.md` keeps its **Open** answer as pending until the human check.
+- **Decided by:** orchestrator

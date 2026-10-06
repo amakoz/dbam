@@ -491,8 +491,8 @@ No schema or config migration. A Worker rollback simply restores the previous lo
 
 #### Automated
 
-- [ ] 3.1 Formatting is clean: `npx prettier --check README.md`
-- [ ] 3.2 Lint, tests and build still pass: `npm run lint && npm test && npm run build`
+- [x] 3.1 Formatting is clean: `npx prettier --check README.md` — 6b57d73
+- [x] 3.2 Lint, tests and build still pass: `npm run lint && npm test && npm run build` — 6b57d73
 
 #### Manual
 

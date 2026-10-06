@@ -36,7 +36,7 @@
 - **Location**: context/foundation/roadmap.md:49, context/foundation/roadmap.md:144
 - **Detail**: Commit 2fb3acb sets F-04 to `in-progress` in the At-a-glance table and the F-04 section. The plan's NOT-doing list excludes `roadmap.md` status changes, and the worker protocol says not to set "in-progress" during plan or implement, and to skip a flip a 10x skill asks for, because the wider value makes Prettier realign the whole table (all 15 rows change in the diff) and parallel PRs conflict. decisions.md "Implement: roadmap flip and 1.8" cites the worker protocol as support for the flip, which misreads it.
 - **Fix**: Restore `context/foundation/roadmap.md` from `origin/main` (leave F-04 `ready`; `/10x-archive` sets `done`) and correct the decisions.md entry.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — `roadmap.md` restored from origin/main (F-04 stays `ready`; `/10x-archive` sets `done`), decisions.md entry corrected (orchestrator)
 
 ### F2 — CLAUDE.md overstates the approval scope
 
@@ -46,4 +46,4 @@
 - **Location**: CLAUDE.md:35
 - **Detail**: The paragraph says Context7 is "approved for every session by `enabledMcpjsonServers`". Per the plan's Key Discoveries (research.md §1), the committed approval is honored only in a trusted workspace; an untrusted fresh clone still prompts. README.md:74 states this correctly ("once you trust the folder"). An agent reading CLAUDE.md in an untrusted checkout could misdiagnose the approval dialog.
 - **Fix**: Change "approved for every session" to "approved in trusted checkouts and their worktrees".
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — CLAUDE.md now says "approved in trusted checkouts and their worktrees" (orchestrator)

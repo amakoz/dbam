@@ -54,7 +54,7 @@
 - Question: flip roadmap F-04 during implement, given the plan-stage "don't change roadmap.md status"? And when can 1.8 be checked?
 - Options: (a) flip to in-progress as /10x-implement and the worker protocol prescribe (b) leave it at ready
 - Choice:
-  - (a). The earlier instruction was scoped to /10x-plan.
+  - (a) at first. **Corrected by impl-review F1:** in this project the roadmap row is not flipped during implement. `roadmap.md` was restored from origin/main, so F-04 stays `ready` until `/10x-archive` sets `done`.
   - 1.8 stays unchecked until the PR body lists the orchestrator's pane checks, so change.md stays `implementing`.
 - Evidence: 10x-implement "Roadmap status sync"; worker protocol "Git and commits"
 - Decided-by: worker
@@ -65,4 +65,15 @@
 - Options: skill default `reviews/impl-review.md` vs orchestrator path `impl-review.md`; worker vs orchestrator triage
 - Choice: `context/changes/agent-docs-mcp/impl-review.md`; findings left `PENDING` for the orchestrator. Pane check for 1.8 (first): context7 connected in the impl-review pane.
 - Evidence: orchestrator prompt; impl-review.md § Success criteria evidence
+- Decided-by: orchestrator
+
+## 2026-10-06 Impl review triage: F1, F2, backlog
+
+- Question: how to resolve impl-review.md F1 (roadmap flip) and F2 (approval scope wording), plus backlog hygiene
+- Options: accept or reject each finding
+- Choice:
+  - F1 accepted: `roadmap.md` restored from origin/main during the rebase.
+  - F2 accepted: CLAUDE.md now says "approved in trusted checkouts and their worktrees".
+  - Backlog: B-08 (the orchestrator `wait` subcommand, done in the local skill) and B-10 (SHA write-back noise, fixed by the worker protocol) move to Done in `context/foundation/backlog.md`.
+- Evidence: impl-review.md; research.md §1 (the committed approval is ignored in untrusted folders)
 - Decided-by: orchestrator

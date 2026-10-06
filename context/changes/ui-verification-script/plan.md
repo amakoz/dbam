@@ -302,20 +302,20 @@ None: no schema, no app code. Each full run leaves one `ui-shots-*@example.com` 
 
 #### Automated
 
-- [ ] 1.1 Lint passes: `npm run lint`
-- [ ] 1.2 Types and build pass: `npx astro check` and `npm run build`
-- [ ] 1.3 No Playwright in the build output: `grep -rl "playwright" dist/` prints nothing
-- [ ] 1.4 Refuses a non-local app: `BASE_URL=https://example.com npm run ui:shots` exits 2 and creates no `ui-shots/` files
-- [ ] 1.5 Refuses a non-local Supabase: `SUPABASE_URL=https://abc.supabase.co BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots` exits 2 before launching a browser
-- [ ] 1.6 Rejects an unknown view: `npm run ui:shots -- --only nope` exits 2 with usage
-- [ ] 1.7 Refuses the human's port in a worker session: `DBAM_CHANGE=x BASE_URL=http://127.0.0.1:4321 npm run ui:shots` exits 2 before launching a browser
-- [ ] 1.8 Full run against `npx astro dev --port $DBAM_PORT`, with the shared DB lock held, exits 0, prints 6 `fixture:` lines, and writes exactly 20 PNGs named as in the contract to `ui-shots/`
-- [ ] 1.9 Kitchen-sink-only run, `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots -- --only kitchen-sink --out <scratch dir>`, exits 0, writes exactly 4 PNGs there, and makes no auth or API calls (`grep -c '^fixture:'` on its output is 0)
-- [ ] 1.10 `git status --short` lists no file under `ui-shots/` after the full run
+- [x] 1.1 Lint passes: `npm run lint`
+- [x] 1.2 Types and build pass: `npx astro check` and `npm run build`
+- [x] 1.3 No Playwright in the build output: `grep -rl "playwright" dist/` prints nothing
+- [x] 1.4 Refuses a non-local app: `BASE_URL=https://example.com npm run ui:shots` exits 2 and creates no `ui-shots/` files
+- [x] 1.5 Refuses a non-local Supabase: `SUPABASE_URL=https://abc.supabase.co BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots` exits 2 before launching a browser
+- [x] 1.6 Rejects an unknown view: `npm run ui:shots -- --only nope` exits 2 with usage
+- [x] 1.7 Refuses the human's port in a worker session: `DBAM_CHANGE=x BASE_URL=http://127.0.0.1:4321 npm run ui:shots` exits 2 before launching a browser
+- [x] 1.8 Full run against `npx astro dev --port $DBAM_PORT`, with the shared DB lock held, exits 0, prints 6 `fixture:` lines, and writes exactly 20 PNGs named as in the contract to `ui-shots/`
+- [x] 1.9 Kitchen-sink-only run, `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots -- --only kitchen-sink --out <scratch dir>`, exits 0, writes exactly 4 PNGs there, and makes no auth or API calls (`grep -c '^fixture:'` on its output is 0)
+- [x] 1.10 `git status --short` lists no file under `ui-shots/` after the full run
 
 #### Manual
 
-- [ ] 1.11 Open a sample of the PNGs whose paths this run printed: dashboard-desktop-dark shows the planned mammography and done cervical rows and the reminders hint; dashboard-mobile-light is 390px wide with no horizontal overflow; the onboarding consent and profile shots show the right cards; no Astro dev toolbar in any shot
+- [x] 1.11 Open a sample of the PNGs whose paths this run printed: dashboard-desktop-dark shows the planned mammography and done cervical rows and the reminders hint; dashboard-mobile-light is 390px wide with no horizontal overflow; the onboarding consent and profile shots show the right cards; no Astro dev toolbar in any shot
 
 ### Phase 2: Agent-facing documentation
 

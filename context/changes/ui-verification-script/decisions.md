@@ -142,3 +142,14 @@
   - **F5:** the header wording is now "unlike the other `scripts/*.mjs`, it has a dependency".
 - **Evidence:** `context/changes/ui-verification-script/plan-review.md`
 - **Decided by:** orchestrator
+
+## 2026-10-06 Phase 1 implementation adaptations
+
+- **Question:** what the plan left open while writing `scripts/ui-shots.mjs`.
+- **Choice:**
+  - Printed paths are relative to the current directory, except a `--out` folder outside it, which prints absolute (a `../../..` path can't be opened with a file reader).
+  - No lint globals were added: the `page.waitForFunction` readiness check is a string expression, so `document` never appears in the script.
+  - `astro dev` (Astro 7) daemonizes and binds `::1` only, so `http://127.0.0.1:$DBAM_PORT` needs `npx astro dev --port $DBAM_PORT --host 127.0.0.1` (stop it with `npx astro dev stop`). Phase 2 docs state this.
+  - `.astro/` types must exist for lint (`npx astro sync`) in a fresh worktree.
+- **Evidence:** full run exit 0, 20 PNGs, 6 `fixture:` lines; the opened shots show the planned and done rows, the reminders hint, no dev toolbar, and 390px width without overflow.
+- **Decided by:** worker

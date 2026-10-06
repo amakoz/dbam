@@ -15,3 +15,10 @@
 - **Problem**: A new Worker version takes up to a minute to reach every edge location, so for a few seconds some requests are still served by the previous version. One 200 from the health check proves only that _one_ location has the new code. On 2026-09-27 the post-deploy smoke for #35 got a 404 on the new `/profile` route 15 s after deploy while the neighbouring new routes answered, and a re-run minutes later passed.
 - **Rule**: Treat an immediate post-deploy failure on a route the deploy just added as possible propagation lag: the `deploy` job retries the read-only smoke (3 attempts, 20 s apart) before failing. Don't "fix" it by rolling back; re-check after a minute, and only roll back if it still fails.
 - **Applies to**: implement, impl-review
+
+## Grep gates are heuristics; privacy tests are the guard
+
+- **Context**: Any plan success criterion that checks a privacy or safety rule with a grep (e.g. "no `error.message` in throw sites", "no address in a log call") — error handling, logging, alert emails, rethrown errors.
+- **Problem**: A grep matches one spelling, so it passes the same leak written another way: `const { message } = error` followed by ``throw new Error(`… ${message}`)``, or an alias, clears a `\.message` grep. In error-tracking (impl-review F3) gate 1.4 was met honestly, yet `redactError` itself destructures `message`, which showed the gate could not catch a regression.
+- **Rule**: List such a grep as a heuristic, never as the gate. Name the unit tests that feed leaky input through every output builder and assert the secret is absent (`src/lib/observability.test.ts`) as the gate, and add a case there for each new output path or throw site.
+- **Applies to**: plan, plan-review, implement, impl-review

@@ -227,7 +227,7 @@ The scheduled heartbeat email (see [Scheduled jobs](#scheduled-jobs)) needs two 
 
 ```bash
 npx wrangler secret put RESEND_API_KEY     # Resend API key with sending-only permission
-npx wrangler secret put REMINDER_TEST_TO   # heartbeat recipient
+npx wrangler secret put REMINDER_TEST_TO   # heartbeat recipient, and the failure-alert recipient
 ```
 
 Unless `EMAIL_FROM` is set to a sender on a domain verified in Resend, mail is sent from Resend's test sender `onboarding@resend.dev`, which delivers only to the Resend account owner's address, so `REMINDER_TEST_TO` must be exactly the email the Resend account was created with. A `+tag` variant of that address is rejected with a 403 `validation_error`. Leave `EMAIL_DRY_RUN` unset in production (it defaults to `false`).
@@ -278,9 +278,74 @@ For one real send, put a real `RESEND_API_KEY` and `REMINDER_TEST_TO` plus `EMAI
 
 In production:
 
-- **Runs:** Cloudflare dashboard → Workers → `dbam` → Settings → Trigger Events (the last 100 invocations), and Workers Logs (one `heartbeat` and one `appointment-reminder` JSON line per run with its outcome; no recipient or key). A cron change takes up to 15 minutes to take effect after a deploy.
+- **Runs:** Cloudflare dashboard → Workers → `dbam` → Settings → Trigger Events (the last 100 invocations), and Workers Logs (one `heartbeat` and one `appointment-reminder` JSON line per run with its outcome; no recipient or key; a failed job also logs an `error` line and a failed reminder run a `failure-alert` line, see [Errors and alerts](#errors-and-alerts)). A cron change takes up to 15 minutes to take effect after a deploy.
 - **Free-plan limits:** 10 ms CPU per cron run (waiting on the network doesn't count), 50 subrequests per run, and 5 Cron Triggers per account. Resend's free tier allows 100 emails a day and 3,000 a month.
 - **Stopping the cron:** deploy `"triggers": { "crons": [] }`. Removing or commenting out the `crons` key leaves the deployed schedule running, and `wrangler rollback` is not known to restore trigger settings.
+
+### Errors and alerts
+
+Production errors are visible in Workers Logs (the `observability` block in `wrangler.jsonc`) and, for a failed appointment reminder run, in an email. There is no other error service: Workers Issues stays off because it stores raw error messages and stack traces.
+
+**Events.** Every uncaught SSR error and every failed cron job logs one JSON line at error level (`src/lib/observability.ts`). SSR errors are caught in `src/middleware.ts`, and Astro then renders the 500 page as before. Cron errors are logged by `scheduled()` in `src/worker.ts`, once per failed job.
+
+```json
+{
+  "event": "error",
+  "source": "ssr",
+  "route": "/dashboard",
+  "requestId": "8f1c2a3b4d5e6f70-WAW",
+  "error": "DatabaseError",
+  "operation": "read-consent",
+  "code": "PGRST301"
+}
+```
+
+```json
+{
+  "event": "error",
+  "source": "cron",
+  "job": "appointment-reminder",
+  "requestId": "cron-1790841600000",
+  "cron": "0 8,9 * * *",
+  "scheduledAt": "2026-10-01T08:00:00.000Z",
+  "error": "ReminderDatabaseError",
+  "step": "mark",
+  "code": "42501"
+}
+```
+
+- `route` is the route pattern (`/dashboard`), not the URL. The 500 page's own re-render logs nothing, so one failure is one event.
+- `requestId` is the request's `cf-ray` for SSR (a UUID where there is no `cf-ray`, such as local runs) and `cron-<scheduledTime>` for cron.
+- `error` is the error name. The optional details `operation`, `step`, `code`, `status` and `resendError` appear when the error carries them.
+- The `heartbeat` and `appointment-reminder` outcome lines keep their shape; a failed job logs both, and their `failed` outcome carries the same error name and details under the same rules.
+- The reminder failure email logs one `failure-alert` line with `outcome`: `sent` (with `resendId`), `dry-run`, `skipped` (`reason: "no-recipient"`) or `failed` (the send threw: error name and details).
+
+**Privacy rule.** Our `error` and `failure-alert` events never carry error messages, addresses or health data; they hold names, short codes, route patterns and run ids only. Astro and Cloudflare print the error's `stack` themselves, so the middleware and `scheduled()` rethrow a redacted copy (same name and frames, message `[redacted]`). When adding a failure path:
+
+- Throw a code-only error such as `DatabaseError` (`src/lib/database-error.ts`) or `ReminderDatabaseError`, never one that embeds a PostgREST, Resend or user message.
+- Detail values must be static identifiers (an operation name, a SQLSTATE), never row or user values. The builders drop anything that isn't a single short token of letters, digits and `_.:-`, which blocks free text and addresses but not a value like a screening slug.
+- Local debugging: the dev server shows `<Name>: [redacted]` plus frames, without Astro's hint. To see a message, add a temporary `console.error` in the page or endpoint itself and remove it before committing; never bypass or weaken the redaction.
+
+**Failure email.** When the appointment reminder job throws, the owner gets one plain-English email at `REMINDER_TEST_TO`: the job name, run time, cron, error name and codes, and a pointer to the saved query below. It holds no user data. If the failing step is `mark`, it adds that the reminder emails were sent but not marked, so users may get a duplicate on the next run. A failed heartbeat sends no email, only the `error` line. The email is best-effort: it cannot go out when Resend itself is failing, and the run is still marked failed either way. Then check Workers Logs or Trigger Events. Locally, `EMAIL_DRY_RUN=true` logs a `failure-alert` `dry-run` line instead.
+
+**Saved queries.** In the Cloudflare dashboard → Workers → `dbam` → Observability → Query Builder, filter and use **Save Query**. They aren't created by code, so a human adds them once:
+
+| Name                  | Filter                            |
+| --------------------- | --------------------------------- |
+| `Dbam errors`         | `event = error`                   |
+| `Dbam SSR errors`     | `event = error AND source = ssr`  |
+| `Dbam cron errors`    | `event = error AND source = cron` |
+| `Dbam failure alerts` | `event = failure-alert`           |
+
+An SSR event's `requestId` equals `$metadata.rayId` of the same request's invocation log, which shows its status and outcome.
+
+**Free-plan limits.** Until 2026-12-01 the Workers Free plan keeps 200,000 log events a day (invocation logs count) for 3 days. From 2026-12-01 it is 0.5 GB a day for 7 days, and ingestion stops at the cap until 00:00 UTC. Either way, triage within days.
+
+**Known gaps.**
+
+- Errors thrown after a response has started streaming are not captured: no hook sees them. No page awaits data inside a component today, so the path is empty.
+- A cron that never fires is detected only by the missing daily heartbeat email.
+- Cloudflare's invocation logs record request URLs, and our code doesn't control that. `/dashboard?…&slug=<slug>` names the screening a user just planned or marked done, so health data can sit in Workers Logs for the retention window. This is tracked in `context/changes/error-tracking/follow-ups/redirect-slug-leak.md` and isn't fixed by the error events.
 
 ## Smoke test
 

@@ -1,5 +1,6 @@
 import { EMAIL_DRY_RUN, REMINDER_TEST_TO } from "astro:env/server";
-import { EmailSendError, sendEmail } from "@/lib/email";
+import { sendEmail } from "@/lib/email";
+import { errorDetails, errorName } from "@/lib/observability";
 import { DAILY_CRON, isDailySendRun, PROVING_CRON } from "@/lib/schedule";
 
 // Heartbeat job run by the Worker's Cron Trigger (`scheduled()` in src/worker.ts). It proves that a scheduled run can
@@ -47,17 +48,9 @@ export async function runHeartbeat({
     log({ outcome: "sent", cron, scheduledAt, resendId: result.id });
     return "sent";
   } catch (error) {
-    // Error names and Resend's status/error name only, never `message`: once reminder jobs reuse this path, messages
-    // (e.g. from Postgres) can quote user data, and Workers Logs must not hold it.
-    const details: Record<string, string> =
-      error instanceof EmailSendError ? { status: String(error.status), resendError: error.resendError } : {};
-    log({
-      outcome: "failed",
-      cron,
-      scheduledAt,
-      error: error instanceof Error ? error.name : "UnknownError",
-      ...details,
-    });
+    // The error name and the whitelisted details only (src/lib/observability.ts), never `message`: messages (e.g. from
+    // Postgres or Resend) can quote user data, and Workers Logs must not hold it.
+    log({ outcome: "failed", cron, scheduledAt, error: errorName(error), ...errorDetails(error) });
     throw error;
   }
 }

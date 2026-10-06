@@ -75,7 +75,14 @@ const astroConfig = defineConfig({
 
 // Worker-side jobs log through console on purpose: Workers Logs captures it.
 const workerLogsConfig = defineConfig({
-  files: ["src/worker.ts", "src/lib/email.ts", "src/lib/heartbeat.ts", "src/lib/reminders/appointment.ts"],
+  files: [
+    "src/worker.ts",
+    "src/lib/email.ts",
+    "src/lib/failure-alert.ts",
+    "src/lib/heartbeat.ts",
+    "src/lib/observability.ts",
+    "src/lib/reminders/appointment.ts",
+  ],
   rules: { "no-console": "off" },
 });
 

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { CatalogEntrySchema, type CatalogEntry } from "@/lib/catalog/schema";
+import { DatabaseError } from "@/lib/database-error";
 import type { Database } from "@/lib/database.types";
 
 // Exactly the keys of `CatalogEntrySchema`, which is strict: selecting a timestamp column would fail every row.
@@ -31,7 +32,7 @@ function validEntries(rows: { slug: string }[]): CatalogEntry[] {
  */
 export async function getActiveCatalog(supabase: SupabaseClient<Database>): Promise<CatalogEntry[]> {
   const { data, error } = await supabase.from("screening_catalog").select(CATALOG_COLUMNS).eq("status", "active");
-  if (error) throw new Error(`Failed to read screening catalog: ${error.message}`);
+  if (error) throw new DatabaseError("read-catalog", error.code);
   return validEntries(data);
 }
 
@@ -46,6 +47,6 @@ export async function getCatalogEntries(supabase: SupabaseClient<Database>, slug
     .select(CATALOG_COLUMNS)
     .in("slug", slugs)
     .in("status", ["active", "retired"]);
-  if (error) throw new Error(`Failed to read screening catalog entries: ${error.message}`);
+  if (error) throw new DatabaseError("read-catalog-entries", error.code);
   return validEntries(data);
 }

@@ -1,6 +1,7 @@
 import { createT, resolveLocale } from "@/i18n";
 import type { Database } from "@/lib/database.types";
-import { EmailSendError, MAX_BATCH_SIZE, sendEmailBatch, type BatchEmailMessage } from "@/lib/email";
+import { MAX_BATCH_SIZE, sendEmailBatch, type BatchEmailMessage } from "@/lib/email";
+import { errorDetails, errorName } from "@/lib/observability";
 import { createReminderClient } from "@/lib/reminders/admin-client";
 import { isDailySendRun } from "@/lib/schedule";
 import { formatDay } from "@/lib/screenings/format";
@@ -80,19 +81,8 @@ export async function runAppointmentReminders({
     log({ outcome: "sent", cron, scheduledAt, due: claimed.length, sent: result.ids.length });
     return "sent";
   } catch (error) {
-    const details: Record<string, string> =
-      error instanceof EmailSendError
-        ? { status: String(error.status), resendError: error.resendError }
-        : error instanceof ReminderDatabaseError
-          ? { step: error.step, code: error.code }
-          : {};
-    log({
-      outcome: "failed",
-      cron,
-      scheduledAt,
-      error: error instanceof Error ? error.name : "UnknownError",
-      ...details,
-    });
+    // The error name and the whitelisted details only (src/lib/observability.ts), never `message`.
+    log({ outcome: "failed", cron, scheduledAt, error: errorName(error), ...errorDetails(error) });
     throw error;
   }
 }

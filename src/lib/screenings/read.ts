@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { DatabaseError } from "@/lib/database-error";
 import type { Database } from "@/lib/database.types";
 import type { ScreeningCompletion, ScreeningPlan } from "@/lib/screenings/rules";
 
@@ -15,7 +16,7 @@ export async function getUserScreenings(
     supabase.from("screening_plans").select("*").eq("user_id", userId),
     supabase.from("screening_completions").select("*").eq("user_id", userId).order("updated_at", { ascending: false }),
   ]);
-  if (plans.error) throw new Error(`Failed to read screening plans: ${plans.error.message}`);
-  if (completions.error) throw new Error(`Failed to read screening completions: ${completions.error.message}`);
+  if (plans.error) throw new DatabaseError("read-screening-plans", plans.error.code);
+  if (completions.error) throw new DatabaseError("read-screening-completions", completions.error.code);
   return { plans: plans.data, completions: completions.data };
 }

@@ -1,0 +1,44 @@
+import { EMAIL_DRY_RUN, REMINDER_TEST_TO } from "astro:env/server";
+import { sendEmail } from "@/lib/email";
+import { buildReminderFailureEmail, errorDetails, errorName, isoTime } from "@/lib/observability";
+
+// Best-effort email to the owner when the appointment reminder job fails (`scheduled()` in src/worker.ts). It never
+// throws, so it cannot mask the failure it reports, and it logs its own outcome so a failed alert is visible too. Logs
+// never contain the recipient, subject or text.
+
+// Resend's simulator address: accepts sends without reaching an inbox.
+const DRY_RUN_RECIPIENT = "delivered@resend.dev";
+
+export async function sendReminderFailureAlert(
+  { cron, scheduledTime }: { cron: string; scheduledTime: number },
+  error: unknown,
+): Promise<void> {
+  const scheduledAt = isoTime(scheduledTime);
+  try {
+    const to = REMINDER_TEST_TO ?? (EMAIL_DRY_RUN ? DRY_RUN_RECIPIENT : undefined);
+    if (!to) {
+      console.error(
+        JSON.stringify({ event: "failure-alert", outcome: "skipped", cron, scheduledAt, reason: "no-recipient" }),
+      );
+      return;
+    }
+    const result = await sendEmail({ to, ...buildReminderFailureEmail({ error, cron, scheduledTime }) });
+    if ("dryRun" in result) {
+      console.log(JSON.stringify({ event: "failure-alert", outcome: "dry-run", cron, scheduledAt }));
+      return;
+    }
+    console.log(JSON.stringify({ event: "failure-alert", outcome: "sent", cron, scheduledAt, resendId: result.id }));
+  } catch (alertError) {
+    // The name and the whitelisted details only, never `message` (Resend's can quote addresses).
+    console.error(
+      JSON.stringify({
+        event: "failure-alert",
+        outcome: "failed",
+        cron,
+        scheduledAt,
+        error: errorName(alertError),
+        ...errorDetails(alertError),
+      }),
+    );
+  }
+}

@@ -159,3 +159,13 @@
 - **Question:** how to verify the README manual item and where to judge visual quality.
 - **Choice:** the worker followed the new worker commands (`npx astro sync`, `npx astro dev --port $DBAM_PORT --host 127.0.0.1`, DB lock, `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots`): exit 0, 6 `fixture:` lines, 20 PNGs, clean `git status`. The first `astro dev` start straight after `astro sync` exited before ready; an immediate retry worked. Visual-quality judgement of `kitchen-sink-*` and `profile-mobile-*` goes to the PR's "Manual checks for the human" list.
 - **Decided by:** orchestrator (instruction), worker
+
+## 2026-10-06 Implementation review
+
+- **Question:** where to write the review, and who triages it.
+- **Choice:**
+  - The report goes to `context/changes/ui-verification-script/impl-review.md` (the orchestrator's path, not the skill's default `reviews/`).
+  - Nothing is triaged by the worker: F1–F3 stay `PENDING` for the orchestrator.
+  - The review also confirmed that the build output and the wrangler dry-run Worker bundle contain no Playwright, and that `playwright` is a dev-only dependency.
+- **Evidence:** `context/changes/ui-verification-script/impl-review.md`
+- **Decided by:** orchestrator

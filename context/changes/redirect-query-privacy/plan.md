@@ -63,7 +63,7 @@ Add the helper with unit tests, switch the endpoint and the dashboard to it, and
 - `flashCookieOptions(secure: boolean)` → `{ path: "/dashboard", httpOnly: true, sameSite: "lax", secure, maxAge: 60 }`, typed as Astro's `AstroCookieSetOptions`;
 - `clearedFlashCookieOptions(secure: boolean)` → the same with `maxAge: 0`;
 - `readFlashSlug(value: string | undefined): string | null` → the value when it matches `SLUG_PATTERN` (import from `./rules`), else `null`;
-- `dashboardLocation(feedback: { saved: string } | { error: string }, slug: string | null): string` → `/dashboard?saved=<v>` or `/dashboard?error=<v>`, plus `#screening-<slug>` when `slug` is set.
+- `dashboardLocation(feedback: { saved: string } | { error: string } | null, slug: string | null): string` → `/dashboard?saved=<v>`, `/dashboard?error=<v>`, or `/dashboard` for `null` feedback, plus `#screening-<slug>` when `slug` is set.
 
 The slug never appears before `#`. The module is pure; it takes no `AstroCookies`.
 
@@ -76,7 +76,7 @@ The slug never appears before `#`. The module is pure; it takes no `AstroCookies
 **Contract**: cases:
 
 - (a) for `saved` and `error` feedback with a slug (several real catalog slugs, e.g. `mammography-nfz-program`), the part of `dashboardLocation(...)` before `#` contains neither the slug nor `slug=`, and the fragment is `screening-<slug>`;
-- (b) with `slug: null` there is no fragment;
+- (b) with `slug: null` there is no fragment; with `null` feedback the location is `/dashboard` (plus the fragment when a slug is given), still with no slug before `#` (plan review F2);
 - (c) `flashCookieOptions(true/false)` has `httpOnly: true`, `sameSite: "lax"`, `path: "/dashboard"`, `maxAge: 60`, and `secure` as passed;
 - (d) `clearedFlashCookieOptions` matches it except `maxAge: 0`;
 - (e) `readFlashSlug` accepts a valid slug and rejects `undefined`, `""`, uppercase, `../x`, `a b` and `a&b`. A pattern-valid value that names no row (for example `deleted`) is the dashboard's `itemSlugs` check's job, not this function's.
@@ -85,7 +85,7 @@ The slug never appears before `#`. The module is pure; it takes no `AstroCookies
 
 **File**: `src/pages/api/screenings.ts`
 
-**Intent**: `fail` and `succeed` redirect through `dashboardLocation`. Each one sets the flash cookie when the slug is known, and clears it otherwise. The early `?error=invalid_request` at `:29` and the stale-confirm redirect at `:81` also clear it. Update the comments at `:38` and `:48`.
+**Intent**: Every `/dashboard` redirect in this endpoint goes through `dashboardLocation`, so the privacy test covers each output path (plan review F2). `fail` and `succeed` set the flash cookie when the slug is known, and clear it otherwise. The early `?error=invalid_request` at `:29` (`{ error: "invalid_request" }`, no slug) and the stale-confirm redirect at `:81` (`null` feedback, slug in the fragment only) use the builder too, and clear the cookie. Update the comments at `:38` and `:48`.
 
 **Contract**: locations are as in Desired End State. `Secure` is `context.url.protocol === "https:"`. `/onboarding` and `/auth/signin` redirects are untouched.
 
@@ -136,7 +136,7 @@ The slug never appears before `#`. The module is pure; it takes no `AstroCookies
 - Submit a past date → the row panel is open with the date field marked invalid and the error above it, as before
 - Refresh after a save → the confirmation shows at page level, not on the row, and no `slug` appears in any URL
 
-**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
+**Implementation Note**: The implementer covers 1.7–1.9 with a headless Playwright run against the local dev server (as `scripts/ui-shots.mjs` drives Chromium), reading the URL, the row markup and the `Set-Cookie`/cookie store from the browser context (plan review F1). 1.7 stays a real-browser check: smoke's cookie jar ignores `Path`, `Secure` and `HttpOnly`, so a green smoke does not waive it (plan review F3). Record the run's evidence in the Progress rows.
 
 ---
 
@@ -172,7 +172,7 @@ Record the fix and the accepted residuals where readers look for them.
 
 #### Manual Verification:
 
-- After deploy, a reviewer opens Workers Observability, filters invocation logs on `/dashboard` and confirms new entries carry no `slug=` (and, if query strings are kept, only `saved=`/`error=` codes)
+- Post-merge, human, non-blocking (B-01 check): after deploy, a reviewer opens Workers Observability, filters invocation logs on `/dashboard` and confirms new entries carry no `slug=` (and, if query strings are kept, only `saved=`/`error=` codes). It does not hold Phase 2, `/10x-implement` or `/10x-archive` open (plan review F1).
 
 ---
 
@@ -236,4 +236,4 @@ No data migration. A bookmarked old URL with `&slug=` now renders the message at
 
 #### Manual
 
-- [ ] 2.2 Production Workers Logs show no `slug=` in new `/dashboard` invocation entries
+- [ ] 2.2 Production Workers Logs show no `slug=` in new `/dashboard` invocation entries (post-merge, human, non-blocking (B-01 check))

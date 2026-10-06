@@ -39,3 +39,11 @@
 - **Choice:** set with `maxAge: 0` and the same options as the set, from one helper, so the path always matches and the smoke cookie jar (`scripts/smoke.mjs:35-42`, drops a cookie only on `max-age=0`) stays unchanged.
 - **Evidence:** `node_modules/astro/dist/core/cookies/cookies.js:46-58` (Astro 7.3.2).
 - **Decided-by:** worker
+
+## 2026-10-06 Plan review F1–F3
+
+- **Question:** apply the three plan-review observations (`reviews/plan-review.md`)?
+- **Options:** accept; decline.
+- **Choice:** accept all. F1: Progress 2.2 is post-merge, human, non-blocking (B-01 check); 1.7–1.9 run as a headless Playwright check by the implementer. F2: `dashboardLocation` accepts `null` feedback and every `/dashboard` redirect in `api/screenings.ts` (including `:29`, `:81`) goes through it, with a test case. F3: 1.7 stays a real-browser check.
+- **Evidence:** `reviews/plan-review.md` (verdict SOUND, 3 observations).
+- **Decided-by:** orchestrator

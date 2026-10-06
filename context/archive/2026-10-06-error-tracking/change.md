@@ -1,10 +1,10 @@
 ---
 change_id: error-tracking
 title: Log and alert production errors with Cloudflare Workers Logs and the existing email path
-status: impl_reviewed
+status: archived
 created: 2026-10-06
 updated: 2026-10-06
-archived_at: null
+archived_at: 2026-10-06T11:04:43Z
 ---
 
 ## Notes

@@ -94,3 +94,9 @@
   - F3: `array_agg(distinct r.id order by r.id)` in the claim return (two pgTAP cases: a repeated item gives one id, a bad uuid raises `22P02`; the unfixed function failed the first). The migration was edited in place because it has never been pushed or merged; the changed function was re-applied to the shared local database by hand, and CI builds the stack from the files. `collectClaimItems` stops before 1000 items.
   - F4: `due: 0` on the none path after an empty claim; the `failure-alert.ts` comment names `runReminderChain`.
   - F5: `email.test.ts` drives `sendEmail` and `sendEmailBatch` with a stubbed `fetch`; the old closure-only test is removed. Break check: a per-attempt key made two cases fail.
+
+## 2026-10-06 Archive with the production rows open
+
+- Question: `/10x-archive` warned that 4 manual Progress rows (3.6–3.9, production checks) are pending, that its `reviews/impl-review*.md` lookup found nothing (the review is `impl-review.md` at the change root and lists phases 1–3), and that the Progress SHAs are not in `origin/main` history (the branch is unmerged, with no PR yet, so no mapping can be verified and none is offered).
+- Choice: continue archiving. The PR's "Manual checks for the human" list covers rows 3.6–3.9 (they need real Resend delivery, a second production run and Workers Logs CPU, so they can only happen after merge). After a squash merge the SHA suffixes in the archived plan will not resolve in `main`; that is accepted, and a later repoint would be a separate human-approved step.
+- decided-by: orchestrator (prompt: "if it asks to confirm only because PR-stage production rows (3.6–3.9) are open, note in decisions.md that the PR covers them and continue")

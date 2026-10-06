@@ -130,3 +130,11 @@
   - **F7 ACCEPT.** Comment at the `redactError` rethrow in the middleware (and in `scheduled()`).
 - **Evidence:** `context/changes/error-tracking/impl-review.md`; the orchestrator's triage prompt.
 - **Decided by:** orchestrator
+
+## 2026-10-06 Archive with the PR-stage production checks open
+
+- **Question:** `/10x-archive` warns that Progress rows 3.3–3.7 (manual) are still pending. Archive anyway?
+- **Options:** (a) Wait until the production checks are done after deploy. (b) Archive now; the PR's Manual checks list carries 3.3–3.7.
+- **Choice:** (b). Rows 3.3–3.7 need production (saved queries, filterable JSON fields, Custom Alerts on Free, `REMINDER_TEST_TO`, the invocation log's query string), so they belong to the PR's Manual checks, not to this folder; they stay unchecked in `plan.md` as the record. The archive's other diagnostic, that f0a43b8, a028cb9 and 6b57d73 are not yet in `origin/main`, is expected: no PR is open, so there is nothing to repoint. `follow-ups/redirect-slug-leak.md` moves with the change folder.
+- **Evidence:** `plan.md` Progress (3.3–3.7 pending, every automated row done); the 2026-10-06 "Phase 3 closes with production checks left to the PR" entry above; `gh pr list --head feat/error-tracking` returns none.
+- **Decided by:** orchestrator

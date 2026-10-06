@@ -249,7 +249,7 @@ describe("recommend", () => {
       const entries = [
         entry({ slug: "low", name_pl: "Aaa", name_en: "Aaa", burden_weight: 2, eligibility: unknown }),
         entry({ slug: "high", name_pl: "Zzz", name_en: "Zzz", burden_weight: 5, eligibility: unknown }),
-        entry({ slug: "tie-b", name_pl: "Bcd", name_en: "Aaa", burden_weight: 2, eligibility: unknown }),
+        entry({ slug: "tie-b", name_pl: "Bcd", name_en: "Bbb", burden_weight: 2, eligibility: unknown }),
         entry({ slug: "tie-a", name_pl: "Abc", name_en: "Zzz", burden_weight: 2, eligibility: unknown }),
       ];
       expect(slugs(recommend(entries, profile(), YEAR, "pl").maybe)).toEqual(["high", "low", "tie-a", "tie-b"]);

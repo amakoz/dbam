@@ -74,7 +74,7 @@ Local Node pin `.nvmrc` = 22.14.0 meets Vitest 5's `^22.12.0` engine requirement
   - Tradeoff: Once the change is archived, the note sits under `context/archive/` where slice selection won't see it.
   - Confidence: MEDIUM — it depends on someone reading the archived change.
   - Blind spot: None significant.
-- **Decision**: PENDING
+- **Decision**: FIX B (orchestrator) — adding a roadmap slice is a human decision. The deferred cases are recorded in `context/changes/unit-test-suite/follow-ups/recurrence-tests.md`, and `change.md` Notes require the PR description to link it. Roadmap slices not edited.
 
 ### F2 — Roadmap F-03 block keeps a stale risk note and a dead path
 
@@ -84,7 +84,7 @@ Local Node pin `.nvmrc` = 22.14.0 meets Vitest 5's `^22.12.0` engine requirement
 - **Location**: context/foundation/roadmap.md:127
 - **Detail**: Phase 2 dropped the PRD's "until then it is covered by smoke checks, pgTAP and manual test profiles" clause (`prd.md:142`). It did not touch the matching roadmap Risk bullet: "until F-03 lands the branch-evaluation edge cases rely on smoke, pgTAP and manual test profiles". That bullet also points at `context/changes/screening-recommendations/plan.md`, which no longer exists. The file was archived to `context/archive/2026-09-28-screening-recommendations/plan.md`. The plan missed this mirror of the PRD clause; the implementation followed the plan.
 - **Fix**: At close-out, when F-03 flips to `done`, reword the Risk to "—" or "Resolved by F-03", and repoint the path to `context/archive/2026-09-28-screening-recommendations/plan.md`.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator) — Risk reworded to "Resolved by F-03" and the path repointed to `context/archive/2026-09-28-screening-recommendations/plan.md`. Status stays `in-progress`; `/10x-archive` flips it.
 
 ### F3 — The en assertion in the maybe-sort test passes on input order, not names
 
@@ -94,4 +94,4 @@ Local Node pin `.nvmrc` = 22.14.0 meets Vitest 5's `^22.12.0` engine requirement
 - **Location**: src/lib/catalog/recommend.test.ts:250-256
 - **Detail**: In "sorts maybe by burden weight, then by name in the locale", `low` and `tie-b` both have `burden_weight: 2` and `name_en: "Aaa"`. Under `en`, the collator returns 0 for that pair, so `["high", "low", "tie-b", "tie-a"]` holds only because `Array.prototype.sort` is stable and `low` comes first in the input. If the input order changed, the test would fail with no code change. And a regression that sorted `en` by `name_pl` would still order `low` before `tie-b`, because `Aaa < Bcd`. The en `tie-a`/`tie-b` order does still catch that regression, so coverage is not lost. Only the `low`/`tie-b` pair is fragile.
 - **Fix**: Give `tie-b` a distinct `name_en`, for example `"Bbb"`. The en order stays `low (Aaa) < tie-b (Bbb) < tie-a (Zzz)` and the expected arrays don't change.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator) — `tie-b` now has `name_en: "Bbb"`; expected arrays unchanged.

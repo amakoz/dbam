@@ -124,7 +124,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** S-03, F-02
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** S-02 ships its rule engine without unit tests (owner decision), so until F-03 lands the branch-evaluation edge cases rely on smoke, pgTAP and manual test profiles. Added during S-02 planning; first cases are listed in `context/changes/screening-recommendations/plan.md` §Testing Strategy.
+- **Risk:** Resolved by F-03. S-02 shipped its rule engine without unit tests (owner decision); F-03 covers the branch-evaluation edge cases listed in `context/archive/2026-09-28-screening-recommendations/plan.md` §Testing Strategy.
 - **Status:** in-progress
 
 ### F-04: Agent docs MCP

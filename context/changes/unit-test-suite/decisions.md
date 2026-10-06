@@ -113,3 +113,13 @@
   - No triage was done; every finding is left `PENDING` for the orchestrator.
 - **Evidence:** the orchestrator prompt ("Write the report to …", "Triage nothing yourself").
 - **Decided by:** orchestrator (path, triage) and worker (inline review)
+
+## 2026-10-06 Impl-review triage
+
+- **Question:** How to resolve impl-review findings F1–F3 (`context/changes/unit-test-suite/impl-review.md`)?
+- **Choice:**
+  - **F1 — Fix B.** Adding a roadmap slice is a human decision, so the deferred recurrence cases (`rules.ts` `nextDueMonth`, `addMonths`/`addYears`, `partitionDashboard`, Warsaw midnight, Feb 29; `format.ts` `describeLastDone`) go to `follow-ups/recurrence-tests.md`. `change.md` Notes require the PR description to link it. Roadmap slices not edited (Fix A rejected).
+  - **F2 — Accept.** F-03 Risk reworded to "Resolved by F-03" with the path repointed to `context/archive/2026-09-28-screening-recommendations/plan.md`. Status not flipped to `done`; archive handles it.
+  - **F3 — Accept.** `tie-b` gets `name_en: "Bbb"` so the en `low`/`tie-b` order no longer rests on sort stability.
+- **Evidence:** impl-review F1–F3; source of the deferred cases `context/archive/2026-09-30-record-appointment-date/plan.md:430-439`.
+- **Decided by:** orchestrator

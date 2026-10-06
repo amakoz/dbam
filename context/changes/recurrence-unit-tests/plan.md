@@ -272,22 +272,22 @@ Not applicable: no schema, data or runtime change.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm test`
-- [x] 1.2 Lint passes on the new file: `npm run lint`
-- [x] 1.3 Type check passes: `npx astro check`
-- [x] 1.4 Mutation spot-check: flipping `>` at `rules.ts:265` and `<=` at `rules.ts:244` each fails a test; both reverted
+- [x] 1.1 Unit tests pass: `npm test` — 427f0ed
+- [x] 1.2 Lint passes on the new file: `npm run lint` — 427f0ed
+- [x] 1.3 Type check passes: `npx astro check` — 427f0ed
+- [x] 1.4 Mutation spot-check: flipping `>` at `rules.ts:265` and `<=` at `rules.ts:244` each fails a test; both reverted — 427f0ed
 
 #### Manual
 
-- [x] 1.5 Test names map to the agreed scope and no production file changed
+- [x] 1.5 Test names map to the agreed scope and no production file changed — 427f0ed
 
 ### Phase 2: Wording tests and docs
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass, including both new files: `npm test`
-- [ ] 2.2 Lint and formatting pass: `npm run lint && npx prettier --check CLAUDE.md README.md`
-- [ ] 2.3 Type check passes: `npx astro check`
+- [x] 2.1 Unit tests pass, including both new files: `npm test`
+- [x] 2.2 Lint and formatting pass: `npm run lint && npx prettier --check CLAUDE.md README.md`
+- [x] 2.3 Type check passes: `npx astro check`
 
 #### Manual
 

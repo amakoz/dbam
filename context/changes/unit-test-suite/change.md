@@ -1,7 +1,7 @@
 ---
 change_id: unit-test-suite
 title: Vitest unit-test suite in CI covering catalog eligibility, tier and interval rules
-status: implementing
+status: impl_reviewed
 created: 2026-10-05
 updated: 2026-10-06
 archived_at: null

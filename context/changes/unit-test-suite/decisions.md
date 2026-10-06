@@ -103,3 +103,13 @@
 
 - `resolve.tsconfigPaths: true` resolves `@/*` under Vitest 5.0.3 and Vite 8.3.0, so the `resolve.alias` fallback was not needed (research Open Question 7 closed).
 - `npm run lint` fails with `no-unsafe-*` errors in `src/pages` and middleware until `npx astro sync` has generated `.astro/` types. CI already runs `astro sync` before lint; locally run it first on a fresh worktree.
+
+## 2026-10-06 Impl-review execution
+
+- **Question:** Where should the report go, and how should the review run?
+- **Choice:**
+  - The report goes to `context/changes/unit-test-suite/impl-review.md`, as the orchestrator asked, instead of the skill's default `reviews/impl-review.md`.
+  - The drift and safety passes ran in this context instead of two sub-agents. The diff is 8 non-doc files, and reading them directly was cheaper.
+  - No triage was done; every finding is left `PENDING` for the orchestrator.
+- **Evidence:** the orchestrator prompt ("Write the report to …", "Triage nothing yourself").
+- **Decided by:** orchestrator (path, triage) and worker (inline review)

@@ -30,7 +30,7 @@ Register the Context7 MCP server in a committed `.mcp.json` and pre-approve it i
 - No `enableAllProjectMcpServers`. A future `.mcp.json` entry must be named explicitly.
 - No `permissions.allow` rule for `mcp__context7`. Workers run in auto mode. Human manual-mode sessions get the normal per-tool prompt.
 - No changes to `spawn-worker.sh`, the 10x skills (symlinked, untracked) or `roadmap.md` status (orchestrator instruction).
-- No real Herdr pane spawn in this change. That is the orchestrator's post-merge check, listed under the PR's Manual checks.
+- No Herdr pane spawn by the worker. The pane checks belong to the orchestrator (impl-review spawn first, post-merge impl spawn second), listed under the PR's Manual checks.
 
 ## Implementation Approach
 
@@ -78,6 +78,7 @@ Add `.mcp.json`, approve the server in `.claude/settings.json`, document it in C
   - In `/10x-research` and `/10x-plan`, use `resolve-library-id` → `query-docs` before relying on memory for Astro, Supabase (`@supabase/ssr`, CLI), Cloudflare Workers/Wrangler, Tailwind 4, React 19 or shadcn/ui APIs.
   - Cite the library ID in the research or plan.
   - Keyless. Never add a key to `.mcp.json`.
+  - If Context7 errors or rate-limits, fall back to web docs or memory and note "Context7 unavailable" in the research or plan instead of retrying.
   - Keep the existing sentence ".claude/settings.json is the only tracked file under .claude/" true. `.mcp.json` lives at the repo root.
 - In the Task Router (`CLAUDE.md:86`), change `get-library-docs` to `query-docs`. Let Prettier realign the table.
 
@@ -102,15 +103,17 @@ Add `.mcp.json`, approve the server in `.claude/settings.json`, document it in C
 - No secret-shaped content in `.mcp.json`: `! grep -Eiq 'authorization|bearer|api[_-]?key|token|\$\{' .mcp.json`
 - Settings approve only context7 and keep the Stop hook: `jq -e '.enabledMcpjsonServers == ["context7"] and (has("enableAllProjectMcpServers") | not) and (.hooks.Stop | length == 1)' .claude/settings.json`
 - Approval resolves in this worktree: `claude mcp list` prints a `context7:` line containing `✔ Connected`
-- A fresh non-interactive session can call the tool: `claude -p "Call the context7 resolve-library-id tool for 'astro' and reply with only the top library ID" --allowedTools mcp__context7__resolve-library-id` prints a Context7 library ID starting with `/`
+- A fresh non-interactive session can call the tool: `DBAM_CHANGE= claude -p "Call the context7 resolve-library-id tool for 'astro' and reply with only the top library ID" --allowedTools mcp__context7__resolve-library-id --output-format json | jq -e '.is_error == false and (.result | test("/[a-z0-9._-]+/[a-z0-9._-]+"))'` exits 0
 - CLAUDE.md names the current tool and the new guidance: `! grep -q get-library-docs CLAUDE.md && grep -q 'query-docs' CLAUDE.md && grep -q 'enabledMcpjsonServers' CLAUDE.md`
 - Formatting is clean: `npx prettier --check .mcp.json .claude/settings.json CLAUDE.md README.md`
 
 #### Manual Verification:
 
-- PR description lists, under "Manual checks", the orchestrator's post-merge check: a freshly spawned Herdr worker (`spawn-worker.sh impl`, `--permission-mode auto`) reaches idle with no MCP approval dialog, and `/mcp` in that pane shows `context7` connected
+- PR description lists, under "Manual checks", two orchestrator pane checks:
+  - First, pre-merge: the impl-review pane (`spawn-worker.sh review`, a fresh `--permission-mode auto` pane in this feature worktree, started after implementation) reaches idle with no MCP approval dialog, and `/mcp` in that pane shows `context7` connected.
+  - Second, post-merge: the next `spawn-worker.sh impl` worker shows the same.
 
-**Implementation Note**: The manual item is the orchestrator's check after merge. The worker records it in the PR and does not block on it.
+**Implementation Note**: The manual item is the orchestrator's pane checks (impl-review spawn, then post-merge impl spawn). The worker records it in the PR and does not block on it.
 
 ---
 
@@ -126,8 +129,8 @@ Add `.mcp.json`, approve the server in `.claude/settings.json`, document it in C
 
 ### Manual Testing Steps:
 
-1. After merge, the orchestrator spawns a worker for the next slice and watches the pane start: no "New MCP server found in .mcp.json" dialog, and the agent reaches idle.
-2. In that pane, `/mcp` lists `context7` as connected.
+1. Pre-merge (first check): the orchestrator spawns the impl-review pane (`spawn-worker.sh review`) in this feature worktree and watches it start: no "New MCP server found in .mcp.json" dialog, the agent reaches idle, and `/mcp` lists `context7` as connected.
+2. Post-merge (second check): the next `spawn-worker.sh impl` worker shows the same.
 
 ## Performance Considerations
 
@@ -135,7 +138,7 @@ The remote HTTP transport adds no local process per session. MCP tools are defer
 
 ## Migration Notes
 
-None. Rollback is to delete `.mcp.json` and the settings key. A user who wants it off can add `disabledMcpjsonServers: ["context7"]` in user or local settings.
+None. Rollback is to delete `.mcp.json` and the settings key. If a pane blocks on the MCP dialog after merge, the orchestrator or a human reverts on `main` directly, not through a worker, because worker spawns would block too. A user who wants it off can add `disabledMcpjsonServers: ["context7"]` in user or local settings.
 
 ## References
 
@@ -162,4 +165,4 @@ None. Rollback is to delete `.mcp.json` and the settings key. A user who wants i
 
 #### Manual
 
-- [ ] 1.8 PR lists the orchestrator's post-merge Herdr pane spawn check under Manual checks
+- [ ] 1.8 PR lists the orchestrator's pane checks (impl-review spawn first, post-merge impl spawn second) under Manual checks

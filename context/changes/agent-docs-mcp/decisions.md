@@ -37,3 +37,14 @@
 - Choice: LOW complexity with 0 questions, because every solution decision is settled upstream. One phase. Add a README subsection next to "Agent Stop hook" (`README.md:68-70`) for humans.
 - Evidence: plan.md § Implementation Approach
 - Decided-by: worker
+
+## 2026-10-06 Plan review: F1–F3
+
+- Question: how to resolve plan-review.md F1 (pane check timing), F2 (Context7-unavailable fallback) and F3 (nested `claude -p` check)
+- Options: accept or reject each finding
+- Choice: accept all three.
+  - F1: criterion 1.8 and the Manual Testing Steps name the impl-review pane spawn as the first pane check, and the post-merge impl spawn as the second. Migration Notes add a revert-on-`main` line.
+  - F2: the CLAUDE.md paragraph gets a fallback clause: on error or rate limit, use web docs or memory and note "Context7 unavailable".
+  - F3: 1.5 uses `DBAM_CHANGE= claude -p … --output-format json | jq -e`.
+- Evidence: plan-review.md; `spawn-worker.sh:128-137` (review pane runs in the feature worktree)
+- Decided-by: orchestrator

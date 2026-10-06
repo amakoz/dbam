@@ -17,15 +17,15 @@ Every session in the repo, worker worktrees included, starts with `context7` con
 
 ## Key Decisions Made
 
-| Decision     | Choice                                                               | Why (1 sentence)                                                                                                    | Source                  |
-| ------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| Transport    | Remote HTTP `https://mcp.context7.com/mcp`                           | No npx/Node process per worker; connects without a key.                                                             | Research / orchestrator |
-| API key      | None in the repo                                                     | Key only raises rate limits; if needed later, it goes in user/local scope.                                          | Research / orchestrator |
-| Approval     | `enabledMcpjsonServers: ["context7"]` in `.claude/settings.json`     | Honored in trusted worktrees (tested Pending → Connected); doesn't auto-approve future servers.                     | Research / orchestrator |
-| Guidance     | CLAUDE.md paragraph after line 33 + fix line 86 to `query-docs`      | Line 33 is where worker tooling is described; line 86 is wrong today.                                               | Research / orchestrator |
-| Verification | `claude mcp list` + one `claude -p` tool call; pane spawn post-merge | `-p` skips approval, so `mcp list` checks approval and `-p` checks the server; a pane spawn needs the orchestrator. | Orchestrator            |
-| Human docs   | README subsection next to "Agent Stop hook"                          | Keeps setup, opt-out and key guidance where the Stop hook is documented.                                            | Plan                    |
-| Phases       | One phase                                                            | Four small config/doc edits that only work together.                                                                | Plan                    |
+| Decision     | Choice                                                                                    | Why (1 sentence)                                                                                                    | Source                  |
+| ------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Transport    | Remote HTTP `https://mcp.context7.com/mcp`                                                | No npx/Node process per worker; connects without a key.                                                             | Research / orchestrator |
+| API key      | None in the repo                                                                          | Key only raises rate limits; if needed later, it goes in user/local scope.                                          | Research / orchestrator |
+| Approval     | `enabledMcpjsonServers: ["context7"]` in `.claude/settings.json`                          | Honored in trusted worktrees (tested Pending → Connected); doesn't auto-approve future servers.                     | Research / orchestrator |
+| Guidance     | CLAUDE.md paragraph after line 33 + fix line 86 to `query-docs`                           | Line 33 is where worker tooling is described; line 86 is wrong today.                                               | Research / orchestrator |
+| Verification | `claude mcp list` + one `claude -p` tool call; pane spawn at impl-review, then post-merge | `-p` skips approval, so `mcp list` checks approval and `-p` checks the server; a pane spawn needs the orchestrator. | Orchestrator            |
+| Human docs   | README subsection next to "Agent Stop hook"                                               | Keeps setup, opt-out and key guidance where the Stop hook is documented.                                            | Plan                    |
+| Phases       | One phase                                                                                 | Four small config/doc edits that only work together.                                                                | Plan                    |
 
 ## Scope
 
@@ -33,7 +33,7 @@ Every session in the repo, worker worktrees included, starts with `context7` con
 
 - New `.mcp.json` (context7, HTTP, keyless)
 - `enabledMcpjsonServers` in `.claude/settings.json`
-- CLAUDE.md usage paragraph + tool-name fix
+- CLAUDE.md usage paragraph (with a fallback for when Context7 is unavailable) + tool-name fix
 - README subsection
 
 **Out of scope:**
@@ -43,7 +43,7 @@ Every session in the repo, worker worktrees included, starts with `context7` con
 - `permissions.allow` for `mcp__context7`
 - `spawn-worker.sh` or skill edits
 - roadmap status change
-- a real Herdr pane spawn (orchestrator, post-merge)
+- a Herdr pane spawn by the worker (the orchestrator checks the impl-review pane first, then post-merge)
 
 ## Architecture / Approach
 
@@ -62,7 +62,7 @@ Every session in the repo, worker worktrees included, starts with `context7` con
 
 - Keyless rate limits could throttle parallel workers. Mitigation: a user-scope key (roadmap Unknowns, owner: user).
 - On a machine that never trusted the main checkout, the first interactive run shows the trust dialog; after that, the approval applies.
-- `claude mcp list` stands in for the pane startup path until the orchestrator's post-merge spawn check.
+- `claude mcp list` stands in for the pane startup path until the orchestrator's impl-review pane check (then post-merge). If a pane blocks after merge, revert on `main` directly, not through a worker.
 
 ## Success Criteria (Summary)
 

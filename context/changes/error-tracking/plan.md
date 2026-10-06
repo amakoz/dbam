@@ -465,11 +465,11 @@ No schema or config migration. A Worker rollback simply restores the previous lo
 
 #### Automated
 
-- [x] 1.1 Unit tests pass, including the new observability and database-error cases: `npm test`
-- [x] 1.2 Lint passes with no new warnings in changed files: `npm run lint`
-- [x] 1.3 Types check: `npx astro check`
-- [x] 1.4 No thrown message in `src/` embeds a PostgREST message: `grep -rn 'error\.message' src --include='*.ts' --include='*.astro'` returns no output
-- [x] 1.5 Production build succeeds: `npm run build`
+- [x] 1.1 Unit tests pass, including the new observability and database-error cases: `npm test` — f0a43b8
+- [x] 1.2 Lint passes with no new warnings in changed files: `npm run lint` — f0a43b8
+- [x] 1.3 Types check: `npx astro check` — f0a43b8
+- [x] 1.4 No thrown message in `src/` embeds a PostgREST message: `grep -rn 'error\.message' src --include='*.ts' --include='*.astro'` returns no output — f0a43b8
+- [x] 1.5 Production build succeeds: `npm run build` — f0a43b8
 
 ### Phase 2: Wire SSR and cron error events and the failure email
 

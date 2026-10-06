@@ -247,30 +247,30 @@ Un-ignore `.claude/settings.json`, add the Stop hook that calls the script, and 
 
 #### Automated
 
-- [x] 1.1 The script passes lint
-- [x] 1.2 Full lint still passes after astro sync
-- [x] 1.3 No-op without the env var
-- [x] 1.4 Review role passes
-- [x] 1.5 A question turn passes without linting
-- [x] 1.6 A clean tree passes
-- [x] 1.7 Errors block, then the cap releases
-- [x] 1.8 Fail open on a missing ref
+- [x] 1.1 The script passes lint — 4d4290e
+- [x] 1.2 Full lint still passes after astro sync — 4d4290e
+- [x] 1.3 No-op without the env var — 4d4290e
+- [x] 1.4 Review role passes — 4d4290e
+- [x] 1.5 A question turn passes without linting — 4d4290e
+- [x] 1.6 A clean tree passes — 4d4290e
+- [x] 1.7 Errors block, then the cap releases — 4d4290e
+- [x] 1.8 Fail open on a missing ref — 4d4290e
 
 #### Manual
 
-- [x] 1.9 Block reason is understandable and names the log path
+- [x] 1.9 Block reason is understandable and names the log path — 4d4290e
 
 ### Phase 2: Wire the hook and document it
 
 #### Automated
 
-- [ ] 2.1 .claude/settings.json is not ignored
-- [ ] 2.2 skills, prompts and settings.local.json stay ignored
-- [ ] 2.3 settings.json is valid JSON
-- [ ] 2.4 Lint and Prettier pass
+- [x] 2.1 .claude/settings.json is not ignored
+- [x] 2.2 skills, prompts and settings.local.json stay ignored
+- [x] 2.3 settings.json is valid JSON
+- [x] 2.4 Lint and Prettier pass
 
 #### Manual
 
-- [ ] 2.5 Live block and pass in this worker session
-- [ ] 2.6 No hook effect in a human session
-- [ ] 2.7 Existing cc-status Stop hook still fires
+- [x] 2.5 Live block and pass in this worker session
+- [x] 2.6 No hook effect in a human session
+- [x] 2.7 Existing cc-status Stop hook still fires

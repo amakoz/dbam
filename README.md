@@ -63,6 +63,10 @@ npm run dev
 - `npm run catalog:migration` - Generate a snapshot migration from `catalog/entries/`
 - `npm run catalog:schema` - Regenerate `catalog/entry.schema.json` from the entry schema
 
+### Agent Stop hook
+
+Worker agent sessions (`DBAM_CHANGE` set; reviewers with `DBAM_ROLE=review` and human sessions are skipped) run `scripts/stop-lint.mjs` as a Claude Code `Stop` hook, registered in `.claude/settings.json`. It runs ESLint (errors only) on the files changed against `origin/main` and blocks a turn ending with `STATUS: done` while errors remain, giving up after 3 consecutive blocks so it cannot trap an agent. The block counter and the last ESLint output live in the worktree's git dir: `git rev-parse --git-path dbam-stop-lint.log`.
+
 ## Project Structure
 
 ```md

@@ -28,6 +28,8 @@ Dbam (preventive-screening reminders for adults in Poland): an Astro 7 SSR app w
 - `npx supabase test db` — pgTAP tests for database access rules (`supabase/tests/`).
 - `npm run ui:check` — hardcoded-value check over the views migrated to the design system, see `@scripts/ui-check.mjs`.
 
+Worker sessions (`DBAM_CHANGE` set) run a Stop hook, `@scripts/stop-lint.mjs`, wired in `.claude/settings.json`: it blocks a `STATUS: done` turn while ESLint errors remain in files changed against `origin/main` (3 blocks max, then it releases). `.claude/settings.json` is the only tracked file under `.claude/`.
+
 Pre-commit: husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}`, `prettier --write` on `*.{json,css,md}` and `ui:check` when a migrated view is staged.
 
 ## Coding Style & Naming Conventions

@@ -266,11 +266,11 @@ Un-ignore `.claude/settings.json`, add the Stop hook that calls the script, and 
 
 - [x] 2.1 .claude/settings.json is not ignored
 - [x] 2.2 skills, prompts and settings.local.json stay ignored
-- [x] 2.3 settings.json is valid JSON
-- [x] 2.4 Lint and Prettier pass
+- [x] 2.3 settings.json is valid JSON — f21e140
+- [x] 2.4 Lint and Prettier pass — f21e140
 
 #### Manual
 
-- [x] 2.5 Live block and pass in this worker session
-- [x] 2.6 No hook effect in a human session
-- [x] 2.7 Existing cc-status Stop hook still fires
+- [x] 2.5 Live block and pass in this worker session — f21e140
+- [x] 2.6 No hook effect in a human session — f21e140
+- [x] 2.7 Existing cc-status Stop hook still fires — f21e140

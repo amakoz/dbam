@@ -279,7 +279,7 @@ Not applicable: no schema, data or runtime change.
 
 #### Manual
 
-- [x] 1.5 Test names map to the agreed scope and no production file changed — 427f0ed (independently confirmed by impl-review.md F3)
+- [x] 1.5 Test names map to the agreed scope and no production file changed (independently confirmed by impl-review.md F3) — 427f0ed
 
 ### Phase 2: Wording tests and docs
 

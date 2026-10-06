@@ -100,3 +100,14 @@
   - **F3:** plan.md 1.5 cites the impl review as the independent confirmation.
 - **Evidence:** F1: with `isIsoDate` mutated to check only the month range, `rejects the impossible date 2027-02-29` fails (1 failed, 60 passed); before the fix the same mutation passed 61/61. `rules.ts` restored, `git diff` empty.
 - **Decided by:** orchestrator
+
+## 2026-10-06 Archive with PR-stage manual rows open
+
+- **Question:** Progress rows 2.4 (CI `ci` job log shows both new test files passing) and 2.5 (PR description carries the PRD testing-line note) are still open at archive time. Should the archive wait?
+- **Options:** (a) archive now and let the PR confirm them; (b) keep the change open until the PR exists.
+- **Choice:** (a). The PR's checks confirm 2.4 (the `ci` job runs `npm test`) and its description confirms 2.5 (the PRD testing-line note, plus `follow-ups/missing-entry-plan.md`). The rows stay unticked because the archived plan is read-only.
+- **Other archive warnings, accepted:**
+  - The impl review is `impl-review.md` in the change root, not `reviews/`, by orchestrator choice. It covers phases 1 and 2.
+  - The phase SHAs 427f0ed and a242d88 are not on `origin/main` yet, because no PR has been merged. There is nothing to repoint.
+  - Row 1.5's F3 citation was moved in front of the SHA suffix so the row still ends in ` — 427f0ed`.
+- **Decided by:** orchestrator

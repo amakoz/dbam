@@ -4,12 +4,14 @@ import { getActiveCatalog } from "@/lib/catalog/read";
 import { recommend } from "@/lib/catalog/recommend";
 import { getOnboardingState } from "@/lib/consent";
 import { readForm } from "@/lib/forms";
+import { clearedFlashCookieOptions, dashboardLocation, FLASH_COOKIE, flashCookieOptions } from "@/lib/screenings/flash";
 import { parseDoneForm, parsePlanForm, SLUG_PATTERN, warsawMonth, warsawToday } from "@/lib/screenings/rules";
 import { createClient } from "@/lib/supabase";
 
 // Plans and done records for the dashboard's exam items: `plan` (optional appointment date), `unplan`, `done`
 // (optional month of the last exam), `undone` and `confirm` (a plan whose appointment day has come becomes a done
-// record on that day). Every outcome redirects back to the dashboard, to the item's anchor.
+// record on that day). Every outcome redirects back to the dashboard, to the item's anchor. The slug travels in a
+// flash cookie, not the query: request URLs are logged, and the slug is health data.
 
 const INTENTS = ["plan", "unplan", "done", "undone", "confirm"] as const;
 type Intent = (typeof INTENTS)[number];
@@ -24,9 +26,20 @@ function errorCode(key: MessageKey): string {
 }
 
 export const POST: APIRoute = async (context) => {
+  // The flash cookie's attributes must be the same on set and clear, or the browser keeps the old one.
+  const secure = context.url.protocol === "https:";
+  const clearFlash = () => {
+    context.cookies.set(FLASH_COOKIE, "", clearedFlashCookieOptions(secure));
+  };
+  const toDashboard = (feedback: Parameters<typeof dashboardLocation>[0], slug: string | null) => {
+    if (slug) context.cookies.set(FLASH_COOKIE, slug, flashCookieOptions(secure));
+    else clearFlash();
+    return context.redirect(dashboardLocation(feedback, slug));
+  };
+
   const form = await readForm(context.request);
   if (!form) {
-    return context.redirect("/dashboard?error=invalid_request");
+    return toDashboard({ error: "invalid_request" }, null);
   }
 
   const supabase = createClient(context.request.headers, context.cookies);
@@ -35,18 +48,18 @@ export const POST: APIRoute = async (context) => {
     return context.redirect("/auth/signin");
   }
 
-  // The slug goes into the URL only once it is known to be safe there.
+  // The slug goes into the cookie and the URL fragment only once it is known to be safe there.
   const rawSlug = form.get("slug");
   const slug = typeof rawSlug === "string" && SLUG_PATTERN.test(rawSlug.trim()) ? rawSlug.trim() : null;
-  const fail = (code: string) =>
-    context.redirect(slug ? `/dashboard?error=${code}&slug=${slug}#screening-${slug}` : `/dashboard?error=${code}`);
+  const fail = (code: string) => toDashboard({ error: code }, slug);
 
   const intent = form.get("intent");
   if (!isIntent(intent)) {
     return fail("invalid_request");
   }
-  // The dashboard shows the confirmation on the saved exam's row (`slug`), where the browser scrolls.
-  const succeed = (saved: string) => context.redirect(`/dashboard?saved=${intent}&slug=${saved}#screening-${saved}`);
+  // The dashboard shows the confirmation on the saved exam's row (the flash cookie), where the browser scrolls (the
+  // fragment).
+  const succeed = (saved: string) => toDashboard({ saved: intent }, saved);
 
   // Removing a record needs no consent or recommendation check: RLS limits the delete to the caller's own row.
   if (intent === "unplan" || intent === "undone") {
@@ -77,8 +90,10 @@ export const POST: APIRoute = async (context) => {
     if (error) return fail("save_failed");
     if (data === "confirmed") return succeed(slug);
     if (data === "not_due") return fail("appointment_not_passed");
-    // No such plan any more: a double submit (the first one confirmed it) or a stale page. The row shows what is true.
-    return context.redirect(`/dashboard#screening-${slug}`);
+    // No such plan any more: a double submit (the first one confirmed it) or a stale page. The row shows what is true;
+    // nothing is placed on it, so only the fragment carries the slug and no flash cookie is set.
+    clearFlash();
+    return context.redirect(dashboardLocation(null, slug));
   }
 
   // Without an active consent and a profile nothing may be stored; send the user back to onboarding. (RLS enforces

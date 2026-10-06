@@ -382,7 +382,7 @@ An SSR event's `requestId` equals `$metadata.rayId` of the same request's invoca
 
 - Errors thrown after a response has started streaming are not captured: no hook sees them. No page awaits data inside a component today, so the path is empty.
 - A cron that never fires is detected only by the missing daily heartbeat email.
-- Cloudflare's invocation logs record request URLs, and our code doesn't control that. `/dashboard?…&slug=<slug>` names the screening a user just planned or marked done, so health data can sit in Workers Logs for the retention window. This is tracked in `context/changes/error-tracking/follow-ups/redirect-slug-leak.md` and isn't fixed by the error events.
+- Cloudflare's invocation logs record request URLs, which our code doesn't control, so no health data may sit in them. The screening slug a user just planned or marked done travels in a short-lived `HttpOnly` flash cookie (`screening_flash`, `Path=/dashboard`, 60 s) that `/dashboard` reads and clears, and the URL carries only the `?saved=`/`?error=` code and the `#screening-<slug>` fragment, which a browser never sends. What remains in URLs is static codes, `?reminders=on|off` and Supabase's single-use `?code=` on the auth callback. See `context/changes/redirect-query-privacy/`; whether production Workers Logs keep the query string is a human check that is still open.
 
 ## Smoke test
 

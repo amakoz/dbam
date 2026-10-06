@@ -28,6 +28,7 @@ milestone_status: open
 - **Scope anchors:** FR-001–FR-009, FR-011, FR-012 (all must-have FRs); US-01, US-02, US-03. FR-010 (nice-to-have) is parked.
 - **Agent-workflow foundations (added 2026-10-05):** F-04–F-07 harden the verification path for agent-driven changes (an orchestrator agent runs S-06/S-07 through the 10x chain with worker agents, up to an open PR). They come from the owner's tooling review, not from the PRD; each one is a verification or safety path for the remaining slices.
 - **F-08 added 2026-10-06** by the owner from F-03's impl-review follow-up.
+- **F-09 added 2026-10-06** by the owner from backlog B-01 (F-07 plan review, `context/foundation/backlog.md`).
 
 ## Vision recap
 
@@ -51,6 +52,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —                | NFR (testing)                                      | done     |
 | F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —                | NFR (privacy), FR-007                              | done     |
 | F-08 | recurrence-unit-tests       | (foundation) unit tests cover the recurrence rules (`rules.ts`) and `describeLastDone` (`format.ts`)                                      | F-03             | FR-008, FR-009, NFR (testing)                      | done     |
+| F-09 | redirect-query-privacy      | (foundation) no user-derived health data reaches Workers Logs through request URLs (redirect query params)                                | —                | NFR (privacy)                                      | done     |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —                | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01       | US-01, FR-004, Guardrail (no diagnosis)            | done     |
 | S-03 | record-appointment-date     | user plans an exam (optional appointment date) or marks it already done (optional month/year) until due again; both show on the dashboard | S-02             | US-02, FR-005, FR-009 (partial: mark already done) | done     |
@@ -197,6 +199,20 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** S-05 shipped its recurrence logic without unit tests, and S-06 reads the due dates it computes. Added 2026-10-06 by the owner from F-03's impl-review follow-up; first cases are listed in `context/archive/2026-10-05-unit-test-suite/follow-ups/recurrence-tests.md`.
 - **Status:** done
 
+### F-09: Redirect query privacy
+
+- **Outcome:** (foundation) no user-derived health data reaches Cloudflare Workers Logs through request URLs: `/api/screenings` stops redirecting to `/dashboard?saved=…&slug=<slug>` and `?error=…&slug=<slug>` (`src/pages/api/screenings.ts:42,49`), the dashboard keeps its confirmation on the right row, and every other query param carrying user-derived values is audited (auth callback `?code=`, `profile.astro` `?reminders=`, any other redirect).
+- **Change ID:** redirect-query-privacy
+- **PRD refs:** NFR (privacy)
+- **Unlocks:** S-06, S-07 (B-01 is P1: fix before they ship to real users)
+- **Prerequisites:** —
+- **Parallel with:** S-06, S-07
+- **Blockers:** —
+- **Unknowns:**
+  - Does `$workers.event.request.url` keep the query string (F-07 manual check 3.7)? The fix is safe either way. — Owner: user. Block: no.
+- **Risk:** Invocation logs stay on: turning them off loses `$workers.outcome` and the `rayId` correlation F-07 relies on. Options from the source follow-up: a short-lived `HttpOnly` flash cookie, or the URL fragment read client-side. Added 2026-10-06 by the owner from backlog B-01; source `context/archive/2026-10-06-error-tracking/follow-ups/redirect-slug-leak.md`.
+- **Status:** done
+
 ## Slices
 
 ### S-01: Onboarding profile
@@ -297,6 +313,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-06       | agent-stop-hook             | Stop hook: workers fix lint before finishing                    | yes                   | Run `/10x-plan agent-stop-hook`               |
 | F-07       | error-tracking              | Cloudflare-native error logging and failure alerts              | yes                   | Run `/10x-plan error-tracking`                |
 | F-08       | recurrence-unit-tests       | Unit tests for recurrence rules and describeLastDone            | yes                   | Run `/10x-plan recurrence-unit-tests`         |
+| F-09       | redirect-query-privacy      | Keep health data out of redirect query strings                  | yes                   | Backlog B-01                                  |
 | S-01       | onboarding-profile          | Onboarding: health-data consent and minimal profile             | yes                   | #19 · Done                                    |
 | S-02       | screening-recommendations   | Dashboard: due screenings grouped by importance tier            | yes                   | #20 · Done                                    |
 | S-03       | record-appointment-date     | Record an appointment date for a recommended exam               | yes                   | #21 · Run `/10x-plan record-appointment-date` |
@@ -341,3 +358,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **F-05: (foundation) `npm run ui:shots` (Playwright, run as a script, not an MCP server) signs in a seeded fixture user against `BASE_URL`, and screenshots the dashboard, onboarding, profile and kitchen sink in light and dark at 1440px and 390px into a gitignored folder. Agents use it in `/10x-implement` manual-verification gates and attach the paths to PRs.** — Archived 2026-10-06 → `context/archive/2026-10-06-ui-verification-script/`. Lesson: —.
 - **F-04: (foundation) a committed `.mcp.json` registers the Context7 MCP server, so every Claude Code session and worker worktree can pull current Astro, Supabase, Cloudflare Workers and Tailwind docs during `/10x-research` and `/10x-plan`; `CLAUDE.md` tells agents when to use it.** — Archived 2026-10-06 → `context/archive/2026-10-06-agent-docs-mcp/`. Lesson: —.
 - **S-06: an opted-in user receives an email when a screening becomes due — including when a confirmed exam's repeat interval elapses — without re-entering the exam.** — Archived 2026-10-06 → `context/archive/2026-10-06-due-screening-reminder/`. Lesson: —.
+- **F-09: (foundation) no user-derived health data reaches Cloudflare Workers Logs through request URLs: `/api/screenings` stops redirecting to `/dashboard?saved=…&slug=<slug>` and `?error=…&slug=<slug>` (`src/pages/api/screenings.ts:42,49`), the dashboard keeps its confirmation on the right row, and every other query param carrying user-derived values is audited (auth callback `?code=`, `profile.astro` `?reminders=`, any other redirect).** — Archived 2026-10-06 → `context/archive/2026-10-06-redirect-query-privacy/`. Lesson: —. Open human check 2.2: after deploy, confirm new `/dashboard` Workers Logs entries carry no `slug=`.

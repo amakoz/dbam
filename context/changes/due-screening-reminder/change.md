@@ -1,7 +1,7 @@
 ---
 change_id: due-screening-reminder
 title: Email opted-in users when a screening becomes due, including repeat intervals
-status: preparing
+status: planned
 created: 2026-10-06
 updated: 2026-10-06
 archived_at: null

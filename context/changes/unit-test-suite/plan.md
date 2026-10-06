@@ -298,22 +298,22 @@ None: no schema, data or runtime change. The Worker bundle is unaffected because
 
 #### Automated
 
-- [x] 1.1 Vitest is installed and the lockfile updated: `npm ls vitest` shows `vitest@5.x`
-- [x] 1.2 Unit tests pass: `npm test`
-- [x] 1.3 A deliberate break is caught: changing `age > branch.age_max` to `age >= branch.age_max` in `recommend.ts:73` makes `npm test` fail; revert and confirm it passes again
-- [x] 1.4 Lint passes, including the test file and `vitest.config.ts`: `npm run lint`
-- [x] 1.5 Type check passes and covers the test file: `npx astro check` (also confirm a deliberate type error in `recommend.test.ts` is reported, then revert)
-- [x] 1.6 Build is unaffected: `npm run build`
+- [x] 1.1 Vitest is installed and the lockfile updated: `npm ls vitest` shows `vitest@5.x` — 28510fc
+- [x] 1.2 Unit tests pass: `npm test` — 28510fc
+- [x] 1.3 A deliberate break is caught: changing `age > branch.age_max` to `age >= branch.age_max` in `recommend.ts:73` makes `npm test` fail; revert and confirm it passes again — 28510fc
+- [x] 1.4 Lint passes, including the test file and `vitest.config.ts`: `npm run lint` — 28510fc
+- [x] 1.5 Type check passes and covers the test file: `npx astro check` (also confirm a deliberate type error in `recommend.test.ts` is reported, then revert) — 28510fc
+- [x] 1.6 Build is unaffected: `npm run build` — 28510fc
 
 ### Phase 2: Wording tests and docs
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass, including the wording suite: `npm test`
-- [ ] 2.2 Lint passes: `npm run lint`
-- [ ] 2.3 Type check passes: `npx astro check`
-- [ ] 2.4 No stale "no unit suite" note remains: `grep -ri "no unit suite" CLAUDE.md README.md` returns nothing
-- [ ] 2.5 Markdown is formatted: `npx prettier --check CLAUDE.md README.md context/foundation/prd.md`
+- [x] 2.1 Unit tests pass, including the wording suite: `npm test`
+- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.3 Type check passes: `npx astro check`
+- [x] 2.4 No stale "no unit suite" note remains: `grep -ri "no unit suite" CLAUDE.md README.md` returns nothing
+- [x] 2.5 Markdown is formatted: `npx prettier --check CLAUDE.md README.md context/foundation/prd.md`
 
 #### Manual
 

@@ -47,7 +47,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-02 | reminder-dispatch-path      | (foundation) a scheduled job in production delivers an email                                                                              | —                | FR-007, FR-009, FR-011, FR-012                     | done     |
 | F-03 | unit-test-suite             | (foundation) a unit-test runner runs in CI and covers the catalog eligibility, tier and interval rules                                    | S-02             | FR-004, FR-009, NFR (testing)                      | done     |
 | F-04 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —                | —                                                  | ready    |
-| F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —                | NFR (testing)                                      | ready    |
+| F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —                | NFR (testing)                                      | planning |
 | F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —                | NFR (testing)                                      | done     |
 | F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —                | NFR (privacy), FR-007                              | ready    |
 | F-08 | recurrence-unit-tests       | (foundation) unit tests cover the recurrence rules (`rules.ts`) and `describeLastDone` (`format.ts`)                                      | F-03             | FR-008, FR-009, NFR (testing)                      | done     |
@@ -154,7 +154,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Must use the local Supabase only (refuse a non-local `BASE_URL`, like `scripts/smoke.mjs`), and must not add Playwright browsers to the production build or the Worker bundle.
-- **Status:** ready
+- **Status:** planning
 
 ### F-06: Agent stop hook
 

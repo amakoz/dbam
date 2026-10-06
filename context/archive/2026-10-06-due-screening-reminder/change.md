@@ -1,10 +1,10 @@
 ---
 change_id: due-screening-reminder
 title: Email opted-in users when a screening becomes due, including repeat intervals
-status: impl_reviewed
+status: archived
 created: 2026-10-06
 updated: 2026-10-06
-archived_at: null
+archived_at: 2026-10-06T16:23:05Z
 ---
 
 ## Notes

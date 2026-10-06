@@ -16,6 +16,7 @@ import { recommend } from "@/lib/catalog/recommend";
 import { getOnboardingState } from "@/lib/consent";
 import { errorMessageKey } from "@/lib/errors";
 import { SEX_LABEL_KEYS, SMOKING_STATUS_LABEL_KEYS, type Sex, type SmokingStatus } from "@/lib/profile";
+import { clearedFlashCookieOptions, FLASH_COOKIE, readFlashSlug } from "@/lib/screenings/flash";
 import { screeningFormBounds } from "@/lib/screenings/format";
 import { getUserScreenings } from "@/lib/screenings/read";
 import { partitionDashboard, warsawToday } from "@/lib/screenings/rules";
@@ -74,9 +75,9 @@ const tierGroups = ([1, 2, 3] as const)
 // The intro's status line: exams in "Your plans", and the exams in the tier sections that still wait for a decision.
 const openCount = tierGroups.reduce((count, { items }) => count + items.length, 0);
 
-// `/api/screenings` redirects back with `?saved=<intent>&slug=<slug>`, or `?error=<code>&slug=<slug>`. The message
-// shows on the exam's row when that row is on the page (the browser scrolls there), otherwise under the intro; the
-// raw slug is only compared, never rendered.
+// `/api/screenings` redirects back with `?saved=<intent>` or `?error=<code>` and the exam's slug in a one-shot flash
+// cookie (the slug is health data and request URLs are logged). The message shows on the exam's row when that row is
+// on the page (the browser scrolls there), otherwise under the intro; the raw slug is only compared, never rendered.
 const SAVED_KEYS = {
   plan: "dashboard.screenings.saved.plan",
   unplan: "dashboard.screenings.saved.unplan",
@@ -89,7 +90,10 @@ const INVALID_FIELDS = {
   invalid_appointment_date: "date",
   invalid_done_date: "done",
 } as const satisfies Record<string, "date" | "done">;
-const slugParam = Astro.url.searchParams.get("slug");
+const flashCookie = Astro.cookies.get(FLASH_COOKIE);
+const slugParam = readFlashSlug(flashCookie?.value);
+// Consumed on first read, so a stale slug never pins a later message to an old row.
+if (flashCookie) Astro.cookies.set(FLASH_COOKIE, "", clearedFlashCookieOptions(Astro.url.protocol === "https:"));
 // Rows that carry an `id="screening-<slug>"` anchor ("may apply" rows have no actions, so no anchor).
 const itemSlugs = new Set([
   ...plans.map(({ entry }) => entry.slug),

@@ -169,8 +169,23 @@ const accountSteps = [
   [
     "plan with a date is saved",
     () => screening({ intent: "plan", appointment_date: shiftDays(today, 30) }),
-    // The full location: the dashboard confirms the save on the exam's row (`slug`), where the browser scrolls.
-    { status: 302, location: `/dashboard?saved=plan&slug=${mammography}#screening-${mammography}` },
+    // The full location: the slug is only in the fragment (request URLs are logged); the dashboard reads it from the
+    // flash cookie and confirms the save on the exam's row, where the browser scrolls.
+    { status: 302, location: `/dashboard?saved=plan#screening-${mammography}` },
+  ],
+  // The first dashboard render after the POST consumes the flash cookie, so these two come before any other GET.
+  [
+    "dashboard confirms the save on the planned row",
+    () => request("/dashboard?saved=plan"),
+    {
+      status: 200,
+      bodyIncludes: `data-plan data-slug="${mammography}" data-appointment="${shiftDays(today, 30)}" data-saved="success"`,
+    },
+  ],
+  [
+    "the save confirmation shows once",
+    () => request("/dashboard?saved=plan"),
+    { status: 200, bodyExcludes: 'data-saved="success"' },
   ],
   [
     "dashboard shows the plan instead of the tier item",
@@ -205,17 +220,14 @@ const accountSteps = [
     { status: 302, location: "/profile?error=" },
   ],
   [
-    "dashboard confirms the save on the planned row",
-    () => request(`/dashboard?saved=plan&slug=${mammography}`),
-    {
-      status: 200,
-      bodyIncludes: `data-plan data-slug="${mammography}" data-appointment="${shiftDays(today, 30)}" data-saved="success"`,
-    },
-  ],
-  [
     "plan rejects a past date",
     () => screening({ intent: "plan", appointment_date: shiftDays(today, -30) }),
     { status: 302, location: "/dashboard?error=invalid_appointment_date" },
+  ],
+  [
+    "dashboard marks the date invalid on the row",
+    () => request("/dashboard?error=invalid_appointment_date"),
+    { status: 200, bodyIncludes: 'aria-invalid="true"' },
   ],
   [
     "plan rejects an exam that is not recommended (draft entry)",

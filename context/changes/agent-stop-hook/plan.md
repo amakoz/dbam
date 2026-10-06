@@ -264,8 +264,8 @@ Un-ignore `.claude/settings.json`, add the Stop hook that calls the script, and 
 
 #### Automated
 
-- [x] 2.1 .claude/settings.json is not ignored
-- [x] 2.2 skills, prompts and settings.local.json stay ignored
+- [x] 2.1 .claude/settings.json is not ignored — f21e140
+- [x] 2.2 skills, prompts and settings.local.json stay ignored — f21e140
 - [x] 2.3 settings.json is valid JSON — f21e140
 - [x] 2.4 Lint and Prettier pass — f21e140
 

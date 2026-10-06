@@ -61,24 +61,12 @@
 - **What:** nobody has judged the visual quality of the `kitchen-sink-*` and `profile-mobile-*` shots from F-05 (#80).
 - **Next:** _Human:_ `npx playwright install chromium --only-shell`, then `npm run ui:shots` against a local dev server.
 
-### B-08 Usage limit and interruptions in orchestrated runs
-
-- **What:** the account's session limit is shared by the orchestrator and every worker. In this run it cut off three stages, and a sleeping computer cut off two more. The orchestrator spotted each one by hand.
-- **Next:** _Agent:_
-  - add a `wait` subcommand to the orchestrator's `spawn-worker.sh` that flags a usage-limit banner, `API Error: … went to sleep` and a turn ending with no `STATUS:` line;
-  - run one worker instead of two when the limit passes about 80%.
-
 ### B-09 Workers Logs Free-plan change on 2026-12-01
 
 - **What:** from 2026-12-01 the Free plan allows 0.5 GB/day with 7-day retention, and logging stops at the cap until 00:00 UTC.
 - **Next:** _Human:_ re-check log volume after S-06/S-07 add traffic; the README's "Errors and alerts" section has the numbers.
 
 ## P3
-
-### B-10 Noisy SHA write-back commits
-
-- **What:** `/10x-implement` records each phase's commit SHA in `plan.md` with an extra commit (a commit can't contain its own SHA), sometimes two per phase.
-- **Next:** _Agent:_ do the SHA write-back once, in the plan's closing epilogue commit.
 
 ### B-11 Unit tests for the remaining pure modules
 
@@ -106,3 +94,5 @@
   - the merge policy setting;
   - `astro dev --host 127.0.0.1`;
   - PR-stage manual checks.
+- B-08 Usage limit and interruptions in orchestrated runs: done in the local orchestrator skill (a `spawn-worker.sh wait` subcommand), recorded in `context/changes/agent-docs-mcp/decisions.md`.
+- B-10 Noisy SHA write-back commits: fixed by the worker protocol (bookkeeping is committed with the phase), recorded in `context/changes/agent-docs-mcp/decisions.md`.

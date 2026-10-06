@@ -48,3 +48,13 @@
   - F3: 1.5 uses `DBAM_CHANGE= claude -p … --output-format json | jq -e`.
 - Evidence: plan-review.md; `spawn-worker.sh:128-137` (review pane runs in the feature worktree)
 - Decided-by: orchestrator
+
+## 2026-10-06 Implement: roadmap flip and 1.8
+
+- Question: flip roadmap F-04 during implement, given the plan-stage "don't change roadmap.md status"? And when can 1.8 be checked?
+- Options: (a) flip to in-progress as /10x-implement and the worker protocol prescribe (b) leave it at ready
+- Choice:
+  - (a). The earlier instruction was scoped to /10x-plan.
+  - 1.8 stays unchecked until the PR body lists the orchestrator's pane checks, so change.md stays `implementing`.
+- Evidence: 10x-implement "Roadmap status sync"; worker protocol "Git and commits"
+- Decided-by: worker

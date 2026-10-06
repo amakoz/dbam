@@ -85,7 +85,8 @@ The migration, pgTAP coverage and regenerated types.
     - the plan's state still matches the cycle (see Critical Implementation Details);
     - opt-in, consent, active entry and a non-null email;
     - no `appointment_reminders` or `due_screening_reminders` row for that user whose Warsaw `sent_at` date equals `p_today`;
-  - order: `confirm_count > 0` first, then `md5(user_id::text || p_today::text)`; `limit p_limit`;
+  - order: `order by count(*) filter (where r.kind = 'confirm') > 0 desc, md5(r.user_id::text || p_today::text)`, then `limit p_limit`. Do not order by the `confirm_count` output name: inside an expression plpgsql resolves it to the null OUT variable (plan review F3);
+  - counts: `count(*) filter (where r.kind = 'schedule')::int` and `count(*) filter (where r.kind = 'confirm')::int`, because `count` is bigint and `return query` rejects the mismatch;
   - aggregates `array_agg(distinct r.id order by r.id)`;
   - returns nothing that names an exam: no slug, no date.
 - `public.mark_follow_up_nudges_sent(p_ids bigint[]) returns integer`: copies `mark_appointment_reminders_sent`.
@@ -112,10 +113,10 @@ The migration, pgTAP coverage and regenerated types.
   - a second claim on the same day returns the same ids;
   - after mark, a claim returns nothing;
   - mark returns the count stamped;
-- a re-saved undated plan → a new `cycle_on` and a new row, and the stale row is not returned;
+- a re-saved undated plan → a new `cycle_on` and a new row, and the stale row is not returned. `screening_plans_set_updated_at` is a BEFORE UPDATE trigger that writes `now()`. Either build the case from INSERT-only fixtures (the trigger doesn't fire on insert), or run `alter table public.screening_plans disable trigger screening_plans_set_updated_at` as postgres inside the rolled-back test and set `updated_at` explicitly. Never compare `now()` with the fixed `p_today` (plan review F2);
 - a re-dated plan → a new `confirm` cycle;
 - cross-job exclusion: an S-04 or S-06 row sent on `p_today` (Warsaw) excludes the user; one sent the day before doesn't;
-- order: a confirm user comes before a schedule-only user, and `p_limit` is respected;
+- order: a confirm user comes before a schedule-only user, and `p_limit` is respected. Choose the fixture user ids so that the md5 tiebreak alone would put the schedule-only user first; otherwise the case could pass by chance (plan review F3);
 - one user with both kinds gets one row with both counts;
 - cascade: deleting the plan, confirming it (`confirm_screening_plan`) and withdrawing consent remove the nudge rows;
 - invalid arguments raise `22023`.
@@ -141,11 +142,11 @@ The migration, pgTAP coverage and regenerated types.
 
 ---
 
-## Phase 2: Nudge message, budget and three-job chain
+## Phase 2: Nudge job, message, budget and chain
 
 ### Overview
 
-The pure pieces: thresholds, email copy and builder, the budget change and the three-job chain, all covered by Vitest.
+The thresholds, the email copy and builder, the budget change, the three-job chain, and the nudge job wired into the Worker, all in one phase. `ReminderChainDeps.nudge` is required, so `src/worker.ts` must pass it in the same phase or `astro check` fails (plan review F1). The pure pieces are covered by Vitest.
 
 ### Changes Required:
 
@@ -218,26 +219,7 @@ The pure pieces: thresholds, email copy and builder, the budget change and the t
   - the budget constant is 92;
   - observability `JOBS` includes the new name, and the privacy cases cover it.
 
-### Success Criteria:
-
-#### Automated Verification:
-
-- Unit tests pass, including the new nudge-message and chain cases: `npm test`
-- Lint and type check pass: `npm run lint` and `npx astro check`
-
-**Implementation Note**: Pause after this phase for confirmation before Phase 3.
-
----
-
-## Phase 3: Nudge job, wiring and docs
-
-### Overview
-
-The job that runs the claim → send → mark sequence, the Worker wiring, the README and a local dry run.
-
-### Changes Required:
-
-#### 1. Job
+#### 5. Job
 
 **File**: `src/lib/reminders/follow-up-nudge.ts` (new)
 
@@ -252,7 +234,7 @@ The job that runs the claim → send → mark sequence, the Worker wiring, the R
 - Each run logs one JSON line `{ event: "follow-up-nudge", outcome, cron, scheduledAt, due, sent }`. It carries counts and error names only, never an address, subject or slug.
 - A header comment explains the job, in the style of `appointment.ts:12-19`.
 
-#### 2. Wiring
+#### 6. Wiring
 
 **File**: `src/worker.ts`, `eslint.config.js`, `src/lib/reminders/admin-client.ts`
 
@@ -264,7 +246,27 @@ The job that runs the claim → send → mark sequence, the Worker wiring, the R
 - `src/lib/reminders/follow-up-nudge.ts` joins the `no-console` allow-list.
 - The header says "seven reminder functions" and lists the nudge claim and mark.
 
-#### 3. Docs and follow-up
+### Success Criteria:
+
+#### Automated Verification:
+
+- Unit tests pass, including the new nudge-message and chain cases: `npm test`
+- Lint and type check pass: `npm run lint` and `npx astro check`
+- Build passes with the job wired into the Worker: `npm run build`
+
+**Implementation Note**: Pause after this phase for confirmation before Phase 3.
+
+---
+
+## Phase 3: Docs and local dry run
+
+### Overview
+
+The README, the follow-up note and a local dry run of the job wired in Phase 2.
+
+### Changes Required:
+
+#### 1. Docs and follow-up
 
 **File**: `README.md`, `context/changes/follow-up-nudges/follow-ups/cross-job-overlap.md` (new)
 
@@ -349,14 +351,15 @@ Additive: a new table and functions, and a table comment. A Worker rollback leav
 - [ ] 1.3 Types regenerated and committed
 - [ ] 1.4 Lint and type check pass
 
-### Phase 2: Nudge message, budget and three-job chain
+### Phase 2: Nudge job, message, budget and chain
 
 #### Automated
 
 - [ ] 2.1 Unit tests pass, including the new nudge-message and chain cases
 - [ ] 2.2 Lint and type check pass
+- [ ] 2.3 Build passes with the job wired into the Worker
 
-### Phase 3: Nudge job, wiring and docs
+### Phase 3: Docs and local dry run
 
 #### Automated
 

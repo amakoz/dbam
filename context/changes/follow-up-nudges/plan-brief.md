@@ -71,11 +71,11 @@ Logs carry counts only.
 
 ## Phases at a Glance
 
-| Phase                                        | What it delivers                                          | Key risk                                                   |
-| -------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------- |
-| 1. Ledger and cron-only functions            | Migration, pgTAP, types                                   | Cycle re-check or the Warsaw-day exclusion is off by a day |
-| 2. Nudge message, budget and three-job chain | Pure builder and copy, budget of 92, chain with tests     | Polish plural copy; chain failure matrix                   |
-| 3. Nudge job, wiring and docs                | Job, Worker wiring, README, follow-up note, local dry run | Production CPU with a third job (checked after merge)      |
+| Phase                                   | What it delivers                                                                 | Key risk                                                   |
+| --------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1. Ledger and cron-only functions       | Migration, pgTAP, types                                                          | Cycle re-check or the Warsaw-day exclusion is off by a day |
+| 2. Nudge job, message, budget and chain | Pure builder and copy, budget of 92, chain with tests, job wired into the Worker | Polish plural copy; chain failure matrix                   |
+| 3. Docs and local dry run               | README, follow-up note, local dry run                                            | Production CPU with a third job (checked after merge)      |
 
 **Prerequisites:** S-04, S-05, S-06 merged (done); shared local Supabase with the DB lock for Phases 1 and 3.
 **Estimated effort:** about 1–2 implement sessions across 3 phases.

@@ -25,3 +25,13 @@
 - The opt-in disclosure states the thresholds as literals; a Vitest case pins them to the constants so they can't drift.
 - Roadmap status flip skipped (worker protocol: no roadmap changes during plan).
 - decided-by: worker (orchestrator: "complexity, question budget, phase split are your call")
+
+## 2026-10-06 Plan-review triage (reviews/plan-review.md, verdict REVISE)
+
+- Question: how to resolve findings F1–F3.
+- Choice: all ACCEPT.
+  - F1: the job module (`follow-up-nudge.ts`) and the Worker wiring (`worker.ts`, the `no-console` allow-list, the admin-client header) move into Phase 2, so `astro check` passes there. Phase 3 keeps the docs, the follow-up note and the local dry run. New Progress row 2.3 (build).
+  - F2: the re-saved-plan pgTAP case uses INSERT-only fixtures, or disables `screening_plans_set_updated_at` inside the rolled-back test. It never compares `now()` with the fixed `p_today`.
+  - F3: order by `count(*) filter (where r.kind = 'confirm') > 0 desc`, with an md5 tiebreak; `::int` on both counts; the order test's fixture ids are chosen so that md5 alone would put the schedule-only user first.
+- Evidence: `reviews/plan-review.md`.
+- decided-by: orchestrator

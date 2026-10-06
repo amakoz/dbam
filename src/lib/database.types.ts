@@ -63,6 +63,44 @@ export type Database = {
           },
         ];
       };
+      due_screening_reminders: {
+        Row: {
+          anchor_month: string;
+          catalog_slug: string;
+          created_at: string;
+          due_month: string;
+          id: number;
+          sent_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          anchor_month: string;
+          catalog_slug: string;
+          created_at?: string;
+          due_month: string;
+          id?: never;
+          sent_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          anchor_month?: string;
+          catalog_slug?: string;
+          created_at?: string;
+          due_month?: string;
+          id?: never;
+          sent_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "due_screening_reminders_completion_fkey";
+            columns: ["user_id", "catalog_slug"];
+            isOneToOne: false;
+            referencedRelation: "screening_completions";
+            referencedColumns: ["user_id", "catalog_slug"];
+          },
+        ];
+      };
       health_data_consents: {
         Row: {
           consent_version: string;
@@ -304,10 +342,39 @@ export type Database = {
           user_id: string;
         }[];
       };
+      claim_due_screening_reminders: {
+        Args: { p_items: Json; p_today: string };
+        Returns: {
+          email: string;
+          locale: string;
+          reminder_ids: number[];
+          user_id: string;
+        }[];
+      };
       confirm_screening_plan: { Args: { p_slug: string }; Returns: string };
+      get_due_screening_candidates: {
+        Args: { p_limit: number; p_today: string };
+        Returns: {
+          birth_year: number;
+          completions: Json;
+          pack_years: number;
+          sex: string;
+          smoking_status: string;
+          user_id: string;
+          years_since_quitting: number;
+        }[];
+      };
       mark_appointment_reminders_sent: {
         Args: { p_ids: number[] };
         Returns: number;
+      };
+      mark_due_screening_reminders_sent: {
+        Args: { p_ids: number[] };
+        Returns: number;
+      };
+      screening_anchor_month: {
+        Args: { p_last_done_month: string; p_updated_at: string };
+        Returns: string;
       };
       withdraw_health_data_consent: { Args: never; Returns: undefined };
     };

@@ -469,13 +469,13 @@ The migration adds a table, the anchor helper, three cron functions and grants, 
 
 #### Automated
 
-- [ ] 1.1 Migration applies on the shared local stack (DB lock held): `npx supabase migration up`
-- [ ] 1.2 pgTAP passes, old and new files: `npx supabase test db`
-- [ ] 1.3 Types regenerated and committed with no further diff: `npm run db:types && git diff --exit-code src/lib/database.types.ts`
+- [x] 1.1 Migration applies on the shared local stack (DB lock held): `npx supabase migration up`
+- [x] 1.2 pgTAP passes, old and new files: `npx supabase test db`
+- [x] 1.3 Types regenerated and committed with no further diff: `npm run db:types && git diff --exit-code src/lib/database.types.ts`
 
 #### Manual
 
-- [ ] 1.4 Reviewer confirms the migration only adds objects (no `alter`/`drop` on existing objects) and revokes service_role on the new table
+- [x] 1.4 Reviewer confirms the migration only adds objects (no `alter`/`drop` on existing objects) and revokes service_role on the new table
 
 ### Phase 2: Pure due-item rule
 

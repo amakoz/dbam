@@ -49,7 +49,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-04 | agent-docs-mcp              | (foundation) every agent session in the repo can query current library docs (Context7 MCP)                                                | —                | —                                                  | ready    |
 | F-05 | ui-verification-script      | (foundation) one command screenshots the key views against any local server, so agents verify UI changes without a human                  | —                | NFR (testing)                                      | ready    |
 | F-06 | agent-stop-hook             | (foundation) worker agents cannot end a turn with lint errors in the files they changed                                                   | —                | NFR (testing)                                      | done     |
-| F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —                | NFR (privacy), FR-007                              | ready    |
+| F-07 | error-tracking              | (foundation) Worker and reminder-cron errors are logged and alerted with Cloudflare + existing email, no health data                      | —                | NFR (privacy), FR-007                              | planning |
 | F-08 | recurrence-unit-tests       | (foundation) unit tests cover the recurrence rules (`rules.ts`) and `describeLastDone` (`format.ts`)                                      | F-03             | FR-008, FR-009, NFR (testing)                      | done     |
 | S-01 | onboarding-profile          | user signs in, consents to health-data storage, completes a minimal profile, and lands on their dashboard                                 | —                | US-01, FR-001, FR-002, FR-003, NFR (privacy)       | done     |
 | S-02 | screening-recommendations   | user sees due screenings grouped by importance tier, or an explanatory empty state                                                        | S-01, F-01       | US-01, FR-004, Guardrail (no diagnosis)            | done     |
@@ -182,7 +182,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Resolved (2026-10-05): Cloudflare-native, not Sentry. Cloudflare and Resend already process this data, so the DPIA in Open Roadmap Question 2 gains no new sub-processor.
   - Cloudflare custom alerts (beta, announced 2026-10-02) can alert on Workers events, but whether they run on the Free plan is undocumented. If they do, add an alert on the error event and drop nothing else; if not, the email path above is the alert. Check in the dashboard during planning. — Owner: user. Block: no.
 - **Risk:** Free-plan limits: 200,000 log events/day and 3-day retention, so errors are triaged within days, not mined later. There is no exception grouping or release tracking (Sentry's strengths); revisit a dedicated tracker only if real-user volume makes raw logs unworkable. The failure email must not include user data.
-- **Status:** ready
+- **Status:** planning
 
 ### F-08: Recurrence unit tests
 

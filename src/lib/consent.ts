@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { DatabaseError } from "@/lib/database-error";
 import type { Database } from "@/lib/database.types";
 import type { Profile } from "@/lib/profile";
 
@@ -19,7 +20,7 @@ export async function hasActiveConsent(supabase: Client, userId: string): Promis
     .eq("user_id", userId)
     .is("withdrawn_at", null)
     .maybeSingle();
-  if (error) throw new Error(`Failed to read consent: ${error.message}`);
+  if (error) throw new DatabaseError("read-consent", error.code);
   return data !== null;
 }
 
@@ -32,7 +33,7 @@ export async function getOnboardingState(
     hasActiveConsent(supabase, userId),
     supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
   ]);
-  if (profileResult.error) throw new Error(`Failed to read profile: ${profileResult.error.message}`);
+  if (profileResult.error) throw new DatabaseError("read-profile", profileResult.error.code);
 
   if (!consented) return { state: "needs_consent", profile: null };
   if (!profileResult.data) return { state: "needs_profile", profile: null };

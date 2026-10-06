@@ -195,14 +195,14 @@ export const en: Record<MessageKey, string> = {
   "profile.withdraw.heading": "Withdrawing consent",
   "profile.withdraw.intro": "You can withdraw your consent to storing your health data at any time.",
   "profile.withdraw.deleted":
-    "We then immediately delete your health data: your year of birth, sex at birth and smoking history, your planned screenings with their appointment dates, and the screenings you marked as done. Appointment reminders are switched off too. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
+    "We then immediately delete your health data: your year of birth, sex at birth and smoking history, your planned screenings with their appointment dates, and the screenings you marked as done. Email reminders are switched off too. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
   "profile.withdraw.kept":
     "We keep only a record of when, under which version and in which language consent was given and withdrawn, as proof that we processed your data lawfully. Your account stays active.",
   "profile.withdraw.checkbox": "I understand that my health data will be deleted.",
   "profile.withdraw.submit": "Withdraw consent and delete data",
-  "profile.reminders.heading": "Appointment reminders",
+  "profile.reminders.heading": "Email reminders",
   "profile.reminders.disclosure":
-    "With reminders on, we send you one email 1–3 days before each appointment date you enter in your plans. It contains the appointment date and a link to Dbam, never the name of the exam. We send it to your account's email address through our email provider (Resend). You can turn reminders off here at any time.",
+    "With reminders on, we email you on four occasions: 1–3 days before each appointment date you enter in your plans; when an exam you marked as done is due again; 14 days after you plan an exam without entering an appointment date; and 7 days after an appointment date has passed without you confirming it. The last two go out together in one email, at most one a day. An email never contains the name of an exam. We send it to your account's email address through our email provider (Resend). You can turn reminders off here at any time.",
   "profile.reminders.state.on": "Reminders are on.",
   "profile.reminders.state.off": "Reminders are off.",
   "profile.reminders.turnOn": "Turn reminders on",
@@ -316,6 +316,20 @@ export const en: Record<MessageKey, string> = {
     "The recommended interval since {count} of your preventive screenings has passed. It's time to repeat them.",
   "email.dueScreeningReminder.dashboard": "See which ones in your Dbam dashboard: {url}",
   "email.dueScreeningReminder.optOut": "Don't want these reminders? Turn them off in your profile: {url}",
+
+  // Follow-up nudge email (plain text). Never name an exam: only counts.
+  "email.followUpNudge.subject": "Dbam: a follow-up on your planned exams",
+  "email.followUpNudge.greeting": "Hello,",
+  "email.followUpNudge.confirm_one": "{count} appointment date has passed. Please confirm whether you went.",
+  "email.followUpNudge.confirm_few": "{count} appointment dates have passed. Please confirm whether you went.",
+  "email.followUpNudge.confirm_many": "{count} appointment dates have passed. Please confirm whether you went.",
+  "email.followUpNudge.confirm_other": "{count} appointment dates have passed. Please confirm whether you went.",
+  "email.followUpNudge.schedule_one": "{count} planned exam still has no appointment date.",
+  "email.followUpNudge.schedule_few": "{count} planned exams still have no appointment date.",
+  "email.followUpNudge.schedule_many": "{count} planned exams still have no appointment date.",
+  "email.followUpNudge.schedule_other": "{count} planned exams still have no appointment date.",
+  "email.followUpNudge.dashboard": "Update your plans in your Dbam dashboard: {url}",
+  "email.followUpNudge.optOut": "Don't want these emails? Turn them off in your profile: {url}",
 
   "errors.auth.not_configured": "Sign-in is temporarily unavailable. Please try again later.",
   "errors.auth.missing_code": "The confirmation link is incomplete. Open it again from the email.",

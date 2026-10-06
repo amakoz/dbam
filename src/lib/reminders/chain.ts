@@ -13,35 +13,46 @@ export interface ReminderRun {
 export interface ReminderChainDeps {
   /** Resolves to the number of emails the appointment job sent. */
   appointment: (run: ReminderRun) => Promise<{ sent: number }>;
-  /** The due-screening job, which may send at most `budget` emails. */
-  due: (run: ReminderRun, options: { budget: number }) => Promise<unknown>;
+  /** The due-screening job, which may send at most `budget` emails and resolves to how many it sent. */
+  due: (run: ReminderRun, options: { budget: number }) => Promise<{ sent: number }>;
+  /** The follow-up nudge job, which may send at most `budget` emails. */
+  nudge: (run: ReminderRun, options: { budget: number }) => Promise<{ sent: number }>;
   alert: (run: ReminderRun, job: ReminderJob, error: unknown) => Promise<void>;
 }
 
 /**
- * Runs the appointment job, then the due-screening job on what is left of REMINDER_EMAIL_DAILY_BUDGET. When the
- * appointment job fails its quota use is unknown, so the due job gets a budget of 0 (it logs `skipped` and its users
- * roll to the next day). Each failed job logs one cron error event and sends one alert; the first failure is then
- * rethrown, redacted, so the run shows as failed without recording a raw message.
+ * Runs the appointment job, then the due-screening job on what is left of REMINDER_EMAIL_DAILY_BUDGET, then the
+ * follow-up nudge job on what is left after both. When a job fails its quota use is unknown, so every later job gets a
+ * budget of 0 (it logs `skipped` and its users roll to the next day). Each failed job logs one cron error event and
+ * sends one alert; the first failure is then rethrown, redacted, so the run shows as failed without recording a raw
+ * message.
  */
 export async function runReminderChain(
   run: ReminderRun,
-  { appointment, due, alert }: ReminderChainDeps,
+  { appointment, due, nudge, alert }: ReminderChainDeps,
 ): Promise<void> {
   const failures: { job: ReminderJob; error: unknown }[] = [];
 
-  let budget = 0;
+  let dueBudget = 0;
   try {
     const { sent } = await appointment(run);
-    budget = Math.max(0, REMINDER_EMAIL_DAILY_BUDGET - sent);
+    dueBudget = Math.max(0, REMINDER_EMAIL_DAILY_BUDGET - sent);
   } catch (error) {
     failures.push({ job: "appointment-reminder", error });
   }
 
+  let nudgeBudget = 0;
   try {
-    await due(run, { budget });
+    const { sent } = await due(run, { budget: dueBudget });
+    nudgeBudget = Math.max(0, dueBudget - sent);
   } catch (error) {
     failures.push({ job: "due-screening-reminder", error });
+  }
+
+  try {
+    await nudge(run, { budget: nudgeBudget });
+  } catch (error) {
+    failures.push({ job: "follow-up-nudge", error });
   }
 
   for (const { job, error } of failures) {

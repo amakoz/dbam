@@ -1,10 +1,10 @@
 ---
 change_id: ui-verification-script
 title: Playwright screenshot script for agent UI verification (F-05)
-status: impl_reviewed
+status: archived
 created: 2026-10-06
 updated: 2026-10-06
-archived_at: null
+archived_at: 2026-10-06T10:24:44Z
 ---
 
 ## Notes

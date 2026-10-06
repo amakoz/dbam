@@ -54,7 +54,7 @@ Other checks:
   - The summary line also prints `BASE_URL`.
   - The docs say to read only the paths the run printed.
   - Optionally, the script refuses port 4321 when `DBAM_CHANGE` is set.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — the docs always spell out `BASE_URL=http://127.0.0.1:$DBAM_PORT` for workers, the summary line prints `BASE_URL`, the docs say to read only the paths the run printed, and the script refuses port 4321 when `DBAM_CHANGE` is set (new criterion 1.7). Decided by orchestrator.
 
 ### F2 — Cold `astro dev` can fail the hard navigation checks
 
@@ -72,7 +72,7 @@ Other checks:
   - Tradeoff: an anonymous GET to a protected path is a 302, so the warm-up warms the middleware but not the page's island deps. The island warm-up comes from the sign-in page, which uses the same React renderer.
   - Confidence: MED. Vite dep re-optimization on first island load is well-known behaviour, but not reproduced here against this exact Astro 7 + Cloudflare dev setup.
   - Blind spot: not measured whether `astro dev` in this repo actually reloads on a cold start. The first implementation run will tell; if it never does, the warm-up stays as cheap insurance.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — a warm-up pass (GET each selected path plus `/auth/signin`, wait for `networkidle`, ignore the results) runs before the fixture and the matrix. The residual risk is named in Critical Implementation Details and the brief's Open Risks. Decided by orchestrator.
 
 ### F3 — Criterion 1.8 relies on output the contract never defines
 
@@ -85,7 +85,7 @@ Other checks:
   - The contract says the script prints only each written file's path and a final summary line. It never defines fixture-step lines.
   - With the contract as written, the output of a kitchen-sink-only run looks the same whether or not the fixture ran, so 1.8 can't be checked.
 - **Fix**: add to the contract that each fixture step prints one line (e.g. `fixture: signed up ui-shots-…@example.com`, `fixture: consent granted`, …), so 1.8 can grep for `fixture:`.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — each fixture step prints one `fixture: …` line; criterion 1.9 greps `^fixture:` for 0 and 1.8 expects 6. Decided by orchestrator.
 
 ### F4 — `SUPABASE_URL` guard parsing rules left to the implementer
 
@@ -101,7 +101,7 @@ Other checks:
 - **Fix**:
   - Specify the parsing: anchored `^\s*(export\s+)?SUPABASE_URL\s*=`, ignore `#` lines, strip matching quotes, and exit 2 on an unparseable value.
   - Add one sentence noting the shell-env limitation in the header comment or README.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — the `SUPABASE_URL` parsing is specified as proposed (anchored regex, `#` lines ignored, matching quotes stripped, unparseable value → exit 2). The shell-env limitation is noted in the header comment, README and the brief. Decided by orchestrator.
 
 ### F5 — Header claim "the one script with a dependency" is inaccurate
 
@@ -111,4 +111,4 @@ Other checks:
 - **Location**: Implementation Approach; Phase 1 §2 Contract (Header comment)
 - **Detail**: The plan has the header say it "is the one script with a dependency" and breaks the siblings' "zero dependencies on purpose" convention. That convention covers only the `scripts/*.mjs` files (`smoke.mjs:2`, `ui-check.mjs:2`, `stop-lint.mjs:2`). `scripts/catalog/*.ts` already import `zod`, `prettier` and `@anthropic-ai/sdk`.
 - **Fix**: reword it to "unlike the other `scripts/*.mjs`, it has a dependency (`playwright`), because it drives a browser."
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — the header and Implementation Approach now read "Unlike the other `scripts/*.mjs`, it has a dependency (`playwright`), because it drives a browser." Decided by orchestrator.

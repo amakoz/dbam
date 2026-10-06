@@ -127,3 +127,18 @@
   - Verification is a real run against a local dev server plus the refusal paths.
 - **Evidence:** `.github/workflows/ci.yml:60-65`; `vitest.config.ts:7`; F-05 outcome (`context/foundation/roadmap.md:148`).
 - **Decided by:** worker
+
+## 2026-10-06 Plan-review triage (`plan-review.md`, F1–F5)
+
+- **Question:** which plan-review findings to apply.
+- **Choice:** all five accepted.
+  - **F1:**
+    - The docs spell out `BASE_URL=http://127.0.0.1:$DBAM_PORT` for workers and tell readers to open only the paths the run printed.
+    - The summary line prints `BASE_URL`.
+    - The script refuses port 4321 when `DBAM_CHANGE` is set.
+  - **F2:** a warm-up pass (GET each selected path plus `/auth/signin`, wait for `networkidle`, ignore results) before the checked run. The residual risk is named.
+  - **F3:** each fixture step prints one `fixture: …` line.
+  - **F4:** `SUPABASE_URL` parsing is specified (anchored, comment-safe, quotes stripped, unparseable → exit 2). The shell-env limitation is noted.
+  - **F5:** the header wording is now "unlike the other `scripts/*.mjs`, it has a dependency".
+- **Evidence:** `context/changes/ui-verification-script/plan-review.md`
+- **Decided by:** orchestrator

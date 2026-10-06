@@ -215,24 +215,24 @@ No data migration. A bookmarked old URL with `&slug=` now renders the message at
 
 #### Automated
 
-- [x] 1.1 Unit tests pass, including `src/lib/screenings/flash.test.ts`: `npm test` — 549de58
-- [x] 1.2 Lint passes: `npm run lint` — 549de58
-- [x] 1.3 Type check and build pass: `npx astro check && npm run build` — 549de58
-- [x] 1.4 `npm run ui:check` passes — 549de58
-- [x] 1.5 Smoke passes against the local dev server (DB lock held) — 549de58
-- [x] 1.6 Heuristic grep shows no `slug` query in redirects or request URLs — 549de58
+- [x] 1.1 Unit tests pass, including `src/lib/screenings/flash.test.ts`: `npm test` — c0bedbf
+- [x] 1.2 Lint passes: `npm run lint` — c0bedbf
+- [x] 1.3 Type check and build pass: `npx astro check && npm run build` — c0bedbf
+- [x] 1.4 `npm run ui:check` passes — c0bedbf
+- [x] 1.5 Smoke passes against the local dev server (DB lock held) — c0bedbf
+- [x] 1.6 Heuristic grep shows no `slug` query in redirects or request URLs — c0bedbf
 
 #### Manual
 
-- [x] 1.7 Browser: plan with a date shows the row confirmation, slug-free URL, cookie set and cleared (headless Chromium vs :4332: URL `/dashboard?saved=plan#screening-mammography-nfz-program`, row `data-saved`, scrolled; POST 302 `Set-Cookie screening_flash=…; Max-Age=60; Path=/dashboard; HttpOnly; SameSite=Lax`, dashboard 200 `Max-Age=0`; cookie store empty after) — 549de58
-- [x] 1.8 Browser: past date opens the row panel with the date field marked invalid (headless: `?error=invalid_appointment_date#screening-…`, details open, date `aria-invalid=true`, error in row) — 549de58
-- [x] 1.9 Browser: refresh after a save shows the page-level confirmation and no slug in any URL (headless: refresh keeps URL, row `data-saved` 0, page-level alert 1, 0 request URLs with the slug outside the fragment) — 549de58
+- [x] 1.7 Browser: plan with a date shows the row confirmation, slug-free URL, cookie set and cleared (headless Chromium vs :4332: URL `/dashboard?saved=plan#screening-mammography-nfz-program`, row `data-saved`, scrolled; POST 302 `Set-Cookie screening_flash=…; Max-Age=60; Path=/dashboard; HttpOnly; SameSite=Lax`, dashboard 200 `Max-Age=0`; cookie store empty after) — c0bedbf
+- [x] 1.8 Browser: past date opens the row panel with the date field marked invalid (headless: `?error=invalid_appointment_date#screening-…`, details open, date `aria-invalid=true`, error in row) — c0bedbf
+- [x] 1.9 Browser: refresh after a save shows the page-level confirmation and no slug in any URL (headless: refresh keeps URL, row `data-saved` 0, page-level alert 1, 0 request URLs with the slug outside the fragment) — c0bedbf
 
 ### Phase 2: Docs
 
 #### Automated
 
-- [x] 2.1 Prettier passes on changed Markdown — 2160c30
+- [x] 2.1 Prettier passes on changed Markdown — f3915e2
 
 #### Manual
 

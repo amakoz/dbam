@@ -82,7 +82,7 @@ Other checks:
   - Tradeoff: the first real signal is a production run, and a failure there silently skips that day's due reminders (the alert does fire).
   - Confidence: LOW — no workerd measurement exists.
   - Blind spot: whether Cloudflare's CPU accounting for cold isolates includes module and JIT warm-up.
-- **Decision**: PENDING
+- **Decision**: ACCEPT (Fix A). `due.perf.test.ts` now times the whole in-process cron sequence; the catalog is validated on the cron path by `isRuleEntry` (hand-written, rule fields only), not zod.
 
 ### F2 — The absolute-millisecond perf assertion runs in CI's `npm test`
 
@@ -95,7 +95,7 @@ Other checks:
   - Locally it measured 2.6–3.0 ms on Apple silicon. A runner two to three times slower, or a noisy neighbour, crosses 5 ms and turns CI red with no code change.
   - "Cold" here means the first call in a Vitest worker after zod and Vitest have loaded. It is not a cold process.
 - **Fix**: Always log the numbers, and assert only when an env flag is set (for example `PERF_ASSERT=1`, set by the implementer when filling 2.4). Or give CI a generous ceiling (for example 4× the budget) that catches only order-of-magnitude regressions.
-- **Decision**: PENDING
+- **Decision**: ACCEPT. Numbers are always logged; the strict budget (7 ms) is asserted only with `PERF_ASSERT=1`; CI keeps a 4x ceiling (28 ms).
 
 ### F3 — Claim inputs: duplicate items aren't deduplicated, and the TS side doesn't guard the 1000-item cap
 
@@ -108,7 +108,7 @@ Other checks:
   - The claim raises `22023` above 1000 items. The TS loop stops at `budget` users, not at an item count. Today 50 users × 9 fixed entries = 450, so the cap only matters if the catalog grows.
   - No pgTAP case pins a malformed item (bad uuid or date → `22P02`/`22007`, not `22023`).
 - **Fix**: Add `select distinct` over the items in the return query (or `array_agg(distinct r.id …)`). Break the TS loop before `items.length` would pass 1000. Optionally add a `throws_ok` that pins `22P02` for a bad uuid.
-- **Decision**: PENDING
+- **Decision**: ACCEPT. `array_agg(distinct …)` in the claim return, `collectClaimItems` stops before 1000 items, and a `22P02` pgTAP case.
 
 ### F4 — The `due` count in the log is inconsistent, and the alert-module comment is stale
 
@@ -120,7 +120,7 @@ Other checks:
   - When the claim returns no rows, the `none` line logs `due: dueUsers`. The dry-run and sent lines log `due: claimed.length`, and the README defines `due` as users the claim returned. So on that path a `none` line can show `due: 3`, which misleads anyone reading Workers Logs.
   - The comment at `failure-alert.ts:5` still says the alert is called from `scheduled()` in `src/worker.ts`. It is now called from `src/lib/reminders/chain.ts`. The line is also 133 characters, past the file's usual wrap.
 - **Fix**: Log `due: 0` (or `claimed.length`) at line 117, and reword and re-wrap the comment to name `runReminderChain`.
-- **Decision**: PENDING
+- **Decision**: ACCEPT. The `none` path after an empty claim logs `due: 0`; the `failure-alert.ts` comment names `runReminderChain`.
 
 ### F5 — The "same idempotency key on retry" test can't fail
 
@@ -132,4 +132,4 @@ Other checks:
   - The case builds its key inside the closure passed to the retry helper, so it never exercises `postToResend`. It would still pass if `email.ts` built a fresh key or body for the second attempt.
   - The retry is F4's double-send guard, so the property should be pinned where the request is built.
 - **Fix**: Test through `postToResend` (or `sendEmailBatch`) with a stubbed `fetch` that returns a 429 and then a 200, and assert that both calls carry the identical `Idempotency-Key` header and body.
-- **Decision**: PENDING
+- **Decision**: ACCEPT. `src/lib/email.test.ts` drives `sendEmail` and `sendEmailBatch` with a stubbed `fetch` (429 then 200) and asserts the identical `Idempotency-Key` and body.

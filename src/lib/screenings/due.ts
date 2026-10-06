@@ -1,5 +1,5 @@
 import { classifyEntries, type RuleProfile } from "@/lib/catalog/recommend";
-import type { CatalogEntry } from "@/lib/catalog/schema";
+import type { RuleEntry } from "@/lib/catalog/schema";
 import { anchorMonth, nextDueMonth, partitionDashboard, warsawToday } from "@/lib/screenings/rules";
 
 // Which completions the due-screening reminder job emails about (S-06). Pure: the dashboard's own rules, run on the
@@ -31,7 +31,7 @@ export interface DueItem {
  * planned slugs), sorted by slug. Calls the sort-free `classifyEntries`, so it never builds an `Intl.Collator`; tier
  * membership does not depend on the display sort. Eligibility uses the Warsaw year, not the runtime's local one.
  */
-export function dueScreeningItems(candidate: DueCandidate, entries: CatalogEntry[], now: Date): DueItem[] {
+export function dueScreeningItems(candidate: DueCandidate, entries: RuleEntry[], now: Date): DueItem[] {
   const year = Number(warsawToday(now).slice(0, 4));
   const recommendations = classifyEntries(entries, candidate.profile, year);
   // `updated_at` is never read: the anchor is always set, so `anchorMonth` returns it unchanged.

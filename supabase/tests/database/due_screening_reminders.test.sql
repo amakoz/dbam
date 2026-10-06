@@ -2,7 +2,7 @@
 -- Everything happens in one transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(62);
+select plan(64);
 
 -- Fixtures, inserted as postgres: active catalog rows, so the test doesn't depend on snapshot data.
 -- "Today" is 2027-03-10, so the current month is 2027-03-01.
@@ -364,6 +364,19 @@ select is(
    where user_id = 'd0000000-0000-0000-0000-000000000001' and catalog_slug = 'due-redate'),
   1::bigint, 'the skipped items left no ledger row'
 );
+-- The same item twice gives one id, not two.
+select is(
+  (select reminder_ids from public.claim_due_screening_reminders(
+    '2027-03-10',
+    jsonb_build_array(
+      pg_temp.item('due-twelve', '2026-03-01', '2027-03-01'),
+      pg_temp.item('due-twelve', '2026-03-01', '2027-03-01')
+    )
+  )),
+  (select array_agg(id) from public.due_screening_reminders
+   where user_id = 'd0000000-0000-0000-0000-000000000001' and catalog_slug = 'due-twelve'),
+  'a repeated item returns its id once'
+);
 -- A new anchor whose due month equals the earlier cycle's due month still gets its row.
 select is(
   (select cardinality(reminder_ids) from public.claim_due_screening_reminders(
@@ -495,6 +508,13 @@ select throws_ok(
 select throws_ok(
   $$ select * from public.claim_due_screening_reminders('2027-03-10', '{}') $$,
   '22023', null, 'items that are not an array are rejected'
+);
+select throws_ok(
+  $$ select * from public.claim_due_screening_reminders(
+       '2027-03-10',
+       '[{"user_id": "not-a-uuid", "catalog_slug": "due-twelve", "anchor_month": "2026-03-01", "due_month": "2027-03-01"}]'
+     ) $$,
+  '22P02', null, 'a malformed item (a bad uuid) is an invalid-text error, not a skipped item'
 );
 select throws_ok(
   $$ select * from public.claim_due_screening_reminders(

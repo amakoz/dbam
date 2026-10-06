@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n";
 import { FACTORS, type RuleProfile } from "@/lib/catalog/factors";
-import type { Branch, CatalogEntry, Condition } from "@/lib/catalog/schema";
+import type { Branch, CatalogEntry, Condition, RuleEntry } from "@/lib/catalog/schema";
 import type { Sex } from "@/lib/profile";
 
 // The eligibility, tier and interval rules of S-02, implementing the semantics documented in `factors.ts`. Pure: no
@@ -15,23 +15,25 @@ export type Tier = 1 | 2 | 3;
 
 export type Interval = { kind: "months"; months: number } | { kind: Exclude<CatalogEntry["interval_kind"], "fixed"> };
 
-export interface Recommendation {
-  entry: CatalogEntry;
+// The recommendation types are generic over the entry so the cron can run the rules on `RuleEntry` rows; the default
+// keeps every dashboard caller on full `CatalogEntry`.
+export interface Recommendation<E extends RuleEntry = CatalogEntry> {
+  entry: E;
   tier: Tier;
   /** The first matching branch in document order. */
   matchedBranch: Branch;
   interval: Interval;
 }
 
-export interface MaybeRecommendation {
-  entry: CatalogEntry;
+export interface MaybeRecommendation<E extends RuleEntry = CatalogEntry> {
+  entry: E;
   /** One array per `unknown` branch, holding only that branch's conditions on uncollected factors. */
   missing: Condition[][];
 }
 
-export interface Recommendations {
-  tiers: Record<Tier, Recommendation[]>;
-  maybe: MaybeRecommendation[];
+export interface Recommendations<E extends RuleEntry = CatalogEntry> {
+  tiers: Record<Tier, Recommendation<E>[]>;
+  maybe: MaybeRecommendation<E>[];
   age: number;
 }
 
@@ -81,7 +83,7 @@ export function evaluateBranch(branch: Rule, profile: RuleProfile, age: number):
 }
 
 /** For `fixed`, the first override whose `when` matches wins; an `unknown` override is skipped, not applied. */
-export function resolveInterval(entry: CatalogEntry, profile: RuleProfile, age: number): Interval {
+export function resolveInterval(entry: RuleEntry, profile: RuleProfile, age: number): Interval {
   if (entry.interval_kind !== "fixed") return { kind: entry.interval_kind };
 
   const override = entry.interval_overrides.find((o) => evaluateBranch(o.when, profile, age) === "match");
@@ -102,10 +104,14 @@ function tierOf(evidenceLevel: number): Tier {
  * Only active entries with a review stamp are considered (the launch gate). The lists are in catalog order: the
  * cron path calls this core, which never builds an `Intl.Collator` (a cold one alone can use the Worker's CPU cap).
  */
-export function classifyEntries(entries: CatalogEntry[], profile: RuleProfile, currentYear: number): Recommendations {
+export function classifyEntries<E extends RuleEntry>(
+  entries: E[],
+  profile: RuleProfile,
+  currentYear: number,
+): Recommendations<E> {
   const age = currentYear - profile.birth_year;
-  const tiers: Record<Tier, Recommendation[]> = { 1: [], 2: [], 3: [] };
-  const maybe: MaybeRecommendation[] = [];
+  const tiers: Record<Tier, Recommendation<E>[]> = { 1: [], 2: [], 3: [] };
+  const maybe: MaybeRecommendation<E>[] = [];
 
   for (const entry of entries) {
     if (entry.status !== "active" || entry.reviewed_by === undefined || entry.reviewed_by === null) continue;

@@ -2,9 +2,10 @@ import { EMAIL_DRY_RUN, REMINDER_TEST_TO } from "astro:env/server";
 import { sendEmail } from "@/lib/email";
 import { buildReminderFailureEmail, errorDetails, errorName, isoTime, type ReminderJob } from "@/lib/observability";
 
-// Best-effort email to the owner when a reminder job (appointment or due-screening) fails (`scheduled()` in src/worker.ts). It never
-// throws, so it cannot mask the failure it reports, and it logs its own outcome so a failed alert is visible too. Logs
-// never contain the recipient, subject or text.
+// Best-effort email to the owner when a reminder job (appointment or due-screening) fails; `runReminderChain`
+// (src/lib/reminders/chain.ts) calls it once per failed job. It never throws, so it cannot mask the failure it
+// reports, and it logs its own outcome so a failed alert is visible too. Logs never contain the recipient, subject or
+// text.
 
 // Resend's simulator address: accepts sends without reaching an inbox.
 const DRY_RUN_RECIPIENT = "delivered@resend.dev";

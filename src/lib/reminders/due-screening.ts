@@ -1,14 +1,14 @@
-import { z } from "zod";
 import { createT, resolveLocale } from "@/i18n";
 import type { Database } from "@/lib/database.types";
 import { sendEmailBatch, type BatchEmailMessage } from "@/lib/email";
-import { getActiveCatalog } from "@/lib/catalog/read";
+import { getActiveRuleCatalog } from "@/lib/catalog/read";
 import { errorDetails, errorName } from "@/lib/observability";
 import { createReminderClient } from "@/lib/reminders/admin-client";
 import { batchKey } from "@/lib/reminders/batch-key";
+import { collectClaimItems, parseCandidateRows } from "@/lib/reminders/candidates";
 import { ReminderDatabaseError } from "@/lib/reminders/errors";
 import { isDailySendRun } from "@/lib/schedule";
-import { DUE_CANDIDATE_LIMIT, dueScreeningItems, type DueCandidate } from "@/lib/screenings/due";
+import { DUE_CANDIDATE_LIMIT } from "@/lib/screenings/due";
 import { warsawToday } from "@/lib/screenings/rules";
 
 // Due-screening reminder job (S-06), run by the Worker's Cron Trigger after the appointment job on the daily 10:00
@@ -22,18 +22,6 @@ import { warsawToday } from "@/lib/screenings/rules";
 // exam, a due month or an address: logs carry counts and error names only.
 
 export type DueScreeningOutcome = "none" | "skipped" | "dry-run" | "sent";
-
-const CandidateRows = z.array(
-  z.object({
-    user_id: z.string(),
-    birth_year: z.number(),
-    sex: z.enum(["female", "male"]),
-    smoking_status: z.enum(["never", "current", "former"]),
-    pack_years: z.number().nullable(),
-    years_since_quitting: z.number().nullable(),
-    completions: z.array(z.object({ catalog_slug: z.string(), anchor_month: z.string().regex(/^\d{4}-\d{2}-01$/) })),
-  }),
-);
 
 type ClaimedReminder = Database["public"]["Functions"]["claim_due_screening_reminders"]["Returns"][number];
 
@@ -64,43 +52,14 @@ export async function runDueScreeningReminders(
     if (error) {
       throw new ReminderDatabaseError("candidates", error.code);
     }
-    const parsed = CandidateRows.safeParse(data);
-    if (!parsed.success) {
-      throw new ReminderDatabaseError("candidates", "invalid");
-    }
-    const candidates = parsed.data;
+    const candidates = parseCandidateRows(data);
     if (candidates.length === 0) {
       log({ outcome: "none", cron, scheduledAt, candidates: 0, due: 0, sent: 0 });
       return { outcome: "none", sent: 0 };
     }
 
-    const catalog = await getActiveCatalog(supabase);
-    const items: { user_id: string; catalog_slug: string; anchor_month: string; due_month: string }[] = [];
-    let dueUsers = 0;
-    for (const row of candidates) {
-      if (dueUsers >= budget) break;
-      const candidate: DueCandidate = {
-        profile: {
-          birth_year: row.birth_year,
-          sex: row.sex,
-          smoking_status: row.smoking_status,
-          pack_years: row.pack_years,
-          years_since_quitting: row.years_since_quitting,
-        },
-        completions: row.completions,
-      };
-      const due = dueScreeningItems(candidate, catalog, now);
-      if (due.length === 0) continue;
-      dueUsers += 1;
-      for (const item of due) {
-        items.push({
-          user_id: row.user_id,
-          catalog_slug: item.slug,
-          anchor_month: item.anchorMonth,
-          due_month: item.dueMonth,
-        });
-      }
-    }
+    const catalog = await getActiveRuleCatalog(supabase);
+    const { items } = collectClaimItems(candidates, catalog, now, budget);
     if (items.length === 0) {
       log({ outcome: "none", cron, scheduledAt, candidates: candidates.length, due: 0, sent: 0 });
       return { outcome: "none", sent: 0 };
@@ -108,13 +67,14 @@ export async function runDueScreeningReminders(
 
     const { data: claimed, error: claimError } = await supabase.rpc("claim_due_screening_reminders", {
       p_today: today,
-      p_items: items,
+      // Spread into plain objects: supabase-js types the argument as `Json`, which an interface does not satisfy.
+      p_items: items.map((item) => ({ ...item })),
     });
     if (claimError) {
       throw new ReminderDatabaseError("claim", claimError.code);
     }
     if (claimed.length === 0) {
-      log({ outcome: "none", cron, scheduledAt, candidates: candidates.length, due: dueUsers, sent: 0 });
+      log({ outcome: "none", cron, scheduledAt, candidates: candidates.length, due: 0, sent: 0 });
       return { outcome: "none", sent: 0 };
     }
 

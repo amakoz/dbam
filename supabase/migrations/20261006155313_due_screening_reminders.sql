@@ -202,7 +202,8 @@ begin
     r.user_id,
     u.email::text,
     coalesce(pr.reminders_locale, 'pl'),
-    array_agg(r.id order by r.id)
+    -- distinct: a repeated item must not repeat its id (it would inflate the email's count and change the batch key)
+    array_agg(distinct r.id order by r.id)
   from jsonb_to_recordset(p_items) as i(user_id uuid, catalog_slug text, anchor_month date, due_month date)
   join public.due_screening_reminders r
     on r.user_id = i.user_id and r.catalog_slug = i.catalog_slug and r.anchor_month = i.anchor_month

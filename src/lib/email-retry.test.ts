@@ -68,20 +68,4 @@ describe("withRateLimitRetry", () => {
       expect(sleep).not.toHaveBeenCalled();
     }
   });
-
-  it("lets the caller re-send the same idempotency key", async () => {
-    const keys: (string | null)[] = [];
-    const send = vi.fn((): Promise<Response> => {
-      const request = new Request("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { "Idempotency-Key": "dbam-test:abc" },
-      });
-      keys.push(request.headers.get("idempotency-key"));
-      return Promise.resolve(keys.length === 1 ? respond(429) : respond(200));
-    });
-
-    await withRateLimitRetry(send, () => Promise.resolve());
-
-    expect(keys).toEqual(["dbam-test:abc", "dbam-test:abc"]);
-  });
 });

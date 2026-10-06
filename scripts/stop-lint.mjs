@@ -1,8 +1,9 @@
 // Claude Code Stop hook for Dbam workers: blocks a `STATUS: done` turn while ESLint reports errors in the files
 // changed against origin/main. Zero dependencies on purpose; wired in .claude/settings.json (see README "Agent Stop hook").
 // Guards: runs only when DBAM_CHANGE is set (worker sessions) and not for DBAM_ROLE=review; lints only turns whose last
-// `STATUS:` line is `done` (or missing); blocks at most MAX_BLOCKS times in a row per worktree, then lets the stop through;
-// fails open (passes with a systemMessage) when git, origin/main, astro sync or ESLint itself is unavailable.
+// `STATUS:` line is `done` (or missing); blocks at most MAX_BLOCKS times in a row per worktree, then lets a still-failing
+// stop through with a systemMessage; fails open (passes with a systemMessage) when git, origin/main, astro sync or ESLint
+// itself is unavailable.
 // Always exits 0 and prints at most one JSON object. State and log live in the per-worktree git dir.
 
 import { spawnSync } from "node:child_process";
@@ -11,6 +12,11 @@ import path from "node:path";
 
 const MAX_BLOCKS = 3;
 const MAX_REASON_OUTPUT = 4000;
+// The hook's own timeout is 180 s (.claude/settings.json); child processes share this budget so the script can still
+// fail open with a message instead of being killed.
+const BUDGET_MS = 170_000;
+const SYNC_TIMEOUT_MS = 60_000;
+const startedAt = Date.now();
 const LINTABLE = /\.(js|mjs|cjs|jsx|ts|tsx|mts|cts|astro)$/;
 
 function emit(object) {
@@ -35,12 +41,15 @@ function readInput() {
   }
 }
 
+// Leading Markdown decoration a worker may wrap the line in: `**STATUS:** done`, `> STATUS: done`, `` `STATUS: done` ``.
+const STATUS_LINE = /^[\s*_`>]*STATUS[*_`]*:[\s*_`]*([A-Za-z]*)/;
+
 // The word after the last `STATUS:` line, lowercased; null when the message has no such line.
 function finalStatus(message) {
   const lines = typeof message === "string" ? message.split("\n") : [];
   for (let i = lines.length - 1; i >= 0; i--) {
-    const line = lines[i].trim();
-    if (line.startsWith("STATUS:")) return /^STATUS:\s*([A-Za-z]+)/.exec(line)?.[1].toLowerCase() ?? "";
+    const match = STATUS_LINE.exec(lines[i]);
+    if (match) return match[1].toLowerCase();
   }
   return null;
 }
@@ -106,14 +115,6 @@ if (status !== null && status !== "done") {
   pass();
 }
 
-const blocks = readBlocks();
-if (blocks >= MAX_BLOCKS) {
-  writeBlocks(0);
-  emit({
-    systemMessage: `stop-lint: released after ${MAX_BLOCKS} consecutive blocks; lint errors remain, see ${logFile}`,
-  });
-}
-
 // Changed lintable files: committed, staged, unstaged and untracked, with deletions dropped (a missing path is fatal for ESLint).
 const changed = git(["diff", "--name-only", "-z", "--diff-filter=d", "--merge-base", "origin/main"]);
 if (changed.status !== 0) failOpen(`git diff against origin/main failed (${firstLine(changed.stderr)})`);
@@ -141,17 +142,21 @@ const typesStale =
 if (typesStale) {
   const astroBin = path.join(root, "node_modules", ".bin", "astro");
   if (!existsSync(astroBin)) failOpen("node_modules/.bin/astro is missing, so `astro sync` could not run");
-  const sync = run(astroBin, ["sync"], root, { timeout: 90_000 });
-  if (sync.status !== 0) failOpen(`astro sync failed (${firstLine(sync.stderr || sync.stdout)})`);
+  const sync = run(astroBin, ["sync"], root, { timeout: SYNC_TIMEOUT_MS });
+  if (sync.status !== 0) failOpen(`astro sync failed (${firstLine(sync.stderr || sync.stdout || String(sync.error))})`);
   // `astro sync` may leave an unchanged types file alone; touch it so the mtime check stops re-syncing.
-  if (existsSync(astroTypes)) utimesSync(astroTypes, new Date(), new Date());
+  try {
+    if (existsSync(astroTypes)) utimesSync(astroTypes, new Date(), new Date());
+  } catch {
+    // Costs only a re-sync on the next run.
+  }
 }
 
 const lint = run(
   eslintBin,
   ["--quiet", "--no-warn-ignored", "--no-error-on-unmatched-pattern", "-f", "stylish", ...files],
   root,
-  { timeout: 150_000 },
+  { timeout: Math.max(BUDGET_MS - (Date.now() - startedAt), 1_000) },
 );
 if (lint.status === 0) {
   writeBlocks(0);
@@ -159,17 +164,26 @@ if (lint.status === 0) {
 }
 if (lint.status !== 1) failOpen(`ESLint did not run cleanly (${firstLine(lint.stderr || String(lint.error))})`);
 
+// The cap is checked only after linting, so errors fixed after the last block pass silently above.
+const blocks = readBlocks();
+const released = blocks >= MAX_BLOCKS;
 const block = blocks + 1;
 const output = lint.stdout.trim();
 if (logFile) {
   try {
     writeFileSync(
       logFile,
-      `stop-lint ${new Date().toISOString()} change=${process.env.DBAM_CHANGE} session=${String(input.session_id ?? "unknown")} block ${block}/${MAX_BLOCKS}\n${files.length} changed file(s) linted\n\n${output}\n`,
+      `stop-lint ${new Date().toISOString()} change=${process.env.DBAM_CHANGE} session=${String(input.session_id ?? "unknown")} ${released ? `released after ${MAX_BLOCKS} blocks` : `block ${block}/${MAX_BLOCKS}`}\n${files.length} changed file(s) linted\n\n${output}\n`,
     );
   } catch {
     // The reason below still carries the errors.
   }
+}
+if (released) {
+  writeBlocks(0);
+  emit({
+    systemMessage: `stop-lint: released after ${MAX_BLOCKS} consecutive blocks; lint errors remain, see ${logFile}`,
+  });
 }
 writeBlocks(block);
 

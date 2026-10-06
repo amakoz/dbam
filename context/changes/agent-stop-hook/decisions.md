@@ -87,7 +87,7 @@
 
 - **Question:** How to run Phase 1 (the skill asks delegate vs in-context; `AskUserQuestion` is disabled for workers).
 - **Choice:** implement in this context. It is one ~190-line file whose decision order was already fixed by the plan, so a subagent adds a re-read for no gain.
-- **Also chosen (within plan intent):** an empty lintable list resets the counter to 0 like a clean lint; after a successful `astro sync` the script touches `.astro/types.d.ts` so the mtime check does not re-sync every run; ESLint and `astro sync` have 150 s / 90 s timeouts that fail open, inside the hook's 180 s limit.
+- **Also chosen (within plan intent):** an empty lintable list resets the counter to 0 like a clean lint; after a successful `astro sync` the script touches `.astro/types.d.ts` so the mtime check does not re-sync every run; ESLint and `astro sync` have 150 s / 90 s timeouts that fail open. **Correction (impl-review F2):** 150 + 90 = 240 s does not fit the hook's 180 s limit; they now share a 170 s budget (sync 60 s, ESLint the remainder), see "Implementation-review triage" below.
 - **Decided by:** worker
 
 ## 2026-10-06 Implementation review output location and triage
@@ -95,4 +95,22 @@
 - **Question:** Where to save the implementation review, and who triages it?
 - **Choice:** save to `context/changes/agent-stop-hook/impl-review.md` (not the skill's default `reviews/impl-review.md`) and leave every finding `Decision: PENDING`. Verdict APPROVED: 1 warning (F1, cap release skips lint), 3 observations (F2-F4).
 - **Evidence:** orchestrator's `/10x-impl-review` arguments ("Write the report to …/impl-review.md. Triage nothing yourself.").
+- **Decided by:** orchestrator
+
+## 2026-10-06 Implementation-review triage (impl-review.md F1-F4)
+
+- **Question:** How to resolve the four implementation-review findings.
+- **Choice:**
+  - **F1** ACCEPT: move the cap check after the ESLint run. A clean lint resets the counter and passes silently; only a still-failing run at `blocks >= MAX_BLOCKS` releases with the "lint errors remain" `systemMessage`. The release turn costs one extra lint run. Pipe test added: fixed after block 3 → silent pass, `blocks: 0`.
+  - **F2** ACCEPT: child timeouts share a 170 s budget measured from script start (`astro sync` 60 s, ESLint the remainder, minimum 1 s), so a slow run fails open with `stop-lint skipped:` before Claude Code's 180 s kill. `utimesSync` wrapped in try/catch. The 150 s / 90 s claim in "Phase 1 execution mode" is corrected.
+  - **F3** ACCEPT: strip leading Markdown decoration (`*`, `_`, `` ` ``, `>`) before matching `STATUS:` (regex `STATUS_LINE`, also tolerates `**STATUS**:`). Pipe test added: `**STATUS:** question` with the probe present passes unlinted, `blocks: 0`.
+  - **F4** ACCEPT: record the phase 2 worker's evidence (below) and hand the live checks to the human as PR Manual checks (`pr-notes.md`).
+- **Evidence:** `context/changes/agent-stop-hook/impl-review.md`. Rerun after the fixes: Phase 1 pipe tests 1.3-1.8 plus the F1/F3 cases, 18/18 pass (worker state file backed up and restored to `{"blocks":0}`); `npm run lint`, `npx astro check` (0 errors) and `npm run build` pass.
+- **Decided by:** orchestrator
+
+## 2026-10-06 Evidence for manual checks 2.6 and 2.7
+
+- **2.6 No hook effect in a human session:** the phase 2 worker ran a nested `claude -p` in this worktree with `DBAM_CHANGE` and `DBAM_ROLE` unset and the lint-error probe present. The run finished in ~6 s with no block; the Stop hook was registered and returned empty output (the env guard exited before linting).
+- **2.7 `cc-status` still fires:** in the same nested runs the user's `cc-status` Stop hook fired on every stop, printing `Set status failed: No such session cc-status`, because the nested run is outside iTerm. It runs alongside the project hook; the status update itself was not observed.
+- **Left for the human (PR Manual checks):** open `/hooks` in a live worker pane and watch a block land; confirm `cc-status` updates on a real turn end.
 - **Decided by:** orchestrator

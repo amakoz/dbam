@@ -57,7 +57,7 @@ The pipe tests need `printf '%s'`, not `echo`: zsh's `echo` expands `\n` inside 
 - **Location**: scripts/stop-lint.mjs:109-115
 - **Detail**: When `blocks >= MAX_BLOCKS`, the script resets the counter and emits `stop-lint: released after 3 consecutive blocks; lint errors remain, see <log>`, all before it builds the file list or runs ESLint. If the agent fixed the errors after the 3rd block, as the block reason asks, its next `done` stop still gets the release message. That message says errors remain when they don't, and the orchestrator or human may chase a lint failure that no longer exists. The plan's decision order puts "pass after the cap" before linting (plan.md "Implementation Approach" step 2), so this is a plan-level gap, not drift.
 - **Fix**: Move the cap check after the ESLint run. A clean lint then resets and passes silently, and only a run that still has errors at `blocks >= MAX_BLOCKS` releases with the "errors remain" `systemMessage` (and rewrites the log). The cost is one more lint run (~3-7 s) on the release turn.
-- **Decision**: PENDING
+- **Decision**: ACCEPT (orchestrator) — fixed: the cap check now runs after ESLint. A clean lint resets the counter and passes silently; only a still-failing run at `blocks >= MAX_BLOCKS` releases with the "errors remain" `systemMessage` and writes a `released after 3 blocks` log. New pipe test "fixed after block 3 → silent pass" passes.
 
 ### F2 — Child-process timeouts add up past the hook's 180 s limit
 
@@ -67,7 +67,7 @@ The pipe tests need `printf '%s'`, not `echo`: zsh's `echo` expands `\n` inside 
 - **Location**: scripts/stop-lint.mjs:144, scripts/stop-lint.mjs:154, scripts/stop-lint.mjs:147
 - **Detail**: `astro sync` gets 90 s and ESLint 150 s, 240 s in total, but `.claude/settings.json` gives the hook 180 s. `decisions.md` ("Phase 1 execution mode…") says both fit "inside the hook's 180 s limit". If a slow sync is followed by a slow lint, Claude Code kills the hook. That is a non-blocking error, so the stop passes, but without the `stop-lint skipped:` message the fail-open contract promises. Separately, `utimesSync` at :147 is not wrapped in try/catch, so an exception there exits 1 with a stack trace instead of failing open with a message. Typical runtimes (~5 s sync, 3-7 s lint, `research.md` §4) never get close to either limit.
 - **Fix**: Make the child timeouts fit the budget (e.g. sync 60 s + ESLint 100 s), or give ESLint whatever remains of a ~170 s deadline. Wrap the `utimesSync` call in try/catch.
-- **Decision**: PENDING
+- **Decision**: ACCEPT (orchestrator) — fixed: a shared 170 s budget (`BUDGET_MS`); `astro sync` gets 60 s and ESLint gets whatever remains (at least 1 s), so a timeout fails open with a message inside the hook's 180 s. `utimesSync` is wrapped in try/catch. The `decisions.md` claim is corrected.
 
 ### F3 — A Markdown-formatted STATUS line is treated as missing
 
@@ -77,7 +77,7 @@ The pipe tests need `printf '%s'`, not `echo`: zsh's `echo` expands `\n` inside 
 - **Location**: scripts/stop-lint.mjs:39-46
 - **Detail**: `finalStatus` only recognises lines that start with `STATUS:` after trimming. A worker that writes `**STATUS:** question — …` or `` `STATUS: blocked — …` `` gets `null` (no STATUS line), which means "lint". The reviewer confirmed it: `**STATUS:** question` with the probe present was blocked as 1/3. A `done` turn still gets linted, which is safe. But a `question`/`blocked`/`failed` turn can be blocked and its counter advanced, which goes against the "non-`done` turns pass" decision. The worker protocol asks for a plain `STATUS:` line, so this only bites a worker that doesn't follow it. The behaviour matches the plan's wording.
 - **Fix**: Strip leading Markdown decoration (`*`, `` ` ``, `_`, `>`) before matching, e.g. `/^[\s*_`>]_STATUS:?[\s__`]*([A-Za-z]+)/`.
-- **Decision**: PENDING
+- **Decision**: ACCEPT (orchestrator) — fixed: `STATUS_LINE` strips leading `*`, `_`, `` ` ``, `>` (and decoration between `STATUS` and the colon) before matching. New pipe tests: `**STATUS:** question` with the probe passes unlinted; `**STATUS:** done` still blocks.
 
 ### F4 — Manual items 2.6 and 2.7 checked with no recorded evidence
 
@@ -87,4 +87,4 @@ The pipe tests need `printf '%s'`, not `echo`: zsh's `echo` expands `\n` inside 
 - **Location**: context/changes/agent-stop-hook/plan.md:275-276
 - **Detail**: 2.5 has observable evidence: the worktree's `dbam-stop-lint.log` holds a live block (session `dda9cf5d-…`, 2026-10-06T05:15:27Z, block 3/3, on `src/__stop_lint_probe.ts`), and the state file is back to `{"blocks":0}`. 2.6 (no hook effect in a human session) and 2.7 (`cc-status` still fires) are marked `[x]` against `f21e140`, but nothing in `decisions.md`, the commit messages or the log records how they were checked. The plan also asked for a human confirmation pause after each phase. The reviewer's re-run of the 1.3 pipe test covers the script half of 2.6 (the plan's allowed alternative). The `/hooks` listing and the 2.7 behaviour can't be verified from the diff.
 - **Fix**: Have a human confirm 2.6 and 2.7 (open `/hooks` in this worktree; end a turn and watch `cc-status` update), then add one line of evidence to `decisions.md`.
-- **Decision**: PENDING
+- **Decision**: ACCEPT (orchestrator) — the phase 2 worker's 2.6/2.7 evidence is now in `decisions.md`. The live checks (`/hooks` in a worker pane with a block landing; `cc-status` updating on a real turn end) are listed under Manual checks in `pr-notes.md` for the human.

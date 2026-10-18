@@ -86,7 +86,7 @@ Age and sex are branch fields, not factors. The closed list of factors lives in 
 
 ## Drafting with Claude
 
-`npm run catalog:draft` asks Claude Opus 5 to research a topic on the live web and draft new entries. It writes only entries that pass the same validator as hand-written ones and have a new slug. Every drafted file is `"status": "draft"` with null review fields, so nothing reaches users until you review it.
+`npm run catalog:draft` asks Claude Opus 5 to research a topic on the live web and draft new entries. Search and page fetching use [Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp) by default: search runs in Fast mode, with no Parallel account or API key. Model credentials are still required below. It writes only entries that pass the same validator as hand-written ones and have a new slug. Every drafted file is `"status": "draft"` with null review fields, so nothing reaches users until you review it.
 
 ### Credentials
 
@@ -108,10 +108,12 @@ npm run catalog:draft -- --topic "badania przesiewowe raka NFZ" \
   - `--source <path>`: a background document, included in the prompt as leads only;
   - `--max <n>`: at most n entries, default 5;
   - `--max-searches <n>`: cap on web searches, and separately on web fetches, for the whole run (including `pause_turn` continuations), default 20;
+  - `--search-provider parallel|anthropic|none`: defaults to `parallel`; `anthropic` keeps the original paid server-side web search/fetch, including its PDF-fetch support; `none` disables web tools and uses only supplied background source text. Invalid choices fail, and provider errors never switch to another provider.
   - `--dry-run`: validate and report without writing entry files.
 - **Output:** the script prints each valid entry with its sources and quotes, skips slugs that already exist (as a file or in a shipped snapshot), and lists invalid entries with their errors.
-- **Audit:** every raw response, with the request and token usage, is saved to `catalog/.draft-runs/<timestamp>.json` (gitignored), even when the run fails.
-- **Cost:** every run is billed: Opus 5 input and output tokens, plus a fee per web search. A run with the research report as `--source` sends a large prompt, and every `pause_turn` continuation re-sends it. The script prints the token and search counts at the end. Start with `--max 5` or less.
+- **Audit:** every raw model response, the search provider, MCP tool results and attempt counts, request and token usage are saved to `catalog/.draft-runs/<timestamp>.json` (gitignored), even when the run fails.
+- **Cost:** Opus 5 input and output tokens are billed for every provider. Parallel supplies free anonymous search/fetch for light use, with usage limits; `--search-provider anthropic` also charges per web search. A run with the research report as `--source` sends a large prompt, and every `pause_turn` continuation re-sends it. The script prints the token counts, billed server-tool usage and separate MCP attempt counts at the end. Start with `--max 5` or less.
+- **Network and cancellation:** Parallel discovery and tool requests time out after 30 seconds. Ctrl-C cancels the active request and saves the audit without writing entries. Search/fetch errors are shown to the model as errors; transport failures stop the run. Parallel returns text excerpts; choose Anthropic explicitly when its additional fetch features are needed. No Parallel credentials are read from the environment or user settings. Both providers keep the whole-run search/fetch caps and the owner review gate.
 
 ### Review checklist
 

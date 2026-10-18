@@ -1,5 +1,6 @@
 // `npm run catalog:draft -- --topic "<text>" [--source <path>] [--max <n>] [--max-searches <n>] [--dry-run]`:
-// drafts new catalog entries with Claude Opus 5, live web search and web fetch. Owner-run only, never in CI or
+// drafts new catalog entries with Claude Opus 5 and Parallel Search MCP by default. Anthropic web tools are an
+// explicit option. Owner-run only, never in CI or
 // production. Writes only schema-valid entries with new slugs, always as `draft`, to catalog/entries/<slug>.json, and
 // saves every raw response to catalog/.draft-runs/<timestamp>.json (gitignored).
 //
@@ -11,19 +12,13 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 
 import Anthropic from "@anthropic-ai/sdk";
-import type {
-  BetaContentBlock,
-  BetaMessage,
-  BetaMessageParam,
-  BetaMessageStreamParams,
-} from "@anthropic-ai/sdk/resources/beta/messages/messages";
+import type { BetaContentBlock, BetaMessageStreamParams } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 
 import { FACTORS } from "@/lib/catalog/factors";
 
 import {
   buildSubmitToolInputSchema,
   buildUserMessage,
-  continuationContent,
   extractSubmittedEntries,
   fallbackHops,
   forbiddenSourceReason,
@@ -49,11 +44,12 @@ import {
   renderEntryFile,
 } from "./lib";
 
+import { MAX_CONTINUATIONS, runDraft } from "./draft-run";
+import { resolveSearchProvider, type SearchProvider } from "./draft-web";
+
 const MODEL = "claude-opus-5";
 const MAX_TOKENS = 64000;
 const FALLBACK_BETA = "server-side-fallback-2026-07-01";
-/** `pause_turn` continuations after the first request before the run is given up. */
-const MAX_CONTINUATIONS = 5;
 const DEFAULT_MAX_ENTRIES = 5;
 const MAX_ENTRIES_LIMIT = 30;
 const DEFAULT_MAX_SEARCHES = 20;
@@ -76,11 +72,14 @@ Options:
   --max <n>             Most entries to submit, 1-${MAX_ENTRIES_LIMIT} (default: ${DEFAULT_MAX_ENTRIES})
   --max-searches <n>    Cap on web searches, and separately on web fetches, for the whole run,
                         1-${MAX_SEARCHES_LIMIT} (default: ${DEFAULT_MAX_SEARCHES})
+  --search-provider <name>
+                        parallel (default, free anonymous search/fetch), anthropic (paid server
+                        tools), or none (no web access; use only the supplied background source)
   --dry-run             Validate and report, but write no entry files (the audit file is still saved)
   -h, --help            Show this help
 
 Credentials: ANTHROPIC_API_KEY or an \`ant auth login\` profile (never .env, .dev.vars or a CI/Cloudflare secret).
-Every run costs money: Opus 5 tokens plus per-search fees. Start with --max 5.
+Opus 5 tokens are billed in every mode; anthropic also charges per search. Start with --max 5.
 `;
 
 /** stdout/stderr writes: model and web-derived text is stripped of terminal control characters first. */
@@ -106,6 +105,7 @@ interface Options {
   maxEntries: number;
   maxSearches: number;
   dryRun: boolean;
+  searchProvider: SearchProvider;
 }
 
 function parseCount(flag: string, raw: string | undefined, fallback: number, limit: number): number {
@@ -128,6 +128,7 @@ function parseOptions(argv: string[]): Options {
         max: { type: "string" },
         "max-searches": { type: "string" },
         "dry-run": { type: "boolean", default: false },
+        "search-provider": { type: "string" },
         help: { type: "boolean", short: "h", default: false },
       },
       strict: true,
@@ -155,12 +156,20 @@ function parseOptions(argv: string[]): Options {
     }
   }
 
+  let searchProvider: SearchProvider;
+  try {
+    searchProvider = resolveSearchProvider(values["search-provider"]);
+  } catch (error) {
+    fail(`catalog:draft: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
   return {
     topic,
     sourcePath,
     maxEntries: parseCount("--max", values.max, DEFAULT_MAX_ENTRIES, MAX_ENTRIES_LIMIT),
     maxSearches: parseCount("--max-searches", values["max-searches"], DEFAULT_MAX_SEARCHES, MAX_SEARCHES_LIMIT),
     dryRun: values["dry-run"],
+    searchProvider,
   };
 }
 
@@ -209,9 +218,12 @@ function buildParams(options: Options, existingEntries: string, today: string): 
     fallbacks: "default",
     thinking: { type: "adaptive" },
     output_config: { effort: "high" },
-    system,
+    system:
+      options.searchProvider === "none"
+        ? `${system}\n\nWeb access is disabled. Use only supplied source text; never claim to have searched or fetched a page.`
+        : system,
     tools: [
-      // max_uses applies per request; run() lowers both caps on each continuation by what was already spent.
+      // max_uses applies per request; runDraft() lowers both caps on each continuation by what was already spent.
       { type: "web_search_20260209", name: "web_search", max_uses: options.maxSearches },
       {
         type: "web_fetch_20260209",
@@ -259,7 +271,7 @@ function reportBlock(block: BetaContentBlock): void {
       if (block.content.type === "web_fetch_tool_result_error") line(`web_fetch failed: ${block.content.error_code}`);
       break;
     case "tool_use":
-      if (block.name === SUBMIT_TOOL_NAME) line(`${SUBMIT_TOOL_NAME} called`);
+      line(`${block.name} called`);
       break;
     case "fallback":
       line(`${block.from.model} declined; ${block.to.model} continues`);
@@ -267,69 +279,6 @@ function reportBlock(block: BetaContentBlock): void {
     default:
       break;
   }
-}
-
-interface RunResult {
-  responses: BetaMessage[];
-  error: { kind: "api"; status: number | undefined; message: string } | { kind: "other"; message: string } | null;
-}
-
-/** The request's tools with the web search and fetch caps lowered to what is left of the run's budget. */
-function withWebBudget(
-  tools: BetaMessageStreamParams["tools"],
-  searchesLeft: number,
-  fetchesLeft: number,
-): BetaMessageStreamParams["tools"] {
-  return tools?.map((tool) => {
-    if (tool.type === "web_search_20260209") return { ...tool, max_uses: searchesLeft };
-    if (tool.type === "web_fetch_20260209") return { ...tool, max_uses: fetchesLeft };
-    return tool;
-  });
-}
-
-/**
- * Streams the request, resuming `pause_turn` up to MAX_CONTINUATIONS times. The web search and fetch caps
- * (`maxWebUses` each) hold across continuations; a run that uses one up while still paused stops with an error.
- * Never throws: errors are returned.
- */
-async function run(client: Anthropic, params: BetaMessageStreamParams, maxWebUses: number): Promise<RunResult> {
-  const responses: BetaMessage[] = [];
-  const messages: BetaMessageParam[] = [...params.messages];
-  for (let turn = 0; turn <= MAX_CONTINUATIONS; turn++) {
-    let tools = params.tools;
-    if (turn > 0) {
-      const spent = sumUsage(responses);
-      const searchesLeft = maxWebUses - spent.web_search_requests;
-      const fetchesLeft = maxWebUses - spent.web_fetch_requests;
-      if (searchesLeft < 1 || fetchesLeft < 1) {
-        const message =
-          `the web search/fetch budget (${maxWebUses} each) was used up while the model was still working; ` +
-          "retry with a larger --max-searches or a narrower --topic";
-        return { responses, error: { kind: "other", message } };
-      }
-      tools = withWebBudget(params.tools, searchesLeft, fetchesLeft);
-      writeErr(`\n[pause_turn: continuing, ${turn}/${MAX_CONTINUATIONS}]\n`);
-    }
-    try {
-      const stream = client.beta.messages.stream({ ...params, tools, messages });
-      stream.on("text", (delta) => {
-        writeErr(delta);
-      });
-      stream.on("contentBlock", reportBlock);
-      const message = await stream.finalMessage();
-      responses.push(message);
-      if (message.stop_reason !== "pause_turn") break;
-      messages.push({ role: "assistant", content: continuationContent(message.content) });
-    } catch (error) {
-      if (error instanceof Anthropic.APIError) {
-        const status = typeof error.status === "number" ? error.status : undefined;
-        return { responses, error: { kind: "api", status, message: error.message } };
-      }
-      return { responses, error: { kind: "other", message: error instanceof Error ? error.message : String(error) } };
-    }
-  }
-  writeErr("\n");
-  return { responses, error: null };
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -413,10 +362,24 @@ try {
 
 writeErr(
   `catalog:draft: ${MODEL}, topic "${options.topic}", max ${options.maxEntries} entries, ` +
-    `max ${options.maxSearches} searches${options.dryRun ? ", dry run" : ""}\n`,
+    `${options.searchProvider}, max ${options.maxSearches} searches${options.dryRun ? ", dry run" : ""}\n`,
 );
 
-const { responses, error } = await run(client, params, options.maxSearches);
+const cancellation = new AbortController();
+const interrupt = () => {
+  cancellation.abort(new Error("catalog drafting cancelled"));
+};
+process.once("SIGINT", interrupt);
+process.once("SIGTERM", interrupt);
+const { responses, request, error, webUsage, webResults } = await runDraft(client, params, options.maxSearches, {
+  provider: options.searchProvider,
+  signal: cancellation.signal,
+  text: writeErr,
+  block: reportBlock,
+});
+process.removeListener("SIGINT", interrupt);
+process.removeListener("SIGTERM", interrupt);
+writeErr("\n");
 const final = responses.at(-1);
 const usage = sumUsage(responses);
 const extracted: SubmittedEntries | null = final === undefined ? null : extractSubmittedEntries(final);
@@ -435,9 +398,11 @@ const audit = {
   started_at: startedAt.toISOString(),
   finished_at: new Date().toISOString(),
   options,
-  request: params,
+  request,
   responses,
   usage,
+  webUsage,
+  webResults,
   error,
   outcome:
     extracted === null
@@ -449,6 +414,8 @@ const audit = {
 fs.writeFileSync(auditFile, `${JSON.stringify(audit, null, 2)}\n`);
 
 const out: string[] = ["", ...usageLines(usage)];
+if (options.searchProvider === "parallel")
+  out.push(`Parallel MCP: ${webUsage.searches} search(es), ${webUsage.fetches} fetch(es)`);
 const hops = responses.flatMap(fallbackHops);
 for (const hop of hops) out.push(`fallback: ${hop.from} declined, ${hop.to} continued`);
 out.push(`audit: ${displayPath(auditFile)}`);

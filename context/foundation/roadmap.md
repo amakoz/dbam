@@ -55,7 +55,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-11 | repo-map            | (foundation) a repository map shows capabilities, hot areas, structure, risk zones and unknowns                           | —                      | MS-03    | done     |
 | F-12 | reminders-research  | (foundation) the reminder pipeline is researched end to end with the map as input, with a verified technical-debt section | F-11                   | MS-04    | done     |
 | F-13 | reminders-refactor  | (foundation) a guard-first, phased refactoring plan exists for one reminder-pipeline debt item                            | F-12                   | MS-05    | done     |
-| F-14 | domain-distillation | (foundation) domain notes name the ubiquitous language, subdomains, invariants and model-vs-code drift                    | —                      | MS-06    | ready    |
+| F-14 | domain-distillation | (foundation) domain notes name the ubiquitous language, subdomains, invariants and model-vs-code drift                    | —                      | MS-06    | done     |
 | F-15 | architecture-report | (foundation) a two-page architecture report combines the map, feature research, refactoring plan and domain notes         | F-11, F-12, F-13, F-14 | MS-07    | proposed |
 
 ## Streams
@@ -149,7 +149,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The Polish domain terms (badanie, przesiew, termin) and their English code names must both appear in the glossary, or agents keep translating them inconsistently.
-- **Status:** ready
+- **Status:** done
 
 ### F-15: Architecture report
 
@@ -255,3 +255,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **S-08: a browser-level suite, run in CI against a local build and local Supabase, signs up a fresh user, completes onboarding, sees the due list, plans an exam and confirms it, and asserts the business outcome at each step.** — Archived 2026-10-27 → `context/archive/2026-10-27-e2e-core-loop/`. Lesson: —.
 - **F-12: (foundation) the reminder pipeline (scheduled run → candidate selection → send chain → email, across appointment reminders, due-screening reminders and nudges) is traced end to end with the map as input, with test-coverage gaps, blast radius and a technical-debt section whose structural claims are confirmed or refuted by AST queries.** — Archived 2026-10-27 → `context/archive/2026-10-27-reminders-research/`. Lesson: —.
 - **F-13: (foundation) one debt item from F-12 is explored through three read-only lenses (current shape, decision history, migration feasibility), the options are ranked and verified, and the chosen option becomes a guard-first, phased, independently reversible plan with characterization tests as the safety harness.** — Archived 2026-10-27 → `context/archive/2026-10-27-reminders-refactor/`. Lesson: —.
+- **F-14: (foundation) `context/domain/` holds a domain map (ubiquitous language with sources in docs and code, subdomains classified as core / supporting / generic, aggregate candidates and their invariants with enforcement status, model-vs-code drift, a ranked fix list) and a compact glossary for agents.** — Archived 2026-10-27 → `context/archive/2026-10-27-domain-distillation/`. Lesson: —.

@@ -1,10 +1,10 @@
 ---
 change_id: domain-distillation
 title: Domain map and agent glossary for Dbam (F-14)
-status: new
+status: archived
 created: 2026-10-27
 updated: 2026-10-27
-archived_at: null
+archived_at: 2026-10-27T20:53:18Z
 ---
 
 ## Notes

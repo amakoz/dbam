@@ -1,0 +1,104 @@
+
+## Q1
+src/lib/reminders/appointment.ts:29 runAppointmentReminders exported=true wholeBodyTry=true catchLogsThenRethrows=true budgetGuard=false
+  steps: gate > log > client > rpc:claim > log > send > key > log > rpc:mark > log
+src/lib/reminders/chain.ts:30 runReminderChain exported=true wholeBodyTry=false catchLogsThenRethrows=false budgetGuard=false
+  steps: 
+src/lib/reminders/due-screening.ts:29 runDueScreeningReminders exported=true wholeBodyTry=true catchLogsThenRethrows=true budgetGuard=true
+  steps: gate > log > client > rpc:get > parse > log > catalog > decide > log > rpc:claim > log > send > key > log > rpc:mark > log
+src/lib/reminders/follow-up-nudge.ts:24 runFollowUpNudges exported=true wholeBodyTry=true catchLogsThenRethrows=true budgetGuard=true
+  steps: gate > log > client > rpc:claim > log > send > key > log > rpc:mark > log
+common ordered steps (3 jobs): gate > log > client > rpc:claim > log > send > key > log > rpc:mark > log
+
+## Q2
+buildMessage: 2 declarations, 2 distinct bodies after masking string literals
+  src/lib/reminders/appointment.ts:82 exported=false
+  src/lib/reminders/due-screening.ts:113 exported=false
+log: 3 declarations, 1 distinct bodies after masking string literals
+  src/lib/reminders/appointment.ts:102 exported=false
+  src/lib/reminders/due-screening.ts:129 exported=false
+  src/lib/reminders/follow-up-nudge.ts:80 exported=false
+buildNudgeMessage: 1 declarations, 1 distinct bodies after masking string literals
+  src/lib/reminders/nudge-message.ts:22 exported=true
+
+## Q3
+src/lib/reminders/appointment.ts:24 AppointmentReminderOutcome = "dry-run" | "none" | "sent" | "skipped"
+src/lib/reminders/due-screening.ts:24 DueScreeningOutcome = "dry-run" | "none" | "sent" | "skipped"
+src/lib/reminders/follow-up-nudge.ts:21 FollowUpNudgeOutcome = "dry-run" | "none" | "sent" | "skipped"
+
+## Q4
+src/lib/observability.ts:27 "appointment-reminder" parent=LiteralType contextualType=none
+src/lib/observability.ts:27 "due-screening-reminder" parent=LiteralType contextualType=none
+src/lib/observability.ts:27 "follow-up-nudge" parent=LiteralType contextualType=none
+src/lib/observability.ts:31 "appointment-reminder" parent=PropertyAssignment contextualType=string
+src/lib/observability.ts:32 "due-screening-reminder" parent=PropertyAssignment contextualType=string
+src/lib/observability.ts:33 "follow-up-nudge" parent=PropertyAssignment contextualType=string
+src/lib/reminders/appointment.ts:103 "appointment-reminder" parent=PropertyAssignment contextualType=none
+src/lib/reminders/chain.ts:41 "appointment-reminder" parent=PropertyAssignment contextualType=ReminderJob
+src/lib/reminders/chain.ts:49 "due-screening-reminder" parent=PropertyAssignment contextualType=ReminderJob
+src/lib/reminders/chain.ts:55 "follow-up-nudge" parent=PropertyAssignment contextualType=ReminderJob
+src/lib/reminders/due-screening.ts:130 "due-screening-reminder" parent=PropertyAssignment contextualType=none
+src/lib/reminders/follow-up-nudge.ts:81 "follow-up-nudge" parent=PropertyAssignment contextualType=none
+
+## Q5
+src/lib/reminders/chain.ts:13 ReminderChainDeps members: appointment, due, nudge, alert
+src/lib/reminders/chain.ts:30 runReminderChain: 4 try statements, 1 loops (loops: see below)
+  loop at src/lib/reminders/chain.ts:58 over failures
+src/worker.ts:25 worker passes: appointment: runAppointmentReminders, due: runDueScreeningReminders, nudge: runFollowUpNudges, alert: sendReminderFailureAlert
+
+## Q6
+src/lib/reminders/appointment.ts:47 claim_due_appointment_reminders p_limit = REMINDER_EMAIL_DAILY_BUDGET
+src/lib/reminders/due-screening.ts:50 get_due_screening_candidates p_limit = DUE_CANDIDATE_LIMIT
+src/lib/reminders/due-screening.ts:62 collectClaimItems(candidates, catalog, now, budget)
+src/lib/reminders/follow-up-nudge.ts:44 claim_follow_up_nudges p_limit = Math.min(budget, MAX_BATCH_SIZE)
+src/lib/email-budget.ts:9 REMINDER_EMAIL_DAILY_BUDGET (VariableDeclaration)
+src/lib/email.ts:17 MAX_BATCH_SIZE (VariableDeclaration)
+src/lib/email.ts:76 MAX_BATCH_SIZE (BinaryExpression)
+src/lib/email.ts:77 MAX_BATCH_SIZE (TemplateSpan)
+src/lib/reminders/appointment.ts:47 REMINDER_EMAIL_DAILY_BUDGET (PropertyAssignment)
+src/lib/reminders/chain.ts:39 REMINDER_EMAIL_DAILY_BUDGET (BinaryExpression)
+src/lib/reminders/follow-up-nudge.ts:44 MAX_BATCH_SIZE (CallExpression)
+
+## Q7
+src/worker.ts: NO TEST IMPORTS IT
+src/lib/reminders/admin-client.ts: NO TEST IMPORTS IT
+src/lib/reminders/batch-key.ts: import from src/lib/screenings/due.perf.test.ts:7
+src/lib/reminders/errors.ts: NO TEST IMPORTS IT
+src/lib/reminders/appointment.ts: NO TEST IMPORTS IT
+src/lib/reminders/chain.ts: import from src/lib/reminders/chain.test.ts:5
+src/lib/reminders/candidates.ts: import from src/lib/reminders/candidates.test.ts:4; import from src/lib/screenings/due.perf.test.ts:8
+src/lib/reminders/due-screening.ts: NO TEST IMPORTS IT
+src/lib/reminders/nudge-message.ts: import from src/lib/reminders/nudge-message.test.ts:4
+src/lib/reminders/follow-up-nudge.ts: NO TEST IMPORTS IT
+src/lib/email.ts: dynamic-import from src/lib/email.test.ts:10
+src/lib/email-retry.ts: import from src/lib/email-retry.test.ts:3
+src/lib/email-budget.ts: import from src/lib/reminders/chain.test.ts:3
+src/lib/schedule.ts: NO TEST IMPORTS IT
+src/lib/heartbeat.ts: NO TEST IMPORTS IT
+src/lib/failure-alert.ts: NO TEST IMPORTS IT
+src/lib/observability.ts: import from src/lib/observability.test.ts:4; import from src/lib/reminders/chain.test.ts:4
+
+## Q10
+src/lib/reminders/chain.ts:38 reads .sent
+src/lib/reminders/chain.ts:46 reads .sent
+
+## Q8
+src/worker.ts:5 -> src/lib/reminders/appointment.ts
+src/worker.ts:6 -> src/lib/reminders/chain.ts
+src/worker.ts:7 -> src/lib/reminders/due-screening.ts
+src/worker.ts:8 -> src/lib/reminders/follow-up-nudge.ts
+src/lib/screenings/due.perf.test.ts:7 -> src/lib/reminders/batch-key.ts (test)
+src/lib/screenings/due.perf.test.ts:8 -> src/lib/reminders/candidates.ts (test)
+.astro files mentioning lib/reminders (text scan): none
+
+## Q9
+src/lib/reminders/appointment.ts:44 rpc("claim_due_appointment_reminders") declared=true Returns={ appointment_dates: string[]; email: string; locale: string; reminder_ids: number[]; user_id: string; }[]
+src/lib/reminders/appointment.ts:69 rpc("mark_appointment_reminders_sent") declared=true Returns=number
+src/lib/reminders/due-screening.ts:48 rpc("get_due_screening_candidates") declared=true Returns={ birth_year: number; completions: Json; pack_years: number; sex: string; smoking_status: string; user_id: string; years_since_quitting: num…
+src/lib/reminders/due-screening.ts:68 rpc("claim_due_screening_reminders") declared=true Returns={ email: string; locale: string; reminder_ids: number[]; user_id: string; }[]
+src/lib/reminders/due-screening.ts:92 rpc("mark_due_screening_reminders_sent") declared=true Returns=number
+src/lib/reminders/follow-up-nudge.ts:40 rpc("claim_follow_up_nudges") declared=true Returns={ confirm_count: number; email: string; locale: string; nudge_ids: number[]; schedule_count: number; user_id: string; }[]
+src/lib/reminders/follow-up-nudge.ts:67 rpc("mark_follow_up_nudges_sent") declared=true Returns=number
+src/pages/api/screenings.ts:78 rpc("confirm_screening_plan") declared=true Returns=string
+src/pages/api/consent/withdraw.ts:27 rpc("withdraw_health_data_consent") declared=true Returns=undefined
+declared in database.types.ts but not called from src: screening_anchor_month

@@ -108,3 +108,9 @@
   - F6: `collectDiff` skips diffing once the budget is spent (worker detail: `DIFF_BUDGET` exported from the core; proved with `GIT_TRACE`).
 - Evidence: `context/changes/ai-code-review/impl-review.md`.
 - Decided-by: orchestrator (fixes), worker (details). Each new test was broken once and went red.
+
+## 2026-10-27 Archive before the PR run, and branch sync
+
+- Question: archive while rows 2.7–2.9 are open, and keep the Progress SHAs valid after the rebase?
+- Choice: archive anyway. Rows 2.7–2.9 are PR-run checks (the job reviewing its own PR, a second push, the merge box); the PR's "Manual checks for the human" list covers them, and they stay unchecked in the archived plan. The branch was never pushed, so it was rebased onto `origin/main` (clean, no conflicts); the Progress SHAs for phases 1 and 2 were re-pointed to the rebased commits (`6f55514`, `a32331a`). `impl-review.md` moved to `reviews/impl-review.md`, where `/10x-archive` looks for review coverage. A squash merge will make the SHAs stale again, which is the usual case for this repo.
+- Decided-by: orchestrator (archive, rebase), worker (details)

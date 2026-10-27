@@ -289,24 +289,24 @@ Not applicable: no schema, no deploy change. Rollback = delete the workflow file
 
 #### Automated
 
-- [x] 1.1 Core unit tests pass, including the privacy-guard case — d26b850
-- [x] 1.2 Full unit suite still passes — d26b850
-- [x] 1.3 Lint is clean — d26b850
-- [x] 1.4 Type check is clean — d26b850
-- [x] 1.5 The core module imports nothing but node: built-ins — d26b850
-- [x] 1.6 Deliberate break turns the privacy-guard, excludeReason and verdict(7) tests red; reverted and recorded (red: 6 tests with the .env rule dropped, 1 with `> 7`; both reverted via git checkout) — d26b850
+- [x] 1.1 Core unit tests pass, including the privacy-guard case — 6f55514
+- [x] 1.2 Full unit suite still passes — 6f55514
+- [x] 1.3 Lint is clean — 6f55514
+- [x] 1.4 Type check is clean — 6f55514
+- [x] 1.5 The core module imports nothing but node: built-ins — 6f55514
+- [x] 1.6 Deliberate break turns the privacy-guard, excludeReason and verdict(7) tests red; reverted and recorded (red: 6 tests with the .env rule dropped, 1 with `> 7`; both reverted via git checkout) — 6f55514
 
 ### Phase 2: Runner, workflow and docs
 
 #### Automated
 
-- [x] 2.1 Runner integration tests pass against the fake server — f31f43e
-- [x] 2.2 Full unit suite passes — f31f43e
-- [x] 2.3 Lint is clean — f31f43e
-- [x] 2.4 Type check is clean — f31f43e
-- [x] 2.5 The workflow parses and keeps its guarantees — f31f43e
-- [x] 2.6 ci.yml is unchanged — f31f43e
-- [x] 2.10 Deliberate break turns the runner sentinel and no-label-on-unavailable cases red; reverted and recorded (red: 2 tests when planFiles was skipped, 9 when a label was added on unavailable; both reverted via git checkout) — f31f43e
+- [x] 2.1 Runner integration tests pass against the fake server — a32331a
+- [x] 2.2 Full unit suite passes — a32331a
+- [x] 2.3 Lint is clean — a32331a
+- [x] 2.4 Type check is clean — a32331a
+- [x] 2.5 The workflow parses and keeps its guarantees — a32331a
+- [x] 2.6 ci.yml is unchanged — a32331a
+- [x] 2.10 Deliberate break turns the runner sentinel and no-label-on-unavailable cases red; reverted and recorded (red: 2 tests when planFiles was skipped, 9 when a label was added on unavailable; both reverted via git checkout) — a32331a
 
 #### Manual
 

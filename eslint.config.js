@@ -112,6 +112,24 @@ const reminderClientConfig = defineConfig({
   },
 });
 
+// The e2e oracle must not come from the code under test: specs read catalog JSON from disk, never production modules.
+const e2eOracleConfig = defineConfig({
+  files: ["tests/e2e/**", "playwright.config.ts"],
+  rules: {
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: ["@/*", "**/src/**", "astro:*"],
+            message: "e2e specs must not import production code; the oracle reads catalog JSON",
+          },
+        ],
+      },
+    ],
+  },
+});
+
 const scriptsConfig = defineConfig({
   files: ["scripts/**/*.mjs"],
   extends: [tseslint.configs.disableTypeChecked],
@@ -132,6 +150,7 @@ export default defineConfig(
   astroConfig,
   workerLogsConfig,
   reminderClientConfig,
+  e2eOracleConfig,
   scriptsConfig,
   eslintPluginPrettier,
 );

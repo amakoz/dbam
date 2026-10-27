@@ -320,14 +320,14 @@ None: no schema or data changes. Rollback is reverting the workflow steps.
 
 #### Automated
 
-- [ ] 2.1 `core-loop.spec.ts` is green under the DB lock
-- [ ] 2.2 Product-side break of `nextDueMonth` turns it red from a cold server, then green after the revert
-- [ ] 2.3 `npm run lint` and `npx astro check` pass
-- [ ] 2.4 ESLint rule rejects a planted production import in `tests/e2e`, then passes
+- [x] 2.1 `core-loop.spec.ts` is green under the DB lock
+- [x] 2.2 Product-side break of `nextDueMonth` turns it red from a cold server, then green after the revert
+- [x] 2.3 `npm run lint` and `npx astro check` pass
+- [x] 2.4 ESLint rule rejects a planted production import in `tests/e2e`, then passes
 
 #### Manual
 
-- [ ] 2.5 Assertions target visible text or row attributes, not CSS classes or bare URLs
+- [x] 2.5 Assertions target visible text or row attributes, not CSS classes or bare URLs
 
 ### Phase 3: Two-user isolation — risk #1 at browser level
 

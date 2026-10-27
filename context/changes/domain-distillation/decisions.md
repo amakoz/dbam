@@ -19,3 +19,10 @@
 - **Doc-vs-doc conflicts** (PRD v3 vs later change folders) go to _Stale documents_, not to the drift table, per the skill; no drift row has fix side _docs_. decided-by: worker
 - **Glossary pairs** przesiew ↔ `screening_*` and termin ↔ `appointment_date` are inferred from i18n keys and copy (no document states them); recorded as an inference in the report's limitations. decided-by: worker
 - **Owner-routed questions** Q-01..Q-10 recorded in the report, not sent to the orchestrator. decided-by: orchestrator
+
+## 2026-10-27 Stages and acceptance
+
+- Question: run plan / plan-review / impl-review for this change?
+- Options: (a) full 10x chain (b) skip — `/10x-domain-distillation` is a one-shot analysis skill.
+- Choice: (b). The orchestrator checked `context/domain/` against the F-14 outcome (ubiquitous language with PL+EN terms and code names, subdomains, invariants with enforcement status, drift, ranked fix list with done-when, glossary) and accepted it.
+- decided-by: orchestrator

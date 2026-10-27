@@ -29,3 +29,16 @@
 - **Question:** flip F-12 to in-progress?
 - **Choice:** no. The worker protocol forbids roadmap status changes during research; `/10x-archive` sets `done`.
 - **Decided by:** orchestrator
+
+## 2026-10-27 Skip plan, plan-review and impl-review
+
+- **Question:** does F-12 go through `/10x-plan`, `/10x-plan-review` and `/10x-impl-review`?
+- **Options:** (a) run the full chain; (b) archive after research.
+- **Choice:** (b). F-12 is research-only. The orchestrator checked `research.md` against the F-12 outcome (end-to-end trace, coverage gaps, blast radius, 17 AST/SQL-verified debt claims) and accepted it.
+- **Decided by:** orchestrator
+
+## 2026-10-27 SD-3 product question does not block
+
+- **Question:** should a retired catalog entry stop appointment reminders (SD-3)?
+- **Choice:** goes to the owner via the PR and feeds F-13; it does not block this change.
+- **Decided by:** orchestrator

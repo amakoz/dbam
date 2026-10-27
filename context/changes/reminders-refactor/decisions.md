@@ -23,3 +23,38 @@
 - Choice: A then B (guard first, four independently revertable TypeScript phases); A alone is a valid stopping point; C rejected as dominated by B.
 - Evidence: `research.md` Lens 3 (spike results, constraints 1–8, invariants I1–I14).
 - decided-by: worker
+
+## 2026-10-27 Answers to the research open questions
+
+- Question: research.md Open Questions (transcript gate, cold CPU, SITE inlining, fourth job).
+- Choice: (1) explicit per-invariant expects (I1–I14) plus one `toEqual` transcript per job for the `sent` scenario; (2) `due.perf.test.ts` stays the CPU gate, production CPU becomes a Manual row; (3) SITE inlining becomes a build-output verification step (phase 4), not an assumption; (4) TD-5 / a fourth job out of scope, one line in `follow-ups/td-5-job-list.md`.
+- Evidence: research.md Open Questions; orchestrator prompt for /10x-plan.
+- decided-by: orchestrator
+
+## 2026-10-27 Plan shape and fixed seams
+
+- Question: phase order and seams the refactor must not move.
+- Choice: guard-first; characterization tests (no source change) → `MAX_BATCH_SIZE` move → runner → per-job migration → builders. Keep job names/signatures, the real `sendEmailBatch` as injected sender, and the same rethrown error object. Implementation parked; the spike is not kept.
+- Evidence: research.md Lens 3 constraints 1–8.
+- decided-by: orchestrator
+
+## 2026-10-27 Planning complexity, question budget and phase split
+
+- Question: complexity level, interview budget, phase granularity.
+- Options: MEDIUM with 5–7 questions vs settled-input exception with 0 questions; 4 vs 7 phases.
+- Choice: MEDIUM complexity, 0 substantive questions (every open decision is settled by research plus the orchestrator's answers); 7 phases — 1 tests, 2 constant, 3 runner without consumer, 4 appointment (+ `deps.ts`, SITE check), 5 nudge, 6 due (+ lint allow-list cleanup), 7 builders — so each job migration reverts on its own.
+- Evidence: plan.md Implementation Approach; research.md Lens 1 (due job is the most complex, migrate last).
+- decided-by: worker
+
+## 2026-10-27 Runner design details
+
+- Question: details the orchestrator delegated.
+- Choice: `client` is a factory called after the gates (I14); `budget: number | undefined`, undefined = no budget gate (appointment); specs stay in the job files with production wiring in a new `src/lib/reminders/deps.ts` called once per run; runner added to the `no-console` allow-list in phase 3, job files removed in phase 6; outcome types kept as aliases of `ReminderOutcome`; characterization harness in `transcript.test-helper.ts` shared by three per-job test files.
+- Evidence: research.md I14, `eslint.config.js:77-88`, `chain.ts:13-21`.
+- decided-by: worker
+
+## 2026-10-27 Roadmap untouched
+
+- Question: /10x-plan's roadmap sync would flip F-13 to `planning`.
+- Choice: skipped — worker protocol forbids roadmap status changes during plan; the orchestrator parks implementation.
+- decided-by: orchestrator

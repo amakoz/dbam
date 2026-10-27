@@ -119,3 +119,10 @@
 - **Evidence:** `context/changes/e2e-core-loop/impl-review.md`.
 - **Decided by:** orchestrator (F1–F4)
 - **Rebase:** the branch was rebased onto `origin/main` (never pushed), so the phase SHAs in Progress, this log and the review were remapped: 7735a1e→2863eea, 0df4623→f288176, d70435b→d3ba639, 7f05515→c41d477. Decided by: worker (orchestrator: rebase if never pushed).
+
+## 2026-10-27 Archive with PR-stage rows open, and the F-10 roadmap flip
+
+- **Question:** `/10x-archive` warns that rows 4.3 (`smoke` job runs e2e), 4.4 (measured minutes) and 4.5 (report artifact) are pending and that the phase SHAs are not in `origin/main` yet.
+- **Choice:** Continue archiving. The PR's first `smoke` run covers 4.3–4.5 and its description lists them under "Manual checks for the human"; the SHAs reach `main` when the PR merges.
+- **Also:** F-10 (test-plan) is set to `done` in `roadmap.md` in the archive commit: its PR #89 merged on 2026-10-27 without the flip.
+- **Decided by:** orchestrator

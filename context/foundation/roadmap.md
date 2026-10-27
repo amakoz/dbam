@@ -49,8 +49,8 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 | ID   | Change ID           | Outcome (user can …)                                                                                                      | Prerequisites          | PRD refs | Status   |
 | ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- | -------- | -------- |
-| F-10 | test-plan           | (foundation) a test plan ranks the top business risks and maps each to test layers and quality gates                      | —                      | MS-01    | ready    |
-| S-08 | e2e-core-loop       | the sign-up → onboarding → due list → plan → confirm path is exercised in a real browser in CI, guarding a test-plan risk | F-10                   | MS-02    | proposed |
+| F-10 | test-plan           | (foundation) a test plan ranks the top business risks and maps each to test layers and quality gates                      | —                      | MS-01    | done     |
+| S-08 | e2e-core-loop       | the sign-up → onboarding → due list → plan → confirm path is exercised in a real browser in CI, guarding a test-plan risk | F-10                   | MS-02    | done     |
 | S-09 | ai-code-review      | every pull request to `main` gets an AI review comment from a visible CI job, at no model cost                            | —                      | MS-08    | ready    |
 | F-11 | repo-map            | (foundation) a repository map shows capabilities, hot areas, structure, risk zones and unknowns                           | —                      | MS-03    | done     |
 | F-12 | reminders-research  | (foundation) the reminder pipeline is researched end to end with the map as input, with a verified technical-debt section | F-11                   | MS-04    | proposed |
@@ -96,7 +96,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Strategy only — it must cite existing unit, pgTAP and smoke coverage instead of re-planning it, or the rollout duplicates work already in CI.
-- **Status:** ready
+- **Status:** done
 
 ### F-11: Repository map
 
@@ -178,7 +178,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Which risk does the suite guard? F-10 decides; the expected candidates are "a completed exam is lost or not rescheduled" and "one user sees another user's health data". — Owner: user. Block: no.
 - **Risk:** It must never run against production (it signs up users, like the full smoke run), and the CI job must not slow the `smoke` gate enough to push deploys past the post-deploy retry window.
-- **Status:** proposed
+- **Status:** done
 
 ### S-09: AI code review in CI
 
@@ -251,3 +251,5 @@ Items below assume these are present and do NOT re-scaffold them.
 - **F-09: (foundation) no user-derived health data reaches Cloudflare Workers Logs through request URLs: `/api/screenings` stops redirecting to `/dashboard?saved=…&slug=<slug>` and `?error=…&slug=<slug>` (`src/pages/api/screenings.ts:42,49`), the dashboard keeps its confirmation on the right row, and every other query param carrying user-derived values is audited (auth callback `?code=`, `profile.astro` `?reminders=`, any other redirect).** — Archived 2026-10-06 → `context/archive/2026-10-06-redirect-query-privacy/`. Lesson: —. Open human check 2.2: after deploy, confirm new `/dashboard` Workers Logs entries carry no `slug=`.
 - **S-07: an opted-in user gets a nudge when a selected exam has no appointment date after some days, and a follow-up asking them to confirm completion once an appointment date has passed unconfirmed.** — Archived 2026-10-06 → `context/archive/2026-10-06-follow-up-nudges/`. Lesson: —.
 - **F-11: (foundation) a repository map, organised by business capability (onboarding and consent, recommendations, exam records, reminders and nudges, catalog curation), ranks areas by criticality and change activity, and lists risk zones, a first-day reading list and explicit unknowns.** — Archived 2026-10-27 → `context/archive/2026-10-27-repo-map/`. Lesson: —.
+- **F-10: (foundation) a test plan ranks the product's top business risks and maps each to test layers and quality gates.** — Merged 2026-10-27 in PR #89 (change `test-plan`, not archived). Lesson: —.
+- **S-08: a browser-level suite, run in CI against a local build and local Supabase, signs up a fresh user, completes onboarding, sees the due list, plans an exam and confirms it, and asserts the business outcome at each step.** — Archived 2026-10-27 → `context/archive/2026-10-27-e2e-core-loop/`. Lesson: —.

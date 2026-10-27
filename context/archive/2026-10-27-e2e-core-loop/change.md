@@ -1,10 +1,10 @@
 ---
 change_id: e2e-core-loop
 title: Browser E2E for the core loop (test-plan Phase 1, S-08)
-status: impl_reviewed
+status: archived
 created: 2026-10-27
 updated: 2026-10-27
-archived_at: null
+archived_at: 2026-10-27T19:40:33Z
 ---
 
 ## Notes

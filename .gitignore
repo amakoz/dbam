@@ -37,3 +37,9 @@ catalog/.draft-runs/
 
 # screenshots from `npm run ui:shots` (default output folder)
 ui-shots/
+
+# Playwright (npm run test:e2e)
+playwright-report/
+test-results/
+playwright/.auth/
+.playwright-cli/

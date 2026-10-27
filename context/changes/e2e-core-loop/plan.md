@@ -306,15 +306,15 @@ None: no schema or data changes. Rollback is reverting the workflow steps.
 
 #### Automated
 
-- [ ] 1.1 `npm run lint` passes with the new config and spec
-- [ ] 1.2 `npx astro check` passes
-- [ ] 1.3 `npm test` still collects only `src/**/*.test.ts`
-- [ ] 1.4 Config refuses a non-local BASE_URL or SUPABASE_URL, a missing SUPABASE_URL, and port 4321 in a worker session, before starting a server
-- [ ] 1.5 Seed is green from a cold server under the DB lock
+- [x] 1.1 `npm run lint` passes with the new config and spec
+- [x] 1.2 `npx astro check` passes
+- [x] 1.3 `npm test` still collects only `src/**/*.test.ts`
+- [x] 1.4 Config refuses a non-local BASE_URL or SUPABASE_URL, a missing SUPABASE_URL, and port 4321 in a worker session, before starting a server
+- [x] 1.5 Seed is green from a cold server under the DB lock
 
 #### Manual
 
-- [ ] 1.6 Review the seed spec as the pattern later specs copy
+- [x] 1.6 Review the seed spec as the pattern later specs copy
 
 ### Phase 2: Core loop E2E — risks #2 and #4
 

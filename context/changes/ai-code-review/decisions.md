@@ -58,3 +58,9 @@
 
 - Choice: the runner diffs the checked-out merge commit against its first parent (`git diff HEAD^1 HEAD`, checkout `fetch-depth: 2`, `persist-credentials: false`) with `--no-ext-diff --no-textconv`; exclusion is done by the pure core on parsed per-file chunks (old and new path of renames). Endpoints come from env (`AI_REVIEW_BASE_URL`, standard `GITHUB_API_URL`), so integration tests point both at one local fake server and run the real script against a temporary git repo — no test-only code path.
 - Decided-by: worker
+
+## 2026-10-27 Plan review scope
+
+- Question: how to run /10x-plan-review for this change?
+- Choice: deep mode with codebase verification done inline (no sub-agent; few, local claims), report saved to `context/changes/ai-code-review/plan-review.md` as the orchestrator asked, every finding left `PENDING` (no self-triage). Verdict REVISE: 8 warnings, 2 observations, all security/test-gate hardening, no rethink.
+- Decided-by: orchestrator (path, no triage), worker (inline verification)

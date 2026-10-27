@@ -84,3 +84,18 @@
 
 - **Choice:** `/10x-plan` asks to flip S-08 to `planning`; skipped per the worker protocol (`/10x-archive` sets `done`).
 - **Decided by:** orchestrator rule
+
+## 2026-10-27 Plan-review triage (F1–F7)
+
+- **Question:** How to resolve `plan-review.md` findings F1–F7 (REVISE, 4 warnings, 3 observations)?
+- **Choice:** All accepted.
+  - F1: ESLint `no-restricted-imports` block for `tests/e2e/**` and `playwright.config.ts` (patterns `@/*`, `**/src/**`, `astro:*`); the widened grep is a heuristic only.
+  - F2: Fix A — Phase 2's deliberate break is product-side (`nextDueMonth` in `src/lib/screenings/rules.ts`, cold server so `webServer` rebuilds, never committed). 3.2 stays test-side because a product-side isolation break needs an RLS migration.
+  - F3: e2e steps run after "Exercise scheduled handler (dry run)" and before `supabase stop`.
+  - F4: guard uses the `new URL()` hostname against `[localhost, 127.0.0.1]`, refuses a missing `SUPABASE_URL`, and refuses port 4321 on the resolved baseURL when `DBAM_CHANGE` is set; criterion 1.4 extended.
+  - F5: cache key from the `@playwright/test` version via a step output; `actions/cache@v4`; `install --with-deps --only-shell chromium` on a miss, `install-deps chromium` on a hit; `actions/upload-artifact@v4`; PR reports install and test minutes.
+  - F6: upload only when `steps.e2e.outcome == 'failure'`, `retention-days: 7`; `trace: retain-on-failure`.
+  - F7: `colonoscopy-nfz-program` is A's second exam; the spec asserts B sees it as a tier row, so 3.5 became an automated row.
+- **Note:** Progress rows 1.4, 2.2, 2.4, 3.5 and 4.4 were retitled and 3.5 moved to Automated before any execution (no row was checked), so the immutable-title rule is not broken in substance.
+- **Evidence:** `context/changes/e2e-core-loop/plan-review.md`.
+- **Decided by:** orchestrator

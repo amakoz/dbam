@@ -13,22 +13,26 @@ Only the `playwright` library (1.63.0, for `ui:shots`) is installed: no test run
 
 ## Desired End State
 
-`npm run test:e2e` runs three specs against a local production preview and local Supabase: the seed, the core loop and two-user isolation. It refuses any non-local base URL or Supabase URL. The required CI `smoke` job runs it on every PR, reusing its Supabase and preview, and uploads traces only on failure.
+`npm run test:e2e` runs three specs against a local production preview and local Supabase: the seed, the core loop and two-user isolation. It refuses any non-local base URL or Supabase URL, a missing Supabase URL and port 4321 in a worker session, and ESLint bans production imports in e2e code. The required CI `smoke` job runs it on every PR after the scheduled-handler dry run, reusing its Supabase and preview, and uploads traces only when the e2e step fails.
 
 ## Key Decisions Made
 
-| Decision       | Choice                                                                        | Why (1 sentence)                                                                 | Source            |
-| -------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------- |
-| CI placement   | Steps inside `smoke`, after the smoke step, `BASE_URL=http://localhost:4321`  | Only `ci` + `smoke` gate `main`; reuse avoids a second Supabase start            | Orchestrator      |
-| CI time bound  | Chromium shell only, cache on version, `workers: 1`, retries 1 in CI          | Roadmap risk "don't slow smoke"; split into its own job if > ~4 min              | Orchestrator      |
-| Server         | `BASE_URL` if set, else `webServer` build + preview on `E2E_PORT`/`DBAM_PORT` | Same config for CI and local worktrees; never port 4321 in worker sessions       | Orchestrator      |
-| Safety guard   | Refuse non-local `BASE_URL` **and** non-local `SUPABASE_URL` at config load   | e2e signs up real users; a local preview built on production secrets would too   | Orchestrator/Plan |
-| Auth           | Fresh `e2e-<random>@example.com` per test via the UI; no setup project        | Sign-up is part of risk #2; a stored session would skip it                       | Orchestrator/Plan |
-| Plan step      | Plan for Warsaw today, then confirm                                           | The only date that is both plannable and confirmable in one run                  | Orchestrator      |
-| Oracle         | Mammography JSON: assert fixed + no overrides, add 24 months by hand          | Expected value must not come from the production date helper                     | Orchestrator      |
-| Fixture age    | Female, born current year − 50 (B: − 55)                                      | Mammography (45–74) stays eligible every year; B eligible so absence = isolation | Orchestrator/Plan |
-| Runner version | `@playwright/test` pinned exactly to 1.63.0                                   | Shares the browser build with `playwright` 1.63.0                                | Orchestrator      |
-| Agent wiring   | None under `.claude/`; `npx -y @playwright/cli` / Playwright MCP ad hoc       | Only `.claude/settings.json` is tracked                                          | Orchestrator      |
+| Decision          | Choice                                                                                           | Why (1 sentence)                                                                    | Source            |
+| ----------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ----------------- |
+| CI placement      | Steps inside `smoke`, after the scheduled-handler dry run, `BASE_URL=http://localhost:4321`      | Only `ci` + `smoke` gate `main`; reuse avoids a second Supabase start               | Orchestrator      |
+| CI time bound     | Chromium shell only, cache on version, `workers: 1`, retries 1 in CI                             | Roadmap risk "don't slow smoke"; split into its own job if > ~4 min                 | Orchestrator      |
+| Server            | `BASE_URL` if set, else `webServer` build + preview on `E2E_PORT`/`DBAM_PORT`                    | Same config for CI and local worktrees; never port 4321 in worker sessions          | Orchestrator      |
+| Safety guard      | Refuse non-local `BASE_URL`/`SUPABASE_URL`, missing `SUPABASE_URL`, port 4321 with `DBAM_CHANGE` | e2e signs up real users; a local preview built on production secrets would too      | Orchestrator/Plan |
+| Auth              | Fresh `e2e-<random>@example.com` per test via the UI; no setup project                           | Sign-up is part of risk #2; a stored session would skip it                          | Orchestrator/Plan |
+| Plan step         | Plan for Warsaw today, then confirm                                                              | The only date that is both plannable and confirmable in one run                     | Orchestrator      |
+| Oracle            | Mammography JSON: assert fixed + no overrides, add 24 months by hand                             | Expected value must not come from the production date helper                        | Orchestrator      |
+| Fixture age       | Female, born current year − 50 (B: − 55)                                                         | Mammography (45–74) stays eligible every year; B eligible so absence = isolation    | Orchestrator/Plan |
+| Runner version    | `@playwright/test` pinned exactly to 1.63.0                                                      | Shares the browser build with `playwright` 1.63.0                                   | Orchestrator      |
+| Agent wiring      | None under `.claude/`; `npx -y @playwright/cli` / Playwright MCP ad hoc                          | Only `.claude/settings.json` is tracked                                             | Orchestrator      |
+| Oracle gate       | ESLint `no-restricted-imports` on `tests/e2e/**` (`@/*`, `**/src/**`, `astro:*`)                 | A grep misses the `@/` alias; lint runs on every PR                                 | Plan review F1    |
+| Deliberate breaks | Core loop: product-side `nextDueMonth` break from a cold server; isolation: test-side            | Proves risk #4 is caught; an isolation product break needs an RLS migration         | Plan review F2    |
+| CI artifacts      | Upload only when the e2e step fails, 7 days; `trace: retain-on-failure`                          | Keeps the failing attempt’s trace, no empty uploads                                 | Plan review F5/F6 |
+| Isolation exams   | Mammography (done) + `colonoscopy-nfz-program` (undated plan)                                    | Tier 1 for both A (50) and B (55), so B seeing them as tier rows proves eligibility | Plan review F7    |
 
 ## Scope
 

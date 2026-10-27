@@ -289,12 +289,12 @@ Not applicable: no schema, no deploy change. Rollback = delete the workflow file
 
 #### Automated
 
-- [ ] 1.1 Core unit tests pass, including the privacy-guard case
-- [ ] 1.2 Full unit suite still passes
-- [ ] 1.3 Lint is clean
-- [ ] 1.4 Type check is clean
-- [ ] 1.5 The core module imports nothing but node: built-ins
-- [ ] 1.6 Deliberate break turns the privacy-guard, excludeReason and verdict(7) tests red; reverted and recorded
+- [x] 1.1 Core unit tests pass, including the privacy-guard case
+- [x] 1.2 Full unit suite still passes
+- [x] 1.3 Lint is clean
+- [x] 1.4 Type check is clean
+- [x] 1.5 The core module imports nothing but node: built-ins
+- [x] 1.6 Deliberate break turns the privacy-guard, excludeReason and verdict(7) tests red; reverted and recorded (red: 6 tests with the .env rule dropped, 1 with `> 7`; both reverted via git checkout)
 
 ### Phase 2: Runner, workflow and docs
 

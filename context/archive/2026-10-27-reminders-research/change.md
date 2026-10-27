@@ -1,10 +1,10 @@
 ---
 change_id: reminders-research
 title: Trace the reminder pipeline end to end with coverage gaps and AST-checked debt
-status: preparing
+status: archived
 created: 2026-10-27
 updated: 2026-10-27
-archived_at: null
+archived_at: 2026-10-27T19:38:52Z
 ---
 
 ## Notes

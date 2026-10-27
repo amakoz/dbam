@@ -53,7 +53,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | S-08 | e2e-core-loop       | the sign-up → onboarding → due list → plan → confirm path is exercised in a real browser in CI, guarding a test-plan risk | F-10                   | MS-02    | proposed |
 | S-09 | ai-code-review      | every pull request to `main` gets an AI review comment from a visible CI job, at no model cost                            | —                      | MS-08    | ready    |
 | F-11 | repo-map            | (foundation) a repository map shows capabilities, hot areas, structure, risk zones and unknowns                           | —                      | MS-03    | done     |
-| F-12 | reminders-research  | (foundation) the reminder pipeline is researched end to end with the map as input, with a verified technical-debt section | F-11                   | MS-04    | proposed |
+| F-12 | reminders-research  | (foundation) the reminder pipeline is researched end to end with the map as input, with a verified technical-debt section | F-11                   | MS-04    | done     |
 | F-13 | reminders-refactor  | (foundation) a guard-first, phased refactoring plan exists for one reminder-pipeline debt item                            | F-12                   | MS-05    | proposed |
 | F-14 | domain-distillation | (foundation) domain notes name the ubiquitous language, subdomains, invariants and model-vs-code drift                    | —                      | MS-06    | ready    |
 | F-15 | architecture-report | (foundation) a two-page architecture report combines the map, feature research, refactoring plan and domain notes         | F-11, F-12, F-13, F-14 | MS-07    | proposed |
@@ -123,7 +123,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Is the reminder pipeline the right feature? It is the area that grew most in M-01 (three jobs on one cron path); if the map ranks another capability hotter, switch to it before research starts. — Owner: user. Block: no.
 - **Risk:** Research-only; it must not drift into fixing what it finds.
-- **Status:** proposed
+- **Status:** done
 
 ### F-13: Reminder pipeline refactoring plan
 
@@ -251,3 +251,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **F-09: (foundation) no user-derived health data reaches Cloudflare Workers Logs through request URLs: `/api/screenings` stops redirecting to `/dashboard?saved=…&slug=<slug>` and `?error=…&slug=<slug>` (`src/pages/api/screenings.ts:42,49`), the dashboard keeps its confirmation on the right row, and every other query param carrying user-derived values is audited (auth callback `?code=`, `profile.astro` `?reminders=`, any other redirect).** — Archived 2026-10-06 → `context/archive/2026-10-06-redirect-query-privacy/`. Lesson: —. Open human check 2.2: after deploy, confirm new `/dashboard` Workers Logs entries carry no `slug=`.
 - **S-07: an opted-in user gets a nudge when a selected exam has no appointment date after some days, and a follow-up asking them to confirm completion once an appointment date has passed unconfirmed.** — Archived 2026-10-06 → `context/archive/2026-10-06-follow-up-nudges/`. Lesson: —.
 - **F-11: (foundation) a repository map, organised by business capability (onboarding and consent, recommendations, exam records, reminders and nudges, catalog curation), ranks areas by criticality and change activity, and lists risk zones, a first-day reading list and explicit unknowns.** — Archived 2026-10-27 → `context/archive/2026-10-27-repo-map/`. Lesson: —.
+- **F-12: (foundation) the reminder pipeline (scheduled run → candidate selection → send chain → email, across appointment reminders, due-screening reminders and nudges) is traced end to end with the map as input, with test-coverage gaps, blast radius and a technical-debt section whose structural claims are confirmed or refuted by AST queries.** — Archived 2026-10-27 → `context/archive/2026-10-27-reminders-research/`. Lesson: —.

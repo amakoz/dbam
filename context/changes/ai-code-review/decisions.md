@@ -64,3 +64,20 @@
 - Question: how to run /10x-plan-review for this change?
 - Choice: deep mode with codebase verification done inline (no sub-agent; few, local claims), report saved to `context/changes/ai-code-review/plan-review.md` as the orchestrator asked, every finding left `PENDING` (no self-triage). Verdict REVISE: 8 warnings, 2 observations, all security/test-gate hardening, no rethink.
 - Decided-by: orchestrator (path, no triage), worker (inline verification)
+
+## 2026-10-27 Plan review triage (F1–F10)
+
+- Question: how to resolve the 8 warnings and 2 observations in `plan-review.md`?
+- Choice: all accepted with the fix each finding states; plan.md and plan-brief.md updated, each Decision marked in plan-review.md.
+  - F1: model/provider-derived stdout wrapped in `::stop-commands::<random hex per run>`; spoof test (`::error::spoof`, `::add-mask::x`).
+  - F2: Fix A — `--name-status -z` list → pure `parseNameStatus()` + `planFiles()`; only allowed files are diffed with literal pathspecs and explicit `--src-prefix/--dst-prefix`; excluded content is never read. Worker detail: one `git diff` per allowed file, which removes `splitDiff` and the pathspec-length blind spot.
+  - F3: deliberate-break rows 1.6 and 2.10 (run, confirm red, revert, record).
+  - F4: `redactSecrets()` with the `AI_REVIEW_API_KEY` and `GITHUB_TOKEN` values on every provider-derived string; no-leak test over stdout, stderr, step summary and every recorded GitHub request body.
+  - F5: added `.envrc` (via `.env*` prefix), `.npmrc`, `.yarnrc(.yml)`, `.netrc`, SSH keys, `*.jks`/`*.keystore`/`*.p8`, `credentials*.json`, `service-account*.json`, `supabase/.temp/**`; case-insensitive basenames; one case per family; fail closed on basenames containing `secret`/`credential`/`private`.
+  - F6: job permissions `contents: read` + `pull-requests: write` only — supersedes `issues: write` from the 2026-10-27 "Research open questions" entry; add it only if a real run 403s on `POST /labels`, then record why. Workflow-level `permissions: {}`. Header and README say GitHub's fork policy is the boundary.
+  - F7: any exception reading/decoding the provider response → unavailable `bad response`; `head.repo == null` → fork; two runner cases, both exit 0.
+  - F8: `run.mjs` and `git` spawned with a minimal explicit env, `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_NOSYSTEM=1`, fixed author/committer, `GITHUB_STEP_SUMMARY` = temp file.
+  - F9: ESLint block for `scripts/ai-review/core.mjs` (`fetch`/`process` off, restricted `node:child_process`, `node:http(s)`, `node:net`, `node:fs`, dynamic `import()` banned); grep row 1.5 kept as a heuristic. Row 2.5 becomes `scripts/ai-review/workflow.test.ts` with text assertions, so no test depends on the transitive `yaml` package.
+  - F10: random per-run nonce on data-tag names, U+200B after `#` before digits (covers `owner/repo#N`), backtick-safe code spans for paths, plus the `renderComment` case.
+- Evidence: `context/changes/ai-code-review/plan-review.md`.
+- Decided-by: orchestrator (fix details marked "worker detail" decided by worker)

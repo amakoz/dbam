@@ -52,7 +52,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
 - **Location**: Phase 2 §1 Runner, steps 3 and 6; Phase 1 §1 `sanitize`
 - **Detail**: Step 6 prints the rendered comment to stdout. Step 3 logs the "sanitised raw text" when parsing fails. The runner reads every stdout line of a `run:` step for workflow commands. Model output is steered by PR content, so a line such as `::add-mask::…`, `::error file=…::`, `::stop-commands::<token>` or `::group::` would be acted on. `set-env` and `add-path` are disabled, but annotation spoofing still works, and so does hiding the runner's own later `::error::` behind `stop-commands`. `sanitize` removes control characters, HTML comments and @mentions, but nothing that starts with `::`. This is the one place where "model output is never executed" does not hold yet.
 - **Fix**: Before writing model- or provider-derived text to stdout, wrap it with `::stop-commands::<random hex>` … `::<random hex>::`, using a fresh token per run, or prefix every line that matches `^\s*::` in the log copy. Add a core or runner test where the fake provider returns `::error::spoof` and `::add-mask::x`, and assert that stdout never shows them as bare commands.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — model/provider-derived stdout wrapped in `::stop-commands::<random hex per run>` … `::<token>::`; spoof test (`::error::spoof`, `::add-mask::x`) added to run.test.ts.
 
 ### F2 — Exclusion depends on parsing `diff --git` headers and fails open
 
@@ -79,7 +79,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
   - Tradeoff: safety still rests on the parser being right in every edge case. Failing closed limits the damage but does not remove the class of bug.
   - Confidence: HIGH — the change is small and easy to test.
   - Blind spot: other git config keys that change the header format have not been surveyed.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED Fix A (orchestrator, 2026-10-27) — `--name-status -z` file list → pure `parseNameStatus()` + `planFiles()`; only allowed files are diffed, one literal pathspec per call with explicit `--src-prefix=a/ --dst-prefix=b/`; excluded content is never read. Per-file calls replace `splitDiff` and avoid the pathspec-length blind spot.
 
 ### F3 — No deliberate break proves the tests catch a filter or label regression
 
@@ -91,7 +91,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
 - **Fix**: Add automated rows 1.6 and 2.10 to the phases and to Progress. Each one runs the break, confirms red, reverts and records the result in Progress.
   - 1.6: drop the `.env` rule from `excludeReason` → the privacy-guard and `excludeReason` tests fail. Change `>= 7` to `> 7` → the `verdict(7)` test fails.
   - 2.10: make the runner skip `selectDiff` and send the whole diff → the runner's sentinel assertion fails. Make it add the label on an unavailable review → the "no label request" case fails.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — deliberate-break rows 1.6 and 2.10 added as stated (run, confirm red, revert, record).
 
 ### F4 — Secret no-leak test covers only stdout and stderr
 
@@ -101,7 +101,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
 - **Location**: Phase 2 §1 step 3 (provider `error.message`), §2 last case
 - **Detail**: Provider error text (`error.message`, sanitised, ≤200 chars) goes into the PR comment and the step summary as well as the log. GitHub masks secrets only in log output. Text sent through the REST API, such as the comment body, is posted verbatim. The plan's only no-leak case checks stdout and stderr. The accepted lesson "Grep gates are heuristics; privacy tests are the guard" says to add a case for every output path. Here those paths are the provider payload, stdout, the step summary file and the comment body.
 - **Fix**: In `run.mjs`, replace the exact values of `AI_REVIEW_API_KEY` and `GITHUB_TOKEN` with `***` in every provider-derived string before `sanitize`. Then extend the no-leak case: the fake provider answers 401 with `error.message` containing the key. Assert that the key is absent from stdout, stderr, the step-summary file and every recorded GitHub request body.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — `redactSecrets()` replaces the `AI_REVIEW_API_KEY` and `GITHUB_TOKEN` values in every provider-derived string; no-leak test covers stdout, stderr, step summary and every recorded GitHub request body.
 
 ### F5 — Denylist misses common secret files and case variants
 
@@ -120,7 +120,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
   Matching is not stated to be case-insensitive either, so `.ENV` and `Package-Lock.json` would get through. These files are not in the repo today. The rule exists for the accidental commit, and a denylist misses exactly that case.
 
 - **Fix**: Add the families above, plus `.env*` written as a prefix rule so that `.envrc` is covered. Match basenames case-insensitively. Add one `excludeReason` case per new family. Optionally, have `selectDiff` fail closed on any path whose basename contains `secret`, `credential` or `private`.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — listed families added, `.env*` as a prefix rule, case-insensitive basenames, one test case per family, fail closed on basenames containing `secret`/`credential`/`private`.
 
 ### F6 — Workflow permissions are wider than the plan's own evidence requires
 
@@ -136,7 +136,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
   - Keep only `pull-requests: write` alongside `contents: read`, unless a run shows a 403 on `POST /labels`. If `issues: write` turns out to be needed, record why in decisions.md.
   - Add `permissions: {}` at workflow level and make the 2.5 assertion check it.
   - State in the workflow header and README that the fork skip is a convenience and GitHub's fork policy is the boundary. Optionally add the job-level `if: github.event.pull_request.head.repo.full_name == github.repository` alongside the runner check.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — job permissions `contents: read` + `pull-requests: write` only (`issues: write` only if a real run 403s on `POST /labels`, then recorded); workflow-level `permissions: {}`; header and README state that GitHub's fork policy is the boundary.
 
 ### F7 — Some provider failures still turn the job red
 
@@ -151,7 +151,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
   Both end as uncaught exceptions with exit 1. The first breaks the orchestrator's rule that the job exits 0 when the provider is unavailable.
 
 - **Fix**: In step 3, any exception while reading or decoding the provider response maps to unavailable `bad response`. In step 1, `head.repo == null` is treated as a fork. Add two runner cases: a 200 with `text/html` and an event with `head.repo: null`. Both expect exit 0.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — any exception reading/decoding the provider response = unavailable `bad response`; `head.repo == null` treated as a fork; two runner cases, both exit 0.
 
 ### F8 — Runner integration tests are not isolated from CI and the developer machine
 
@@ -165,7 +165,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
   - The temp repo's `git commit` needs an identity. GitHub runners have none configured, so it fails.
   - A local `commit.gpgsign`, `diff.noprefix` or similar setting changes the behaviour. With `diff.noprefix`, the privacy assertions would test a different diff format than CI uses.
 - **Fix**: Spawn `run.mjs` and `git` with a minimal explicit env (`PATH`, `HOME` set to the temp dir), not a copy of `process.env`. Set `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_NOSYSTEM=1`, `GIT_AUTHOR_NAME/EMAIL` and `GIT_COMMITTER_NAME/EMAIL`. Set `GITHUB_STEP_SUMMARY` to a temp file that the tests read back, which also serves F4.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — `run.mjs` and `git` spawned with a minimal explicit env, `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_NOSYSTEM=1`, fixed author/committer, `GITHUB_STEP_SUMMARY` set to a temp file.
 
 ### F9 — Purity and workflow gates rest on fragile checks
 
@@ -180,7 +180,7 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
   - Add an ESLint block for `scripts/ai-review/core.mjs` that sets the `fetch` and `process` globals to `off` and adds `no-restricted-imports` for `node:child_process`, `node:http(s)` and `node:fs`. Alternatively, have `core.test.ts` call `vi.stubGlobal("fetch", () => { throw … })` around every case.
   - List the grep as a heuristic.
   - For 2.5, make the assertion a test in `run.test.ts` that parses the YAML, or note that `yaml` is transitive.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — ESLint block for `scripts/ai-review/core.mjs` (`fetch`/`process` globals off, `no-restricted-imports` for `node:child_process`, `node:http(s)`, `node:fs`, plus dynamic `import()` banned); grep 1.5 stays a heuristic; 2.5 becomes `workflow.test.ts` with dependency-free text assertions.
 
 ### F10 — Prompt-injection leftovers: tag break-out, cross-references, backticks in paths
 
@@ -196,4 +196,4 @@ Progress and phases: consistent. 5 Phase 1 rows and 9 Phase 2 rows, numbered 1.1
   - Use a random per-run suffix on the data tag names (`<diff_ab12cd>`), or escape `</` inside the data.
   - Insert U+200B after `#` before a digit and in `owner/repo#` references in model text.
   - Escape backticks in rendered paths (or use a fenced block), and add a `renderComment` case with a path containing a backtick and an @mention.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator, 2026-10-27) — random per-run data-tag suffix, U+200B after `#` before digits (covers `owner/repo#N`), backtick-safe code spans for rendered paths, plus the `renderComment` case.

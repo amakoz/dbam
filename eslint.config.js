@@ -133,8 +133,51 @@ const e2eOracleConfig = defineConfig({
 const scriptsConfig = defineConfig({
   files: ["scripts/**/*.mjs"],
   extends: [tseslint.configs.disableTypeChecked],
-  languageOptions: { globals: { console: true, process: true, fetch: true, URL: true, URLSearchParams: true } },
+  languageOptions: {
+    globals: { console: true, process: true, fetch: true, URL: true, URLSearchParams: true, AbortSignal: true },
+  },
   rules: { "no-console": "off" },
+});
+
+// The AI review core is pure: it must not reach the network, the filesystem or processes (run.mjs does the I/O).
+const aiReviewCoreConfig = defineConfig({
+  files: ["scripts/ai-review/core.mjs"],
+  languageOptions: { globals: { fetch: "off", process: "off" } },
+  rules: {
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: [
+              "child_process",
+              "node:child_process",
+              "http",
+              "node:http",
+              "https",
+              "node:https",
+              "net",
+              "node:net",
+              "fs",
+              "node:fs",
+              "fs/promises",
+              "node:fs/promises",
+            ],
+            message: "scripts/ai-review/core.mjs is pure: do the I/O in run.mjs",
+          },
+        ],
+      },
+    ],
+    "no-restricted-syntax": [
+      "error",
+      { selector: "ImportExpression", message: "scripts/ai-review/core.mjs is pure: no dynamic import()" },
+    ],
+    // globalThis.fetch / globalThis.process would sidestep the "off" globals above.
+    "no-restricted-globals": [
+      "error",
+      { name: "globalThis", message: "scripts/ai-review/core.mjs is pure: no globalThis (fetch, process)" },
+    ],
+  },
 });
 
 export default defineConfig(
@@ -152,5 +195,6 @@ export default defineConfig(
   reminderClientConfig,
   e2eOracleConfig,
   scriptsConfig,
+  aiReviewCoreConfig,
   eslintPluginPrettier,
 );

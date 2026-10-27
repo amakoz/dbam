@@ -1,7 +1,7 @@
 ---
 change_id: ai-code-review
 title: Advisory AI code review job that comments and labels every PR to main
-status: implementing
+status: implemented
 created: 2026-10-27
 updated: 2026-10-27
 archived_at: null

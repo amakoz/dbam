@@ -300,13 +300,13 @@ Not applicable: no schema, no deploy change. Rollback = delete the workflow file
 
 #### Automated
 
-- [x] 2.1 Runner integration tests pass against the fake server
-- [x] 2.2 Full unit suite passes
-- [x] 2.3 Lint is clean
-- [x] 2.4 Type check is clean
-- [x] 2.5 The workflow parses and keeps its guarantees
-- [x] 2.6 ci.yml is unchanged
-- [x] 2.10 Deliberate break turns the runner sentinel and no-label-on-unavailable cases red; reverted and recorded (red: 2 tests when planFiles was skipped, 9 when a label was added on unavailable; both reverted via git checkout)
+- [x] 2.1 Runner integration tests pass against the fake server — f31f43e
+- [x] 2.2 Full unit suite passes — f31f43e
+- [x] 2.3 Lint is clean — f31f43e
+- [x] 2.4 Type check is clean — f31f43e
+- [x] 2.5 The workflow parses and keeps its guarantees — f31f43e
+- [x] 2.6 ci.yml is unchanged — f31f43e
+- [x] 2.10 Deliberate break turns the runner sentinel and no-label-on-unavailable cases red; reverted and recorded (red: 2 tests when planFiles was skipped, 9 when a label was added on unavailable; both reverted via git checkout) — f31f43e
 
 #### Manual
 

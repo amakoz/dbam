@@ -333,11 +333,11 @@ None: no schema or data changes. Rollback is reverting the workflow steps.
 
 #### Automated
 
-- [ ] 3.1 `isolation.spec.ts` is green under the DB lock
-- [ ] 3.2 Deliberate break (B's checks in A's session) turns it red, then green again
-- [ ] 3.3 Full suite `npm run test:e2e` is green under the DB lock
-- [ ] 3.4 `npm run lint` and `npx astro check` pass
-- [ ] 3.5 Spec asserts B sees mammography and colonoscopy as tier rows
+- [x] 3.1 `isolation.spec.ts` is green under the DB lock
+- [x] 3.2 Deliberate break (B's checks in A's session) turns it red, then green again
+- [x] 3.3 Full suite `npm run test:e2e` is green under the DB lock
+- [x] 3.4 `npm run lint` and `npx astro check` pass
+- [x] 3.5 Spec asserts B sees mammography and colonoscopy as tier rows
 
 ### Phase 4: CI wiring and docs
 

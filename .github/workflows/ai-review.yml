@@ -1,0 +1,51 @@
+name: AI review
+
+# Advisory only: this job is NOT a required check (branch protection requires `ci` and `smoke` only) and must never be
+# added to them. A provider outage, rate limit or unparseable answer is reported in the PR comment and leaves the job
+# green; only a broken GitHub call (permissions, token) turns it red.
+#
+# Fork PRs: scripts/ai-review/run.mjs skips them as a convenience. The security boundary is GitHub's fork policy for
+# the `pull_request` event (no secrets, read-only token, approval for first-time contributors); never switch this
+# workflow to `pull_request_target`.
+#
+# Untrusted PR text (title, body) is never interpolated into a `run:` step: the runner reads it from the event file.
+# If a real run answers 403 on creating the labels, add `issues: write` to the job permissions and record why in
+# context/changes/ai-code-review/decisions.md.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions: {}
+
+jobs:
+  ai-review:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    concurrency:
+      group: ai-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    env:
+      # Free OpenRouter model, then OpenRouter's free router as fallback.
+      # Gemini switch: set AI_REVIEW_BASE_URL to https://generativelanguage.googleapis.com/v1beta/openai, AI_REVIEW_MODEL
+      # to a Gemini model id, AI_REVIEW_FALLBACK_MODELS to an empty string, and point the key secret below at a Gemini key.
+      AI_REVIEW_MODEL: poolside/laguna-s-2.1:free
+      AI_REVIEW_FALLBACK_MODELS: openrouter/free
+      AI_REVIEW_BASE_URL: https://openrouter.ai/api/v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/ai-review/run.mjs
+        env:
+          AI_REVIEW_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}

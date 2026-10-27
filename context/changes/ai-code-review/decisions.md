@@ -81,3 +81,11 @@
   - F10: random per-run nonce on data-tag names, U+200B after `#` before digits (covers `owner/repo#N`), backtick-safe code spans for paths, plus the `renderComment` case.
 - Evidence: `context/changes/ai-code-review/plan-review.md`.
 - Decided-by: orchestrator (fix details marked "worker detail" decided by worker)
+
+## 2026-10-27 Implementation details (worker)
+
+- `@mention` neutralising skips an `@` preceded by a letter, digit or `_` (email-like `a@b.pl` stays readable, as the plan's unit case requires); every mention GitHub would link (start of text, after space, bracket, backtick, `/`) gets the U+200B.
+- The runner prints and appends the rendered review to the log and step summary before it calls GitHub, so a failing comment or label call still leaves the review visible in the job.
+- A diff with no reviewable file left (everything excluded, binary or empty) skips the provider call (it would spend the 50/day budget on nothing) and posts `review unavailable: no reviewable files in this diff`; labels unchanged, exit 0. Covered by a runner test.
+- The runner test spawns `node run.mjs` asynchronously (the fake server lives in the test process) and casts its minimal env to `NodeJS.ProcessEnv`, which the project augments with required keys.
+- Decided-by: worker

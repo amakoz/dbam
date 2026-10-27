@@ -289,24 +289,24 @@ Not applicable: no schema, no deploy change. Rollback = delete the workflow file
 
 #### Automated
 
-- [x] 1.1 Core unit tests pass, including the privacy-guard case
-- [x] 1.2 Full unit suite still passes
-- [x] 1.3 Lint is clean
-- [x] 1.4 Type check is clean
-- [x] 1.5 The core module imports nothing but node: built-ins
-- [x] 1.6 Deliberate break turns the privacy-guard, excludeReason and verdict(7) tests red; reverted and recorded (red: 6 tests with the .env rule dropped, 1 with `> 7`; both reverted via git checkout)
+- [x] 1.1 Core unit tests pass, including the privacy-guard case — d26b850
+- [x] 1.2 Full unit suite still passes — d26b850
+- [x] 1.3 Lint is clean — d26b850
+- [x] 1.4 Type check is clean — d26b850
+- [x] 1.5 The core module imports nothing but node: built-ins — d26b850
+- [x] 1.6 Deliberate break turns the privacy-guard, excludeReason and verdict(7) tests red; reverted and recorded (red: 6 tests with the .env rule dropped, 1 with `> 7`; both reverted via git checkout) — d26b850
 
 ### Phase 2: Runner, workflow and docs
 
 #### Automated
 
-- [ ] 2.1 Runner integration tests pass against the fake server
-- [ ] 2.2 Full unit suite passes
-- [ ] 2.3 Lint is clean
-- [ ] 2.4 Type check is clean
-- [ ] 2.5 The workflow parses and keeps its guarantees
-- [ ] 2.6 ci.yml is unchanged
-- [ ] 2.10 Deliberate break turns the runner sentinel and no-label-on-unavailable cases red; reverted and recorded
+- [x] 2.1 Runner integration tests pass against the fake server
+- [x] 2.2 Full unit suite passes
+- [x] 2.3 Lint is clean
+- [x] 2.4 Type check is clean
+- [x] 2.5 The workflow parses and keeps its guarantees
+- [x] 2.6 ci.yml is unchanged
+- [x] 2.10 Deliberate break turns the runner sentinel and no-label-on-unavailable cases red; reverted and recorded (red: 2 tests when planFiles was skipped, 9 when a label was added on unavailable; both reverted via git checkout)
 
 #### Manual
 

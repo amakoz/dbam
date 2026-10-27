@@ -71,3 +71,16 @@
 - Question: how to number the split builder phase so Progress stays parseable (`<phase>.<index>` rows, `### Phase N:` headings).
 - Choice: Phase 7 "Extract the appointment builder (7a)" and Phase 8 "Extract the due-screening builder (7b)"; the old final production row 7.4 becomes 8.5, the old CPU row 7.5 moves to phase 6 (6.7). Phase 1 keeps 1.1–1.5 and appends 1.6–1.12.
 - decided-by: worker
+
+## 2026-10-27 Plan re-check nits (plan-review.md "Re-check", APPROVED)
+
+- Question: apply the two optional residual nits R1 and R2?
+- Choice: both applied. R1: the Migration Notes revert procedure names the two one-line conflicts (the `eslint.config.js` allow-list hunk when reverting phase 4 or 5 after phase 6; the `follow-up-nudge.ts:1` import when reverting phase 2 after phase 5) and how to resolve them. R2: the phase 4 `SITE` check also greps for the URL in the chunk holding `reminderDeps`.
+- Evidence: `plan-review.md` Re-check (R1 verified in a scratch repo by the reviewer).
+- decided-by: orchestrator
+
+## 2026-10-27 Archive with all Progress rows open
+
+- Question: archive while every Progress row in `plan.md` is unchecked?
+- Choice: yes. Implementation is parked by the roadmap; M-02 delivers the plan only (F-13, PRD MS-05). Every row stays open on purpose for whoever implements the plan later.
+- decided-by: orchestrator

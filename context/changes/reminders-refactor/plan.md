@@ -421,7 +421,8 @@ The first job moves onto the runner. It is the simplest, with one select step an
 **Contract**: After `npm run build`, over the whole server output under `dist/`:
 
 - `https://dbam.amadeuszkozlowski.workers.dev` is present;
-- `import.meta.env.SITE` is absent.
+- `import.meta.env.SITE` is absent;
+- the URL is present in the chunk that holds `reminderDeps` (found by grepping `dist/` for `dbam-appointment-reminder` or the `reminderDeps` body). Astro inlines the URL into many chunks, so the whole-output presence check alone is always true (plan re-check R2).
 
 The result must equal the phase 1 baseline. If it differs, stop the phase: do not ship it, and record a decision in `decisions.md` before continuing.
 
@@ -679,7 +680,9 @@ There is no data or schema migration. Every phase is TypeScript only.
 **Procedure when a deployed phase misbehaves:**
 
 1. `wrangler rollback` the Worker to the previous version.
-2. Before the next merge to `main`, open a git revert PR of that phase. Otherwise the next deploy ships the bad code again.
+2. Before the next merge to `main`, open a git revert PR of that phase. Otherwise the next deploy ships the bad code again. Two reverts stop on a one-line conflict even though the reverted code is sound (plan re-check R1). Resolve each by hand:
+   - reverting phase 4 or 5 after phase 6 conflicts on the adjacent job lines of the `eslint.config.js` allow-list hunk: re-add only that job's entry;
+   - reverting phase 2 after phase 5 conflicts on the `follow-up-nudge.ts:1` import: restore only that import.
 
 **A Worker rollback has limits:**
 

@@ -188,3 +188,33 @@ Checked against the code:
   - Have `record()` keep non-JSON lines raw and include them in the privacy check.
   - Name `import type { ReminderRun } from "@/lib/reminders/chain"` in the runner contract.
 - **Decision**: ACCEPTED (orchestrator): criterion 1.1 reworded to "no other src file changed"; `record()` keeps non-JSON lines raw and includes them in the privacy check; runner contract imports `ReminderRun` from `chain`.
+
+## Re-check
+
+- **Date**: 2026-10-27
+- **Plan**: `plan.md` at `1efed5c`
+- **Scope**: whether each accepted decision is resolved in `plan.md`. This is not a new review.
+
+| Finding | Verdict  | Reason                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1      | Resolved | `deps.ts` is now in phase 3, phases 4/5/6 each remove only their own allow-list line, and the builders are split into phases 7 and 8 with the revert order stated. Migration Notes require one PR per phase from phase 3 on and spell out the rollback procedure (`wrangler rollback`, then a revert PR) and its limits (per deploy, code only, not sticky). Residual nit R1 below.       |
+| F2      | Resolved | Phase 1 has a 7-row break matrix (rows 1.4 and 1.6–1.11). Every later phase has its own break row: 2.4, 3.4, 4.5, 5.4, 6.5, 7.4 and 8.4. From phase 4 on, each break must fail both `runner.test.ts` and the migrated job's test files.                                                                                                                                                   |
+| F3      | Resolved | I15 is defined. `result` is asserted with `toEqual` on every non-throwing row. Due and nudge get a row for a budget of 0 with the client throwing. The config-error and gate-error rows assert `toBe`. A throwing gate is now tested through a `@/lib/schedule` mock. The runner's step list says `scheduledAt` is computed outside the `try` and that the `try` starts at the send gate. |
+| F4      | Resolved | Phases 4, 5 and 6 each have a Manual production check (4.6, 5.5, 6.6), and each check gates the next phase. The CPU check moved to phase 6 (6.7). The final all-jobs check is 8.5.                                                                                                                                                                                                        |
+| F5      | Resolved | Phase 1 §4 and row 1.12 record the `SITE` baseline. Phase 4 compares the whole server output against it. Residual nit R2 below.                                                                                                                                                                                                                                                           |
+| F6      | Resolved | Phase 2's Overview now states the reason honestly, and that the runner does not depend on this phase.                                                                                                                                                                                                                                                                                     |
+| F7      | Resolved | Row 1.1 is reworded. `record()` keeps lines that are not JSON as raw text, and the privacy check covers them. The runner contract imports `ReminderRun` from `chain`.                                                                                                                                                                                                                     |
+
+Residual nits (low impact, not blocking):
+
+- **R1: `git revert` will stop on a merge conflict, though the reverted code is sound.** Verified in a scratch repo.
+  - The three job entries are adjacent lines in `eslint.config.js:84-86`. Once phase 6 has landed, a plain `git revert` of phase 4 or phase 5 conflicts on that hunk.
+  - Phase 2 also edits the import on `follow-up-nudge.ts:1`, and phase 5 rewrites it. So reverting phase 2 after phase 5 conflicts too, although Migration Notes say phase 2 "reverts on its own".
+  - Both conflicts take one line to resolve: re-add only that job's entry, or restore only that import.
+  - Fix: one sentence in the Migration Notes revert procedure.
+- **R2: the "URL present" half of the `SITE` check is always true.**
+  - Astro inlines the site URL into many server chunks. The main checkout's `dist/server` has it in `entry.mjs` and in page chunks.
+  - So the evidence comes from the "`import.meta.env.SITE` absent" half. Matching the phase 1 baseline still catches a change.
+  - Optional fix: also grep for the URL in the chunk that holds `reminderDeps`.
+
+**Overall: APPROVED.** All seven decisions are carried into `plan.md`. The two residual nits are optional one-line clarifications.

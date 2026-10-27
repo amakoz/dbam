@@ -51,7 +51,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- | -------- | -------- |
 | F-10 | test-plan           | (foundation) a test plan ranks the top business risks and maps each to test layers and quality gates                      | —                      | MS-01    | done     |
 | S-08 | e2e-core-loop       | the sign-up → onboarding → due list → plan → confirm path is exercised in a real browser in CI, guarding a test-plan risk | F-10                   | MS-02    | done     |
-| S-09 | ai-code-review      | every pull request to `main` gets an AI review comment from a visible CI job, at no model cost                            | —                      | MS-08    | ready    |
+| S-09 | ai-code-review      | every pull request to `main` gets an AI review comment from a visible CI job, at no model cost                            | —                      | MS-08    | done     |
 | F-11 | repo-map            | (foundation) a repository map shows capabilities, hot areas, structure, risk zones and unknowns                           | —                      | MS-03    | done     |
 | F-12 | reminders-research  | (foundation) the reminder pipeline is researched end to end with the map as input, with a verified technical-debt section | F-11                   | MS-04    | done     |
 | F-13 | reminders-refactor  | (foundation) a guard-first, phased refactoring plan exists for one reminder-pipeline debt item                            | F-12                   | MS-05    | done     |
@@ -193,7 +193,7 @@ Items below assume these are present and do NOT re-scaffold them.
   - Resolved (2026-10-27): GitHub Models (free through the workflow token) was retired on 2026-07-30, and CodeRabbit runs outside CI, so it shows no pipeline job. Default: a no-cost model through OpenRouter (`:free` variants: 20 requests/min, 50/day without purchased credits, enough for one review per PR). The model is a job input, so a Gemini free-tier key is a drop-in fallback.
   - Is the review a merge gate or advisory? Default: advisory label only, because free models are rate-limited and can be unavailable, and a provider outage must not block a release. — Owner: user. Block: no.
 - **Risk:** Free providers may log prompts. The repo is public, so the diff is already public; the job must still never send secrets, `.env` files or generated files. Fork PRs get no secrets, so the job skips them cleanly instead of failing.
-- **Status:** ready
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -256,3 +256,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **F-12: (foundation) the reminder pipeline (scheduled run → candidate selection → send chain → email, across appointment reminders, due-screening reminders and nudges) is traced end to end with the map as input, with test-coverage gaps, blast radius and a technical-debt section whose structural claims are confirmed or refuted by AST queries.** — Archived 2026-10-27 → `context/archive/2026-10-27-reminders-research/`. Lesson: —.
 - **F-13: (foundation) one debt item from F-12 is explored through three read-only lenses (current shape, decision history, migration feasibility), the options are ranked and verified, and the chosen option becomes a guard-first, phased, independently reversible plan with characterization tests as the safety harness.** — Archived 2026-10-27 → `context/archive/2026-10-27-reminders-refactor/`. Lesson: —.
 - **F-14: (foundation) `context/domain/` holds a domain map (ubiquitous language with sources in docs and code, subdomains classified as core / supporting / generic, aggregate candidates and their invariants with enforcement status, model-vs-code drift, a ranked fix list) and a compact glossary for agents.** — Archived 2026-10-27 → `context/archive/2026-10-27-domain-distillation/`. Lesson: —.
+- **S-09: every pull request to `main` triggers a visible CI job that sends the PR title, body and diff to a review agent, which posts a scored review comment on the PR (and an `ai-cr:passed` / `ai-cr:failed` label). The job logs show the review, and the model provider costs nothing.** — Archived 2026-10-27 → `context/archive/2026-10-27-ai-code-review/`. Lesson: —.

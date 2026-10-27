@@ -48,3 +48,11 @@
 
 - Choice: `roadmap.md` is left unchanged, as the orchestrator instructed. `/10x-archive` flips F-11 later.
 - Decided-by: orchestrator.
+
+## 2026-10-27 Skipped stages
+
+- Question: does this change go through plan, plan-review and impl-review?
+- Options: (a) run the full 10x chain; (b) skip plan, plan-review and impl-review.
+- Choice: (b). `/10x-repo-map` is a one-shot analysis skill with no implementation. The orchestrator checked `context/map/repo-map.md` against the F-11 outcome — the five named capabilities ranked, risk zones, first-day list, and unknowns including the single-owner gap — and accepted it.
+- Evidence: `context/map/repo-map.md`; roadmap F-11 outcome.
+- Decided-by: orchestrator.

@@ -89,3 +89,9 @@
 - A diff with no reviewable file left (everything excluded, binary or empty) skips the provider call (it would spend the 50/day budget on nothing) and posts `review unavailable: no reviewable files in this diff`; labels unchanged, exit 0. Covered by a runner test.
 - The runner test spawns `node run.mjs` asynchronously (the fake server lives in the test process) and casts its minimal env to `NodeJS.ProcessEnv`, which the project augments with required keys.
 - Decided-by: worker
+
+## 2026-10-27 Implementation review scope
+
+- Question: how to run /10x-impl-review for this change?
+- Choice: full plan (phases 1, 2), review done inline without sub-agents (6 code files, all read in full), report at `context/changes/ai-code-review/impl-review.md` as the orchestrator asked, every finding left `PENDING`. Rows 2.7–2.9 stay open on purpose (they need the real provider on the PR run). Deliberate breaks for the `.env` rule and the `>= 7` threshold were re-run during the review (8 and 1 red tests) and reverted with `git checkout`. Verdict APPROVED: 1 warning (no-leak test misses two output paths), 5 observations.
+- Decided-by: orchestrator (path, no triage, 2.7–2.9 open), worker (inline review, re-run breaks)

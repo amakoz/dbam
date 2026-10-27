@@ -1,10 +1,10 @@
 ---
 change_id: repo-map
 title: Repository map by business capability, ranked by criticality and change activity
-status: new
+status: archived
 created: 2026-10-27
 updated: 2026-10-27
-archived_at: null
+archived_at: 2026-10-27T19:19:08Z
 ---
 
 ## Notes

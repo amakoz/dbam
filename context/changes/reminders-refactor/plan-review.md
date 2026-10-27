@@ -5,7 +5,7 @@
 - **Plan**: `context/changes/reminders-refactor/plan.md`
 - **Mode**: Deep
 - **Date**: 2026-10-27
-- **Verdict**: REVISE
+- **Verdict**: REVISE → all findings decided and applied to plan.md (2026-10-27)
 - **Findings**: 2 critical, 2 warnings, 3 observations
 
 ## Verdicts
@@ -72,7 +72,7 @@ Checked against the code:
   - Tradeoff: It gives up the per-job rollback that motivated splitting phases 4–6, and one bad job rolls back all three.
   - Confidence: HIGH — accurate as written.
   - Blind spot: A bigger single deploy to watch.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — Fix A (orchestrator): `deps.ts` moved to phase 3 (no consumer); phases 4/5/6 each remove only their own allow-list line; builders split into phase 7 (7a) and phase 8 (7b) with "revert 7a before 4, 7b before 6"; Migration Notes state one PR per phase from phase 3, `wrangler rollback` then a revert PR, and that data is not undone.
 
 ### F2 — Only phase 1 has a deliberate-break check, and it covers one property
 
@@ -111,7 +111,7 @@ Checked against the code:
   - Tradeoff: About 10 minutes of throwaway edits per phase.
   - Confidence: HIGH — `/10x-goal-implement` already runs a deliberate-break gate per phase, so this aligns with the toolchain.
   - Blind spot: None significant.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator): phase 1 break matrix (7 invariant classes, each reverted) plus one deliberate-break row in every later phase.
 
 ### F3 — The invariants don't pin the returned `sent`, the budget-0 config error or error identity
 
@@ -133,7 +133,7 @@ Checked against the code:
   - Assert `toBe` in the config-error rows.
   - Add a `vi.mock("@/lib/schedule")` throwing-gate row → one `failed` line.
   - State in the runner step list that the `try` wraps step 1 and `scheduledAt` is computed outside it.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator): I15 added; `result` `toEqual` in every non-throwing row; budget-0 config-error rows for due and nudge; `toBe` for error identity; throwing-gate row; the runner step list says `scheduledAt` is outside the `try`, which starts at the send gate, and the catch rethrows the same object.
 
 ### F4 — Production is checked only after the whole stack ships
 
@@ -146,7 +146,7 @@ Checked against the code:
   The CI dry-run step asserts only `"outcome":"ok"` and never reaches mark (`ci.yml:72-87`, dry run marks nothing). So a phase 4 deploy would get no production confirmation for up to three later phases. If F1 Fix A is adopted, the next phase would be stacked on an unobserved one.
 
 - **Fix**: Add a Manual row to each of phases 4, 5 and 6: "the next 10:00 Warsaw run's `<event>` line has the same fields as the pre-deploy run, with no `error` line". Gate the next job phase on it. Keep the CPU row in phase 6, where the due job moves, and leave 7.4 as the final check.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator): Manual production row in phases 4, 5 and 6 gating the next job phase; CPU row in phase 6; the final all-jobs check stays last (now 8.5, after the 7a/7b split).
 
 ### F5 — The `SITE` build check has no baseline and a fragile locator
 
@@ -158,7 +158,7 @@ Checked against the code:
 - **Fix**:
   - Run the same check on today's build in phase 1 and record the result in `decisions.md` as the baseline.
   - In phase 4, assert on the whole server output (`grep -rl` for the URL present and for `import.meta.env.SITE` absent) instead of "the same module".
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator): phase 1 records the `SITE` baseline on today's build in `decisions.md`; phase 4 checks the whole server output against it.
 
 ### F6 — Phase 2's rationale doesn't survive the spec-location decision
 
@@ -171,7 +171,7 @@ Checked against the code:
   - The runner never needs the constant. It takes only types from `email`, which are erased.
   - The end state is reachable without phase 2.
 - **Fix**: Either drop phase 2, or restate its purpose honestly: "keeps the nudge spec's value import off `email.ts`, so a later spec split stays mock-free". Phase 2 is cheap and harmless, so keeping it with the honest reason is fine.
-- **Decision**: PENDING
+- **Decision**: KEEP phase 2 (orchestrator), with the honest reason from the finding stated in its Overview.
 
 ### F7 — Small inaccuracies in criteria and contracts
 
@@ -187,4 +187,4 @@ Checked against the code:
   - Reword 1.1 to "no file under `src/` changes other than the 4 new test files".
   - Have `record()` keep non-JSON lines raw and include them in the privacy check.
   - Name `import type { ReminderRun } from "@/lib/reminders/chain"` in the runner contract.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (orchestrator): criterion 1.1 reworded to "no other src file changed"; `record()` keeps non-JSON lines raw and includes them in the privacy check; runner contract imports `ReminderRun` from `chain`.

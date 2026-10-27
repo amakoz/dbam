@@ -58,3 +58,16 @@
 - Question: /10x-plan's roadmap sync would flip F-13 to `planning`.
 - Choice: skipped — worker protocol forbids roadmap status changes during plan; the orchestrator parks implementation.
 - decided-by: orchestrator
+
+## 2026-10-27 Plan-review triage (plan-review.md F1–F7)
+
+- Question: how to resolve the seven plan-review findings.
+- Choice: F1 Fix A (deps.ts in phase 3, per-job allow-list lines, builders split 7a/7b, rollback unit and data caveat in Migration Notes); F2 break matrix in phase 1 plus a deliberate break per later phase; F3 I15, result `toEqual`, budget-0 config-error rows, `toBe`, throwing-gate row, `try` placement stated; F4 production Manual row per job phase gating the next, CPU row in phase 6, final check last; F5 SITE baseline in phase 1 and whole-output check in phase 4; F6 keep phase 2 with the honest reason; F7 all three corrections.
+- Evidence: `plan-review.md`.
+- decided-by: orchestrator
+
+## 2026-10-27 Numbering of the 7a/7b split
+
+- Question: how to number the split builder phase so Progress stays parseable (`<phase>.<index>` rows, `### Phase N:` headings).
+- Choice: Phase 7 "Extract the appointment builder (7a)" and Phase 8 "Extract the due-screening builder (7b)"; the old final production row 7.4 becomes 8.5, the old CPU row 7.5 moves to phase 6 (6.7). Phase 1 keeps 1.1–1.5 and appends 1.6–1.12.
+- decided-by: worker

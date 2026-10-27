@@ -99,3 +99,11 @@
 - **Note:** Progress rows 1.4, 2.2, 2.4, 3.5 and 4.4 were retitled and 3.5 moved to Automated before any execution (no row was checked), so the immutable-title rule is not broken in substance.
 - **Evidence:** `context/changes/e2e-core-loop/plan-review.md`.
 - **Decided by:** orchestrator
+
+## 2026-10-27 Implementation notes
+
+- **Seed stays self-contained:** `seed.spec.ts` keeps its own sign-up steps as the readable exemplar, while `support/core-loop.ts` holds the same steps for the risk specs. Decided by: worker.
+- **Phase 2 break:** `nextDueMonth` changed to `interval.months - 12` turned `core-loop.spec.ts` red on "Następne badanie" (got `październik 2027`, expected `październik 2028`) from a cold server; reverted with `git checkout`, rebuilt cold run green. Never committed. Decided by: worker (plan F2).
+- **Phase 3 break:** B's assertions run in A's session turned `isolation.spec.ts` red (B's tier rows missing in A's session); temporary spec file deleted. Decided by: worker (plan F2).
+- **CI-shaped local run:** `CI=1 BASE_URL=http://127.0.0.1:$DBAM_PORT npm run test:e2e` against a hand-started preview passed 3/3, which covers the `BASE_URL` (no `webServer`) path the `smoke` job uses. Decided by: worker.
+- **Not done here:** the PR was not opened, so 4.3 (the `smoke` job runs e2e), 4.4 (measured minutes) and 4.5 (report artifact upload) stay open for the PR stage. Decided by: worker.

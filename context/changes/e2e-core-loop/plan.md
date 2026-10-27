@@ -343,8 +343,8 @@ None: no schema or data changes. Rollback is reverting the workflow steps.
 
 #### Automated
 
-- [ ] 4.1 Workflow YAML is valid
-- [ ] 4.2 Prettier check passes on the edited docs
+- [x] 4.1 Workflow YAML is valid
+- [x] 4.2 Prettier check passes on the edited docs
 - [ ] 4.3 PR `smoke` job runs the e2e step and it passes
 
 #### Manual

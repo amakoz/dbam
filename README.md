@@ -56,6 +56,7 @@ npm run dev
 - `npm run lint:fix` - Auto-fix ESLint issues
 - `npm run format` - Run Prettier
 - `npm run smoke` - Smoke test the auth flow against a running server (`BASE_URL`, defaults to `http://localhost:4321`)
+- `npm run test:e2e` - Run the Playwright browser suite against a local build and local Supabase (see [Browser E2E](#browser-e2e))
 - `npm test` - Run the Vitest unit tests (colocated `src/**/*.test.ts`) once
 - `npm run ui:check` - Fail on hardcoded colours and arbitrary values in the views migrated to the design system (see [Design system](#design-system))
 - `npm run ui:shots` - Save light/dark screenshots of the key views at 1440px and 390px from a running dev server (see [UI screenshots](#ui-screenshots))
@@ -403,6 +404,22 @@ SMOKE_READONLY=1 BASE_URL=https://dbam.amadeuszkozlowski.workers.dev npm run smo
 
 > **Note:** this script is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter, the Supabase auth flow or the main user flows. It is **not** a substitute for a real test suite: the catalog and screening recurrence rules are covered by the Vitest unit tests (`npm test`), and the database access rules are covered separately by the pgTAP tests (`npx supabase test db`).
 
+## Browser E2E
+
+`tests/e2e/` holds a Playwright Test suite (Chromium) that drives the rendered app: the seed (sign-up reaches the consent step), the core loop (sign-up → consent → profile → plan for today → confirm → next due date from the catalog) and two-user isolation. It runs against a production build and a local Supabase, never against production.
+
+```bash
+npx playwright install chromium --only-shell   # once; never installed by an npm lifecycle script
+npm run test:e2e                               # builds, starts the preview on $E2E_PORT / $DBAM_PORT, runs the specs
+BASE_URL=http://localhost:4321 npm run test:e2e   # against a server that is already running
+```
+
+- Port: `E2E_PORT`, else `DBAM_PORT`, else 4321. A set `BASE_URL` skips the build and the server start. `reuseExistingServer` is on outside CI, so stop a stale preview first or the run tests its old build.
+- Guards, at config load: `BASE_URL` and every `SUPABASE_URL` it can see (the environment and the `.dev.vars*`/`.env*` files at the repo root, except `.env.example`) must be `localhost`/`127.0.0.1`, a `SUPABASE_URL` must exist, and worker sessions (`DBAM_CHANGE` set) refuse port 4321.
+- Each test signs up a fresh `e2e-<uuid>@example.com` user in the local Supabase and leaves it there. Worker sessions take the shared DB lock around a run, as for smoke.
+- Specs read expected values from `catalog/entries/*.json` and must not import production code (ESLint `no-restricted-imports` on `tests/e2e/**`).
+- CI runs it in the `smoke` job after the scheduled-handler check, against the same Supabase and the preview on 4321. A failing run uploads `playwright-report/` and `test-results/` (traces) for 7 days. Locally these folders are gitignored.
+
 ## UI screenshots
 
 `scripts/ui-shots.mjs` drives headless Chromium (Playwright, a dev dependency) so a UI change can be looked at without a human at the screen. It signs up and onboards a throwaway fixture user through the app's own endpoints, then saves full-page screenshots of onboarding (consent and profile steps), the dashboard, the profile page and the kitchen sink, each in light and dark at 1440px (desktop) and 390px (mobile): 20 PNGs.
@@ -445,6 +462,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every PR and push to `main`,
 - **ci** — `catalog:check`, lint, `ui:check`, unit tests (`npm test`), `astro check` and build. No secrets needed: Supabase secrets are read at runtime, not at build time.
 - **smoke** — starts a local Supabase via the Supabase CLI (applying `supabase/migrations/`), runs the pgTAP tests (`supabase test db`), builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
   It then calls the scheduled handler (`/cdn-cgi/local/scheduled`) for every cron in the built `dist/server/wrangler.json` with `EMAIL_DRY_RUN=true` and fails unless each run returns `"outcome":"ok"`, so a `wrangler.jsonc` cron that `src/lib/heartbeat.ts` doesn't handle fails the PR (see [Scheduled jobs](#scheduled-jobs)). The daily run also exercises the reminder jobs' real database calls (the appointment claim, the due-screening candidates query and the nudge claim) against the local Supabase with its `SECRET_KEY`, so broken wiring or a wrong grant fails the PR too.
+  Last it runs the browser E2E suite (`npm run test:e2e`, see [Browser E2E](#browser-e2e)) against the same preview, with the Chromium build cached by Playwright version.
 - **migrate** — `main` only, after `ci` + `smoke` pass: `supabase db push --db-url` against production, using the `production` environment's `SUPABASE_DB_URL` secret (session-pooler connection string, password percent-encoded).
 - **deploy** — `main` only, after `ci` + `smoke` + `migrate` pass: `wrangler deploy` to Cloudflare Workers with the `production` environment's scoped token, then a health check (`GET /api/health`: 200 `{"status":"ok"}`, or 503 `{"status":"misconfigured"}` when the Supabase secrets are missing) and the read-only smoke test against production (retried up to 3 times, 20 s apart, because a new Worker version takes up to a minute to reach every edge location).
 

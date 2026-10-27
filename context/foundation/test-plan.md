@@ -83,14 +83,14 @@ of assuming access.
 
 Test-base profile: **meaningful** — Vitest configured with 14 colocated test files (catalog rules, screening rules, reminders, email, observability), 7 pgTAP files for access rules, and a dependency-free HTTP smoke run of the main flows; no browser-level assertions.
 
-| Layer                 | Tool                                                                          | Version | Notes                                                                         |
-| --------------------- | ----------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------- |
-| unit                  | Vitest                                                                        | ^5.0.3  | Colocated `*.test.ts`, `npm test`, CI `ci` job.                               |
-| database access rules | pgTAP via Supabase CLI                                                        | 2.118.0 | `npx supabase test db`, CI `smoke` job, local Supabase.                       |
-| HTTP smoke            | `scripts/smoke.mjs` (no dependencies)                                         | n/a     | Full run local only; production only with `SMOKE_READONLY=1`.                 |
-| e2e                   | none yet — see Phase 1 (Playwright ^1.63.0 is installed for screenshots only) | ^1.63.0 | Must refuse a non-local base URL, like the smoke run.                         |
-| visual                | `npm run ui:shots` + `npm run ui:check`                                       | n/a     | Screenshots for human/agent review and a token check; no pixel diff (see §7). |
-| (optional) AI-native  | Playwright MCP — checked: 2026-10-27                                          | n/a     | For exploring the running app while writing e2e tests; not a CI layer.        |
+| Layer                 | Tool                                           | Version | Notes                                                                         |
+| --------------------- | ---------------------------------------------- | ------- | ----------------------------------------------------------------------------- |
+| unit                  | Vitest                                         | ^5.0.3  | Colocated `*.test.ts`, `npm test`, CI `ci` job.                               |
+| database access rules | pgTAP via Supabase CLI                         | 2.118.0 | `npx supabase test db`, CI `smoke` job, local Supabase.                       |
+| HTTP smoke            | `scripts/smoke.mjs` (no dependencies)          | n/a     | Full run local only; production only with `SMOKE_READONLY=1`.                 |
+| e2e                   | Playwright Test (`npm run test:e2e`), Chromium | 1.63.0  | Refuses a non-local base URL or Supabase URL, like the smoke run.             |
+| visual                | `npm run ui:shots` + `npm run ui:check`        | n/a     | Screenshots for human/agent review and a token check; no pixel diff (see §7). |
+| (optional) AI-native  | Playwright MCP — checked: 2026-10-27           | n/a     | For exploring the running app while writing e2e tests; not a CI layer.        |
 
 **Stack grounding tools (current session):**
 
@@ -139,7 +139,11 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.3 Adding an e2e test
 
-- TBD — see §3 Phase 1 (core-loop completion and second-user isolation pattern).
+- **Where:** `tests/e2e/*.spec.ts`, shared UI steps and the oracle in `tests/e2e/support/core-loop.ts`, config `playwright.config.ts`, setup record `context/foundation/test-stack.md`.
+- **Pattern:** a fresh user per test (sign up through the form, `e2e-<uuid>@example.com`); steps drive the UI only, no HTTP posts or Supabase client; wait for `astro-island[ssr]` to disappear before typing into an island form; role/label locators scoped to the dashboard section or the row `#screening-<slug>`; assert what the user sees plus the row's `data-*` contract; no sleeps. The oracle reads `catalog/entries/<slug>.json` and computes dates by hand, so specs never import production code (ESLint `no-restricted-imports` on `tests/e2e/**` and `playwright.config.ts`, enforced by `npm run lint` in CI). Name a `test.extend` callback parameter anything but `use` (`react-hooks/rules-of-hooks` applies to every `.ts` file).
+- **Reference spec:** `tests/e2e/core-loop.spec.ts` (risks #2, #4); `tests/e2e/isolation.spec.ts` for two browser contexts (risk #1).
+- **Run:** `npm run test:e2e` (or `-- tests/e2e/<name>.spec.ts`); local worker sessions take the shared DB lock and use `$DBAM_PORT`. Prove a new spec by a deliberate break: from a cold server so `webServer` rebuilds, never commit the break.
+- **CI:** the `smoke` job runs it after the scheduled-handler dry run, with one retry. A `flaky` line in the Playwright log marks a test that failed and then passed on retry: treat it as a failure to investigate.
 
 ### 6.4 Adding a test for reminder recipient rules
 
@@ -152,6 +156,8 @@ the relevant rollout phase ships; before that, the sub-section reads
 ### 6.6 Per-rollout-phase notes
 
 (Appended by each rollout phase's final sub-phase.)
+
+**Phase 1 (`e2e-core-loop`):** follow-ups left out on purpose: rescheduling a plan via "Zmień termin", and month-end and leap-day next-due cases through the UI (the UI can only plan and confirm "today"; unit tests in `src/lib/screenings/` own them). The suite shares the `smoke` job; split it into its own required job (a branch-protection change, an owner setting) if it adds more than about 4 minutes there.
 
 ## 7. What We Deliberately Don't Test
 

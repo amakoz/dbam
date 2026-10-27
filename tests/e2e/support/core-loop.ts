@@ -49,9 +49,12 @@ export function warsawToday(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date());
 }
 
-/** A birth year that keeps a woman eligible for mammography (45–74): 50 now, `offset` years older. */
+/**
+ * A birth year that keeps a woman eligible for mammography (45–74) and colonoscopy (50–65): 51 now, `offset` years
+ * older. 51 stays off colonoscopy's lower bound, which the server's UTC year would cross in Warsaw's first New Year hour.
+ */
 export function eligibleBirthYear(offset: number): number {
-  return Number(warsawToday().slice(0, 4)) - 50 - offset;
+  return Number(warsawToday().slice(0, 4)) - 51 - offset;
 }
 
 interface CatalogEntry {

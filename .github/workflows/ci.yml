@@ -87,8 +87,8 @@ jobs:
           done <<< "$crons"
           exit $status
       # Browser E2E (tests/e2e) lives in this job on purpose: only `ci` + `smoke` gate `main`, and it reuses the local
-      # Supabase and the preview on 4321 above. It runs after the cron check so that check still sees a database with no
-      # e2e users; both report. Each test signs up its own user, so it adds a few rows to this throwaway database.
+      # Supabase and the preview on 4321 above. It runs after the cron check so that check sees no e2e users.
+      # Each test signs up its own user, so it adds a few rows to this throwaway database.
       - name: Read Playwright version
         id: pw
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"

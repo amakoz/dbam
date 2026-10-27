@@ -9,6 +9,8 @@ assertLocalOnly(baseURL, import.meta.dirname);
 
 export default defineConfig({
   testDir: "tests/e2e",
+  // The specs are whole user journeys (sign-up to confirm, two users); the 30 s default is tight on a loaded machine.
+  timeout: 60_000,
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,

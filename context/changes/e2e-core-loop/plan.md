@@ -139,7 +139,7 @@ A fresh user clicks through sign-up → consent → profile → due list → pla
 
 **Intent**: One implementation of the UI steps and the oracle, used by both risk specs.
 
-**Contract**: helpers that drive the UI only (no direct HTTP posts, no Supabase client): `signUp(page)`, `grantConsent(page)`, `completeProfile(page, { birthYear })` (sex "Kobieta", smoking "Nie, nigdy", submit "Zapisz i przejdź do panelu"), `warsawToday()`. `eligibleBirthYear(offset)` = current year − 50 − offset, so mammography (45–74) stays eligible. `mammographyOracle(doneDay)` reads `catalog/entries/mammography-nfz-program.json`, asserts the fixed/no-override shape, and returns `name_pl`, the expected `YYYY-MM` next-due value and the expected Polish strings for "Ostatnio wykonane: …" and "Następne badanie: …".
+**Contract**: helpers that drive the UI only (no direct HTTP posts, no Supabase client): `signUp(page)`, `grantConsent(page)`, `completeProfile(page, { birthYear })` (sex "Kobieta", smoking "Nie, nigdy", submit "Zapisz i przejdź do panelu"), `warsawToday()`. `eligibleBirthYear(offset)` = current year − 51 − offset, so mammography (45–74) stays eligible. `mammographyOracle(doneDay)` reads `catalog/entries/mammography-nfz-program.json`, asserts the fixed/no-override shape, and returns `name_pl`, the expected `YYYY-MM` next-due value and the expected Polish strings for "Ostatnio wykonane: …" and "Następne badanie: …".
 
 #### 2. Core loop spec
 
@@ -195,7 +195,7 @@ User A ends with a confirmed exam and an open plan. User B, in a separate browse
 
 **Contract**: provenance `risk #1`. Two `browser.newContext()` sessions.
 
-- **A**: born `eligibleBirthYear(0)`. Plans mammography for today and confirms it (shared helpers), and plans `colonoscopy-nfz-program` without a date, so A holds both a done record and a plan. Colonoscopy is tier 1 for ages 50–65 with no other requirement (`catalog/entries/colonoscopy-nfz-program.json`), so it fits both A (50) and B (55); its `name_pl` is read from that JSON.
+- **A**: born `eligibleBirthYear(0)`. Plans mammography for today and confirms it (shared helpers), and plans `colonoscopy-nfz-program` without a date, so A holds both a done record and a plan. Colonoscopy is tier 1 for ages 50–65 with no other requirement (`catalog/entries/colonoscopy-nfz-program.json`), so it fits both A (51) and B (56); its `name_pl` is read from that JSON.
 - **B**: also female and eligible for both exams, born `eligibleBirthYear(5)`. On `/dashboard`: "Twoje plany" shows its empty text, there is no "Wykonane" section, and both mammography and colonoscopy appear as tier rows (asserted, which proves B is eligible for A's exams, so their absence from B's plans and done list is isolation, not eligibility). The "Twój profil" summary shows B's year and not A's. On `/profile` the "Rok urodzenia" field holds B's year.
 - A's context, reloaded after B, still shows A's done row and plan.
 
@@ -228,7 +228,7 @@ Run the suite as part of the required `smoke` job, keep the added time bounded, 
 
 **Intent**: Gate every PR on the browser suite without a second Supabase start or a branch-protection change.
 
-**Contract**: in `smoke`, after "Exercise scheduled handler (dry run)" and before `supabase stop`, so the cron check keeps its current inputs (no e2e users in the database yet) and both checks always report. The preview on 4321 and Supabase are still up there.
+**Contract**: in `smoke`, after "Exercise scheduled handler (dry run)" and before `supabase stop`, so the cron check runs first and sees no e2e users. The preview on 4321 and Supabase are still up there.
 
 - A step `id: pw` writes the version: `echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"`.
 - `actions/cache@v4` (`id: pw-cache`) on `~/.cache/ms-playwright`, key `ms-playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}` (not `hashFiles('package-lock.json')`, which would miss on every dependency bump).
@@ -306,45 +306,45 @@ None: no schema or data changes. Rollback is reverting the workflow steps.
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes with the new config and spec
-- [x] 1.2 `npx astro check` passes
-- [x] 1.3 `npm test` still collects only `src/**/*.test.ts`
-- [x] 1.4 Config refuses a non-local BASE_URL or SUPABASE_URL, a missing SUPABASE_URL, and port 4321 in a worker session, before starting a server
-- [x] 1.5 Seed is green from a cold server under the DB lock
+- [x] 1.1 `npm run lint` passes with the new config and spec — 2863eea
+- [x] 1.2 `npx astro check` passes — 2863eea
+- [x] 1.3 `npm test` still collects only `src/**/*.test.ts` — 2863eea
+- [x] 1.4 Config refuses a non-local BASE_URL or SUPABASE_URL, a missing SUPABASE_URL, and port 4321 in a worker session, before starting a server — 2863eea
+- [x] 1.5 Seed is green from a cold server under the DB lock — 2863eea
 
 #### Manual
 
-- [x] 1.6 Review the seed spec as the pattern later specs copy
+- [x] 1.6 Review the seed spec as the pattern later specs copy — 2863eea
 
 ### Phase 2: Core loop E2E — risks #2 and #4
 
 #### Automated
 
-- [x] 2.1 `core-loop.spec.ts` is green under the DB lock
-- [x] 2.2 Product-side break of `nextDueMonth` turns it red from a cold server, then green after the revert
-- [x] 2.3 `npm run lint` and `npx astro check` pass
-- [x] 2.4 ESLint rule rejects a planted production import in `tests/e2e`, then passes
+- [x] 2.1 `core-loop.spec.ts` is green under the DB lock — f288176
+- [x] 2.2 Product-side break of `nextDueMonth` turns it red from a cold server, then green after the revert — f288176
+- [x] 2.3 `npm run lint` and `npx astro check` pass — f288176
+- [x] 2.4 ESLint rule rejects a planted production import in `tests/e2e`, then passes — f288176
 
 #### Manual
 
-- [x] 2.5 Assertions target visible text or row attributes, not CSS classes or bare URLs
+- [x] 2.5 Assertions target visible text or row attributes, not CSS classes or bare URLs — f288176
 
 ### Phase 3: Two-user isolation — risk #1 at browser level
 
 #### Automated
 
-- [x] 3.1 `isolation.spec.ts` is green under the DB lock
-- [x] 3.2 Deliberate break (B's checks in A's session) turns it red, then green again
-- [x] 3.3 Full suite `npm run test:e2e` is green under the DB lock
-- [x] 3.4 `npm run lint` and `npx astro check` pass
-- [x] 3.5 Spec asserts B sees mammography and colonoscopy as tier rows
+- [x] 3.1 `isolation.spec.ts` is green under the DB lock — d3ba639
+- [x] 3.2 Deliberate break (B's checks in A's session) turns it red, then green again — d3ba639 (isolation assertions: first failure is "Twoje plany" empty text, with the tier-row preconditions skipped)
+- [x] 3.3 Full suite `npm run test:e2e` is green under the DB lock — d3ba639
+- [x] 3.4 `npm run lint` and `npx astro check` pass — d3ba639
+- [x] 3.5 Spec asserts B sees mammography and colonoscopy as tier rows — d3ba639
 
 ### Phase 4: CI wiring and docs
 
 #### Automated
 
-- [x] 4.1 Workflow YAML is valid
-- [x] 4.2 Prettier check passes on the edited docs
+- [x] 4.1 Workflow YAML is valid — c41d477
+- [x] 4.2 Prettier check passes on the edited docs — c41d477
 - [ ] 4.3 PR `smoke` job runs the e2e step and it passes
 
 #### Manual

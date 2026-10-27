@@ -107,3 +107,15 @@
 - **Phase 3 break:** B's assertions run in A's session turned `isolation.spec.ts` red (B's tier rows missing in A's session); temporary spec file deleted. Decided by: worker (plan F2).
 - **CI-shaped local run:** `CI=1 BASE_URL=http://127.0.0.1:$DBAM_PORT npm run test:e2e` against a hand-started preview passed 3/3, which covers the `BASE_URL` (no `webServer`) path the `smoke` job uses. Decided by: worker.
 - **Not done here:** the PR was not opened, so 4.3 (the `smoke` job runs e2e), 4.4 (measured minutes) and 4.5 (report artifact upload) stay open for the PR stage. Decided by: worker.
+
+## 2026-10-27 Impl-review triage (F1–F4)
+
+- **Choice:** All accepted by the orchestrator.
+  - F1: ci.yml comment and plan sentence reworded to "runs after the cron check so that check sees no e2e users"; the default `if` is kept, so a failing cron check skips the e2e steps.
+  - F2: `eligibleBirthYear` base 50 → 51, so A is 51 and B 56 (off colonoscopy's `age_min` 50 and the UTC/Warsaw new-year edge).
+  - F3: the isolation break rerun in a temporary copy with the two tier-row preconditions skipped failed first on `Twoje plany` showing "Nic jeszcze nie zaplanowano." (A's session holds the colonoscopy plan). Copy discarded.
+  - F4: phase SHAs `2863eea`, `f288176`, `d3ba639`, `c41d477` added to the checked Progress rows, shipped in the review-fix commit (the archive skill needs a clean change folder first).
+- **Also:** Playwright `timeout` raised to 60 s. The first F3 rerun hit the 30 s default on a loaded machine (the isolation spec took ~20 s) before reaching any assertion. Decided by: worker.
+- **Evidence:** `context/changes/e2e-core-loop/impl-review.md`.
+- **Decided by:** orchestrator (F1–F4)
+- **Rebase:** the branch was rebased onto `origin/main` (never pushed), so the phase SHAs in Progress, this log and the review were remapped: 7735a1e→2863eea, 0df4623→f288176, d70435b→d3ba639, 7f05515→c41d477. Decided by: worker (orchestrator: rebase if never pushed).

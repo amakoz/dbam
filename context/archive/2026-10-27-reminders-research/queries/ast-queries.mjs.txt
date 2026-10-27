@@ -1,0 +1,304 @@
+// AST queries for F-12 reminders-research. Run from the repo root:
+//   node <this file> [Q1 Q2 ...]
+// Uses the repo's own TypeScript (node_modules/typescript) through the compiler API; adds no dependency.
+import { createRequire } from "node:module";
+import path from "node:path";
+import fs from "node:fs";
+
+const root = process.cwd();
+const require = createRequire(path.join(root, "package.json"));
+const ts = require("typescript");
+
+const configPath = ts.findConfigFile(root, ts.sys.fileExists, "tsconfig.json");
+const parsed = ts.parseJsonConfigFileContent(ts.readConfigFile(configPath, ts.sys.readFile).config, ts.sys, root);
+const srcFiles = parsed.fileNames.filter((f) => f.startsWith(path.join(root, "src")) && /\.tsx?$/.test(f));
+const program = ts.createProgram(srcFiles, parsed.options);
+const checker = program.getTypeChecker();
+
+const rel = (f) => path.relative(root, f);
+const isTest = (f) => /\.test\.tsx?$/.test(f);
+const sources = program.getSourceFiles().filter((sf) => srcFiles.includes(sf.fileName));
+const at = (node) => {
+  const sf = node.getSourceFile();
+  return `${rel(sf.fileName)}:${sf.getLineAndCharacterOfPosition(node.getStart()).line + 1}`;
+};
+function walk(node, visit) {
+  visit(node);
+  ts.forEachChild(node, (child) => walk(child, visit));
+}
+const remindersDir = path.join(root, "src/lib/reminders") + path.sep;
+const reminderSources = sources.filter((sf) => sf.fileName.startsWith(remindersDir) && !isTest(sf.fileName));
+const calleeName = (call) => {
+  const e = call.expression;
+  if (ts.isIdentifier(e)) return e.text;
+  if (ts.isPropertyAccessExpression(e)) return e.name.text;
+  return e.getText();
+};
+function resolveImport(fromFile, spec) {
+  const r = ts.resolveModuleName(spec, fromFile, parsed.options, ts.sys).resolvedModule;
+  return r ? rel(r.resolvedFileName) : `unresolved:${spec}`;
+}
+
+const queries = {
+  // Q1: ordered pipeline steps inside each exported run* job function, and its catch-rethrow shape.
+  Q1() {
+    const label = (call) => {
+      const n = calleeName(call);
+      if (n === "rpc") {
+        const arg = call.arguments[0];
+        const name = arg && ts.isStringLiteral(arg) ? arg.text : "?";
+        return `rpc:${name.split("_")[0]}`; // claim / get / mark
+      }
+      const map = {
+        isDailySendRun: "gate",
+        createReminderClient: "client",
+        batchKey: "key",
+        sendEmailBatch: "send",
+        log: "log",
+        getActiveRuleCatalog: "catalog",
+        collectClaimItems: "decide",
+        parseCandidateRows: "parse",
+      };
+      return map[n];
+    };
+    const seqs = {};
+    for (const sf of reminderSources) {
+      walk(sf, (node) => {
+        if (!ts.isFunctionDeclaration(node) || !node.name || !/^run[A-Z]/.test(node.name.text)) return;
+        const exported = node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+        const steps = [];
+        walk(node.body, (n) => {
+          if (ts.isCallExpression(n)) {
+            const l = label(n);
+            if (l && steps.at(-1) !== l) steps.push(l);
+          }
+        });
+        const tryStmt = node.body.statements.find(ts.isTryStatement);
+        const catchVar = tryStmt?.catchClause?.variableDeclaration?.name.getText();
+        const last = tryStmt?.catchClause?.block.statements.at(-1);
+        const rethrows = !!last && ts.isThrowStatement(last) && last.expression?.getText() === catchVar;
+        const budgetGuard = node.body.getText().includes("budget <= 0");
+        if (steps.length) seqs[node.name.text] = steps; // runReminderChain calls no pipeline step itself
+        console.log(
+          `${at(node)} ${node.name.text} exported=${exported} wholeBodyTry=${node.body.statements.length === 2 && !!tryStmt} catchLogsThenRethrows=${rethrows} budgetGuard=${budgetGuard}`,
+        );
+        console.log(`  steps: ${steps.join(" > ")}`);
+      });
+    }
+    // Longest common subsequence across all job functions.
+    const lcs = (a, b) => {
+      const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill([]));
+      for (let i = 1; i <= a.length; i++)
+        for (let j = 1; j <= b.length; j++)
+          dp[i][j] =
+            a[i - 1] === b[j - 1]
+              ? [...dp[i - 1][j - 1], a[i - 1]]
+              : dp[i - 1][j].length >= dp[i][j - 1].length
+                ? dp[i - 1][j]
+                : dp[i][j - 1];
+      return dp[a.length][b.length];
+    };
+    const common = Object.values(seqs).reduce(lcs);
+    console.log(`common ordered steps (${Object.keys(seqs).length} jobs): ${common.join(" > ")}`);
+  },
+
+  // Q2: private `log` helpers and inline message builders in the reminder modules; bodies compared with string literals masked.
+  Q2() {
+    const groups = {};
+    for (const sf of reminderSources) {
+      walk(sf, (node) => {
+        if (!ts.isFunctionDeclaration(node) || !node.name) return;
+        const name = node.name.text;
+        if (name !== "log" && !/^build.*Message$/.test(name)) return;
+        const exported = !!node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+        const masked = node
+          .getText()
+          .replace(/"[^"]*"/g, '"<S>"')
+          .replace(/\s+/g, " ");
+        const key = `${name}`;
+        (groups[key] ??= []).push({ at: at(node), exported, masked });
+      });
+    }
+    for (const [name, list] of Object.entries(groups)) {
+      const distinct = new Set(list.map((x) => x.masked)).size;
+      console.log(`${name}: ${list.length} declarations, ${distinct} distinct bodies after masking string literals`);
+      for (const x of list) console.log(`  ${x.at} exported=${x.exported}`);
+    }
+  },
+
+  // Q3: the per-job Outcome type aliases and their literal members.
+  Q3() {
+    for (const sf of reminderSources) {
+      walk(sf, (node) => {
+        if (!ts.isTypeAliasDeclaration(node) || !/Outcome$/.test(node.name.text)) return;
+        const type = checker.getTypeAtLocation(node.name);
+        const members = (type.isUnion() ? type.types : [type]).map((t) => checker.typeToString(t)).sort();
+        console.log(`${at(node)} ${node.name.text} = ${members.join(" | ")}`);
+      });
+    }
+  },
+
+  // Q4: every non-test string literal spelling a reminder job name, with the type the checker expects there.
+  Q4() {
+    const names = new Set(["appointment-reminder", "due-screening-reminder", "follow-up-nudge"]);
+    for (const sf of sources.filter((s) => !isTest(s.fileName))) {
+      walk(sf, (node) => {
+        if (!ts.isStringLiteral(node) || !names.has(node.text)) return;
+        const ctx = checker.getContextualType(node);
+        console.log(`${at(node)} "${node.text}" parent=${ts.SyntaxKind[node.parent.kind]} contextualType=${ctx ? checker.typeToString(ctx) : "none"}`);
+      });
+    }
+  },
+
+  // Q5: how many jobs the chain hard-wires (deps members, try blocks, loops) and what worker.ts passes in.
+  Q5() {
+    const chain = sources.find((s) => rel(s.fileName) === "src/lib/reminders/chain.ts");
+    walk(chain, (node) => {
+      if (ts.isInterfaceDeclaration(node) && node.name.text === "ReminderChainDeps")
+        console.log(`${at(node)} ReminderChainDeps members: ${node.members.map((m) => m.name.getText()).join(", ")}`);
+      if (ts.isFunctionDeclaration(node) && node.name?.text === "runReminderChain") {
+        let tries = 0;
+        let loops = 0;
+        walk(node.body, (n) => {
+          if (ts.isTryStatement(n)) tries++;
+          if (ts.isForOfStatement(n) || ts.isForStatement(n) || ts.isForInStatement(n)) loops++;
+        });
+        console.log(`${at(node)} runReminderChain: ${tries} try statements, ${loops} loops (loops: ${"see below"})`);
+        walk(node.body, (n) => {
+          if (ts.isForOfStatement(n)) console.log(`  loop at ${at(n)} over ${n.expression.getText()}`);
+        });
+      }
+    });
+    const worker = sources.find((s) => rel(s.fileName) === "src/worker.ts");
+    walk(worker, (node) => {
+      if (ts.isCallExpression(node) && calleeName(node) === "runReminderChain")
+        console.log(`${at(node)} worker passes: ${node.arguments[1].properties.map((p) => p.getText()).join(", ")}`);
+    });
+  },
+
+  // Q6: the limit each claim RPC gets, and every reference to the batch cap and the daily budget.
+  Q6() {
+    for (const sf of reminderSources) {
+      walk(sf, (node) => {
+        if (!ts.isCallExpression(node) || calleeName(node) !== "rpc") return;
+        const [nameArg, args] = node.arguments;
+        if (!args || !ts.isObjectLiteralExpression(args)) return;
+        for (const p of args.properties)
+          if (p.name?.getText() === "p_limit") console.log(`${at(p)} ${nameArg.text} p_limit = ${p.initializer.getText()}`);
+      });
+      walk(sf, (node) => {
+        if (!ts.isCallExpression(node) || calleeName(node) !== "collectClaimItems") return;
+        console.log(`${at(node)} collectClaimItems(${node.arguments.map((a) => a.getText()).join(", ")})`);
+      });
+    }
+    for (const sf of sources.filter((s) => !isTest(s.fileName))) {
+      walk(sf, (node) => {
+        if (ts.isIdentifier(node) && ["MAX_BATCH_SIZE", "REMINDER_EMAIL_DAILY_BUDGET"].includes(node.text) && !ts.isImportSpecifier(node.parent) && !ts.isExportSpecifier(node.parent))
+          console.log(`${at(node)} ${node.text} (${ts.SyntaxKind[node.parent.kind]})`);
+      });
+    }
+  },
+
+  // Q7: which pipeline modules any unit test imports or mocks.
+  Q7() {
+    const pipeline = [
+      "src/worker.ts",
+      ...reminderSources.map((s) => rel(s.fileName)),
+      ...["email", "email-retry", "email-budget", "schedule", "heartbeat", "failure-alert", "observability"].map((m) => `src/lib/${m}.ts`),
+    ];
+    const hits = Object.fromEntries(pipeline.map((p) => [p, []]));
+    for (const sf of sources.filter((s) => isTest(s.fileName))) {
+      walk(sf, (node) => {
+        let spec;
+        let kind = "import";
+        if (ts.isImportDeclaration(node)) spec = node.moduleSpecifier.text;
+        else if (ts.isCallExpression(node) && node.arguments[0] && ts.isStringLiteral(node.arguments[0])) {
+          const n = node.expression.getText();
+          if (n === "vi.mock" || n === "vi.doMock") kind = "mock";
+          else if (node.expression.kind === ts.SyntaxKind.ImportKeyword) kind = "dynamic-import";
+          else return;
+          spec = node.arguments[0].text;
+        }
+        if (!spec) return;
+        const target = resolveImport(sf.fileName, spec);
+        if (hits[target]) hits[target].push(`${kind} from ${at(node)}`);
+      });
+    }
+    for (const [mod, list] of Object.entries(hits)) console.log(`${mod}: ${list.length ? list.join("; ") : "NO TEST IMPORTS IT"}`);
+  },
+
+  // Q10: who reads a job's returned `outcome` (vs `sent`) outside the job modules.
+  Q10() {
+    for (const sf of sources) {
+      walk(sf, (node) => {
+        const isRead =
+          (ts.isPropertyAccessExpression(node) && ["outcome", "sent"].includes(node.name.text)) ||
+          (ts.isBindingElement(node) && ["outcome", "sent"].includes((node.propertyName ?? node.name).getText()));
+        if (!isRead) return;
+        const file = rel(sf.fileName);
+        if (/reminders\/(appointment|due-screening|follow-up-nudge)\.ts$/.test(file)) return;
+        console.log(`${at(node)} reads .${ts.isBindingElement(node) ? (node.propertyName ?? node.name).getText() : node.name.text}${isTest(file) ? " (test)" : ""}`);
+      });
+    }
+  },
+
+  // Q8: who imports the reminder modules from outside src/lib/reminders (TS/TSX via the compiler; .astro by text scan).
+  Q8() {
+    for (const sf of sources) {
+      if (sf.fileName.startsWith(remindersDir)) continue;
+      walk(sf, (node) => {
+        let spec;
+        if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier) spec = node.moduleSpecifier.text;
+        else if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && ts.isStringLiteral(node.arguments[0]))
+          spec = node.arguments[0].text;
+        if (!spec) return;
+        const target = resolveImport(sf.fileName, spec);
+        if (target.startsWith("src/lib/reminders/")) console.log(`${at(node)} -> ${target}${isTest(sf.fileName) ? " (test)" : ""}`);
+      });
+    }
+    const astro = [];
+    const scan = (dir) => {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) scan(p);
+        else if (p.endsWith(".astro") && /lib\/reminders/.test(fs.readFileSync(p, "utf8"))) astro.push(rel(p));
+      }
+    };
+    scan(path.join(root, "src"));
+    console.log(`.astro files mentioning lib/reminders (text scan): ${astro.length ? astro.join(", ") : "none"}`);
+  },
+
+  // Q9: every .rpc() name in src, whether database.types.ts declares it, and its declared return type.
+  Q9() {
+    const typesFile = sources.find((s) => rel(s.fileName) === "src/lib/database.types.ts");
+    let fnType;
+    walk(typesFile, (node) => {
+      if (ts.isTypeAliasDeclaration(node) && node.name.text === "Database") {
+        const db = checker.getTypeAtLocation(node.name);
+        const pub = checker.getTypeOfSymbol(db.getProperty("public"));
+        fnType = checker.getTypeOfSymbol(pub.getProperty("Functions"));
+      }
+    });
+    const declared = new Set(fnType.getProperties().map((p) => p.name));
+    const used = new Set();
+    for (const sf of sources.filter((s) => !isTest(s.fileName))) {
+      walk(sf, (node) => {
+        if (!ts.isCallExpression(node) || calleeName(node) !== "rpc") return;
+        const arg = node.arguments[0];
+        if (!arg || !ts.isStringLiteral(arg)) return console.log(`${at(node)} rpc(<non-literal>)`);
+        used.add(arg.text);
+        const fn = fnType.getProperty(arg.text);
+        const returns = fn ? checker.typeToString(checker.getTypeOfSymbol(checker.getTypeOfSymbol(fn).getProperty("Returns")), undefined, ts.TypeFormatFlags.NoTruncation) : "-";
+        console.log(`${at(node)} rpc("${arg.text}") declared=${declared.has(arg.text)} Returns=${returns.length > 140 ? returns.slice(0, 140) + "…" : returns}`);
+      });
+    }
+    console.log(`declared in database.types.ts but not called from src: ${[...declared].filter((d) => !used.has(d)).join(", ") || "none"}`);
+  },
+};
+
+const pick = process.argv.slice(2);
+for (const [id, fn] of Object.entries(queries)) {
+  if (pick.length && !pick.includes(id)) continue;
+  console.log(`\n## ${id}`);
+  fn();
+}

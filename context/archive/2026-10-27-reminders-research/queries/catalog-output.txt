@@ -1,0 +1,173 @@
+BEGIN
+## S1 reminder-pipeline functions: language, definer, SQL-standard body, search_path, execute grants
+              proname              |  lang   | security_definer | sql_standard_body |        config        |                                  acl                                   
+-----------------------------------+---------+------------------+-------------------+----------------------+------------------------------------------------------------------------
+ claim_due_appointment_reminders   | plpgsql | t                | f                 | {"search_path=\"\""} | {postgres=X/postgres,service_role=X/postgres}
+ claim_due_screening_reminders     | plpgsql | t                | f                 | {"search_path=\"\""} | {postgres=X/postgres,service_role=X/postgres}
+ claim_follow_up_nudges            | plpgsql | t                | f                 | {"search_path=\"\""} | {postgres=X/postgres,service_role=X/postgres}
+ confirm_screening_plan            | plpgsql | f                | f                 | {"search_path=\"\""} | {postgres=X/postgres,authenticated=X/postgres}
+ get_due_screening_candidates      | plpgsql | t                | f                 | {"search_path=\"\""} | {postgres=X/postgres,service_role=X/postgres}
+ mark_appointment_reminders_sent   | plpgsql | t                | f                 | {"search_path=\"\""} | {postgres=X/postgres,service_role=X/postgres}
+ mark_due_screening_reminders_sent | plpgsql | t                | f                 | {"search_path=\"\""} | {postgres=X/postgres,service_role=X/postgres}
+ mark_follow_up_nudges_sent        | plpgsql | t                | f                 | {"search_path=\"\""} | {postgres=X/postgres,service_role=X/postgres}
+ screening_anchor_month            | sql     | f                | f                 | {"search_path=\"\""} | {postgres=X/postgres}
+ set_reminders_enabled_at          | plpgsql | f                | f                 | {"search_path=\"\""} | {postgres=X/postgres,service_role=X/postgres}
+ withdraw_health_data_consent      | plpgsql | t                | f                 | {"search_path=\"\""} | {postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}
+(11 rows)
+
+## S2 pg_depend rows from those functions to any relation (tables/views)
+ proname | depends_on | deptype 
+---------+------------+---------
+(0 rows)
+
+## S3 text references from each live function body to public tables (word-boundary match on prosrc)
+              proname              |                                                         tables_named_in_body                                                         
+-----------------------------------+--------------------------------------------------------------------------------------------------------------------------------------
+ claim_due_appointment_reminders   | appointment_reminders, health_data_consents, profiles, screening_plans
+ claim_due_screening_reminders     | due_screening_reminders, health_data_consents, profiles, screening_catalog, screening_completions, screening_plans
+ claim_follow_up_nudges            | appointment_reminders, due_screening_reminders, follow_up_nudges, health_data_consents, profiles, screening_catalog, screening_plans
+ confirm_screening_plan            | screening_completions, screening_plans
+ get_due_screening_candidates      | due_screening_reminders, health_data_consents, profiles, screening_catalog, screening_completions, screening_plans
+ mark_appointment_reminders_sent   | appointment_reminders
+ mark_due_screening_reminders_sent | due_screening_reminders
+ mark_follow_up_nudges_sent        | follow_up_nudges
+ withdraw_health_data_consent      | health_data_consents, profiles, screening_completions, screening_plans
+(9 rows)
+
+## S4 recipient predicates repeated across live function bodies
+              proname              | reads_consents | checks_withdrawn_at | checks_opt_in | reads_auth_users | reads_locale | touches_sent_at | skip_locked 
+-----------------------------------+----------------+---------------------+---------------+------------------+--------------+-----------------+-------------
+ claim_due_appointment_reminders   | t              | t                   | t             | t                | t            | t               | f
+ claim_due_screening_reminders     | t              | t                   | t             | t                | t            | t               | f
+ claim_follow_up_nudges            | t              | t                   | t             | t                | t            | t               | f
+ get_due_screening_candidates      | t              | t                   | t             | t                | f            | t               | f
+ mark_appointment_reminders_sent   | f              | f                   | f             | f                | f            | t               | f
+ mark_due_screening_reminders_sent | f              | f                   | f             | f                | f            | t               | f
+ mark_follow_up_nudges_sent        | f              | f                   | f             | f                | f            | t               | f
+ set_reminders_enabled_at          | f              | f                   | t             | f                | f            | f               | f
+ withdraw_health_data_consent      | t              | t                   | f             | f                | f            | f               | f
+(9 rows)
+
+## S5 every public table with a user_id column, its FK on user_id, and whether the withdraw function names it
+       table_name        |                                          user_fk                                          | named_by_withdraw 
+-------------------------+-------------------------------------------------------------------------------------------+-------------------
+ appointment_reminders   | appointment_reminders_user_id_fkey -> auth.users on delete cascade                        | f
+ due_screening_reminders | due_screening_reminders_completion_fkey -> public.screening_completions on delete cascade | f
+ follow_up_nudges        | follow_up_nudges_user_id_fkey -> auth.users on delete cascade                             | f
+ health_data_consents    | health_data_consents_user_id_fkey -> auth.users on delete cascade                         | t
+ profiles                | profiles_user_id_fkey -> auth.users on delete cascade                                     | t
+ screening_completions   | screening_completions_user_id_fkey -> auth.users on delete cascade                        | t
+ screening_plans         | screening_plans_user_id_fkey -> auth.users on delete cascade                              | t
+(7 rows)
+
+## S6 every foreign key among public tables (the cascade graph)
+       from_table        |       to_table        |                 conname                 | on_delete 
+-------------------------+-----------------------+-----------------------------------------+-----------
+ appointment_reminders   | screening_plans       | appointment_reminders_plan_id_fkey      | cascade
+ appointment_reminders   | users                 | appointment_reminders_user_id_fkey      | cascade
+ due_screening_reminders | screening_completions | due_screening_reminders_completion_fkey | cascade
+ follow_up_nudges        | screening_plans       | follow_up_nudges_plan_id_fkey           | cascade
+ follow_up_nudges        | users                 | follow_up_nudges_user_id_fkey           | cascade
+ health_data_consents    | users                 | health_data_consents_user_id_fkey       | cascade
+ profiles                | users                 | profiles_user_id_fkey                   | cascade
+ screening_completions   | screening_catalog     | screening_completions_catalog_slug_fkey | no action
+ screening_completions   | users                 | screening_completions_user_id_fkey      | cascade
+ screening_plans         | screening_catalog     | screening_plans_catalog_slug_fkey       | no action
+ screening_plans         | users                 | screening_plans_user_id_fkey            | cascade
+(11 rows)
+
+## S7 table privileges held by service_role / anon / authenticated on public tables
+      table_name       |    grantee    |  privileges   
+-----------------------+---------------+---------------
+ health_data_consents  | authenticated | SELECT
+ profiles              | authenticated | DELETE,SELECT
+ screening_catalog     | anon          | SELECT
+ screening_catalog     | authenticated | SELECT
+ screening_catalog     | service_role  | SELECT
+ screening_completions | authenticated | DELETE,SELECT
+ screening_plans       | authenticated | DELETE,SELECT
+(7 rows)
+
+## S8 columns of public.profiles
+     column_name      |        data_type         | is_nullable | column_default 
+----------------------+--------------------------+-------------+----------------
+ user_id              | uuid                     | NO          | auth.uid()
+ birth_year           | smallint                 | NO          | 
+ sex                  | text                     | NO          | 
+ smoking_status       | text                     | NO          | 
+ packs_per_day        | numeric                  | YES         | 
+ smoking_years        | smallint                 | YES         | 
+ years_since_quitting | smallint                 | YES         | 
+ pack_years           | numeric                  | YES         | 
+ created_at           | timestamp with time zone | NO          | now()
+ updated_at           | timestamp with time zone | NO          | now()
+ reminders_enabled    | boolean                  | NO          | false
+ reminders_locale     | text                     | YES         | 
+ reminders_enabled_at | timestamp with time zone | YES         | 
+(13 rows)
+
+## S9 unique constraints / indexes on the reminder ledgers (dedupe keys)
+       table_name        |                   index_name                    |                                                                       definition                                                                        
+-------------------------+-------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------
+ appointment_reminders   | appointment_reminders_pkey                      | CREATE UNIQUE INDEX appointment_reminders_pkey ON public.appointment_reminders USING btree (id)
+ appointment_reminders   | appointment_reminders_plan_date_unique          | CREATE UNIQUE INDEX appointment_reminders_plan_date_unique ON public.appointment_reminders USING btree (plan_id, appointment_date)
+ due_screening_reminders | due_screening_reminders_pkey                    | CREATE UNIQUE INDEX due_screening_reminders_pkey ON public.due_screening_reminders USING btree (id)
+ due_screening_reminders | due_screening_reminders_user_slug_anchor_unique | CREATE UNIQUE INDEX due_screening_reminders_user_slug_anchor_unique ON public.due_screening_reminders USING btree (user_id, catalog_slug, anchor_month)
+ follow_up_nudges        | follow_up_nudges_pkey                           | CREATE UNIQUE INDEX follow_up_nudges_pkey ON public.follow_up_nudges USING btree (id)
+ follow_up_nudges        | follow_up_nudges_plan_kind_cycle_unique         | CREATE UNIQUE INDEX follow_up_nudges_plan_kind_cycle_unique ON public.follow_up_nudges USING btree (plan_id, kind, cycle_on)
+(6 rows)
+
+## S10 triggers on public tables
+  event_object_table   |                  trigger_name                  | action_timing | event_manipulation |              action_statement               
+-----------------------+------------------------------------------------+---------------+--------------------+---------------------------------------------
+ profiles              | profiles_set_reminders_enabled_at              | BEFORE        | INSERT             | EXECUTE FUNCTION set_reminders_enabled_at()
+ profiles              | profiles_set_reminders_enabled_at              | BEFORE        | UPDATE             | EXECUTE FUNCTION set_reminders_enabled_at()
+ profiles              | profiles_set_updated_at                        | BEFORE        | UPDATE             | EXECUTE FUNCTION set_updated_at()
+ screening_catalog     | screening_catalog_set_updated_at               | BEFORE        | UPDATE             | EXECUTE FUNCTION set_updated_at()
+ screening_completions | screening_completions_clear_stale_last_done_on | BEFORE        | UPDATE             | EXECUTE FUNCTION clear_stale_last_done_on()
+ screening_completions | screening_completions_set_updated_at           | BEFORE        | UPDATE             | EXECUTE FUNCTION set_updated_at()
+ screening_plans       | screening_plans_set_updated_at                 | BEFORE        | UPDATE             | EXECUTE FUNCTION set_updated_at()
+(7 rows)
+
+## S11 the live withdraw function body (statements only)
+                                line                                
+--------------------------------------------------------------------
+ 
+ declare
+   caller uuid := auth.uid();
+ begin
+   if caller is null then
+     raise exception 'not authenticated' using errcode = '42501';
+   end if;
+   delete from public.screening_plans where user_id = caller;
+   delete from public.screening_completions where user_id = caller;
+   delete from public.profiles where user_id = caller;
+   update public.health_data_consents
+     set withdrawn_at = now()
+     where user_id = caller and withdrawn_at is null;
+ end;
+ 
+(15 rows)
+
+ROLLBACK
+## S12 copies of each recipient predicate per live function body (regexp match counts on prosrc)
+              proname              | consent_checks | opt_in_checks | email_checks | active_entry_checks | catalog_refs | warsaw_conversions 
+-----------------------------------+----------------+---------------+--------------+---------------------+--------------+--------------------
+ claim_due_appointment_reminders   |              2 |             2 |            1 |                   0 |            0 |                  0
+ claim_due_screening_reminders     |              2 |             2 |            2 |                   2 |            2 |                  0
+ claim_follow_up_nudges            |              3 |             3 |            1 |                   3 |            3 |                  5
+ get_due_screening_candidates      |              1 |             1 |            1 |                   1 |            1 |                  0
+ mark_appointment_reminders_sent   |              0 |             0 |            0 |                   0 |            0 |                  0
+ mark_due_screening_reminders_sent |              0 |             0 |            0 |                   0 |            0 |                  0
+ mark_follow_up_nudges_sent        |              0 |             0 |            0 |                   0 |            0 |                  0
+(7 rows)
+
+## S13 mark_* bodies compared (md5 of prosrc with the table name masked)
+              proname              |         masked_body_md5          
+-----------------------------------+----------------------------------
+ mark_appointment_reminders_sent   | 091b18fc106698e718ec5fcfd431042e
+ mark_due_screening_reminders_sent | 091b18fc106698e718ec5fcfd431042e
+ mark_follow_up_nudges_sent        | 091b18fc106698e718ec5fcfd431042e
+(3 rows)
+
+ROLLBACK

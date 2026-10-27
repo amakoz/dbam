@@ -1,7 +1,7 @@
 ---
 change_id: reminders-refactor
 title: Plan a guard-first refactor of the reminder pipeline into a shared runner
-status: planned
+status: plan_reviewed
 created: 2026-10-27
 updated: 2026-10-27
 archived_at: null

@@ -9,6 +9,7 @@ import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { appendFileSync, readFileSync } from "node:fs";
 import {
+  DIFF_BUDGET,
   LABELS,
   MARKER,
   buildMessages,
@@ -55,8 +56,18 @@ function clean(text, cap) {
   return sanitize(redactSecrets(text, secrets), cap);
 }
 
+/** git's stderr is captured, never inherited: on failure it is logged as untrusted text, then the error is rethrown. */
 function git(args) {
-  return execFileSync("git", args, { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+  try {
+    return execFileSync("git", args, {
+      encoding: "utf8",
+      maxBuffer: 256 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (err) {
+    if (typeof err?.stderr === "string" && err.stderr !== "") logUntrusted(clean(err.stderr, 2000));
+    throw err;
+  }
 }
 
 /** Names of the allowed files are diffed one by one, so excluded content is never read into this process. */
@@ -64,7 +75,14 @@ function collectDiff() {
   const plan = planFiles(parseNameStatus(git(["diff", "--name-status", "-z", "--find-renames", "HEAD^1", "HEAD"])));
   const excluded = [...plan.excluded];
   const files = [];
+  const unread = [];
+  let used = 0;
   for (const { paths, displayPath } of plan.allowed) {
+    // Once the budget is spent selectDiff would omit the rest anyway: list it without diffing it.
+    if (used >= DIFF_BUDGET) {
+      unread.push(displayPath);
+      continue;
+    }
     const text = git([
       "diff",
       "--no-color",
@@ -78,10 +96,15 @@ function collectDiff() {
       "--",
       ...paths.map((p) => `:(literal)${p}`),
     ]);
-    if (isBinaryPatch(text)) excluded.push({ path: displayPath, reason: "binary" });
-    else if (text !== "") files.push({ path: displayPath, text });
+    if (isBinaryPatch(text)) {
+      excluded.push({ path: displayPath, reason: "binary" });
+    } else if (text !== "") {
+      files.push({ path: displayPath, text });
+      used += text.length;
+    }
   }
-  return { ...selectDiff(files), excluded };
+  const selection = selectDiff(files);
+  return { ...selection, omitted: [...selection.omitted, ...unread], excluded };
 }
 
 /**

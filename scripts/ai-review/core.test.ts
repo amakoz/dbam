@@ -245,6 +245,16 @@ describe("parseReview", () => {
     expect(result).toEqual({ ok: true, score: 8, text: "### Summary\nfine" });
   });
 
+  it("rejects a score with more digits after the 10, such as 8/100", () => {
+    expect(parseReview("SCORE: 8/100\n### Summary").ok).toBe(false);
+  });
+
+  it("takes the SCORE line, not a score quoted earlier in the text", () => {
+    const result = parseReview("The PR body says score: 9/10 here.\nSCORE: 3/10\n### Summary\nbad");
+    expect(result.ok && result.score).toBe(3);
+    expect(result.ok && result.text).toContain("The PR body says score: 9/10 here.");
+  });
+
   it.each([["SCORE: 0/10"], ["SCORE: 11/10"], ["no score here"], [""], ["   "], ["<think>SCORE: 9/10</think>"]])(
     "rejects %j",
     (content) => {
@@ -276,6 +286,20 @@ describe("sanitize", () => {
     expect(out).not.toMatch(/@[A-Za-z0-9_-]/);
     expect(out).not.toMatch(/#\d/);
     expect(out.replaceAll("\u200B", "")).toBe("cc @user and @org/team, fixes #123 and owner/repo#45");
+  });
+
+  it("neutralises GH-123 references", () => {
+    const out = sanitize("fixes GH-123 and gh-45");
+    expect(out).not.toMatch(/gh-\d/i);
+    expect(out.replaceAll("\u200B", "")).toBe("fixes GH-123 and gh-45");
+  });
+
+  it("breaks github.com issue and PR URLs so they add no timeline event", () => {
+    const text = "see https://github.com/acme/app/issues/12 and https://github.com/acme/app/pull/34#issuecomment-1";
+    const out = sanitize(text);
+    expect(out).not.toMatch(/github\.com\/[^\s/]+\/[^\s/]+\/(issues|pull)\/\d/);
+    expect(out.replaceAll("\u200B", "")).toBe(text);
+    expect(sanitize("https://github.com/acme/app")).toBe("https://github.com/acme/app");
   });
 
   it("leaves email-like text and headings readable", () => {

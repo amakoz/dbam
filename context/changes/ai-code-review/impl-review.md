@@ -63,7 +63,7 @@ The one change outside the plan is that a diff with no reviewable file skips the
   Both call `clean()` today, so nothing leaks. But the accepted lesson "Grep gates are heuristics; privacy tests are the guard" asks for a case on every output path, and if `run.mjs:236` changed to `logUntrusted(sanitize(answer.content))`, no test would fail.
 
 - **Fix**: In the no-leak test, add a third run in which the fake provider returns `Looks fine, key ${API_KEY}, token ${GH_TOKEN}` with no `SCORE:` line. Then call `leaks()` on that run too.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED, fixed — third no-leak run (answer without a SCORE line, key and token in the content) added to `run.test.ts`; goes red if the log call drops `redactSecrets`.
 
 ### F2 — git's stderr reaches the job log outside any stop-commands block
 
@@ -73,7 +73,7 @@ The one change outside the plan is that a diff with no reviewable file skips the
 - **Location**: scripts/ai-review/run.mjs:58-60
 - **Detail**: `execFileSync("git", args, { encoding, maxBuffer })` has no `stdio` option, and Node then passes the child's stderr straight to the parent's stderr. Git warnings and errors (for example `fatal: …` on a bad pathspec) are printed as-is, without the `logUntrusted` wrapper. The Actions runner reads workflow commands from that output too. The text is git's own, and same-repo authors are trusted, so the risk is small. Still, it is the one path that bypasses the F1 rule from the plan review.
 - **Fix**: Pass `stdio: ["ignore", "pipe", "pipe"]` in `git()`. On failure, print `err.stderr` through `logUntrusted(clean(…))` before rethrowing.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED, fixed — `git()` uses `stdio: ["ignore","pipe","pipe"]` and logs `err.stderr` through `logUntrusted(clean(…))` before rethrowing; new runner test on a single-commit checkout.
 
 ### F3 — Purity lint does not catch `globalThis.fetch` or `globalThis.process`
 
@@ -83,7 +83,7 @@ The one change outside the plan is that a diff with no reviewable file skips the
 - **Location**: eslint.config.js (`aiReviewCoreConfig`)
 - **Detail**: The probe with `eslint --stdin --stdin-filename scripts/ai-review/core.mjs` showed that `globalThis.fetch("x")` passes. Only the bare `fetch`, `process`, the restricted imports and `import()` are flagged. The plan made this lint block the purity gate, in place of the 1.5 grep, so it should also catch the obvious way around it.
 - **Fix**: Add `no-restricted-properties` entries for `globalThis.fetch` and `globalThis.process` to `aiReviewCoreConfig`, or disallow `globalThis` there with `no-restricted-globals`.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED, fixed — `no-restricted-globals` bans `globalThis` in `aiReviewCoreConfig` (probed: `globalThis.fetch` and `globalThis["process"]` now error).
 
 ### F4 — Score regex accepts `8/100` and a score anywhere in the text
 
@@ -93,7 +93,7 @@ The one change outside the plan is that a diff with no reviewable file skips the
 - **Location**: scripts/ai-review/core.mjs:227
 - **Detail**: `/SCORE:\s*(\d{1,2})\s*\/\s*10/i` has no boundary after `10`, so `SCORE: 8/100` parses as 8. It is also not anchored to the start of a line, so a `score: 9/10` that the model quotes from the PR body or diff, before its own line, is taken as the result. The plan only asks for the "first match", so this does not drift from the plan. Tightening it is cheap and makes the label harder to steer.
 - **Fix**: Use `/^\s*SCORE:\s*(\d{1,2})\s*\/\s*10\b/im`. Add `parseReview` cases for `SCORE: 8/100` (expect no score) and for a quoted mid-line `score: 9/10` that comes before the real `SCORE:` line.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED, fixed — score regex is `/^\s*SCORE:\s*(\d{1,2})\s*\/\s*10\b/im`; cases for `8/100` and a quoted earlier score added.
 
 ### F5 — Other GitHub cross-reference forms are left live
 
@@ -103,7 +103,7 @@ The one change outside the plan is that a diff with no reviewable file skips the
 - **Location**: scripts/ai-review/core.mjs:277-278
 - **Detail**: `sanitize` neutralises `@user`, `#123` and `owner/repo#123`. GitHub also links `GH-123`, and a full `https://github.com/<owner>/<repo>/issues/<n>` (or `/pull/<n>`) URL in a bot comment adds a "mentioned this" event to that issue's timeline, including in other repos. This follows on from plan-review F10, which named only `#N`.
 - **Fix**: Insert U+200B after `GH-` when a digit follows. For GitHub issue and PR URLs, break the autolink, for example by putting a ZWSP after `github.com`, or render them as code. Add one `sanitize` case for each.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED, fixed — `sanitize` breaks `GH-123` and github.com issue/PR URLs with U+200B; one case each.
 
 ### F6 — Every allowed file is diffed even after the budget is spent
 
@@ -113,4 +113,4 @@ The one change outside the plan is that a diff with no reviewable file skips the
 - **Location**: scripts/ai-review/run.mjs:67-84
 - **Detail**: `collectDiff` runs one synchronous `git diff` per allowed file and reads each whole patch (`maxBuffer` 256 MiB) before `selectDiff` drops everything past 60,000 chars. On a large PR, such as a mass rename or a vendored directory, that means hundreds of process starts, and possibly very large patches held in memory, only to list the files as "omitted". This is not a correctness problem, and the job has a 10-minute timeout.
 - **Fix**: Keep a running total in `collectDiff`. Once the budget is used up, push the remaining allowed `displayPath`s straight to `omitted` without diffing them; a binary file among them is simply listed as omitted.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED, fixed — `collectDiff` stops diffing once 60,000 chars are read (`DIFF_BUDGET`) and lists the rest as omitted; a `GIT_TRACE` test proves the late file is never diffed.

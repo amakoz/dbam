@@ -16,6 +16,7 @@ export const LABELS = {
   failed: { name: "ai-cr:failed", color: "d93f0b", description: "AI review scored below 7/10" },
 };
 
+export const DIFF_BUDGET = 60_000;
 const MAX_COMMENT = 65_000;
 const MAX_REVIEW = 20_000;
 const MAX_BODY = 10_000;
@@ -148,7 +149,7 @@ export function isBinaryPatch(text) {
  * @param {number} [budget]
  * @returns {{ sent: SentFile[], omitted: string[] }}
  */
-export function selectDiff(files, budget = 60_000) {
+export function selectDiff(files, budget = DIFF_BUDGET) {
   /** @type {SentFile[]} */
   const sent = [];
   /** @type {string[]} */
@@ -224,7 +225,7 @@ export function buildMessages({ title, body, sent, excluded, omitted, nonce }) {
 export function parseReview(content) {
   const cleaned = content.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
   if (cleaned === "") return { ok: false, reason: "empty answer" };
-  const match = /SCORE:\s*(\d{1,2})\s*\/\s*10/i.exec(cleaned);
+  const match = /^\s*SCORE:\s*(\d{1,2})\s*\/\s*10\b/im.exec(cleaned);
   if (!match) return { ok: false, reason: "no SCORE line in the answer" };
   const score = Number(match[1]);
   if (score < 1 || score > 10) return { ok: false, reason: `score out of range (${score}/10)` };
@@ -259,7 +260,7 @@ export function redactSecrets(text, secrets) {
 
 /**
  * Make provider-derived text safe to post: no control characters, no HTML comments (the marker cannot be spoofed),
- * no live @mentions or #123 cross-references, capped length.
+ * no live @mentions, #123 / GH-123 / github.com issue-URL cross-references, capped length.
  * @param {string} text
  * @param {number} [cap]
  * @returns {string}
@@ -275,7 +276,10 @@ export function sanitize(text, cap = MAX_REVIEW) {
   out = out
     .replace(/<!--/g, "")
     .replace(/(?<![A-Za-z0-9_])@(?=[A-Za-z0-9_-])/g, `@${ZWSP}`)
-    .replace(/#(?=\d)/g, `#${ZWSP}`);
+    .replace(/#(?=\d)/g, `#${ZWSP}`)
+    // GH-123 links an issue; a github.com issue or PR URL adds a "mentioned this" event to that issue's timeline.
+    .replace(/\b(gh-)(?=\d)/gi, `$1${ZWSP}`)
+    .replace(/github\.com(?=\/[^\s/]+\/[^\s/]+\/(?:issues|pull)\/\d)/gi, `$&${ZWSP}`);
   if (out.length > cap) {
     const note = "\n\n_[truncated]_";
     out = out.slice(0, cap - note.length) + note;

@@ -112,7 +112,10 @@ function baseEnv(home: string): Record<string, string> {
 }
 
 /** A temp git repo: one base commit, then a second commit adding `files`. */
-function makeRepo(files: Record<string, string> = DEFAULT_FILES): { dir: string; env: Record<string, string> } {
+function makeRepo(
+  files: Record<string, string> = DEFAULT_FILES,
+  commits = 2,
+): { dir: string; env: Record<string, string> } {
   const dir = tmp();
   const env = baseEnv(dir);
   // The project augments NodeJS.ProcessEnv with required keys; a minimal test env deliberately lacks them.
@@ -122,6 +125,7 @@ function makeRepo(files: Record<string, string> = DEFAULT_FILES): { dir: string;
   writeFileSync(join(dir, "README.md"), "# base\n");
   git("add", "-A");
   git("commit", "-q", "-m", "base");
+  if (commits === 1) return { dir, env };
   for (const [path, text] of Object.entries(files)) {
     mkdirSync(dirname(join(dir, path)), { recursive: true });
     writeFileSync(join(dir, path), text);
@@ -371,5 +375,40 @@ describe("runner", () => {
     expect(second.code).toBe(0);
     expect(githubRequests().length).toBeGreaterThan(0);
     leaks(second);
+
+    requests = [];
+    providerHandler = review(`Looks fine, key ${API_KEY}, token ${GH_TOKEN}`);
+    const third = await run();
+    expect(third.code).toBe(0);
+    expect((JSON.parse(commentPosts()[0].body) as { body: string }).body).toContain("review unavailable:");
+    expect(third.stdout).toContain("Looks fine");
+    leaks(third);
+  });
+
+  it("keeps git's stderr out of the unwrapped log when git fails", async () => {
+    const result = await run({ repo: makeRepo(DEFAULT_FILES, 1) });
+    expect(result.code).toBe(1);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toMatch(/fatal|unknown revision|ambiguous/i);
+    expect(outsideBlocks(result.stdout).join("\n")).not.toMatch(/fatal|unknown revision|ambiguous/i);
+    expect(outsideBlocks(result.stdout).some((l) => l.startsWith("::error::ai-review runner error"))).toBe(true);
+    expect(requests).toHaveLength(0);
+  });
+
+  it("does not diff files after the size budget is spent, and lists them as omitted", async () => {
+    const dir = makeRepo({
+      "src/a-big.ts": `// ${"x".repeat(65_000)}\n`,
+      "src/b-late.ts": "export const late = 1;\n",
+    });
+    const trace = join(dir.dir, "git-trace.log");
+    const result = await run({ repo: dir, env: { GIT_TRACE: trace } });
+    expect(result.code).toBe(0);
+    const log = readFileSync(trace, "utf8");
+    expect(log).toContain("a-big.ts");
+    expect(log).not.toContain("b-late.ts");
+    const comment = (JSON.parse(commentPosts()[0].body) as { body: string }).body;
+    expect(comment).toContain("Omitted files (1)");
+    expect(comment).toContain("src/b-late.ts");
+    expect(comment).toContain("1 truncated");
   });
 });

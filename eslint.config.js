@@ -172,6 +172,11 @@ const aiReviewCoreConfig = defineConfig({
       "error",
       { selector: "ImportExpression", message: "scripts/ai-review/core.mjs is pure: no dynamic import()" },
     ],
+    // globalThis.fetch / globalThis.process would sidestep the "off" globals above.
+    "no-restricted-globals": [
+      "error",
+      { name: "globalThis", message: "scripts/ai-review/core.mjs is pure: no globalThis (fetch, process)" },
+    ],
   },
 });
 

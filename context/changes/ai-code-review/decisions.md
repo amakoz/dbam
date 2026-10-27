@@ -95,3 +95,16 @@
 - Question: how to run /10x-impl-review for this change?
 - Choice: full plan (phases 1, 2), review done inline without sub-agents (6 code files, all read in full), report at `context/changes/ai-code-review/impl-review.md` as the orchestrator asked, every finding left `PENDING`. Rows 2.7–2.9 stay open on purpose (they need the real provider on the PR run). Deliberate breaks for the `.env` rule and the `>= 7` threshold were re-run during the review (8 and 1 red tests) and reverted with `git checkout`. Verdict APPROVED: 1 warning (no-leak test misses two output paths), 5 observations.
 - Decided-by: orchestrator (path, no triage, 2.7–2.9 open), worker (inline review, re-run breaks)
+
+## 2026-10-27 Impl-review triage (F1–F6)
+
+- Question: how to resolve the 1 warning and 5 observations in `impl-review.md`?
+- Choice: all accepted by the orchestrator with the fix each finding states; each Decision is marked in `impl-review.md`.
+  - F1: third no-leak run with secrets in an answer that has no `SCORE:` line.
+  - F2: `git()` captures stderr; on failure it is logged through `logUntrusted(clean())` and the error is rethrown.
+  - F3: `globalThis` banned in the core's lint block (`no-restricted-globals`).
+  - F4: score regex anchored to a line start with a `\b` after `10`.
+  - F5: `GH-123` and github.com issue/PR URLs neutralised with U+200B.
+  - F6: `collectDiff` skips diffing once the budget is spent (worker detail: `DIFF_BUDGET` exported from the core; proved with `GIT_TRACE`).
+- Evidence: `context/changes/ai-code-review/impl-review.md`.
+- Decided-by: orchestrator (fixes), worker (details). Each new test was broken once and went red.

@@ -162,3 +162,48 @@ Later PRs append one section per phase below this one.
 - **Detail**: The plan names dc62600 as the reference for "unchanged since phase 1", which phases 4–8 diff against, and Progress cites 14f1302 and ea0cc9c. The squash merge left all three off main (`git merge-base --is-ancestor dc62600 origin/main` fails). They survive only in this worktree and in GitHub's PR refs, so later phase workers on a fresh worktree will run `git diff dc62600 -- …` against an unknown revision. The guard files at 8410cdb are byte-identical to dc62600 (verified).
 - **Fix**: In `plan.md` "Guard first" and in `decisions.md`, repoint the reference to 8410cdb (#99 on main), and note that the Progress SHAs 14f1302 and ea0cc9c were squashed into 8410cdb. Ship that with PR B.
 - **Decision**: Fixed (reference repointed to 8410cdb; the squash is noted in plan.md and decisions.md)
+
+## PR C — phase 4
+
+- **Plan**: context/changes/reminders-runner/plan.md
+- **Scope**: Phase 4 of 8 (PR C, local branch `feat/reminders-runner-p4`, commit 2dacbb5 vs its parent). Phases 1–3 merged in #99/#100. Manual row 4.6 (the next production run) is open by design and gates phase 5.
+- **Reviewed phases**: 4
+- **Date**: 2026-10-28
+- **Verdict**: APPROVED
+- **Findings**: 0 critical, 0 warnings, 0 observations
+
+### Verdicts
+
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | PASS    |
+| Scope Discipline    | PASS    |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | PASS    |
+
+### Verification run by the reviewer
+
+- **Scope.** The commit touches only the planned `src/lib/reminders/appointment.ts` and the one `eslint.config.js` line (the appointment entry removed; the due, nudge and runner entries kept), plus `plan.md` and `decisions.md`. The runner, deps, chain, worker and the other two jobs are untouched.
+- **Spec.** `appointmentJob` keeps the planned values:
+  - event `appointment-reminder` and prefix `dbam-appointment-reminder`;
+  - claim arguments `p_today: warsawToday(now)`, `p_lead_days: APPOINTMENT_REMINDER_LEAD_DAYS` and `p_limit: REMINDER_EMAIL_DAILY_BUDGET`;
+  - claim error `ReminderDatabaseError("claim", code)`;
+  - ids from `reminder_ids` and the mark RPC `mark_appointment_reminders_sent`.
+
+  The call is `runClaimSendMark(appointmentJob, run, undefined, reminderDeps())`. `buildMessage` now takes `(row, site)`, with its body otherwise byte-identical. The local `log` helper is gone. `AppointmentReminderOutcome` is an alias of `ReminderOutcome`. The header keeps the job's own facts; the skeleton details moved to `runner.ts`.
+
+- **Signature.** `runAppointmentReminders(run: ReminderRun)` is structurally the old `{ cron, scheduledTime }` (`chain.ts:8-11`). It is no longer `async`, so `reminderDeps()` runs before the runner's `try`. That is safe: `reminderDeps()` only reads 2 function references and an inlined literal, so it cannot throw. Even if it did, `chain.ts:37-42` catches the throw of `await appointment(run)` and alerts; only the job's own `failed` line would be missing. The decision is recorded in `decisions.md`.
+- **Gates:**
+  - `npm test`: 21 files, 409 tests passed.
+  - `npm run lint`: exit 0. `npx astro check`: 0 errors. `npm run build`: exit 0.
+  - 4.1: the 3 job tests and the helper are byte-identical to 8410cdb.
+  - 4.3: same as the baseline. The URL is in 20 files, and `import.meta.env.SITE` appears only as the vendor hit in `dist/server/chunks/dist_CXvK08EP.mjs`. The `reminderDeps` chunk has `site: "https://dbam.amadeuszkozlowski.workers.dev"` (`dist/server/entry.mjs:438`, next to `keyPrefix: "dbam-appointment-reminder"` at :567).
+  - 4.4: `appointment.ts` has no `console.` and no `sendEmailBatch(` call.
+  - 4.5 re-run: a mark before the dry-run check in `runner.ts` fails 2 runner tests and 2 appointment tests (dry run, sent transcript). Reverted.
+- **Bookkeeping.** The Progress write-back ` — 2dacbb5` for rows 4.1–4.5 is in the working tree, uncommitted, as the worker protocol allows.
+
+### Findings
+
+None.

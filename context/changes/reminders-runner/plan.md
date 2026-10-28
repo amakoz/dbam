@@ -745,11 +745,11 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [x] 4.1 npm test passes with appointment.test.ts unchanged since phase 1
-- [x] 4.2 npm run lint and npx astro check pass
-- [x] 4.3 npm run build succeeds and the whole-output SITE check matches the phase 1 baseline (import.meta.env.SITE absent apart from the vendor hit recorded in decisions.md)
-- [x] 4.4 appointment.ts has no console call and no direct sendEmailBatch call
-- [x] 4.5 A deliberate runner break fails runner.test.ts and appointment.test.ts and is reverted before commit
+- [x] 4.1 npm test passes with appointment.test.ts unchanged since phase 1 — 2dacbb5
+- [x] 4.2 npm run lint and npx astro check pass — 2dacbb5
+- [x] 4.3 npm run build succeeds and the whole-output SITE check matches the phase 1 baseline (import.meta.env.SITE absent apart from the vendor hit recorded in decisions.md) — 2dacbb5
+- [x] 4.4 appointment.ts has no console call and no direct sendEmailBatch call — 2dacbb5
+- [x] 4.5 A deliberate runner break fails runner.test.ts and appointment.test.ts and is reverted before commit — 2dacbb5
 
 #### Manual
 

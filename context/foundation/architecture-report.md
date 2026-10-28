@@ -1,6 +1,7 @@
 ---
 artifact: architecture-report
 created: 2026-10-27
+updated: 2026-10-28
 status: draft (worker draft, owner edits and approves before merge)
 head: 1e5d891
 inputs: repo-map, reminders-research (F-12), reminders-refactor (F-13), domain-distillation (F-14), test-plan, tests/e2e
@@ -65,10 +66,10 @@ The **Core** is two subdomains: screening recommendation, and screening follow-t
 
 **Top drift:**
 
-- **D-01:** appointment reminders go out for plans whose catalog entry is retired or back in draft. Nudges and due-again reminders require `active` (DD:215). _Inference:_ this is the same defect as SD-3, found on its own by two inputs.
+- **D-01:** appointment reminders go out for plans whose catalog entry is retired or back in draft. Nudges and due-again reminders require `active` (DD:215). _Inference:_ this is the same finding as SD-3, found on its own by two inputs. The owner says the retired case is intended (§7, Q-01).
 - **D-02:** a catalog snapshot can move an active entry back to draft, which silently hides users' records for it (DD:216).
 - **D-03:** "mark done" is two separate PostgREST calls. If the delete fails, both rows stay and the user sees `save_failed` (DD:217; `src/pages/api/screenings.ts:150-163`).
-- **D-04:** a screening a user becomes eligible for for the first time gets no reminder, and the PRD sentence reads either way (DD:218).
+- **D-04:** a screening a user becomes eligible for for the first time gets no reminder, and the PRD sentence reads either way (DD:218). The owner says this is intended: repeat exams only (§7, Q-03).
 
 The word `due` has five meanings in code and `badanie` has two (DD:98-99). This report uses the glossary terms.
 
@@ -86,30 +87,40 @@ The word `due` has five meanings in code and `badanie` has two (DD:98-99). This 
 
 **Stale doc:** TP §3 still lists Phase 1 as "change opened", but `roadmap.md:53` marks S-08 done (TP:70).
 
-## 7. Open owner questions
+## 7. Owner answers (2026-10-28)
 
-- **Q-01 / SD-3:** should a retired or draft entry stop appointment reminders (DD:261; RR:339)?
-- **Q-03:** does "a reminder when a screening becomes due" include first-time eligibility (DD:263)?
-- **Q-04:** is it acceptable to lose appointment reminders above about 92 users a day (DD:264)?
-- **Q-05:** can a browser reach the Supabase REST API directly and bypass the API routes (DD:265)?
-- **Q-09:** where does the medical sign-off and launch gate stand (DD:269; RM:266)?
-- **SD-6:** can two send runs overlap in production (RR:340)?
+The owner answered the DD questions on 2026-10-28 (`context/changes/architecture-report/decisions.md`). The consequences are the worker's reading of each answer (inference).
+
+| Q    | Question                                             | Answer                                                      | Consequence                                     |
+| ---- | ---------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------- |
+| Q-01 | Appointment reminders for a retired entry? (DD:261)  | Keep them; intended                                         | D-01 / SD-3 is closed as intended behaviour     |
+| Q-02 | Can catalog entries move backwards? B-04? (DD:262)   | Forward-only moves; B-04 is a bug                           | D-02 needs a guard; B-04 needs a fix (§8)       |
+| Q-03 | "Becomes due" includes first time? (DD:263)          | Repeat exams only; first-time eligibility is dashboard-only | D-04 is a PRD wording fix, not a missing email  |
+| Q-04 | Lose appointment reminders above ~92/day? (DD:264)   | Accepted for now; revisit before launch                     | D-05 stays as an accepted risk                  |
+| Q-05 | Browser reaches Supabase REST directly? (DD:265)     | Accepted for now; revisit before launch                     | DD ranking #8 waits for launch                  |
+| Q-06 | Entry past `next_review_due`? (DD:266)               | Flag it in CI                                               | D-08 needs a CI check (§8)                      |
+| Q-07 | Words for catalog item vs user's exam? (DD:267)      | "screening" vs "exam"                                       | Matches GL:17, :51; `zalecenia` left unanswered |
+| Q-08 | Appointment and due-again email on one day? (DD:268) | Acceptable                                                  | Cross-job overlap closed                        |
+| Q-09 | Medical sign-off and launch gate? (DD:269)           | No launch planned                                           | Q-04, Q-05 and Q-10 wait for a launch decision  |
+| Q-10 | Re-consent and consent proof? (DD:270)               | Deferred to the launch gate                                 | —                                               |
+
+**Still open:** SD-6, whether two send runs can overlap in production (RR:340).
 
 ## 8. What to do next
 
 1. Un-park F-13 once M-02 closes, starting with phase 1 (RP:13; PB:90).
 2. Run TP Phase 2, recipient integration, including a withdrawal sweep over every table with `user_id` (SD-5) (RR:289-290; TP:71).
-3. Name the Exam aggregate and make mark-done atomic. Done when a failed mark-done leaves no plan beside its done record (DD:244).
-4. Get answers to Q-01, Q-03 and Q-04. They decide D-01, D-04 and D-05.
-5. _Inference, not in any plan yet:_ add a CI diff of `database.types.ts` (RM:117, :272).
+3. Name the Exam aggregate, make mark-done atomic and fix B-04 (Q-02). Done when a failed mark-done leaves no plan beside its done record (DD:244).
+4. Guard the catalog lifecycle in CI (Q-02, Q-06). Done when `catalog:check` refuses a backward status move and flags an entry past `next_review_due` (DD:248).
+5. Reword `prd.md:32` to say repeat exams only (Q-03, D-04).
+6. _Inference, not in any plan yet:_ add a CI diff of `database.types.ts` (RM:117, :272).
 
 ## Owner review: check these first
 
 - [ ] One person authored and merged everything, with no human review (RM:224, :265).
 - [ ] Withdrawal clears the ledgers only through cascades, with no test for `due_screening_reminders` (RR:52-54).
-- [ ] The appointment claim ignores catalog status: `grep -c screening_catalog supabase/migrations/20260930125726_appointment_reminders.sql` prints 0 (D-01, SD-3).
+- [ ] §7 records your 2026-10-28 answers as you meant them, especially the consequences for Q-01 (D-01 closed) and Q-03 (D-04 becomes a PRD wording fix).
 - [ ] Mark done is two calls (`src/pages/api/screenings.ts:150-163`).
 - [ ] The budget is 92, and a failed job zeroes the later jobs (`src/lib/email-budget.ts:9`; RR:84).
 - [ ] The F-13 choice and its parking match your intent (PB:32; RP:13).
-- [ ] The Exam aggregate ranks above first-time eligibility (DD:255).
 - [ ] TP §3 Phase 1 status should read done (TP:70).

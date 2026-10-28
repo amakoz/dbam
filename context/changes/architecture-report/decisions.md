@@ -27,3 +27,20 @@
 
 - D-01 = SD-3 (two inputs agree) and the CI diff for `database.types.ts` (next step 5) are marked _Inference_. Neither input states them that way.
 - Decided by: worker.
+
+## 2026-10-28 Owner answers to the open questions
+
+- Question: DD Q-01 to Q-10 (`context/domain/domain-distillation.md:261-270`).
+- Answers:
+  - Q-01: keep appointment reminders for retired entries (intended).
+  - Q-02: catalog moves are forward-only; B-04 is a bug.
+  - Q-03: "becomes due" means repeat exams only; first-time eligibility is dashboard-only.
+  - Q-04, Q-05: accepted for now; revisit before launch.
+  - Q-06: flag entries past `next_review_due` in CI.
+  - Q-07: "screening" for the catalog item, "exam" for the user's.
+  - Q-08: acceptable.
+  - Q-09: no launch planned.
+  - Q-10: deferred to the launch gate.
+- Applied: report §7 is now an answer table, §5 notes D-01 and D-04 as intended, §8 adds the B-04 fix, a catalog-lifecycle CI guard and a PRD reword. The checklist drops the two items these answers settle (appointment claim vs catalog status, Exam vs first-time-eligibility ranking) and asks the owner to confirm §7.
+- Worker reading (inference): the forward-only rule (Q-02) also rules out the draft case of Q-01. Q-07's answer does not cover `zalecenia` (B-06), so that half stays open.
+- Decided by: owner (answers); worker (how they were written into the report).

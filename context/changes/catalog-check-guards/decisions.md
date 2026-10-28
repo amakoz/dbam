@@ -65,3 +65,12 @@
 - F2 (a unit test pinned the 19 real active entries): fix. The 19 warnings are now built synthetically, and the cap assertions are kept (one `::warning`, 19 `warning:` lines).
 - F3 (the step-summary write could change the exit code): fix. The append is wrapped in `try/catch` and prints `warning: could not write $GITHUB_STEP_SUMMARY`. Checked with an unwritable path: exit 0.
 - decided-by: orchestrator
+
+## 2026-10-28 Archive with PR-stage rows open
+
+- `/10x-archive` queued these warnings:
+  - Manual rows 2.6 and 2.7 are pending (0 automated, 2 manual).
+  - Phase SHAs bc53c41 and 153fe35 are not yet in `origin/main`, because the PR is not open yet. Nothing was repointed.
+  - `impl-review.md` sits at the change root instead of `reviews/`. Its "Reviewed phases: 1, 2" covers every phase.
+- Choice: continue archiving. The PR's "Manual checks for the human" list covers 2.6 and 2.7.
+- decided-by: orchestrator (standing instruction)

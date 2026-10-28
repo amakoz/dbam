@@ -394,9 +394,9 @@ Not applicable: no schema, data or runtime change.
 
 #### Automated
 
-- [x] 3.1 Catalog tests pass: `npx vitest run scripts/catalog`
-- [x] 3.2 Full unit suite passes: `npm test`
-- [x] 3.3 Lint passes: `npm run lint`
-- [x] 3.4 Catalog guard still passes: `npm run catalog:check`
-- [x] 3.5 Deliberate break: removing the `'` doubling in `quote` (`scripts/catalog/lib.ts:152`) fails the escaping case; dropping the `DRAFT_FIELDS` spread in `planWrites` fails the draft-status case; both reverted
-- [x] 3.6 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing
+- [x] 3.1 Catalog tests pass: `npx vitest run scripts/catalog` — 40803be
+- [x] 3.2 Full unit suite passes: `npm test` — 40803be
+- [x] 3.3 Lint passes: `npm run lint` — 40803be
+- [x] 3.4 Catalog guard still passes: `npm run catalog:check` — 40803be
+- [x] 3.5 Deliberate break: removing the `'` doubling in `quote` (`scripts/catalog/lib.ts:152`) fails the escaping case; dropping the `DRAFT_FIELDS` spread in `planWrites` fails the draft-status case; both reverted — 40803be
+- [x] 3.6 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing — 40803be

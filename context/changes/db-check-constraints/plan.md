@@ -312,9 +312,9 @@ version sends only values the API rules accept and those rules have not changed 
 
 #### Automated
 
-- [x] 2.1 Unit tests pass, including `src/lib/consent.test.ts`: `npm test`
-- [x] 2.2 Lint and type check pass: `npm run lint` and `npx astro check`
-- [x] 2.3 Smoke passes locally against the migrated stack under the DB lock: `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run smoke`
+- [x] 2.1 Unit tests pass, including `src/lib/consent.test.ts`: `npm test` — e2de957
+- [x] 2.2 Lint and type check pass: `npm run lint` and `npx astro check` — e2de957
+- [x] 2.3 Smoke passes locally against the migrated stack under the DB lock: `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run smoke` — e2de957
 
 #### Manual
 

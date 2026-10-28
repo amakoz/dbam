@@ -58,3 +58,10 @@
 - `parseSnapshotStatuses` also treats a manifest slug that is not `[a-z0-9-]+` as unreadable. The manifest pattern (`\S+`) accepts any token, and the slug is put into a regex. This is a minor adaptation; the plan assumed the manifest pattern already restricted slugs.
 - Manual rows 2.6 (the PR's `ci` log) and 2.7 (the owner proofreads the README) need the PR's CI run or a human, so they move to the PR's Manual checks list and stay unchecked. `change.md` is set to `implemented` with those two rows pending.
 - decided-by: worker
+
+## 2026-10-28 Impl-review triage (verdict APPROVED, 2 warnings, 1 observation)
+
+- F1 ("Never delete an entry" ended up under "Review dates"): fix. The `### Allowed moves` and `### Review dates` subsections moved below the never-delete paragraph. The text moved; its wording is unchanged.
+- F2 (a unit test pinned the 19 real active entries): fix. The 19 warnings are now built synthetically, and the cap assertions are kept (one `::warning`, 19 `warning:` lines).
+- F3 (the step-summary write could change the exit code): fix. The append is wrapped in `try/catch` and prints `warning: could not write $GITHUB_STEP_SUMMARY`. Checked with an unwritable path: exit 0.
+- decided-by: orchestrator

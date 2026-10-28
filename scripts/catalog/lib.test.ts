@@ -201,12 +201,12 @@ describe("formatReviewWarnings", () => {
   });
 
   it("adds exactly one annotation under GitHub Actions, however many entries fall due", () => {
-    const warnings = REPO_ENTRIES.filter((e) => e.status === "active").map((e): ReviewWarning => ({
-      slug: e.slug,
+    // More entries fall due on one day than GitHub keeps annotations for (10 per step).
+    const warnings = Array.from({ length: 19 }, (_, i): ReviewWarning => ({
+      slug: `entry-${i}`,
       kind: "overdue",
       due: "2027-09-29",
     }));
-    expect(warnings).toHaveLength(19);
     const lines = formatReviewWarnings(warnings, true);
     expect(lines.filter((line) => line.startsWith("warning: "))).toHaveLength(19);
     const annotations = lines.filter((line) => line.startsWith("::"));

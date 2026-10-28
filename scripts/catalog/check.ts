@@ -51,7 +51,13 @@ const warnings = findReviewWarnings(entries, warsawToday(new Date()));
 const github = process.env.GITHUB_ACTIONS === "true";
 for (const line of formatReviewWarnings(warnings, github)) process.stdout.write(`${line}\n`);
 const summaryFile = process.env.GITHUB_STEP_SUMMARY;
-if (github && warnings.length > 0 && summaryFile) fs.appendFileSync(summaryFile, renderReviewSummary(warnings));
+if (github && warnings.length > 0 && summaryFile) {
+  try {
+    fs.appendFileSync(summaryFile, renderReviewSummary(warnings));
+  } catch {
+    process.stdout.write("warning: could not write $GITHUB_STEP_SUMMARY\n");
+  }
+}
 
 if (problems.length > 0) {
   process.stderr.write(`${problems.join("\n")}\n\ncatalog:check failed with ${problems.length} problem(s)\n`);

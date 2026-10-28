@@ -44,7 +44,7 @@
 - **Location**: catalog/README.md:17-31
 - **Detail**: The new `### Allowed moves` and `### Review dates` subsections were placed between the Lifecycle bullets and the `**Never delete an entry.**` paragraph. That paragraph's text is unchanged, as the plan required, but it now renders as the last paragraph of "Review dates", a subsection about warnings. `CLAUDE.md`'s catalog hard rule sends readers to this README, and the never-delete rule is now filed under the wrong heading.
 - **Fix**: Move the two `###` subsections below the "Never delete an entry" paragraph, so the paragraph closes the Lifecycle section as before. This is a text move only, with no wording change.
-- **Decision**: PENDING
+- **Decision**: FIXED
 
 ### F2 — Unit test pins the number of active catalog entries
 
@@ -54,7 +54,7 @@
 - **Location**: scripts/catalog/lib.test.ts:209
 - **Detail**: The annotation-cap test builds its warnings from the real active entries and asserts `toHaveLength(19)`, and again at `:211`. Catalog content changes routinely, for example the owner activating the draft `lung-ldct-nfz-program`. Such a change would turn `npm test` red in an entry-only PR that touches no code, and the PR author would have to edit a script test. The plan's "19 warnings" was meant to show the cap (more than 10 entries due on one day), not to fix the catalog size.
 - **Fix**: Build the 19 warnings synthetically, for example `Array.from({ length: 19 }, (_, i) => ({ slug: \`entry-${i}\`, kind: "overdue", due: "2027-09-29" }))`. Keep the "exactly one `::warning`, 19 `warning:` lines" assertions.
-- **Decision**: PENDING
+- **Decision**: FIXED
 
 ### F3 — Step-summary write can still change the exit code
 
@@ -64,4 +64,4 @@
 - **Location**: scripts/catalog/check.ts:54
 - **Detail**: `fs.appendFileSync(summaryFile, …)` is unguarded. If the write throws (bad path or a read-only file), `catalog:check` crashes with exit 1 even though the run has only warnings. That contradicts the plan's invariant "the exit code never changes because of warnings". On GitHub runners the path is always writable, so the risk is theoretical.
 - **Fix**: Wrap the append in `try/catch` and print a one-line `warning: could not write $GITHUB_STEP_SUMMARY` instead of throwing.
-- **Decision**: PENDING
+- **Decision**: FIXED

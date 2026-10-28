@@ -14,6 +14,8 @@ The curated catalog of screening checks behind `public.screening_catalog`. Each 
 - **`active`:** visible to everyone and used for recommendations. Only the owner sets this, after reviewing the entry against its sources, and only together with a review stamp (`reviewed_by` + `last_reviewed`): `catalog:check` rejects an active entry without one, and the dashboard shows only stamped entries.
 - **`retired`:** still visible, so existing exam records keep resolving, but no longer recommended.
 
+**Never delete an entry.** Set `"status": "retired"` instead. The slug is the entry's permanent identity, so never rename it either. `catalog:check` fails when a slug that an earlier snapshot migration shipped has no file anymore.
+
 ### Allowed moves
 
 Statuses move forward only:
@@ -26,8 +28,6 @@ Statuses move forward only:
 ### Review dates
 
 `catalog:check` warns, but never fails, for every active entry whose `next_review_due` is before today (Warsaw date) or that has no `next_review_due`. Under GitHub Actions the run adds one warning annotation that lists every such slug, and a list in the job summary. The entry stays visible to users. Re-review it with the [review checklist](#review-checklist) and set a new stamp.
-
-**Never delete an entry.** Set `"status": "retired"` instead. The slug is the entry's permanent identity, so never rename it either. `catalog:check` fails when a slug that an earlier snapshot migration shipped has no file anymore.
 
 ## Entry fields
 

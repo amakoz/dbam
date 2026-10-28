@@ -70,7 +70,7 @@ Later PRs append one section per phase below this one.
 - **Location**: context/changes/reminders-runner/plan.md:725-726
 - **Detail**: Row 1.5 ("Reviewer confirms the pinned sent-transcript email copy…") is `[x] — 3599ba2`. `decisions.md` records only that the worker pinned the copy by hand from `src/i18n`. No reviewer is named and no confirmation is recorded. The plan says "Pause after this phase for the manual check before phase 2", yet phase 2 was committed 2 minutes after phase 1 (09:08 → 09:10). The person who wrote the expectations is not an independent reviewer of them.
 - **Fix**: Have the orchestrator or the owner read the 3 `sent` transcripts (appointment.test.ts:189-221, due-screening.test.ts:275-306, follow-up-nudge.test.ts:221-254) against `src/i18n/{pl,en}.ts`, and record who confirmed in `decisions.md`. Otherwise reset 1.5 to `[ ]` until someone does.
-- **Decision**: PENDING
+- **Decision**: Fixed (reviewer-confirmed): the reviewer pane (Opus, independent of the author) verified the pinned sent-transcript copy in the 3 test files against today's i18n and builders, with no exam name or health data
 
 #### F3 — The `SITE` baseline doesn't match the plan's phase 4 gate, and only `decisions.md` records the reinterpretation
 

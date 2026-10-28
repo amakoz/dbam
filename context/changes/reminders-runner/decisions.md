@@ -41,3 +41,9 @@ Review: `impl-review.md` (PR A, phases 1–2). Decided by the orchestrator; appl
 - **F3 — confirmed.** The `SITE` reinterpretation is now `decided-by: orchestrator`. Phase 4 §3 and row 4.3 carry: "absent apart from the vendor hit recorded in decisions.md (SITE build baseline)".
 - **F4 — fixed.** Progress SHAs sit at the end of their row lines (1.12, 1.5, 2.4) and the blank line before `### Phase 3` is back. A regex bug of mine caused it (a `[^ ]` matched the newline).
 - **F5 — fixed.** The four references to the pre-archive folder point at `context/archive/2026-10-27-reminders-refactor/…` (research, plan-review, decisions, and `follow-ups/td-5-job-list.md`). The archive was not touched.
+
+## 2026-10-28 Row 1.5 confirmed by the reviewer pane (impl-review F2)
+
+- Question: who confirms the pinned sent-transcript email copy (manual row 1.5)? The author wrote the expectations, so the author is not an independent check.
+- Choice: the reviewer pane (Opus, independent of the author) verified the pinned copy in `appointment.test.ts`, `due-screening.test.ts` and `follow-up-nudge.test.ts` against today's `src/i18n/{pl,en}.ts` and the builders. It matches, and no email names an exam or holds health data. Row 1.5 stays `[x]`; F2's Decision is fixed.
+- decided-by: orchestrator

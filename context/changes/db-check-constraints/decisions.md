@@ -71,3 +71,9 @@
 - Break checks: a plan trigger that skips every UPDATE turned cases 6–7 red; dropping the +1 day upper slack turned case 5 red; dropping the day rule turned 18–19 red (run in one rolled-back transaction against the local stack). A malformed `HEALTH_DATA_CONSENT_VERSION` turned both `consent.test.ts` cases red.
 - Progress 2.4 (owner runs the read-only production query) stays open: it needs production, so it is the PR's "Manual checks for the human" item. `change.md` is set to `implemented` with that one row pending.
 - decided-by: worker
+
+## 2026-10-28 Implementation review triage (APPROVED, `impl-review.md`)
+
+- F1 (deliverables outside the diff): accepted — (a) the PR body explains why triggers, not CHECKs, lists `follow-ups/validate-consent.md` and asks the owner to run the read-only query soon after merge; (b) the archive commit adds a one-line `context/foundation/backlog.md` entry for the VALIDATE follow-up.
+- F2 (row 1.6 ticked by the implementer): accepted — `plan.md` Phase 1 cites `impl-review.md` F2 as the evidence for Progress 1.6.
+- decided-by: orchestrator

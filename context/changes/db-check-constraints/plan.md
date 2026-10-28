@@ -173,6 +173,9 @@ are not exported). Commit only if it changes, and explain the diff in decisions.
 
 - Reviewer reads the migration header and confirms each bound is never stricter than the API (lower −1 day, upper +1 day, Warsaw year)
 
+Evidence for Progress 1.6: the independent check in `impl-review.md` (F2), which matched every bound against
+`rules.ts:131,160` and `profile.ts:69-119`.
+
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual
 confirmation from the human that the manual testing was successful before proceeding to the next phase.
 

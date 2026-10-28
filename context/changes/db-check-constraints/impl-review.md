@@ -81,7 +81,7 @@ nothing outside the plan changed: `supabase/migrations/20261028131057_app_rule_c
   remembered only inside an immutable archive folder.
 - **Fix**: At the PR stage, check (a) in the PR body. At archive, add the `backlog.md` line in the archive commit, as the
   follow-up note says.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — (a) in the PR body, (b) the backlog.md line in the archive commit (orchestrator, 2026-10-28)
 
 ### F2 — Manual row 1.6 was ticked by the implementing worker
 
@@ -94,4 +94,4 @@ nothing outside the plan changed: `supabase/migrations/20261028131057_app_rule_c
   above matches `rules.ts:131,160` and `profile.ts:69-119` with the stated slack. So the tick is correct, but the row's evidence is
   this report, not the commit.
 - **Fix**: None needed in code. If you want the row's evidence to point at this review, cite `impl-review.md` on row 1.6.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — impl-review.md cited as row 1.6 evidence in plan.md (orchestrator, 2026-10-28)

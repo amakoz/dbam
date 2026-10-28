@@ -736,10 +736,10 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [ ] 3.1 npm test passes including runner.test.ts with the phase 1 test files unchanged
-- [ ] 3.2 runner.test.ts has no astro:* mock and passes
-- [ ] 3.3 npm run lint and npx astro check pass
-- [ ] 3.4 A deliberate mark before the dry-run check fails runner.test.ts and is reverted before commit
+- [x] 3.1 npm test passes including runner.test.ts with the phase 1 test files unchanged
+- [x] 3.2 runner.test.ts has no astro:* mock and passes
+- [x] 3.3 npm run lint and npx astro check pass
+- [x] 3.4 A deliberate mark before the dry-run check fails runner.test.ts and is reverted before commit
 
 ### Phase 4: Appointment job on the runner
 

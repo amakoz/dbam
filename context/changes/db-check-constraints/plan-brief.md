@@ -19,22 +19,23 @@ first-of-month, day-in-month); `appointment_date` and `consent_version` have non
 ## Desired End State
 
 A write by `authenticated`/`anon` that breaks any of the rules fails with 23514; the app's own writes, the confirm
-flow, the cron and rows already stored keep working. pgTAP covers each rule at its boundary, and no test fixture
-breaks as the calendar moves on.
+flow, the cron and rows already stored keep working. pgTAP covers each rule at its boundary, on insert, on update
+and through an upsert, asserting the rule-naming message, and no test fixture breaks as the calendar moves on.
 
 ## Key Decisions Made
 
-| Decision                           | Choice                                                                              | Why (1 sentence)                                                                                                        | Source              |
-| ---------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| Form of the "today"-relative rules | `BEFORE INSERT/UPDATE` triggers, not `CHECK`                                        | Postgres assumes a `CHECK` is immutable and re-checks it on every update and restore; plans age into the past by design | Research            |
-| Roles checked                      | `authenticated`, `anon` only                                                        | The threat is a client reaching PostgREST; cron fixtures write as `postgres` around a fake today                        | Orchestrator        |
-| Slack                              | Appointment lower bound today − 1; upper bound +2 years +1 day; Warsaw year for age | The database must never be stricter than the API (midnight race, 29 Feb clamping, UTC vs Warsaw year)                   | Orchestrator / Plan |
-| When a trigger checks              | On insert or when the rule's value changes                                          | Aged plans stay deletable and confirmable; the reminder toggle never re-checks age                                      | Plan                |
-| Consent check                      | Format `YYYY-MM-DD[.N]`, `NOT VALID`                                                | Immutable, no upkeep per version bump, never fails `migrate` on unknown production rows                                 | Orchestrator        |
-| VALIDATE                           | Later: follow-up note + owner runs a read-only prod query                           | Workers never touch production                                                                                          | Orchestrator        |
-| Adjacent rules                     | Smoking years + years since quitting ≤ age; last exam day ≤ today                   | Same rows, same date/age rule family                                                                                    | Orchestrator        |
-| Missing profile on a done record   | Skip the birth-year lower bound                                                     | The API always has a profile; pgTAP fixtures do not                                                                     | Plan                |
-| Cron fixture dates                 | Seed as `postgres` instead of rewriting to the real date                            | Claim functions take "today" as a parameter; role of the seed write is irrelevant to them                               | Plan                |
+| Decision                           | Choice                                                                                                                | Why (1 sentence)                                                                                                        | Source                     |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| Form of the "today"-relative rules | `BEFORE INSERT/UPDATE` triggers, not `CHECK`                                                                          | Postgres assumes a `CHECK` is immutable and re-checks it on every update and restore; plans age into the past by design | Research                   |
+| Roles checked                      | `authenticated`, `anon` only                                                                                          | The threat is a client reaching PostgREST; cron fixtures write as `postgres` around a fake today                        | Orchestrator               |
+| Slack                              | Appointment lower bound today − 1; upper bound +2 years +1 day; Warsaw year for age                                   | The database must never be stricter than the API (midnight race, 29 Feb clamping, UTC vs Warsaw year)                   | Orchestrator / Plan        |
+| When a trigger checks              | On insert or when the rule's value changes                                                                            | Aged plans stay deletable and confirmable; the reminder toggle never re-checks age                                      | Plan                       |
+| Consent check                      | Format `YYYY-MM-DD[.N]`, `NOT VALID`                                                                                  | Immutable, no upkeep per version bump, never fails `migrate` on unknown production rows                                 | Orchestrator               |
+| VALIDATE                           | Later: `follow-ups/validate-consent.md` + owner runs a read-only prod query soon after merge; backlog line at archive | Workers never touch production; a malformed old row would block its owner's withdrawal until rewritten                  | Orchestrator / Plan review |
+| Test depth                         | Refused UPDATE per rule branch, one upsert case, rule-naming messages asserted                                        | Static checks also raise 23514, and the "changed only" branch is the newest logic                                       | Plan review                |
+| Adjacent rules                     | Smoking years + years since quitting ≤ age; last exam day ≤ today                                                     | Same rows, same date/age rule family                                                                                    | Orchestrator               |
+| Missing profile on a done record   | Skip the birth-year lower bound                                                                                       | The API always has a profile; pgTAP fixtures do not                                                                     | Plan                       |
+| Cron fixture dates                 | Seed as `postgres` instead of rewriting to the real date                                                              | Claim functions take "today" as a parameter; role of the seed write is irrelevant to them                               | Plan                       |
 
 ## Scope
 
@@ -43,7 +44,7 @@ breaks as the calendar moves on.
 - One additive migration: 3 trigger functions + triggers, 1 `NOT VALID` check
 - New `app_rules.test.sql`; calendar-independent fixtures in `screening_records` and `appointment_reminders`
 - `consent.test.ts` guarding the constant's format; comments in `consent.ts`, `profile.ts`, `rules.ts`
-- Follow-up note for `VALIDATE`
+- Follow-up note for `VALIDATE` in `follow-ups/validate-consent.md`
 
 **Out of scope:**
 
@@ -70,7 +71,10 @@ to `save_failed`, so users see no difference.
 ## Open Risks & Assumptions
 
 - Production consent rows are assumed well formed (all three versions the app ever wrote are); `NOT VALID` makes
-  this safe until the owner's query confirms it.
+  this safe for deploys until the owner's query confirms it. A malformed old row would still block that user's
+  consent withdrawal (the check runs on the `withdrawn_at` update), so the owner runs the query soon after merge.
+- A guard bug that refuses an API-valid write is not undone by a Worker rollback; the fix is a forward migration
+  that drops that one trigger.
 - Workers run in UTC (inference); the Warsaw-year age check is looser or equal either way.
 
 ## Success Criteria (Summary)

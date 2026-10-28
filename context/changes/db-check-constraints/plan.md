@@ -98,14 +98,17 @@ confirm generated types do not change. All DB steps run in one session under the
 **Intent**: Add write-time guards for the API's date and age rules, scoped to client roles, plus a `NOT VALID`
 format check on consent versions. Header comment in the voice of earlier migrations: additive only; why these are
 triggers and not `CHECK`s (relative to today, re-checked on update/restore); that existing rows are not re-checked;
-that the guards target client roles (Q-05); that the API stays the first line and maps any error to `save_failed`.
+that the guards target client roles (Q-05); that the API stays the first line and maps any error to `save_failed`;
+that a `NOT VALID` check is still evaluated on every UPDATE of an old row, so a malformed `consent_version` already
+in production would make that user's `withdraw_health_data_consent` fail until the row is rewritten (see the
+follow-up note) (plan review F3).
 
 **Contract**:
 
 - `public.validate_screening_plan()` + trigger `screening_plans_validate_rules` `BEFORE INSERT OR UPDATE OF appointment_date ON public.screening_plans FOR EACH ROW`: when the role is a client role, the date is not null and (`INSERT` or changed), require `today − 1 ≤ appointment_date ≤ (today + interval '2 years')::date + 1`.
-- `public.validate_screening_completion()` + trigger `screening_completions_validate_rules` `BEFORE INSERT OR UPDATE OF last_done_month, last_done_on`: when month is not null and (`INSERT` or changed), require `last_done_month ≤` first of the current Warsaw month and, when the caller's profile exists (`select birth_year from public.profiles where user_id = new.user_id`, read under the caller's RLS), `last_done_month ≥ make_date(birth_year, 1, 1)`; when day is not null and (`INSERT` or changed), require `last_done_on ≤ today`. The trigger name must sort after `screening_completions_set_updated_at`.
+- `public.validate_screening_completion()` + trigger `screening_completions_validate_rules` `BEFORE INSERT OR UPDATE OF last_done_month, last_done_on`: first, when day is not null and (`INSERT` or changed), require `last_done_on ≤ today` (checked before the month bounds, so a later day is refused by the day rule, plan review F2); then, when month is not null and (`INSERT` or changed), require `last_done_month ≤` first of the current Warsaw month and, when the caller's profile exists (`select birth_year from public.profiles where user_id = new.user_id`, read under the caller's RLS), `last_done_month ≥ make_date(birth_year, 1, 1)`. The trigger name must sort after `screening_completions_set_updated_at`.
 - `public.validate_profile()` + trigger `profiles_validate_rules` `BEFORE INSERT OR UPDATE OF birth_year, smoking_years, years_since_quitting`: when (`INSERT` or any of the three changed), with `age = Warsaw year − birth_year`, require `age ≥ 18` and `coalesce(smoking_years, 0) + coalesce(years_since_quitting, 0) ≤ age`.
-- Each function: `language plpgsql`, security invoker, `set search_path = ''`, fully qualified names, returns `new`, raises `using errcode = 'check_violation'` with a message naming the rule and no values; EXECUTE revoked from `public, anon, authenticated, service_role`.
+- Each function: `language plpgsql`, security invoker, `set search_path = ''`, fully qualified names, returns `new`, raises `using errcode = 'check_violation'` with a fixed message naming the rule and no values (one distinct message per rule, asserted by pgTAP, plan review F2); EXECUTE revoked from `public, anon, authenticated, service_role`.
 - `alter table public.health_data_consents add constraint health_data_consents_version_format check (consent_version ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$') not valid;` with a comment pointing at the follow-up note.
 
 #### 2. New pgTAP file
@@ -116,13 +119,18 @@ that the guards target client roles (Q-05); that the API stays the first line an
 `postgres` — own `test-*` catalog rows and `auth.users` — then `set local role authenticated` with JWT claims,
 `rollback`). Dates and years are computed from `now() at time zone 'Europe/Warsaw'`, never literals.
 
-**Contract** — cases (as `authenticated` unless noted):
+**Contract** — cases (as `authenticated` unless noted). Every refused case asserts the trigger's rule-naming
+message, not only `23514` (`throws_ok(sql, '23514', '<message>', desc)`), because the static checks raise `23514`
+too (plan review F2):
 
-- Plans: today − 1 accepted; today − 2 rejected (23514); null accepted; today + 2 years accepted; today + 2 years + 2 days rejected; a plan seeded as `postgres` 30 days in the past can be re-saved with its unchanged date and can be cleared to null by its owner; a `postgres` insert of a past date is accepted (role scope).
-- Done records: current month accepted; next month rejected; January of the birth year accepted, December of the year before rejected; `last_done_on` = today accepted, a later day rejected; for a user with consent and no profile, a month in 1950 is accepted (lower bound skipped).
+- Plans: today − 1 accepted; today − 2 rejected (23514); null accepted; today + 2 years accepted; today + 2 years + 1 day accepted (pins the 29-Feb slack); today + 2 years + 2 days rejected; a plan seeded as `postgres` 30 days in the past can be re-saved with its unchanged date and can be cleared to null by its owner; a `postgres` insert of a past date is accepted (role scope).
+- Done records: current month accepted; next month rejected; January of the birth year accepted, December of the year before rejected; `last_done_on` = today accepted, a later day rejected (built as `last_done_on = today + 1` with `last_done_month = date_trunc('month', today + 1)`, so only the day rule can refuse it on every calendar day); for a user with consent and no profile, a month in 1950 is accepted (lower bound skipped).
 - Profiles: birth year = Warsaw year − 18 accepted, − 17 rejected; `smoking_years` = age accepted, age + 1 rejected; `smoking_years + years_since_quitting` = age + 1 rejected; a profile seeded as `postgres` with an under-age birth year can still toggle reminders as its owner (trigger not fired by other columns).
 - Consent: `'2026-09-30'` and `'2026-09-30.2'` accepted (separate users or after withdrawal, to avoid the one-active index); `'forged'` and `'2026-9-30'` rejected (23514); the constraint exists with `convalidated = false`.
+- Refused UPDATEs, one per rule branch, by the row's owner (plan review F1): a valid plan re-dated to today − 2; a done record's month moved to next month; a done record's `last_done_on` moved to a later day (built as above); a profile's `birth_year` moved under 18; a profile's `smoking_years` raised so the sum exceeds the age.
+- Upsert (plan review F1): `insert … on conflict (user_id, catalog_slug) do update set appointment_date = excluded.appointment_date` on an aged plan with a new date of today − 2 is refused.
 - Privileges: none of `anon`, `authenticated`, `service_role` can EXECUTE the three functions.
+- `select plan(n)` counts every case above.
 
 #### 3. Fixture edits
 
@@ -200,11 +208,13 @@ there are deliberately one day looser, so a later edit of the app rule updates b
 
 #### 3. VALIDATE follow-up note
 
-**File**: `context/changes/db-check-constraints/follow-up-validate-consent.md` (new)
+**File**: `context/changes/db-check-constraints/follow-ups/validate-consent.md` (new; `follow-ups/` convention, listed in the PR's follow-ups — plan review F5)
 
-**Intent**: Record the read-only production query the owner runs, the expected result (only `YYYY-MM-DD[.N]`
-values; today's app has written `2026-09-27`, `2026-09-28`, `2026-09-30`), what to do with an offending row, and the
-one-line follow-up migration (`alter table public.health_data_consents validate constraint
+**Intent**: Record the read-only production query the owner runs soon after merge, the expected result (only
+`YYYY-MM-DD[.N]` values; today's app has written `2026-09-27`, `2026-09-28`, `2026-09-30`), the withdrawal
+consequence of an offending row (its owner cannot withdraw consent while the row is malformed, because the `NOT
+VALID` check re-checks the `withdrawn_at` update), the remedy (rewrite that row's `consent_version` as `postgres`
+before the user withdraws and before `VALIDATE`), and the one-line follow-up migration (`alter table public.health_data_consents validate constraint
 health_data_consents_version_format;`) plus the pgTAP assertion to flip (`convalidated = true`).
 
 **Contract**: query `select consent_version, count(*) from public.health_data_consents where consent_version !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$' group by 1;` — expected zero rows.
@@ -220,6 +230,11 @@ health_data_consents_version_format;`) plus the pgTAP assertion to flip (`conval
 #### Manual Verification:
 
 - The PR's "Manual checks for the human" lists the read-only production query from the follow-up note; the owner runs it in the Supabase SQL editor and reports zero rows
+
+The PR description also says why the date and age rules are triggers, not `CHECK`s (link `research.md` Summary §1),
+lists `follow-ups/validate-consent.md` under follow-ups, and asks the owner to run the query soon after merge, not
+only before the later `VALIDATE` (plan review F3, F4, F5). The `/10x-archive` commit adds a one-line `backlog.md`
+entry pointing at the follow-up (F5).
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual
 confirmation from the human that the manual testing was successful before proceeding to the next phase.
@@ -243,7 +258,8 @@ confirmation from the human that the manual testing was successful before procee
 ### Manual Testing Steps:
 
 1. Read the migration and compare each bound with `rules.ts` and `profile.ts`.
-2. Owner runs the follow-up query against production before the follow-up `VALIDATE` change.
+2. Owner runs the follow-up query against production soon after merge, and again before the follow-up `VALIDATE`
+   change.
 
 ## Performance Considerations
 
@@ -256,6 +272,15 @@ Additive: new functions, triggers and a `NOT VALID` check. No existing row is sc
 `migrate` job cannot fail on production data. A Worker rollback keeps working, because every deployed Worker
 version sends only values the API rules accept and those rules have not changed since they were introduced
 (`research.md`, "Migration mechanics").
+
+- **Forward fix (plan review F4):** a Worker rollback does not undo a trigger. If a guard refuses a write the API
+  accepts (time zone, leap day, month boundary), recovery is a forward migration that drops that one trigger; the
+  three triggers and the check are independent, so the others stay.
+- **Why triggers (F4):** the roadmap says "check constraints"; four of the five rules are triggers because they
+  depend on "today" or on another table (`research.md` Summary §1). The PR description says so.
+- **Withdrawal (F3):** the `NOT VALID` consent check is still evaluated on UPDATE of old rows, so a malformed
+  `consent_version` already in production would block that user's withdrawal until the row is rewritten. The owner
+  runs the read-only query soon after merge; the remedy is in `follow-ups/validate-consent.md`.
 
 ## References
 

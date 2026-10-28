@@ -55,3 +55,12 @@
 - Options: (a) run those two writes as `postgres` (explicit `user_id`), keeping the fake today; (b) make the whole file relative to the real date.
 - Choice: (a). The claim functions take "today" as a parameter, so the role of the seeding write does not matter to what they test; A's own insert under RLS is already covered by `screening_records.test.sql`. `select plan(…)` counts stay the same (the `lives_ok` stays, under `postgres`).
 - decided-by: worker
+
+## 2026-10-28 Plan review triage (REVISE, `plan-review.md`)
+
+- F1 (no refused UPDATE in pgTAP): accepted, Fix A — one refused UPDATE per trigger branch plus an upsert case; `plan(n)` counts them.
+- F2 (rejections could pass on the wrong rule): accepted — rule-naming messages asserted in `throws_ok`; the day check runs before the month bounds; the "later day" case uses `date_trunc('month', today + 1)`; "today + 2 years + 1 day accepted" pins the leap-day slack.
+- F3 (NOT VALID check can block a withdrawal): accepted, Fix A — keep `NOT VALID`; document the withdrawal consequence in the migration header, Migration Notes and the follow-up; the PR's Manual checks ask the owner to run the read-only query soon after merge.
+- F4 (no forward-fix story): accepted — Migration Notes gain the forward-fix and "why triggers" lines; the PR says why triggers, not CHECKs.
+- F5 (follow-up location): accepted — `follow-ups/validate-consent.md`, listed in the PR; a one-line `backlog.md` entry in the archive commit.
+- decided-by: orchestrator

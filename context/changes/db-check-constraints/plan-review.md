@@ -72,7 +72,7 @@ coalesce(years_since_quitting,0) ≤ age` is never stricter than `profile.ts:100
   - Tradeoff: About 6 more assertions in `app_rules.test.sql`.
   - Confidence: HIGH — the gap follows directly from the contract list.
   - Blind spot: None significant.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — Fix A (orchestrator, 2026-10-28)
 
 ### F2 — Rejection cases can pass on the wrong rule
 
@@ -91,7 +91,7 @@ coalesce(years_since_quitting,0) ≤ age` is never stricter than `profile.ts:100
   `validate_screening_completion`, check `last_done_on ≤ today` before the month bounds. Build the "later day" case with
   `last_done_month = date_trunc('month', today + 1)` so it fails the day rule on every calendar day. Add "today + 2 years + 1 day
   accepted".
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — Fix (orchestrator, 2026-10-28)
 
 ### F3 — NOT VALID check can block a user's consent withdrawal
 
@@ -121,7 +121,7 @@ coalesce(years_since_quitting,0) ≤ age` is never stricter than `profile.ts:100
     It's a fourth trigger function to maintain, and the guard does not apply to non-client roles unless it is scoped differently.
   - Confidence: MEDIUM — reverses an orchestrator decision.
   - Blind spot: Whether the orchestrator wants the check to apply to every role (a CHECK does, the trigger pattern here does not).
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — Fix A (orchestrator, 2026-10-28)
 
 ### F4 — No forward-fix story if a guard refuses valid production writes
 
@@ -137,7 +137,7 @@ coalesce(years_since_quitting,0) ≤ age` is never stricter than `profile.ts:100
 - **Fix**: Add two lines to Migration Notes. (1) The recovery is a forward migration that drops the faulty trigger alone (the three
   triggers are independent). (2) The PR description says why the date and age rules are triggers rather than CHECKs (link
   `research.md` Summary §1).
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — Fix (orchestrator, 2026-10-28)
 
 ### F5 — Follow-up note breaks the `follow-ups/` convention and isn't tracked after archive
 
@@ -151,4 +151,4 @@ coalesce(years_since_quitting,0) ≤ age` is never stricter than `profile.ts:100
   archive folder, and nothing on the roadmap (`## Backlog Handoff`, `roadmap.md:167`) points at the `VALIDATE` that still has to happen.
 - **Fix**: Write it as `context/changes/db-check-constraints/follow-ups/validate-consent.md` and list it under the PR's follow-ups.
   Either add a one-line Backlog Handoff entry in the archive commit or record in `decisions.md` why the owner tracks it elsewhere.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED — Fix, with a one-line backlog.md entry in the archive commit (orchestrator, 2026-10-28)

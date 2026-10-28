@@ -1,14 +1,22 @@
 // `npm run catalog:check` (runs in CI): fails on an invalid entry, a stale catalog/entry.schema.json, entries that
-// differ from the newest snapshot migration, or an entry an earlier snapshot shipped that no longer has a file.
+// differ from the newest snapshot migration, an entry an earlier snapshot shipped that no longer has a file, or a status
+// that moves backwards against any snapshot. Warns, without failing, for every active entry past its next_review_due or
+// without one.
 import fs from "node:fs";
+
+import { warsawToday } from "@/lib/screenings/rules";
 
 import {
   displayPath,
+  findBackwardMoves,
   findDeletedSlugs,
+  findReviewWarnings,
+  formatReviewWarnings,
   JSON_SCHEMA_PATH,
   listSnapshots,
   loadEntries,
   renderJsonSchema,
+  renderReviewSummary,
   renderSnapshotSql,
 } from "./lib";
 
@@ -23,6 +31,7 @@ if (!fs.existsSync(JSON_SCHEMA_PATH)) {
 
 const snapshots = listSnapshots();
 problems.push(...findDeletedSlugs(fileSlugs, snapshots));
+problems.push(...findBackwardMoves(entries, snapshots));
 
 const newest = snapshots.at(-1);
 // Drift is only meaningful once every entry is valid; an empty catalog with snapshots is reported as deleted slugs.
@@ -37,10 +46,19 @@ if (problems.length === 0 && entries.length > 0) {
   }
 }
 
+// Review warnings flag the owner only: they are printed on both paths and never added to `problems`.
+const warnings = findReviewWarnings(entries, warsawToday(new Date()));
+const github = process.env.GITHUB_ACTIONS === "true";
+for (const line of formatReviewWarnings(warnings, github)) process.stdout.write(`${line}\n`);
+const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+if (github && warnings.length > 0 && summaryFile) fs.appendFileSync(summaryFile, renderReviewSummary(warnings));
+
 if (problems.length > 0) {
   process.stderr.write(`${problems.join("\n")}\n\ncatalog:check failed with ${problems.length} problem(s)\n`);
   process.exit(1);
 }
 
 const snapshotNote = newest === undefined ? "no snapshot yet" : `matches ${displayPath(newest.file)}`;
-process.stdout.write(`catalog:check passed: ${entries.length} entries, ${snapshotNote}\n`);
+process.stdout.write(
+  `catalog:check passed: ${entries.length} entries, ${snapshotNote}, ${warnings.length} review warning(s)\n`,
+);

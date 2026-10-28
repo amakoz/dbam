@@ -257,20 +257,20 @@ No migration and no snapshot. Entry files and `renderSnapshotSql` stay untouched
 
 #### Automated
 
-- [x] 1.1 `npm test` passes, including the new `scripts/catalog/lib.test.ts`
-- [x] 1.2 `npm run lint` passes with no errors in `scripts/catalog/`
-- [x] 1.3 `npx astro sync && npx astro check` reports 0 errors
-- [x] 1.4 `npm run catalog:check` still exits 0 (CLI unchanged in this phase)
+- [x] 1.1 `npm test` passes, including the new `scripts/catalog/lib.test.ts` — bc53c41
+- [x] 1.2 `npm run lint` passes with no errors in `scripts/catalog/` — bc53c41
+- [x] 1.3 `npx astro sync && npx astro check` reports 0 errors — bc53c41
+- [x] 1.4 `npm run catalog:check` still exits 0 (CLI unchanged in this phase) — bc53c41
 
 ### Phase 2: Wire the guards into the CLIs and document them
 
 #### Automated
 
-- [ ] 2.1 `npm test`, `npm run lint` and `npx astro check` pass
-- [ ] 2.2 `npm run catalog:check` exits 0 on the committed tree and prints `0 review warning(s)`
-- [ ] 2.3 Demotion break: `catalog:check` and `catalog:migration` both exit 1 for an active → draft entry; tree restored
-- [ ] 2.4 Overdue break: `catalog:check` exits 0 with one `warning:` line, exactly one `::warning` line and a step summary; tree restored and clean
-- [ ] 2.5 `npx prettier --check catalog/README.md CLAUDE.md` passes
+- [x] 2.1 `npm test`, `npm run lint` and `npx astro check` pass
+- [x] 2.2 `npm run catalog:check` exits 0 on the committed tree and prints `0 review warning(s)`
+- [x] 2.3 Demotion break: `catalog:check` and `catalog:migration` both exit 1 for an active → draft entry; tree restored
+- [x] 2.4 Overdue break: `catalog:check` exits 0 with one `warning:` line, exactly one `::warning` line and a step summary; tree restored and clean
+- [x] 2.5 `npx prettier --check catalog/README.md CLAUDE.md` passes
 
 #### Manual
 

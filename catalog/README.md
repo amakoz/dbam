@@ -14,6 +14,19 @@ The curated catalog of screening checks behind `public.screening_catalog`. Each 
 - **`active`:** visible to everyone and used for recommendations. Only the owner sets this, after reviewing the entry against its sources, and only together with a review stamp (`reviewed_by` + `last_reviewed`): `catalog:check` rejects an active entry without one, and the dashboard shows only stamped entries.
 - **`retired`:** still visible, so existing exam records keep resolving, but no longer recommended.
 
+### Allowed moves
+
+Statuses move forward only:
+
+- **Allowed:** draft → active, active → retired and draft → retired. An unchanged status is always allowed, and a new slug may start with any status.
+- **Refused:** active → draft, retired → active and retired → draft. A demotion would hide every user's plan and done record for the entry, and a retired entry coming back would be recommended again.
+
+`catalog:check` and `catalog:migration` compare each entry with every committed snapshot that shipped it, so a backward move fails CI even when its regenerated snapshot is committed too. Retired is final and the check has no override: reversing a wrong retirement needs a code change to the guard in `scripts/catalog/lib.ts` (`findBackwardMoves`), recorded as an owner decision.
+
+### Review dates
+
+`catalog:check` warns, but never fails, for every active entry whose `next_review_due` is before today (Warsaw date) or that has no `next_review_due`. Under GitHub Actions the run adds one warning annotation that lists every such slug, and a list in the job summary. The entry stays visible to users. Re-review it with the [review checklist](#review-checklist) and set a new stamp.
+
 **Never delete an entry.** Set `"status": "retired"` instead. The slug is the entry's permanent identity, so never rename it either. `catalog:check` fails when a slug that an earlier snapshot migration shipped has no file anymore.
 
 ## Entry fields
@@ -129,7 +142,7 @@ Then continue with [Shipping changes](#shipping-changes).
 ## Shipping changes
 
 1. **Edit files** in `catalog/entries/` (add, change, or retire; never delete).
-2. **`npm run catalog:check`**: validates every entry and prints each problem with its file and field, e.g. `catalog/entries/foo.json: eligibility[0].age_max: must be ≥ age_min (80)`. Until you generate a migration, it also reports that the entries differ from the newest snapshot.
+2. **`npm run catalog:check`**: validates every entry and prints each problem with its file and field, e.g. `catalog/entries/foo.json: eligibility[0].age_max: must be ≥ age_min (80)`. Until you generate a migration, it also reports that the entries differ from the newest snapshot. It fails on a backward status move (see [Allowed moves](#allowed-moves)) and prints a warning, without failing, for each active entry due for review (see [Review dates](#review-dates)).
 3. **`npm run catalog:migration`**: writes `supabase/migrations/<UTC yyyymmddhhmmss>_screening_catalog_snapshot.sql`, one idempotent upsert of every entry. It refuses when nothing changed since the newest snapshot. Never edit a generated snapshot; change the entries and generate a new one.
 4. **Commit** the entry files together with the new snapshot migration, then open a **PR**. CI's `ci` job runs `catalog:check`.
 5. After merge, the CI **`migrate`** job applies the snapshot to production (`supabase db push`), before `deploy`.

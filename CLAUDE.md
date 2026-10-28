@@ -13,7 +13,7 @@ Dbam (preventive-screening reminders for adults in Poland): an Astro 7 SSR app w
 - Never run `supabase config push` against the production project: local `supabase/config.toml` has `enable_confirmations = false` and `site_url = "http://127.0.0.1:3000"`. Change production auth settings in the Supabase dashboard only.
 - The sign-up password policy (12+ characters, a letter and a digit) lives in `src/lib/password.ts` and must match `supabase/config.toml` (`minimum_password_length`, `password_requirements`) and the production dashboard (Authentication → Sign In / Providers → Email); change all three together.
 - Migrations reach production only through the CI `migrate` job (`supabase db push`, runs before `deploy`) — never run `supabase db push` against production by hand. Keep migrations additive-first: a Worker rollback never undoes a schema change. After a schema change run `npm run db:types` and commit `src/lib/database.types.ts`.
-- Screening catalog rows change only through `catalog/entries/<slug>.json` + `npm run catalog:migration` (checked by `npm run catalog:check` in CI, see `@catalog/README.md`) — never hand-edit a `*_screening_catalog_snapshot.sql`, and never delete an entry: set `"status": "retired"`.
+- Screening catalog rows change only through `catalog/entries/<slug>.json` + `npm run catalog:migration` (checked by `npm run catalog:check` in CI, see `@catalog/README.md`) — never hand-edit a `*_screening_catalog_snapshot.sql`, and never delete an entry: set `"status": "retired"`. A status never moves backwards (draft → active → retired, or draft → retired; `catalog:check` refuses the rest).
 
 ## Project Structure & Module Organization
 

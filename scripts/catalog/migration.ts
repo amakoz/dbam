@@ -1,10 +1,12 @@
 // `npm run catalog:migration`: writes supabase/migrations/<UTC yyyymmddhhmmss>_screening_catalog_snapshot.sql, an
-// upsert of every catalog entry. Refuses on invalid or deleted entries, an empty catalog, or nothing new to ship.
+// upsert of every catalog entry. Refuses on invalid or deleted entries, a status that moves backwards, an empty
+// catalog, or nothing new to ship.
 import fs from "node:fs";
 import path from "node:path";
 
 import {
   displayPath,
+  findBackwardMoves,
   findDeletedSlugs,
   listSnapshots,
   loadEntries,
@@ -22,6 +24,7 @@ function fail(message: string): never {
 const { entries, fileSlugs, problems } = loadEntries();
 const snapshots = listSnapshots();
 problems.push(...findDeletedSlugs(fileSlugs, snapshots));
+problems.push(...findBackwardMoves(entries, snapshots));
 if (problems.length > 0) {
   fail(`${problems.join("\n")}\n\ncatalog:migration refused: fix the ${problems.length} problem(s) above first`);
 }

@@ -101,3 +101,64 @@ Later PRs append one section per phase below this one.
 - **Detail**: The References section cites `context/changes/reminders-refactor/{research,plan-review,decisions}.md`, and the scope list cites `follow-ups/td-5-job-list.md`. Neither path exists any more: the folder is now `context/archive/2026-10-27-reminders-refactor/`. Phases 3–8 depend on the I1–I14 table in that research file, so later workers will hit dead links.
 - **Fix**: Repoint the 4 references to `context/archive/2026-10-27-reminders-refactor/…` (editing this plan only; the archive itself stays read-only).
 - **Decision**: Fix applied (4 references repointed)
+
+## PR B — phase 3
+
+- **Plan**: context/changes/reminders-runner/plan.md
+- **Scope**: Phase 3 of 8 (PR B, branch `feat/reminders-runner-p3`, commit bdff91e). Phases 1–2 merged in #99 (8410cdb); phases 4–8 are open by design.
+- **Reviewed phases**: 3
+- **Date**: 2026-10-28
+- **Verdict**: APPROVED (2 low-impact warnings, both about git history, not code)
+- **Findings**: 0 critical, 2 warnings, 0 observations
+
+### Verdicts
+
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | WARNING |
+| Scope Discipline    | WARNING |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | PASS    |
+
+### Verification run by the reviewer
+
+- Phase 3's own diff (`8410cdb..bdff91e`) is the 4 planned files plus `decisions.md` and `plan.md`: `runner.ts`, `runner.test.ts`, `deps.ts` and one `eslint.config.js` line. No job file, `chain.ts`, `worker.ts` or `roadmap.md` is touched.
+- `runner.ts` matches the runner contract and the 9-step order:
+  - `scheduledAt` is computed before the `try`;
+  - the send gate comes before the budget gate;
+  - `deps.client()` is called after both gates;
+  - the dry-run check comes before the mark;
+  - the catch logs `failed` with `errorName` and `errorDetails` (no `message`) and rethrows by identity;
+  - `fields` fall between `scheduledAt` and `due`, and are absent from `skipped` and `failed` lines.
+
+  Its imports are the planned pure set only (`astro:` appears only in the header comment). Log-line order and the counts in `due` and `sent` equal today's `appointment.ts:54-74`.
+
+- `deps.ts` binds `createReminderClient` (the function), `sendEmailBatch` and `import.meta.env.SITE`, and reads `SITE` only when the job calls it, never at import.
+- `runner.test.ts` covers every item in the plan's list. Its only mock is `@/lib/schedule`, with 0 `vi.mock("astro:` calls.
+- `npm test`: 21 files, 409 tests passed. `npm run lint`: exit 0. `npx astro check`: 0 errors.
+- Gate 3.4 re-run: a mark call before the dry-run check fails 2 runner tests ("…never marks", "marks the flattened ids…"); reverted.
+- Guard: the 3 job tests and the helper are byte-identical to both dc62600 and main (8410cdb).
+
+### Findings
+
+#### F1 — The phase 3 branch still sits on PR A's pre-squash commits
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Scope Discipline
+- **Location**: branch `feat/reminders-runner-p3` (parent chain 14f1302 → … → 8bf4efb)
+- **Detail**: #99 was squash-merged (8410cdb has the single parent a3d4b7e), but bdff91e still descends from PR A's 5 original commits, so `git merge-base --is-ancestor 8410cdb bdff91e` fails. A PR opened from this branch would list those 5 commits again and show 16 files against main. The phase 3 change itself is only 6 files, and its content is identical to `8410cdb..bdff91e`. `decisions.md` ("Phase 3 built on a local branch") already plans the rebase. The branch has no upstream and isn't on origin, so rebasing is allowed.
+- **Fix**: Before opening PR B, run `git rebase --onto origin/main 8bf4efb feat/reminders-runner-p3`, then confirm `git diff --stat origin/main...HEAD` lists only the phase 3 files.
+- **Decision**: PENDING
+
+#### F2 — The guard reference and the phase 1–2 SHAs point at commits that aren't on main
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Plan Adherence
+- **Location**: context/changes/reminders-runner/plan.md:92, plan.md Progress rows 1.x/2.x, decisions.md (F1 triage, phase 3 gate notes)
+- **Detail**: The plan names dc62600 as the reference for "unchanged since phase 1", which phases 4–8 diff against, and Progress cites 14f1302 and ea0cc9c. The squash merge left all three off main (`git merge-base --is-ancestor dc62600 origin/main` fails). They survive only in this worktree and in GitHub's PR refs, so later phase workers on a fresh worktree will run `git diff dc62600 -- …` against an unknown revision. The guard files at 8410cdb are byte-identical to dc62600 (verified).
+- **Fix**: In `plan.md` "Guard first" and in `decisions.md`, repoint the reference to 8410cdb (#99 on main), and note that the Progress SHAs 14f1302 and ea0cc9c were squashed into 8410cdb. Ship that with PR B.
+- **Decision**: PENDING

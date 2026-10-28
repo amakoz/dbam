@@ -222,11 +222,11 @@ Not applicable: no schema or data change. Rollback is a plain Worker revert.
 
 #### Automated
 
-- [x] 2.1 Hardcoded-value check passes: `npm run ui:check`
-- [x] 2.2 Type check and lint pass: `npx astro check && npm run lint`
-- [x] 2.3 Against `npx astro dev --host 127.0.0.1 --port $DBAM_PORT` (on a fresh worktree run `npx astro sync` first; stop the server afterwards), kitchen-sink screenshots are produced (no DB lock needed): `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots -- --only kitchen-sink --out context/changes/missing-entry-plan/screenshots`
+- [x] 2.1 Hardcoded-value check passes: `npm run ui:check` — d9e479f
+- [x] 2.2 Type check and lint pass: `npx astro check && npm run lint` — d9e479f
+- [x] 2.3 Against `npx astro dev --host 127.0.0.1 --port $DBAM_PORT` (on a fresh worktree run `npx astro sync` first; stop the server afterwards), kitchen-sink screenshots are produced (no DB lock needed): `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots -- --only kitchen-sink --out context/changes/missing-entry-plan/screenshots` — d9e479f
 
 #### Manual
 
-- [x] 2.4 In the kitchen-sink shots (light and dark, 1440 and 390), the unavailable rows show the generic label, their date line ("Appointment: …" / "Last done: …"), the neutral note below it and only the remove/undo button. They have no tier badge, the slug is not visible as text, and the contrast matches neighbouring rows.
-- [x] 2.5 PR Manual check: on a local stack, demote a planned entry to draft (`update screening_catalog set status = 'draft' where slug = …` in local Supabase only). The dashboard then shows that plan as "Exam not available" with its appointment date. After "Remove from plans", the redirect to `#screening-<slug>` lands on the page with no error, and the plan row is gone. Also exercise the `itemSlugs` key once: either make a remove fail and see the error on the unavailable row, or confirm that the anchor resolves to the row before removing it. The PR description records that this check ran and its outcome.
+- [x] 2.4 In the kitchen-sink shots (light and dark, 1440 and 390), the unavailable rows show the generic label, their date line ("Appointment: …" / "Last done: …"), the neutral note below it and only the remove/undo button. They have no tier badge, the slug is not visible as text, and the contrast matches neighbouring rows. — d9e479f
+- [x] 2.5 PR Manual check: on a local stack, demote a planned entry to draft (`update screening_catalog set status = 'draft' where slug = …` in local Supabase only). The dashboard then shows that plan as "Exam not available" with its appointment date. After "Remove from plans", the redirect to `#screening-<slug>` lands on the page with no error, and the plan row is gone. Also exercise the `itemSlugs` key once: either make a remove fail and see the error on the unavailable row, or confirm that the anchor resolves to the row before removing it. The PR description records that this check ran and its outcome. — d9e479f

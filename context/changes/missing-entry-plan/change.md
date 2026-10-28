@@ -1,7 +1,7 @@
 ---
 change_id: missing-entry-plan
 title: Keep a plan's screening and completion visible when its catalog entry is missing
-status: implementing
+status: implemented
 created: 2026-10-28
 updated: 2026-10-28
 archived_at: null

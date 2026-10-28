@@ -27,7 +27,8 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
 
 select throws_ok(
-  $$ insert into public.screening_plans (catalog_slug, appointment_date) values ('test-active', '2026-11-01') $$,
+  $$ insert into public.screening_plans (catalog_slug, appointment_date)
+     values ('test-active', (now() at time zone 'Europe/Warsaw')::date + 30) $$,
   '42501', null, 'A cannot plan an exam without consent'
 );
 select throws_ok(
@@ -42,7 +43,8 @@ select lives_ok(
 
 -- --- As user A, with consent: plans -----------------------------------------------------------------------------
 select lives_ok(
-  $$ insert into public.screening_plans (catalog_slug, appointment_date) values ('test-active', '2026-11-01') $$,
+  $$ insert into public.screening_plans (catalog_slug, appointment_date)
+     values ('test-active', (now() at time zone 'Europe/Warsaw')::date + 30) $$,
   'A can plan an active exam after consenting'
 );
 select is(
@@ -67,13 +69,15 @@ select throws_ok(
   '23505', null, 'A cannot hold two plans for the same exam'
 );
 select lives_ok(
-  $$ insert into public.screening_plans (catalog_slug, appointment_date) values ('test-active', '2026-12-15')
+  $$ insert into public.screening_plans (catalog_slug, appointment_date)
+     values ('test-active', (now() at time zone 'Europe/Warsaw')::date + 60)
      on conflict (user_id, catalog_slug)
      do update set catalog_slug = excluded.catalog_slug, appointment_date = excluded.appointment_date $$,
   'A can upsert their plan'
 );
 select is(
-  (select appointment_date from public.screening_plans where catalog_slug = 'test-active'), '2026-12-15'::date,
+  (select appointment_date from public.screening_plans where catalog_slug = 'test-active'),
+  (now() at time zone 'Europe/Warsaw')::date + 60,
   'the upsert replaced the appointment date'
 );
 select is((select count(*) from public.screening_plans), 1::bigint, 'the upsert kept one plan');
@@ -154,7 +158,7 @@ select is((select count(*) from public.screening_plans), 0::bigint, 'B sees none
 select is((select count(*) from public.screening_completions), 0::bigint, 'B sees none of A''s done records');
 
 with u as (
-  update public.screening_plans set appointment_date = '2027-01-01'
+  update public.screening_plans set appointment_date = (now() at time zone 'Europe/Warsaw')::date + 90
   where user_id = '11111111-1111-1111-1111-111111111111' returning 1
 )
 select is(count(*), 0::bigint, 'B''s update of A''s plan affects no rows') from u;
@@ -265,7 +269,8 @@ select is(
   'only the deleted plan is gone'
 );
 select lives_ok(
-  $$ update public.screening_plans set appointment_date = '2026-12-01' where catalog_slug = 'test-retired' $$,
+  $$ update public.screening_plans set appointment_date = (now() at time zone 'Europe/Warsaw')::date + 30
+     where catalog_slug = 'test-retired' $$,
   'an update of a plan for a retired exam runs but matches no rows'
 );
 select is(

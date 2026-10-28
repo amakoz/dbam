@@ -189,16 +189,21 @@ select throws_ok(
   $$ select * from public.appointment_reminders $$, '42501', null, 'A cannot read the reminder ledger'
 );
 
--- Plans at +1 and +3 (in the window), +0 and +4 (outside) and one without a date.
+-- Plans at +1 and +3 (in the window), +0 and +4 (outside) and one without a date. Seeded as postgres: the dates sit
+-- around the fake "today" 2027-03-10 the claims are called with, and the plan guards (app_rule_checks) would refuse
+-- them from a client once that day is past.
+reset role;
 select lives_ok(
-  $$ insert into public.screening_plans (catalog_slug, appointment_date) values
-       ('test-a', '2027-03-11'), ('test-b', '2027-03-13'), ('test-c', '2027-03-10'), ('test-d', '2027-03-14'),
-       ('test-e', null) $$,
-  'A can plan five exams'
+  $$ insert into public.screening_plans (user_id, catalog_slug, appointment_date) values
+       ('11111111-1111-1111-1111-111111111111', 'test-a', '2027-03-11'),
+       ('11111111-1111-1111-1111-111111111111', 'test-b', '2027-03-13'),
+       ('11111111-1111-1111-1111-111111111111', 'test-c', '2027-03-10'),
+       ('11111111-1111-1111-1111-111111111111', 'test-d', '2027-03-14'),
+       ('11111111-1111-1111-1111-111111111111', 'test-e', null) $$,
+  'A''s five plans are seeded'
 );
 
 -- An update that leaves reminders on keeps the old timestamp (set to a known value with the trigger off).
-reset role;
 alter table public.profiles disable trigger profiles_set_reminders_enabled_at;
 update public.profiles set reminders_enabled_at = '2020-01-01 00:00:00+00'
   where user_id = '11111111-1111-1111-1111-111111111111';
@@ -313,11 +318,9 @@ select is(
 );
 update public.profiles set reminders_enabled = true where user_id = '11111111-1111-1111-1111-111111111111';
 
--- Re-dating a claimed plan from +3 to +2, as A.
-set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
-update public.screening_plans set appointment_date = '2027-03-12' where catalog_slug = 'test-b';
-reset role;
+-- Re-dating a claimed plan from +3 to +2 (as postgres, for the same reason as the seed above).
+update public.screening_plans set appointment_date = '2027-03-12'
+  where user_id = '11111111-1111-1111-1111-111111111111' and catalog_slug = 'test-b';
 
 select is(
   (select appointment_dates from public.claim_due_appointment_reminders('2027-03-10', 3, 100)),

@@ -298,15 +298,15 @@ version sends only values the API rules accept and those rules have not changed 
 
 #### Automated
 
-- [ ] 1.1 Migration applies to the local stack under the DB lock: `npx supabase migration up`
-- [ ] 1.2 All pgTAP files pass, including `app_rules.test.sql`: `npx supabase test db`
-- [ ] 1.3 Generated types unchanged after `npm run db:types`: `git diff --exit-code src/lib/database.types.ts`
-- [ ] 1.4 No literal appointment date is written as `authenticated` in `screening_records.test.sql` or `app_rules.test.sql` (heuristic, review by grep)
-- [ ] 1.5 Lint and format pass: `npm run lint` and `npx prettier --check context/changes/db-check-constraints`
+- [x] 1.1 Migration applies to the local stack under the DB lock: `npx supabase migration up`
+- [x] 1.2 All pgTAP files pass, including `app_rules.test.sql`: `npx supabase test db`
+- [x] 1.3 Generated types unchanged after `npm run db:types`: `git diff --exit-code src/lib/database.types.ts`
+- [x] 1.4 No literal appointment date is written as `authenticated` in `screening_records.test.sql` or `app_rules.test.sql` (heuristic, review by grep)
+- [x] 1.5 Lint and format pass: `npm run lint` and `npx prettier --check context/changes/db-check-constraints`
 
 #### Manual
 
-- [ ] 1.6 Reviewer reads the migration header and confirms each bound is never stricter than the API (lower −1 day, upper +1 day, Warsaw year)
+- [x] 1.6 Reviewer reads the migration header and confirms each bound is never stricter than the API (lower −1 day, upper +1 day, Warsaw year)
 
 ### Phase 2: App-side guard, notes and smoke
 

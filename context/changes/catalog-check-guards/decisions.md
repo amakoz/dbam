@@ -52,3 +52,9 @@
   - Break check 2.3 also sets a past `next_review_due` on another active entry and asserts that the `warning:` line prints while the exit code is 1 because of the demotion alone.
   - The Progress row 2.3 title is kept (titles are immutable); the Phase 2 criterion carries the addition.
 - decided-by: orchestrator
+
+## 2026-10-28 Implementation notes
+
+- `parseSnapshotStatuses` also treats a manifest slug that is not `[a-z0-9-]+` as unreadable. The manifest pattern (`\S+`) accepts any token, and the slug is put into a regex. This is a minor adaptation; the plan assumed the manifest pattern already restricted slugs.
+- Manual rows 2.6 (the PR's `ci` log) and 2.7 (the owner proofreads the README) need the PR's CI run or a human, so they move to the PR's Manual checks list and stay unchecked. `change.md` is set to `implemented` with those two rows pending.
+- decided-by: worker

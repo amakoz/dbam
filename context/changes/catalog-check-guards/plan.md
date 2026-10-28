@@ -266,11 +266,11 @@ No migration and no snapshot. Entry files and `renderSnapshotSql` stay untouched
 
 #### Automated
 
-- [x] 2.1 `npm test`, `npm run lint` and `npx astro check` pass
-- [x] 2.2 `npm run catalog:check` exits 0 on the committed tree and prints `0 review warning(s)`
-- [x] 2.3 Demotion break: `catalog:check` and `catalog:migration` both exit 1 for an active → draft entry; tree restored
-- [x] 2.4 Overdue break: `catalog:check` exits 0 with one `warning:` line, exactly one `::warning` line and a step summary; tree restored and clean
-- [x] 2.5 `npx prettier --check catalog/README.md CLAUDE.md` passes
+- [x] 2.1 `npm test`, `npm run lint` and `npx astro check` pass — 153fe35
+- [x] 2.2 `npm run catalog:check` exits 0 on the committed tree and prints `0 review warning(s)` — 153fe35
+- [x] 2.3 Demotion break: `catalog:check` and `catalog:migration` both exit 1 for an active → draft entry; tree restored — 153fe35
+- [x] 2.4 Overdue break: `catalog:check` exits 0 with one `warning:` line, exactly one `::warning` line and a step summary; tree restored and clean — 153fe35
+- [x] 2.5 `npx prettier --check catalog/README.md CLAUDE.md` passes — 153fe35
 
 #### Manual
 

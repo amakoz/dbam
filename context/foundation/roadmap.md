@@ -50,7 +50,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | ---- | -------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | -------- |
 | F-16 | reminders-runner     | (foundation) the three reminder jobs run on one shared, tested claim → send → mark runner                            | —             | MS-01    | ready    |
 | S-10 | missing-entry-plan   | a user whose plan's catalog entry is missing still sees that screening and its completion                            | —             | MS-02    | done     |
-| F-17 | catalog-check-guards | (foundation) `catalog:check` refuses backward status moves and warns in CI on entries past their review date         | —             | MS-03    | ready    |
+| F-17 | catalog-check-guards | (foundation) `catalog:check` refuses backward status moves and warns in CI on entries past their review date         | —             | MS-03    | done     |
 | F-18 | merge-rule-docs      | (foundation) `CLAUDE.md` states the temporary orchestrator-merge rule and how to switch back                         | —             | MS-04    | ready    |
 | S-11 | en-copy-terms        | an English-language user reads "screening" for a catalog item and "exam" for their own, consistently                 | —             | MS-05    | ready    |
 | F-19 | pure-module-tests    | (foundation) the remaining pure modules have unit tests                                                              | F-17          | MS-06    | proposed |
@@ -97,7 +97,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The transition check needs the previous status of each entry; reading it from the wrong baseline would either block legitimate first activations or let a demotion through. The review-date warning must stay advisory so a stale date never blocks a deploy.
-- **Status:** ready
+- **Status:** done
 
 ### F-18: Merge rule in CLAUDE.md
 
@@ -228,3 +228,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **S-09: every pull request to `main` triggers a visible CI job that sends the PR title, body and diff to a review agent, which posts a scored review comment on the PR (and an `ai-cr:passed` / `ai-cr:failed` label). The job logs show the review, and the model provider costs nothing.** — Archived 2026-10-27 → `context/archive/2026-10-27-ai-code-review/`. Lesson: —.
 - **F-15: (foundation) a two-page architecture report summarises the map, the feature research, the refactoring plan and the domain notes, written and checked by the owner so every claim can be defended.** — Archived 2026-10-28 → `context/archive/2026-10-27-architecture-report/`. Lesson: —.
 - **S-10: a user whose plan points to a catalog entry the dashboard cannot load still sees that screening's tier item and its completion; the plan never hides them. The F-08 test's expectation is updated to the fixed behaviour. Covers backlog B-04.** — Archived 2026-10-28 → `context/archive/2026-10-28-missing-entry-plan/`. Lesson: —.
+- **F-17: (foundation) `catalog:check` fails on a backward status move (anything other than draft → active → retired), the allowed transitions are documented in `catalog/README.md`, and CI prints a warning (never a failure, never hiding the entry from users) for every entry past its `next_review_due`. Covers backlog B-14 and B-15 in one change.** — Archived 2026-10-28 → `context/archive/2026-10-28-catalog-check-guards/`. Lesson: —.

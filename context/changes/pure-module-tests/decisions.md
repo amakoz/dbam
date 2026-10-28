@@ -65,3 +65,10 @@
 - **Choice:** (b). It would change the Vitest config, which the plan excludes ("What We're NOT Doing"). Recorded in `follow-ups/pin-test-tz.md` and listed in the PR body's follow-ups.
 - **Evidence:** `impl-review.md` F1; the Progress 2.4 break showed red under `TZ=America/New_York` and green in the Warsaw host zone.
 - **Decided by:** orchestrator
+
+## 2026-10-28 Archive warnings
+
+- **Question:** Archive despite the `/10x-archive` soft warnings?
+- **Warnings:** (1) the review report is `impl-review.md` at the change root, not `reviews/impl-review*.md`; it declares "Reviewed phases: 1, 2, 3", which covers all of Progress, and the prior archive `2026-10-28-catalog-check-guards` uses the same layout. (2) The Progress SHAs `d9b774b`, `9c90edf`, `40803be` are not in `origin/main` @ `00df7e7`, which is expected before the PR. There is no merged implementation PR to repoint to, so the SHAs are kept as is. There are no pending or Manual rows.
+- **Choice:** Continue archiving without repointing; the PR carries the implementation.
+- **Decided by:** worker (orchestrator instruction: archive, then open the PR)

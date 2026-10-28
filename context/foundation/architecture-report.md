@@ -89,7 +89,7 @@ The word `due` has five meanings in code and `badanie` has two (DD:98-99). This 
 
 ## 7. Owner answers (2026-10-28)
 
-The owner answered the DD questions on 2026-10-28 (`context/changes/architecture-report/decisions.md`). The consequences are the worker's reading of each answer (inference).
+The owner answered the DD questions on 2026-10-28 (`context/archive/2026-10-27-architecture-report/decisions.md`). The consequences are the worker's reading of each answer (inference).
 
 | Q    | Question                                             | Answer                                                      | Consequence                                     |
 | ---- | ---------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------- |

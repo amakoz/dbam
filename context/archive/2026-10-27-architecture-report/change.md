@@ -1,10 +1,10 @@
 ---
 change_id: architecture-report
 title: Two-page architecture report from the map, research, refactor plan and domain notes
-status: new
+status: archived
 created: 2026-10-27
-updated: 2026-10-27
-archived_at: null
+updated: 2026-10-28
+archived_at: 2026-10-28T07:35:28Z
 ---
 
 ## Notes

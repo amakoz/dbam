@@ -51,7 +51,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-16 | reminders-runner     | (foundation) the three reminder jobs run on one shared, tested claim → send → mark runner                            | —             | MS-01    | ready    |
 | S-10 | missing-entry-plan   | a user whose plan's catalog entry is missing still sees that screening and its completion                            | —             | MS-02    | done     |
 | F-17 | catalog-check-guards | (foundation) `catalog:check` refuses backward status moves and warns in CI on entries past their review date         | —             | MS-03    | done     |
-| F-18 | merge-rule-docs      | (foundation) `CLAUDE.md` states the temporary orchestrator-merge rule and how to switch back                         | —             | MS-04    | ready    |
+| F-18 | merge-rule-docs      | (foundation) `CLAUDE.md` states the temporary orchestrator-merge rule and how to switch back                         | —             | MS-04    | done     |
 | S-11 | en-copy-terms        | an English-language user reads "screening" for a catalog item and "exam" for their own, consistently                 | —             | MS-05    | ready    |
 | F-19 | pure-module-tests    | (foundation) the remaining pure modules have unit tests                                                              | F-17          | MS-06    | proposed |
 | F-20 | db-check-constraints | (foundation) the app-only date, age and consent rules are also database check constraints, covered by database tests | —             | MS-07    | ready    |
@@ -110,7 +110,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Docs-only, but it sits beside the hard rule "never run `gh pr merge`" — the wording must make clear which agent may merge and that workers still never do.
-- **Status:** ready
+- **Status:** done
 
 ### F-19: Unit tests for the remaining pure modules
 
@@ -229,3 +229,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **F-15: (foundation) a two-page architecture report summarises the map, the feature research, the refactoring plan and the domain notes, written and checked by the owner so every claim can be defended.** — Archived 2026-10-28 → `context/archive/2026-10-27-architecture-report/`. Lesson: —.
 - **S-10: a user whose plan points to a catalog entry the dashboard cannot load still sees that screening's tier item and its completion; the plan never hides them. The F-08 test's expectation is updated to the fixed behaviour. Covers backlog B-04.** — Archived 2026-10-28 → `context/archive/2026-10-28-missing-entry-plan/`. Lesson: —.
 - **F-17: (foundation) `catalog:check` fails on a backward status move (anything other than draft → active → retired), the allowed transitions are documented in `catalog/README.md`, and CI prints a warning (never a failure, never hiding the entry from users) for every entry past its `next_review_due`. Covers backlog B-14 and B-15 in one change.** — Archived 2026-10-28 → `context/archive/2026-10-28-catalog-check-guards/`. Lesson: —.
+- **F-18: (foundation) `CLAUDE.md` states that, while production is a test environment, the orchestrator may merge green PRs, and how the owner switches back to human-only merges.** — Archived 2026-10-28 → `context/archive/2026-10-28-merge-rule-docs/`. Lesson: —.

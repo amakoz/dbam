@@ -3,7 +3,7 @@ project: Dbam
 version: 5
 status: draft
 created: 2026-09-26
-updated: 2026-10-27
+updated: 2026-10-28
 prd_version: 3
 main_goal: speed
 top_blocker: time
@@ -47,16 +47,16 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 ## At a glance
 
-| ID   | Change ID           | Outcome (user can …)                                                                                                      | Prerequisites          | PRD refs | Status   |
-| ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- | -------- | -------- |
-| F-10 | test-plan           | (foundation) a test plan ranks the top business risks and maps each to test layers and quality gates                      | —                      | MS-01    | done     |
-| S-08 | e2e-core-loop       | the sign-up → onboarding → due list → plan → confirm path is exercised in a real browser in CI, guarding a test-plan risk | F-10                   | MS-02    | done     |
-| S-09 | ai-code-review      | every pull request to `main` gets an AI review comment from a visible CI job, at no model cost                            | —                      | MS-08    | done     |
-| F-11 | repo-map            | (foundation) a repository map shows capabilities, hot areas, structure, risk zones and unknowns                           | —                      | MS-03    | done     |
-| F-12 | reminders-research  | (foundation) the reminder pipeline is researched end to end with the map as input, with a verified technical-debt section | F-11                   | MS-04    | done     |
-| F-13 | reminders-refactor  | (foundation) a guard-first, phased refactoring plan exists for one reminder-pipeline debt item                            | F-12                   | MS-05    | done     |
-| F-14 | domain-distillation | (foundation) domain notes name the ubiquitous language, subdomains, invariants and model-vs-code drift                    | —                      | MS-06    | done     |
-| F-15 | architecture-report | (foundation) a two-page architecture report combines the map, feature research, refactoring plan and domain notes         | F-11, F-12, F-13, F-14 | MS-07    | proposed |
+| ID   | Change ID           | Outcome (user can …)                                                                                                      | Prerequisites          | PRD refs | Status |
+| ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- | -------- | ------ |
+| F-10 | test-plan           | (foundation) a test plan ranks the top business risks and maps each to test layers and quality gates                      | —                      | MS-01    | done   |
+| S-08 | e2e-core-loop       | the sign-up → onboarding → due list → plan → confirm path is exercised in a real browser in CI, guarding a test-plan risk | F-10                   | MS-02    | done   |
+| S-09 | ai-code-review      | every pull request to `main` gets an AI review comment from a visible CI job, at no model cost                            | —                      | MS-08    | done   |
+| F-11 | repo-map            | (foundation) a repository map shows capabilities, hot areas, structure, risk zones and unknowns                           | —                      | MS-03    | done   |
+| F-12 | reminders-research  | (foundation) the reminder pipeline is researched end to end with the map as input, with a verified technical-debt section | F-11                   | MS-04    | done   |
+| F-13 | reminders-refactor  | (foundation) a guard-first, phased refactoring plan exists for one reminder-pipeline debt item                            | F-12                   | MS-05    | done   |
+| F-14 | domain-distillation | (foundation) domain notes name the ubiquitous language, subdomains, invariants and model-vs-code drift                    | —                      | MS-06    | done   |
+| F-15 | architecture-report | (foundation) a two-page architecture report combines the map, feature research, refactoring plan and domain notes         | F-11, F-12, F-13, F-14 | MS-07    | done   |
 
 ## Streams
 
@@ -163,7 +163,7 @@ Items below assume these are present and do NOT re-scaffold them.
   - The report-generation prompt is not part of the installed toolkit packs (checked 2026-10-27); take it from the lesson page or write the report from the four artifacts by hand.
 - **Unknowns:** —
 - **Risk:** A one-shot generated report is easy to produce and hard to defend; the owner edits it after reading the four inputs.
-- **Status:** proposed
+- **Status:** done
 
 ## Slices
 
@@ -257,3 +257,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **F-13: (foundation) one debt item from F-12 is explored through three read-only lenses (current shape, decision history, migration feasibility), the options are ranked and verified, and the chosen option becomes a guard-first, phased, independently reversible plan with characterization tests as the safety harness.** — Archived 2026-10-27 → `context/archive/2026-10-27-reminders-refactor/`. Lesson: —.
 - **F-14: (foundation) `context/domain/` holds a domain map (ubiquitous language with sources in docs and code, subdomains classified as core / supporting / generic, aggregate candidates and their invariants with enforcement status, model-vs-code drift, a ranked fix list) and a compact glossary for agents.** — Archived 2026-10-27 → `context/archive/2026-10-27-domain-distillation/`. Lesson: —.
 - **S-09: every pull request to `main` triggers a visible CI job that sends the PR title, body and diff to a review agent, which posts a scored review comment on the PR (and an `ai-cr:passed` / `ai-cr:failed` label). The job logs show the review, and the model provider costs nothing.** — Archived 2026-10-27 → `context/archive/2026-10-27-ai-code-review/`. Lesson: —.
+- **F-15: (foundation) a two-page architecture report summarises the map, the feature research, the refactoring plan and the domain notes, written and checked by the owner so every claim can be defended.** — Archived 2026-10-28 → `context/archive/2026-10-27-architecture-report/`. Lesson: —.

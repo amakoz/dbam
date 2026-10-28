@@ -1,5 +1,5 @@
-// The daily email budget shared by the reminder jobs. Pure and in its own module (re-exported by `src/lib/email.ts`),
-// so the reminder chain and its tests do not import `astro:env/server`.
+// The daily email budget shared by the reminder jobs and Resend's batch size. Pure and in its own module (re-exported
+// by `src/lib/email.ts`), so the reminder chain and its tests do not import `astro:env/server`.
 
 /**
  * The most reminder emails (appointment, due-screening and follow-up nudge) one daily run sends, in that order.
@@ -7,3 +7,6 @@
  * up to 3 failure alerts a day is 31 × 96 = 2,976, under both.
  */
 export const REMINDER_EMAIL_DAILY_BUDGET = 92;
+
+/** Resend accepts at most 100 emails per batch request. */
+export const MAX_BATCH_SIZE = 100;

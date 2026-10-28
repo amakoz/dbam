@@ -1,7 +1,8 @@
 import { EMAIL_DRY_RUN, EMAIL_FROM, RESEND_API_KEY } from "astro:env/server";
+import { MAX_BATCH_SIZE } from "@/lib/email-budget";
 import { withRateLimitRetry } from "@/lib/email-retry";
 
-export { REMINDER_EMAIL_DAILY_BUDGET } from "@/lib/email-budget";
+export { MAX_BATCH_SIZE, REMINDER_EMAIL_DAILY_BUDGET } from "@/lib/email-budget";
 
 // Transactional email from the Worker over Resend's REST API (one `fetch`, no SDK). With EMAIL_DRY_RUN=true it only
 // logs, so local dev and CI never send and need no key. Logs never contain the API key or the recipient address. A
@@ -13,8 +14,6 @@ const RESEND_BATCH_ENDPOINT = "https://api.resend.com/emails/batch";
 // until EMAIL_FROM names a sender on the verified sending domain.
 const SANDBOX_FROM = "Dbam <onboarding@resend.dev>";
 const SEND_TIMEOUT_MS = 10_000;
-/** Resend accepts at most 100 emails per batch request. */
-export const MAX_BATCH_SIZE = 100;
 
 export interface EmailMessage {
   to: string;

@@ -77,3 +77,8 @@
 - F1 (`data-done` on the unavailable done row): accepted, no code change. An unavailable done row carries `data-done` like `DoneItem`; tell the two apart with `data-unavailable`. Smoke's `bodyExcludes: "data-done"` / `"data-plan"` steps use no missing-entry records, so they are unaffected.
 - F2 (error path unchecked, 2.5 PR note open): fixed. The kitchen-sink unavailable done fixture now passes `error={t("errors.save_failed")}`, so the alert renders in the committed shots; confirmed once in light and dark. The "Manual check 2.5 run locally" entry above is pasted into the PR description.
 - Decided by: orchestrator (findings), worker (applied).
+
+## 2026-10-28 Archive before the PR merges
+
+- Archive ran on the feature branch before the PR exists, as the orchestrator asked. Warnings: the plan's 5 SHAs (10be458, d9e479f and the 2.x rows) are not yet in `origin/main` history, because the PR is unmerged and a squash merge will leave them dangling; no repoint is offered because there is no merged implementation PR to map them to. Manual row 2.5's PR-description part is covered by the PR, which pastes the "Manual check 2.5 run locally" entry. The impl-review report moved to `reviews/impl-review.md` so archive's coverage check finds it.
+- Decided by: worker (delegated by orchestrator).

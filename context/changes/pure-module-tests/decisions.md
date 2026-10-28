@@ -57,3 +57,11 @@
   - F5: the Phase 2 deliberate break deletes the `timeZone` option in `formatDay` and must go red under `TZ=America/New_York`.
 - **Evidence:** `plan-review.md` F1–F5.
 - **Decided by:** orchestrator
+
+## 2026-10-28 Impl review triage
+
+- **Question:** How to handle impl-review F1 (the "no shift" date cases guard only in a west-of-UTC process; `impl-review.md`, verdict APPROVED)?
+- **Options:** (a) pin a west-of-UTC `TZ` for the unit run in this change; (b) defer to a follow-up.
+- **Choice:** (b). It would change the Vitest config, which the plan excludes ("What We're NOT Doing"). Recorded in `follow-ups/pin-test-tz.md` and listed in the PR body's follow-ups.
+- **Evidence:** `impl-review.md` F1; the Progress 2.4 break showed red under `TZ=America/New_York` and green in the Warsaw host zone.
+- **Decided by:** orchestrator

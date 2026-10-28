@@ -374,21 +374,21 @@ Not applicable: no schema, data or runtime change.
 
 #### Automated
 
-- [x] 1.1 New tests pass: `npx vitest run src/lib/password.test.ts src/lib/profile.test.ts src/lib/errors.test.ts src/lib/auth-errors.test.ts`
-- [x] 1.2 Full unit suite passes: `npm test`
-- [x] 1.3 Lint passes: `npm run lint`
-- [x] 1.4 Deliberate break: setting `PASSWORD_MIN_LENGTH` to 11 fails the boundary and parity tests; changing `MIN_AGE` to 17 fails the age cases; both reverted
-- [x] 1.5 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing
+- [x] 1.1 New tests pass: `npx vitest run src/lib/password.test.ts src/lib/profile.test.ts src/lib/errors.test.ts src/lib/auth-errors.test.ts` — d9b774b
+- [x] 1.2 Full unit suite passes: `npm test` — d9b774b
+- [x] 1.3 Lint passes: `npm run lint` — d9b774b
+- [x] 1.4 Deliberate break: setting `PASSWORD_MIN_LENGTH` to 11 fails the boundary and parity tests; changing `MIN_AGE` to 17 fails the age cases; both reverted — d9b774b
+- [x] 1.5 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing — d9b774b
 
 ### Phase 2: Screening date and format helpers
 
 #### Automated
 
-- [ ] 2.1 Extended tests pass: `npx vitest run src/lib/screenings/rules.test.ts src/lib/screenings/format.test.ts`
-- [ ] 2.2 Full unit suite passes: `npm test`
-- [ ] 2.3 Lint passes: `npm run lint`
-- [ ] 2.4 Deliberate break: dropping the round-trip check in `isIsoDate` fails the `2026-02-30` case; deleting the `timeZone` option in `formatDay` makes `TZ=America/New_York npx vitest run src/lib/screenings/format.test.ts` fail; both reverted
-- [ ] 2.5 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing
+- [x] 2.1 Extended tests pass: `npx vitest run src/lib/screenings/rules.test.ts src/lib/screenings/format.test.ts`
+- [x] 2.2 Full unit suite passes: `npm test`
+- [x] 2.3 Lint passes: `npm run lint`
+- [x] 2.4 Deliberate break: dropping the round-trip check in `isIsoDate` fails the `2026-02-30` case; deleting the `timeZone` option in `formatDay` makes `TZ=America/New_York npx vitest run src/lib/screenings/format.test.ts` fail; both reverted
+- [x] 2.5 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing
 
 ### Phase 3: Catalog script pure functions
 

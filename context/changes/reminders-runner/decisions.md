@@ -52,3 +52,25 @@ Review: `impl-review.md` (PR A, phases 1–2). Decided by the orchestrator; appl
 
 - PR A was rebased onto `origin/main` (a3d4b7e) before its first push, so every commit got a new SHA. The SHAs in `plan.md`, `impl-review.md` and this file are the post-rebase ones: phase 1 `14f1302`, phase 2 `ea0cc9c`, guard reference commit (F1) `dc62600`. Entries above that name a SHA were updated in place.
 - decided-by: worker
+
+## 2026-10-28 Phase 3 built on a local branch, not on PR A's branch
+
+- Question: where does the phase 3 commit live while PR #99 (phases 1–2) waits on CI and must merge first?
+- Options: (a) commit on `feat/reminders-runner` (risk: a later push of that branch adds phase 3 to PR #99); (b) a local branch `feat/reminders-runner-p3` off PR A's head.
+- Choice: (b). Nothing is pushed. When #99 has merged, rebase `feat/reminders-runner-p3` onto `origin/main` (its parent commits are PR A's, which the squash or merge makes redundant) and open PR B from it.
+- decided-by: worker
+
+## 2026-10-28 Phase 3 gate notes
+
+- `runner.test.ts` reuses the phase 1 recorder (`fakeClient`, `record`, `expectNoLeak`) and still has no `astro:*` mock. Its one `vi.mock` is `@/lib/schedule`, wrapping the real `isDailySendRun` so a scenario can make the send gate throw, as the job tests do.
+- Phase 1 guards are unchanged since the reference commit (F1): `git diff 8410cdb -- <the 3 job tests and the helper>` is empty (it was `dc62600` before the squash; see the triage below).
+- Break (mark before the dry-run check in `runner.ts`) failed `runner.test.ts` on "resolves `dry-run` … and never marks"; the file was restored from the staged version.
+- decided-by: worker
+
+## 2026-10-28 PR B (phase 3) impl-review triage
+
+Review: `impl-review.md`, section "PR B — phase 3" (APPROVED, two low-impact warnings about git history). Decided by the orchestrator; applied by the worker.
+
+- **F1 — fixed.** PR A was squash-merged as 8410cdb, so the phase 3 branch still carried PR A's five pre-squash commits. `git rebase --onto origin/main 8bf4efb feat/reminders-runner-p3` (the branch had never been pushed) moved it onto `main`. `git diff --stat origin/main...HEAD` lists only phase 3 files: `runner.ts`, `runner.test.ts`, `deps.ts`, the `eslint.config.js` line, and `plan.md`, `decisions.md`, `impl-review.md`. The rebase gave the phase 3 commit a new SHA: `44d25d5` (it was `bdff91e`); Progress rows 3.1–3.4 carry the new one.
+- **F2 — fixed.** The reference for "unchanged since phase 1" is now `8410cdb`, the squash commit of #99 on `main`; `plan.md` ("Guard first") and the phase 3 gate note above say so. The Progress SHAs `14f1302` (phase 1) and `ea0cc9c` (phase 2) were squashed into 8410cdb and stay in the rows as history. `dc62600`, the earlier guard reference, is likewise squashed into 8410cdb. Entries in `impl-review.md` that name pre-squash SHAs (including `bdff91e`) are the review's record and were left as written.
+- **Branching rule for the remaining phases.** Start each next phase branch from `origin/main` after its predecessor merges; do not stack phase branches.

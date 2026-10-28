@@ -89,7 +89,7 @@ This plan works guard-first:
 
 ## Implementation Approach
 
-**Guard first.** Phase 1 adds characterization tests that are green on today's code by construction, and proves with a break matrix that they catch a break in each invariant class. Every later phase must leave those test files byte-identical and green, and carries its own deliberate break. The reference commit for "unchanged since phase 1" (every success criterion and Progress row that says so) is **780f23a**, which tightened the `failed`-line assertions after the PR A impl-review (F1); diff against it, not against the phase 1 commit 3599ba2.
+**Guard first.** Phase 1 adds characterization tests that are green on today's code by construction, and proves with a break matrix that they catch a break in each invariant class. Every later phase must leave those test files byte-identical and green, and carries its own deliberate break. The reference commit for "unchanged since phase 1" (every success criterion and Progress row that says so) is **dc62600**, which tightened the `failed`-line assertions after the PR A impl-review (F1); diff against it, not against the phase 1 commit 14f1302.
 
 **Then the moves, one phase per PR from phase 3 on** (Migration Notes give the rollback unit):
 
@@ -707,30 +707,30 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [x] 1.1 npm test passes with the three job test files and no other src file changed — 3599ba2
-- [x] 1.2 npm run lint passes with no errors in the new files — 3599ba2
-- [x] 1.3 npx astro check passes — 3599ba2
-- [x] 1.4 A deliberate mark/send swap fails the guard and is reverted before commit — 3599ba2
-- [x] 1.6 A deliberate removal of the dry-run return fails the guard and is reverted before commit — 3599ba2
-- [x] 1.7 A deliberate send to REMINDER_TEST_TO fails the guard and is reverted before commit — 3599ba2
-- [x] 1.8 A deliberate wrapped error in the catch fails the guard and is reverted before commit — 3599ba2
-- [x] 1.9 A deliberate message in the failed line fails the guard and is reverted before commit — 3599ba2
-- [x] 1.10 A deliberate key-prefix change fails the guard and is reverted before commit — 3599ba2
-- [x] 1.11 A deliberate client call above the gate fails the guard and is reverted before commit — 3599ba2
-- [x] 1.12 The SITE build baseline is recorded in decisions.md — 3599ba2
+- [x] 1.1 npm test passes with the three job test files and no other src file changed — 14f1302
+- [x] 1.2 npm run lint passes with no errors in the new files — 14f1302
+- [x] 1.3 npx astro check passes — 14f1302
+- [x] 1.4 A deliberate mark/send swap fails the guard and is reverted before commit — 14f1302
+- [x] 1.6 A deliberate removal of the dry-run return fails the guard and is reverted before commit — 14f1302
+- [x] 1.7 A deliberate send to REMINDER_TEST_TO fails the guard and is reverted before commit — 14f1302
+- [x] 1.8 A deliberate wrapped error in the catch fails the guard and is reverted before commit — 14f1302
+- [x] 1.9 A deliberate message in the failed line fails the guard and is reverted before commit — 14f1302
+- [x] 1.10 A deliberate key-prefix change fails the guard and is reverted before commit — 14f1302
+- [x] 1.11 A deliberate client call above the gate fails the guard and is reverted before commit — 14f1302
+- [x] 1.12 The SITE build baseline is recorded in decisions.md — 14f1302
 
 #### Manual
 
-- [x] 1.5 Reviewer confirms the pinned sent-transcript email copy is today's pl and en text with no exam name — 3599ba2
+- [x] 1.5 Reviewer confirms the pinned sent-transcript email copy is today's pl and en text with no exam name — 14f1302
 
 ### Phase 2: Move MAX_BATCH_SIZE into email-budget.ts
 
 #### Automated
 
-- [x] 2.1 npm test passes with the phase 1 test files unchanged — 4d0012f
-- [x] 2.2 npm run lint and npx astro check pass — 4d0012f
-- [x] 2.3 email-budget.ts imports nothing from astro:* — 4d0012f
-- [x] 2.4 A deliberate MAX_BATCH_SIZE of 99 fails the nudge budget-250 case and is reverted before commit — 4d0012f
+- [x] 2.1 npm test passes with the phase 1 test files unchanged — ea0cc9c
+- [x] 2.2 npm run lint and npx astro check pass — ea0cc9c
+- [x] 2.3 email-budget.ts imports nothing from astro:* — ea0cc9c
+- [x] 2.4 A deliberate MAX_BATCH_SIZE of 99 fails the nudge budget-250 case and is reverted before commit — ea0cc9c
 
 ### Phase 3: Add the pure runner and the production deps
 

@@ -9,7 +9,7 @@ Later PRs append one section per phase below this one.
 - **Plan**: context/changes/reminders-runner/plan.md
 - **Scope**: Phases 1–2 of 8 (PR A). Phases 3–8 are not implemented yet by design; their open Progress rows are not findings.
 - **Reviewed phases**: 1, 2
-- **Commits**: 3599ba2 (phase 1), 4d0012f (phase 2)
+- **Commits**: 14f1302 (phase 1), ea0cc9c (phase 2)
 - **Date**: 2026-10-28
 - **Verdict**: NEEDS ATTENTION
 - **Findings**: 0 critical, 3 warnings, 2 observations
@@ -29,8 +29,8 @@ Later PRs append one section per phase below this one.
 
 - `npm test`: 20 files, 385 tests passed.
 - `npm run lint`: exit 0. `npx astro check`: 0 errors, 0 warnings, 0 hints.
-- Phase 1 changed only the 4 planned files under `src/` (`git diff --name-only 3599ba2^ 3599ba2 -- src/`).
-- The phase 1 test files and helper are byte-identical at HEAD (`git diff --quiet 3599ba2 HEAD -- …`).
+- Phase 1 changed only the 4 planned files under `src/` (`git diff --name-only 14f1302^ 14f1302 -- src/`).
+- The phase 1 test files and helper are byte-identical at HEAD (`git diff --quiet 14f1302 HEAD -- …`).
 - `src/lib/email-budget.ts` has no `astro:*` import. The only hit is the word in its header comment.
 - Gate 2.4 re-run: `MAX_BATCH_SIZE = 99` fails only "budget 250 claims 100"; reverted.
 - Break-matrix spot checks (reverted): a changed appointment key prefix fails 2 appointment tests, and removing the due job's `"dryRun" in result` branch fails 1 due test. The other five breaks (1.4, 1.7, 1.8, 1.9, 1.11) were not re-run. Nothing records their results.
@@ -52,7 +52,7 @@ Later PRs append one section per phase below this one.
 
 - **Fix A ⭐ Recommended**: Before PR A merges, add `expect(out.logs).toEqual([{ …failed line… }])` to the 5 rows. Make "unchanged since phase 1" refer to that commit, and record the new reference SHA in `decisions.md`.
   - Strength: delivers the plan's stated contract. Uses the same shape the sibling rows already use (e.g. appointment.test.ts:259-268).
-  - Tradeoff: the guard's reference moves off 3599ba2, and phase 4–8 reviewers must diff against the new SHA.
+  - Tradeoff: the guard's reference moves off 14f1302, and phase 4–8 reviewers must diff against the new SHA.
   - Confidence: HIGH — the expected lines follow from today's code and the pinned sibling rows.
   - Blind spot: today's due-job line for a Resend 500 hasn't been observed; write it from code and confirm the test goes green before committing.
 - **Fix B**: Accept the gap and note in `decisions.md` that the runner's single catch is pinned through the appointment and nudge rows from phases 4–5 on.
@@ -60,7 +60,7 @@ Later PRs append one section per phase below this one.
   - Tradeoff: phase 6's due-specific `select` can still add or drop log lines on claim failure without failing a test.
   - Confidence: MED — the shared catch covers most of it, but `select` runs inside it.
   - Blind spot: whether phase 6's `select` will log anything itself.
-- **Decision**: Fix A — applied (780f23a)
+- **Decision**: Fix A — applied (dc62600)
 
 #### F2 — Manual row 1.5 ticked with no reviewer evidence, and the phase-1 pause was skipped
 
@@ -68,7 +68,7 @@ Later PRs append one section per phase below this one.
 - **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
 - **Dimension**: Success Criteria
 - **Location**: context/changes/reminders-runner/plan.md:725-726
-- **Detail**: Row 1.5 ("Reviewer confirms the pinned sent-transcript email copy…") is `[x] — 3599ba2`. `decisions.md` records only that the worker pinned the copy by hand from `src/i18n`. No reviewer is named and no confirmation is recorded. The plan says "Pause after this phase for the manual check before phase 2", yet phase 2 was committed 2 minutes after phase 1 (09:08 → 09:10). The person who wrote the expectations is not an independent reviewer of them.
+- **Detail**: Row 1.5 ("Reviewer confirms the pinned sent-transcript email copy…") is `[x] — 14f1302`. `decisions.md` records only that the worker pinned the copy by hand from `src/i18n`. No reviewer is named and no confirmation is recorded. The plan says "Pause after this phase for the manual check before phase 2", yet phase 2 was committed 2 minutes after phase 1 (09:08 → 09:10). The person who wrote the expectations is not an independent reviewer of them.
 - **Fix**: Have the orchestrator or the owner read the 3 `sent` transcripts (appointment.test.ts:189-221, due-screening.test.ts:275-306, follow-up-nudge.test.ts:221-254) against `src/i18n/{pl,en}.ts`, and record who confirmed in `decisions.md`. Otherwise reset 1.5 to `[ ]` until someone does.
 - **Decision**: Fixed (reviewer-confirmed): the reviewer pane (Opus, independent of the author) verified the pinned sent-transcript copy in the 3 test files against today's i18n and builders, with no exam name or health data
 
@@ -88,7 +88,7 @@ Later PRs append one section per phase below this one.
 - **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
 - **Dimension**: Success Criteria
 - **Location**: context/changes/reminders-runner/plan.md:720-721, 725-726, 735-737
-- **Detail**: Rows 1.12 and 1.5 carry ` — 3599ba2` on a wrapped continuation line. Row 2.4's ` — 4d0012f`, which is uncommitted, sits on its own line and has eaten the blank line before `### Phase 3`. The convention is ` — <sha>` at the end of the step line. Parsers that read the SHA from the row line won't find it.
+- **Detail**: Rows 1.12 and 1.5 carry ` — 14f1302` on a wrapped continuation line. Row 2.4's ` — ea0cc9c`, which is uncommitted, sits on its own line and has eaten the blank line before `### Phase 3`. The convention is ` — <sha>` at the end of the step line. Parsers that read the SHA from the row line won't find it.
 - **Fix**: Put each SHA at the end of its row line and restore the blank line before `### Phase 3`. Commit it with the PR A epilogue.
 - **Decision**: Fix applied
 

@@ -36,7 +36,7 @@
 
 Review: `impl-review.md` (PR A, phases 1–2). Decided by the orchestrator; applied by the worker.
 
-- **F1 — Fix A.** The `failed` line is now pinned with `toEqual` in the rows that lacked it: appointment and nudge missing-id; due claim error, Resend 500 and missing-id. The due invalid-candidate row had the same gap and got the same assertion (one more than the review listed). The expected lines were written from the code and went green at the first run. **Reference commit for "unchanged since phase 1": `780f23a`.** Later phases diff the three job test files and `transcript.test-helper.ts` against it, not against 3599ba2. The helper is unchanged since 3599ba2. `plan.md` ("Guard first") says so.
+- **F1 — Fix A.** The `failed` line is now pinned with `toEqual` in the rows that lacked it: appointment and nudge missing-id; due claim error, Resend 500 and missing-id. The due invalid-candidate row had the same gap and got the same assertion (one more than the review listed). The expected lines were written from the code and went green at the first run. **Reference commit for "unchanged since phase 1": `dc62600`.** Later phases diff the three job test files and `transcript.test-helper.ts` against it, not against 14f1302. The helper is unchanged since 14f1302. `plan.md` ("Guard first") says so.
 - **F2 — left open.** Row 1.5 stays as it is. A reviewer pane is checking the pinned email copy independently; the orchestrator will send its verdict, and who confirmed is recorded then.
 - **F3 — confirmed.** The `SITE` reinterpretation is now `decided-by: orchestrator`. Phase 4 §3 and row 4.3 carry: "absent apart from the vendor hit recorded in decisions.md (SITE build baseline)".
 - **F4 — fixed.** Progress SHAs sit at the end of their row lines (1.12, 1.5, 2.4) and the blank line before `### Phase 3` is back. A regex bug of mine caused it (a `[^ ]` matched the newline).
@@ -47,3 +47,8 @@ Review: `impl-review.md` (PR A, phases 1–2). Decided by the orchestrator; appl
 - Question: who confirms the pinned sent-transcript email copy (manual row 1.5)? The author wrote the expectations, so the author is not an independent check.
 - Choice: the reviewer pane (Opus, independent of the author) verified the pinned copy in `appointment.test.ts`, `due-screening.test.ts` and `follow-up-nudge.test.ts` against today's `src/i18n/{pl,en}.ts` and the builders. It matches, and no email names an exam or holds health data. Row 1.5 stays `[x]`; F2's Decision is fixed.
 - decided-by: orchestrator
+
+## 2026-10-28 SHAs rebased
+
+- PR A was rebased onto `origin/main` (a3d4b7e) before its first push, so every commit got a new SHA. The SHAs in `plan.md`, `impl-review.md` and this file are the post-rebase ones: phase 1 `14f1302`, phase 2 `ea0cc9c`, guard reference commit (F1) `dc62600`. Entries above that name a SHA were updated in place.
+- decided-by: worker

@@ -310,6 +310,16 @@ describe("runFollowUpNudges", () => {
 
       expect(out.error).toMatchObject({ name: "EmailSendError", status: 200, resendError: "missing_id" });
       expect(out.calls).toEqual([claimCall(92)]);
+      expect(out.logs).toEqual([
+        {
+          event: "follow-up-nudge",
+          outcome: "failed",
+          ...runFields(),
+          error: "EmailSendError",
+          status: "200",
+          resendError: "missing_id",
+        },
+      ]);
     });
 
     it("fails at the mark after the send, with a code-only error", async () => {

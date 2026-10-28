@@ -341,6 +341,16 @@ describe("runDueScreeningReminders", () => {
       const out = await runJob(rig);
 
       expect(out.error).toMatchObject({ name: "ReminderDatabaseError", step: "candidates", code: "invalid" });
+      expect(out.logs).toEqual([
+        {
+          event: "due-screening-reminder",
+          outcome: "failed",
+          ...runFields(),
+          error: "ReminderDatabaseError",
+          step: "candidates",
+          code: "invalid",
+        },
+      ]);
       expect(out.calls).toEqual([CANDIDATES_ARGS]);
       expectNoLeak(out.logs, [LEAKED_ADDRESS]);
       expect((out.thrown as Error).message).not.toContain("@");
@@ -390,6 +400,16 @@ describe("runDueScreeningReminders", () => {
       const out = await runJob(rig);
 
       expect(out.error).toMatchObject({ name: "ReminderDatabaseError", step: "claim", code: "23505" });
+      expect(out.logs).toEqual([
+        {
+          event: "due-screening-reminder",
+          outcome: "failed",
+          ...runFields(),
+          error: "ReminderDatabaseError",
+          step: "claim",
+          code: "23505",
+        },
+      ]);
       expect(out.fetches).toEqual([]);
       expectNoLeak(out.logs);
     });
@@ -400,6 +420,16 @@ describe("runDueScreeningReminders", () => {
       const out = await runJob(rig);
 
       expect(out.error).toMatchObject({ name: "EmailSendError", status: 500, resendError: "internal_server_error" });
+      expect(out.logs).toEqual([
+        {
+          event: "due-screening-reminder",
+          outcome: "failed",
+          ...runFields(),
+          error: "EmailSendError",
+          status: "500",
+          resendError: "internal_server_error",
+        },
+      ]);
       expect(out.calls).toEqual([CANDIDATES_ARGS, CATALOG_CALL, claimArgs([1, 2])]);
       expect((out.thrown as Error).message).not.toContain("@");
       expectNoLeak(out.logs, [LEAKED_ADDRESS]);
@@ -411,6 +441,16 @@ describe("runDueScreeningReminders", () => {
       const out = await runJob(rig);
 
       expect(out.error).toMatchObject({ name: "EmailSendError", status: 200, resendError: "missing_id" });
+      expect(out.logs).toEqual([
+        {
+          event: "due-screening-reminder",
+          outcome: "failed",
+          ...runFields(),
+          error: "EmailSendError",
+          status: "200",
+          resendError: "missing_id",
+        },
+      ]);
       expect(out.calls).toHaveLength(3);
     });
 

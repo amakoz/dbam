@@ -278,7 +278,16 @@ describe("runAppointmentReminders", () => {
 
       expect(out.error).toMatchObject({ name: "EmailSendError", status: 200, resendError: "missing_id" });
       expect(out.calls).toEqual([CLAIM_ARGS]);
-      expect(out.logs).toHaveLength(1);
+      expect(out.logs).toEqual([
+        {
+          event: "appointment-reminder",
+          outcome: "failed",
+          ...runFields(),
+          error: "EmailSendError",
+          status: "200",
+          resendError: "missing_id",
+        },
+      ]);
     });
 
     it("fails at the mark after the send, with a code-only error", async () => {

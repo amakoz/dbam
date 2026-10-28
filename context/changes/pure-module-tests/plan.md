@@ -374,11 +374,11 @@ Not applicable: no schema, data or runtime change.
 
 #### Automated
 
-- [ ] 1.1 New tests pass: `npx vitest run src/lib/password.test.ts src/lib/profile.test.ts src/lib/errors.test.ts src/lib/auth-errors.test.ts`
-- [ ] 1.2 Full unit suite passes: `npm test`
-- [ ] 1.3 Lint passes: `npm run lint`
-- [ ] 1.4 Deliberate break: setting `PASSWORD_MIN_LENGTH` to 11 fails the boundary and parity tests; changing `MIN_AGE` to 17 fails the age cases; both reverted
-- [ ] 1.5 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing
+- [x] 1.1 New tests pass: `npx vitest run src/lib/password.test.ts src/lib/profile.test.ts src/lib/errors.test.ts src/lib/auth-errors.test.ts`
+- [x] 1.2 Full unit suite passes: `npm test`
+- [x] 1.3 Lint passes: `npm run lint`
+- [x] 1.4 Deliberate break: setting `PASSWORD_MIN_LENGTH` to 11 fails the boundary and parity tests; changing `MIN_AGE` to 17 fails the age cases; both reverted
+- [x] 1.5 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing
 
 ### Phase 2: Screening date and format helpers
 

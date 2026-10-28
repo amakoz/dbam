@@ -212,21 +212,21 @@ Not applicable: no schema or data change. Rollback is a plain Worker revert.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass, including the rewritten F-08 case and the new missing-entry cases: `npm test`
-- [x] 1.2 Type check passes: `npx astro check`
-- [x] 1.3 Lint passes: `npm run lint`
-- [x] 1.4 Hardcoded-value check passes over the dashboard and recommendations components: `npm run ui:check`
-- [x] 1.5 Build passes: `npm run build`
+- [x] 1.1 Unit tests pass, including the rewritten F-08 case and the new missing-entry cases: `npm test` — 10be458
+- [x] 1.2 Type check passes: `npx astro check` — 10be458
+- [x] 1.3 Lint passes: `npm run lint` — 10be458
+- [x] 1.4 Hardcoded-value check passes over the dashboard and recommendations components: `npm run ui:check` — 10be458
+- [x] 1.5 Build passes: `npm run build` — 10be458
 
 ### Phase 2: Kitchen-sink sample and visual check
 
 #### Automated
 
-- [ ] 2.1 Hardcoded-value check passes: `npm run ui:check`
-- [ ] 2.2 Type check and lint pass: `npx astro check && npm run lint`
-- [ ] 2.3 Against `npx astro dev --host 127.0.0.1 --port $DBAM_PORT` (on a fresh worktree run `npx astro sync` first; stop the server afterwards), kitchen-sink screenshots are produced (no DB lock needed): `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots -- --only kitchen-sink --out context/changes/missing-entry-plan/screenshots`
+- [x] 2.1 Hardcoded-value check passes: `npm run ui:check`
+- [x] 2.2 Type check and lint pass: `npx astro check && npm run lint`
+- [x] 2.3 Against `npx astro dev --host 127.0.0.1 --port $DBAM_PORT` (on a fresh worktree run `npx astro sync` first; stop the server afterwards), kitchen-sink screenshots are produced (no DB lock needed): `BASE_URL=http://127.0.0.1:$DBAM_PORT npm run ui:shots -- --only kitchen-sink --out context/changes/missing-entry-plan/screenshots`
 
 #### Manual
 
-- [ ] 2.4 In the kitchen-sink shots (light and dark, 1440 and 390), the unavailable rows show the generic label, their date line ("Appointment: …" / "Last done: …"), the neutral note below it and only the remove/undo button. They have no tier badge, the slug is not visible as text, and the contrast matches neighbouring rows.
-- [ ] 2.5 PR Manual check: on a local stack, demote a planned entry to draft (`update screening_catalog set status = 'draft' where slug = …` in local Supabase only). The dashboard then shows that plan as "Exam not available" with its appointment date. After "Remove from plans", the redirect to `#screening-<slug>` lands on the page with no error, and the plan row is gone. Also exercise the `itemSlugs` key once: either make a remove fail and see the error on the unavailable row, or confirm that the anchor resolves to the row before removing it. The PR description records that this check ran and its outcome.
+- [x] 2.4 In the kitchen-sink shots (light and dark, 1440 and 390), the unavailable rows show the generic label, their date line ("Appointment: …" / "Last done: …"), the neutral note below it and only the remove/undo button. They have no tier badge, the slug is not visible as text, and the contrast matches neighbouring rows.
+- [x] 2.5 PR Manual check: on a local stack, demote a planned entry to draft (`update screening_catalog set status = 'draft' where slug = …` in local Supabase only). The dashboard then shows that plan as "Exam not available" with its appointment date. After "Remove from plans", the redirect to `#screening-<slug>` lands on the page with no error, and the plan row is gone. Also exercise the `itemSlugs` key once: either make a remove fail and see the error on the unavailable row, or confirm that the anchor resolves to the row before removing it. The PR description records that this check ran and its outcome.

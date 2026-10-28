@@ -58,3 +58,16 @@
 - F3 (the dashboard wiring has only a manual check): fixed. Check 2.5 also exercises the `#screening-<slug>` anchor or a failed remove, and the PR records that 2.5 ran.
 - F4 (the screenshot check doesn't mention the dev server): fixed. Check 2.3 starts with the `npx astro dev --host 127.0.0.1 --port $DBAM_PORT` line.
 - Decided by: orchestrator.
+
+## 2026-10-28 Existing partition tests narrowed, not rewritten
+
+- Question: the plan says existing partition tests stay unchanged, but `plans`/`done` are now unions, so `result.done[0].nextDue` and `slugsOf(result.plans)` stop type-checking.
+- Options: (a) add a `withEntry()` narrowing helper in the test file and wrap those reads; (b) cast.
+- Choice: (a). Assertions and expected values are untouched; only the accessor is narrowed.
+- Evidence: `npx astro check` flagged 7 errors in `rules.test.ts` after the type change.
+- Decided by: worker.
+
+## 2026-10-28 Manual check 2.5 run locally
+
+- Ran on the local stack under the DB lock: a fresh user with a mammography plan (2026-12-10) and a colonoscopy completion (2025-03), both catalog rows set to `draft`. The dashboard showed two "Badanie niedostępne" rows with their date lines; `#screening-mammography-nfz-program` resolved to the plan row; "Usuń z planów" redirected to `?saved=unplan#screening-…` with no error alert and no plan row left; "Cofnij oznaczenie" did the same (`?saved=undone`). Both rows were gone from the DB. Catalog status restored to `active`; lock released; dev server stopped. A failed-remove error on the row was not exercised (anchor-resolves branch of the plan's either/or).
+- Decided by: worker.

@@ -384,19 +384,19 @@ Not applicable: no schema, data or runtime change.
 
 #### Automated
 
-- [x] 2.1 Extended tests pass: `npx vitest run src/lib/screenings/rules.test.ts src/lib/screenings/format.test.ts`
-- [x] 2.2 Full unit suite passes: `npm test`
-- [x] 2.3 Lint passes: `npm run lint`
-- [x] 2.4 Deliberate break: dropping the round-trip check in `isIsoDate` fails the `2026-02-30` case; deleting the `timeZone` option in `formatDay` makes `TZ=America/New_York npx vitest run src/lib/screenings/format.test.ts` fail; both reverted
-- [x] 2.5 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing
+- [x] 2.1 Extended tests pass: `npx vitest run src/lib/screenings/rules.test.ts src/lib/screenings/format.test.ts` — 9c90edf
+- [x] 2.2 Full unit suite passes: `npm test` — 9c90edf
+- [x] 2.3 Lint passes: `npm run lint` — 9c90edf
+- [x] 2.4 Deliberate break: dropping the round-trip check in `isIsoDate` fails the `2026-02-30` case; deleting the `timeZone` option in `formatDay` makes `TZ=America/New_York npx vitest run src/lib/screenings/format.test.ts` fail; both reverted — 9c90edf
+- [x] 2.5 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing — 9c90edf
 
 ### Phase 3: Catalog script pure functions
 
 #### Automated
 
-- [ ] 3.1 Catalog tests pass: `npx vitest run scripts/catalog`
-- [ ] 3.2 Full unit suite passes: `npm test`
-- [ ] 3.3 Lint passes: `npm run lint`
-- [ ] 3.4 Catalog guard still passes: `npm run catalog:check`
-- [ ] 3.5 Deliberate break: removing the `'` doubling in `quote` (`scripts/catalog/lib.ts:152`) fails the escaping case; dropping the `DRAFT_FIELDS` spread in `planWrites` fails the draft-status case; both reverted
-- [ ] 3.6 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing
+- [x] 3.1 Catalog tests pass: `npx vitest run scripts/catalog`
+- [x] 3.2 Full unit suite passes: `npm test`
+- [x] 3.3 Lint passes: `npm run lint`
+- [x] 3.4 Catalog guard still passes: `npm run catalog:check`
+- [x] 3.5 Deliberate break: removing the `'` doubling in `quote` (`scripts/catalog/lib.ts:152`) fails the escaping case; dropping the `DRAFT_FIELDS` spread in `planWrites` fails the draft-status case; both reverted
+- [x] 3.6 No non-test source change: `git diff --name-only origin/main -- src scripts | grep -v '\.test\.ts$'` prints nothing

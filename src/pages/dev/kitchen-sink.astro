@@ -12,6 +12,7 @@ import DoneItem from "@/components/recommendations/DoneItem.astro";
 import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
 import PlanItem from "@/components/recommendations/PlanItem.astro";
 import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
+import UnavailableItem from "@/components/recommendations/UnavailableItem.astro";
 import TierSection from "@/components/recommendations/TierSection.astro";
 import type { SavedFeedback } from "@/components/recommendations/saved";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -26,7 +27,13 @@ import { SEX_LABEL_KEYS, SEX_VALUES } from "@/lib/profile";
 import type { MaybeRecommendation, Recommendation } from "@/lib/catalog/recommend";
 import type { CatalogEntry } from "@/lib/catalog/schema";
 import { screeningFormBounds } from "@/lib/screenings/format";
-import type { DoneView, PlanView, ScreeningCompletion } from "@/lib/screenings/rules";
+import type {
+  DoneView,
+  PlanView,
+  ScreeningCompletion,
+  UnavailableDoneView,
+  UnavailablePlanView,
+} from "@/lib/screenings/rules";
 
 // The visual gate of the dashboard (context/changes/ui-refactor/plan.md, Phase 4): its building blocks in every state
 // of the /10x-ui 7-state matrix, rendered through the real components from fixture data, in a forced light and a
@@ -156,7 +163,7 @@ function fixtures(scheme: Scheme) {
   const savedSuccess: SavedFeedback = { text: t("dashboard.screenings.saved.plan"), tone: "success" };
   const savedUndo: SavedFeedback = { text: t("dashboard.screenings.saved.unplan"), tone: "neutral" };
 
-  const plans: { view: PlanView; saved?: SavedFeedback }[] = [
+  const plans: { view: PlanView | UnavailablePlanView; saved?: SavedFeedback }[] = [
     // Awaiting confirmation is set by hand: the fixture dates are literal, not relative to today.
     {
       view: { plan: plan(plannedPassed.slug, FIXTURE_DATE), entry: plannedPassed, tier: 1, awaitingConfirmation: true },
@@ -169,6 +176,8 @@ function fixtures(scheme: Scheme) {
       view: { plan: plan(plannedSaved.slug, "2027-01-20"), entry: plannedSaved, tier: 2, awaitingConfirmation: false },
       saved: savedSuccess,
     },
+    // Entry missing (draft or invalid): the generic row with its own date line and only "Remove from plans".
+    { view: { plan: plan(`unavailable-plan-${scheme}`, "2026-12-03"), entry: null } },
   ];
   const tiers: { recommendation: Recommendation; lastDone?: ScreeningCompletion }[] = [
     {
@@ -178,10 +187,21 @@ function fixtures(scheme: Scheme) {
     { recommendation: recommendation(tier2, 2, { kind: "months", months: 60 }) },
     { recommendation: recommendation(tier3, 3, { kind: "shared_decision" }) },
   ];
-  const doneViews: DoneView[] = [
-    { completion: completion(done.slug, "2026-06-01"), entry: done, nextDue: "2027-06-01" },
-    { completion: completion(doneOnDay.slug, "2026-09-01", FIXTURE_DATE), entry: doneOnDay, nextDue: "2028-09-01" },
-    { completion: completion(doneNoInterval.slug, null), entry: doneNoInterval, nextDue: null },
+  const doneViews: { view: DoneView | UnavailableDoneView; error?: string }[] = [
+    { view: { completion: completion(done.slug, "2026-06-01"), entry: done, nextDue: "2027-06-01" } },
+    {
+      view: {
+        completion: completion(doneOnDay.slug, "2026-09-01", FIXTURE_DATE),
+        entry: doneOnDay,
+        nextDue: "2028-09-01",
+      },
+    },
+    { view: { completion: completion(doneNoInterval.slug, null), entry: doneNoInterval, nextDue: null } },
+    // Entry missing: the generic row, here in its error state (a failed undo).
+    {
+      view: { completion: completion(`unavailable-done-${scheme}`, "2025-03-01"), entry: null },
+      error: t("errors.save_failed"),
+    },
   ];
   const maybeItems: MaybeRecommendation[] = [
     { entry: maybe, missing: [[{ factor: "family_history_crc_first_degree", op: "eq", value: true }]] },
@@ -341,9 +361,13 @@ const LEGEND: readonly { state: string; status: "Shown" | "Live" | "N/A"; note: 
               </CardHeader>
               <CardContent>
                 <ul class="divide-y divide-border">
-                  {data.plans.map(({ view, saved }) => (
-                    <PlanItem view={view} bounds={bounds} saved={saved} />
-                  ))}
+                  {data.plans.map(({ view, saved }) =>
+                    view.entry === null ? (
+                      <UnavailableItem view={view} saved={saved} />
+                    ) : (
+                      <PlanItem view={view} bounds={bounds} saved={saved} />
+                    ),
+                  )}
                 </ul>
               </CardContent>
             </Card>
@@ -420,9 +444,9 @@ const LEGEND: readonly { state: string; status: "Shown" | "Live" | "N/A"; note: 
               </CardHeader>
               <CardContent>
                 <ul class="divide-y divide-border">
-                  {data.done.map((view) => (
-                    <DoneItem view={view} />
-                  ))}
+                  {data.done.map(({ view, error }) =>
+                    view.entry === null ? <UnavailableItem view={view} error={error} /> : <DoneItem view={view} />,
+                  )}
                 </ul>
               </CardContent>
             </Card>

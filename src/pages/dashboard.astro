@@ -5,6 +5,7 @@ import DoneItem from "@/components/recommendations/DoneItem.astro";
 import MaybeRecommendationItem from "@/components/recommendations/MaybeRecommendationItem.astro";
 import PlanItem from "@/components/recommendations/PlanItem.astro";
 import RecommendationItem from "@/components/recommendations/RecommendationItem.astro";
+import UnavailableItem from "@/components/recommendations/UnavailableItem.astro";
 import TierSection from "@/components/recommendations/TierSection.astro";
 import type { SavedFeedback } from "@/components/recommendations/saved";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -96,8 +97,8 @@ const slugParam = readFlashSlug(flashCookie?.value);
 if (flashCookie) Astro.cookies.set(FLASH_COOKIE, "", clearedFlashCookieOptions(Astro.url.protocol === "https:"));
 // Rows that carry an `id="screening-<slug>"` anchor ("may apply" rows have no actions, so no anchor).
 const itemSlugs = new Set([
-  ...plans.map(({ entry }) => entry.slug),
-  ...done.map(({ entry }) => entry.slug),
+  ...plans.map(({ plan }) => plan.catalog_slug),
+  ...done.map(({ completion }) => completion.catalog_slug),
   ...tierGroups.flatMap(({ items }) => items.map(({ entry }) => entry.slug)),
 ]);
 const rowSlug = slugParam && itemSlugs.has(slugParam) ? slugParam : null;
@@ -180,15 +181,23 @@ const summary = [
                 <p class="text-sm text-muted-foreground">{t("dashboard.screenings.plans.empty")}</p>
               ) : (
                 <ul class="divide-y divide-border">
-                  {plans.map((view) => (
-                    <PlanItem
-                      view={view}
-                      bounds={bounds}
-                      error={errorFor(view.entry.slug)}
-                      invalidField={invalidFieldFor(view.entry.slug)}
-                      saved={savedFor(view.entry.slug)}
-                    />
-                  ))}
+                  {plans.map((view) =>
+                    view.entry === null ? (
+                      <UnavailableItem
+                        view={view}
+                        error={errorFor(view.plan.catalog_slug)}
+                        saved={savedFor(view.plan.catalog_slug)}
+                      />
+                    ) : (
+                      <PlanItem
+                        view={view}
+                        bounds={bounds}
+                        error={errorFor(view.plan.catalog_slug)}
+                        invalidField={invalidFieldFor(view.plan.catalog_slug)}
+                        saved={savedFor(view.plan.catalog_slug)}
+                      />
+                    ),
+                  )}
                 </ul>
               )}
               {showRemindersHint && (
@@ -244,9 +253,21 @@ const summary = [
               </CardHeader>
               <CardContent>
                 <ul class="divide-y divide-border">
-                  {done.map((view) => (
-                    <DoneItem view={view} error={errorFor(view.entry.slug)} saved={savedFor(view.entry.slug)} />
-                  ))}
+                  {done.map((view) =>
+                    view.entry === null ? (
+                      <UnavailableItem
+                        view={view}
+                        error={errorFor(view.completion.catalog_slug)}
+                        saved={savedFor(view.completion.catalog_slug)}
+                      />
+                    ) : (
+                      <DoneItem
+                        view={view}
+                        error={errorFor(view.completion.catalog_slug)}
+                        saved={savedFor(view.completion.catalog_slug)}
+                      />
+                    ),
+                  )}
                 </ul>
               </CardContent>
             </Card>

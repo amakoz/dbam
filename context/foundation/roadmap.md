@@ -49,7 +49,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | ID   | Change ID            | Outcome (user can …)                                                                                                 | Prerequisites | PRD refs | Status   |
 | ---- | -------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | -------- |
 | F-16 | reminders-runner     | (foundation) the three reminder jobs run on one shared, tested claim → send → mark runner                            | —             | MS-01    | ready    |
-| S-10 | missing-entry-plan   | a user whose plan's catalog entry is missing still sees that screening and its completion                            | —             | MS-02    | ready    |
+| S-10 | missing-entry-plan   | a user whose plan's catalog entry is missing still sees that screening and its completion                            | —             | MS-02    | done     |
 | F-17 | catalog-check-guards | (foundation) `catalog:check` refuses backward status moves and warns in CI on entries past their review date         | —             | MS-03    | ready    |
 | F-18 | merge-rule-docs      | (foundation) `CLAUDE.md` states the temporary orchestrator-merge rule and how to switch back                         | —             | MS-04    | ready    |
 | S-11 | en-copy-terms        | an English-language user reads "screening" for a catalog item and "exam" for their own, consistently                 | —             | MS-05    | ready    |
@@ -150,7 +150,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The dashboard partition rule decides where every exam shows; the fix must keep "each exam shows in one place" for every other plan, so the existing partition tests stay the guard.
-- **Status:** ready
+- **Status:** done
 
 ### S-11: English copy says "screening" and "exam" consistently
 
@@ -227,3 +227,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **F-14: (foundation) `context/domain/` holds a domain map (ubiquitous language with sources in docs and code, subdomains classified as core / supporting / generic, aggregate candidates and their invariants with enforcement status, model-vs-code drift, a ranked fix list) and a compact glossary for agents.** — Archived 2026-10-27 → `context/archive/2026-10-27-domain-distillation/`. Lesson: —.
 - **S-09: every pull request to `main` triggers a visible CI job that sends the PR title, body and diff to a review agent, which posts a scored review comment on the PR (and an `ai-cr:passed` / `ai-cr:failed` label). The job logs show the review, and the model provider costs nothing.** — Archived 2026-10-27 → `context/archive/2026-10-27-ai-code-review/`. Lesson: —.
 - **F-15: (foundation) a two-page architecture report summarises the map, the feature research, the refactoring plan and the domain notes, written and checked by the owner so every claim can be defended.** — Archived 2026-10-28 → `context/archive/2026-10-27-architecture-report/`. Lesson: —.
+- **S-10: a user whose plan points to a catalog entry the dashboard cannot load still sees that screening's tier item and its completion; the plan never hides them. The F-08 test's expectation is updated to the fixed behaviour. Covers backlog B-04.** — Archived 2026-10-28 → `context/archive/2026-10-28-missing-entry-plan/`. Lesson: —.

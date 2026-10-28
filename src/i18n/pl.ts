@@ -140,6 +140,8 @@ export const pl = {
     "Opcjonalnie — zostaw puste, jeśli nie masz jeszcze terminu. Dbam niczego nie rezerwuje: wpisz termin, który ustalisz z placówką.",
   "dashboard.screenings.plan.submit": "Dodaj do planów",
   "dashboard.screenings.plan.submitPlanned": "Zapisz termin",
+  "dashboard.screenings.unavailable.name": "Badanie niedostępne",
+  "dashboard.screenings.unavailable.note": "To badanie nie jest teraz dostępne w aplikacji.",
   "dashboard.screenings.plan.date": "Termin: {date}",
   "dashboard.screenings.plan.noDate": "Termin jeszcze nieustalony",
   "dashboard.screenings.plan.remove": "Usuń z planów",

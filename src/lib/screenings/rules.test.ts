@@ -297,6 +297,9 @@ describe("partitionDashboard", () => {
   const now = new Date("2026-10-06T10:00:00Z");
   const exam = entry({ slug: "exam" });
   const slugsOf = (list: { entry: CatalogEntry }[]) => list.map((item) => item.entry.slug);
+  /** The rows that have a catalog entry, narrowed so tests can read the entry-only fields. */
+  const withEntry = <V extends { entry: unknown }>(views: V[]) =>
+    views.filter((view): view is Exclude<V, { entry: null }> => view.entry !== null);
 
   it("lets a plan beat a completion: the exam shows in plans only", () => {
     const result = partitionDashboard(
@@ -307,7 +310,7 @@ describe("partitionDashboard", () => {
       profile(),
       now,
     );
-    expect(slugsOf(result.plans)).toEqual(["exam"]);
+    expect(slugsOf(withEntry(result.plans))).toEqual(["exam"]);
     expect(result.done).toEqual([]);
     expect(result.tiers[1]).toEqual([]);
     expect(result.lastDone.size).toBe(0);
@@ -323,8 +326,8 @@ describe("partitionDashboard", () => {
       now,
     );
     expect(result.done).toHaveLength(1);
-    expect(result.done[0].entry.slug).toBe("exam");
-    expect(result.done[0].nextDue).toBe("2027-10-01");
+    expect(withEntry(result.done)[0].entry.slug).toBe("exam");
+    expect(withEntry(result.done)[0].nextDue).toBe("2027-10-01");
     expect(result.tiers[1]).toEqual([]);
     expect(result.maybe).toEqual([]);
   });
@@ -344,7 +347,7 @@ describe("partitionDashboard", () => {
 
     const before = partition("2026-02-28T22:59:59Z");
     expect(before.done).toHaveLength(1);
-    expect(before.done[0].nextDue).toBe("2026-03-01");
+    expect(withEntry(before.done)[0].nextDue).toBe("2026-03-01");
     expect(before.tiers[1]).toEqual([]);
 
     const after = partition("2026-02-28T23:00:00Z");
@@ -364,13 +367,14 @@ describe("partitionDashboard", () => {
       now,
     );
     expect(result.done).toHaveLength(1);
-    expect(result.done[0].nextDue).toBeNull();
+    expect(withEntry(result.done)[0].nextDue).toBeNull();
     expect(result.tiers[1]).toEqual([]);
   });
 
   describe("awaitingConfirmation", () => {
     const awaiting = (date: string | null, at = now) =>
-      partitionDashboard(recs([exam]), [plan("exam", date)], [], [exam], profile(), at).plans[0].awaitingConfirmation;
+      withEntry(partitionDashboard(recs([exam]), [plan("exam", date)], [], [exam], profile(), at).plans)[0]
+        .awaitingConfirmation;
 
     it.each([
       { date: "2026-10-05", expected: true, note: "yesterday" },
@@ -415,7 +419,7 @@ describe("partitionDashboard", () => {
     ]);
   });
 
-  it("skips a plan or completion whose entry is missing; the completion does not hide its tier item", () => {
+  it("keeps a plan or completion whose entry is missing as a no-entry row; the completion is the exam's one place", () => {
     const result = partitionDashboard(
       recs([exam]),
       [plan("ghost", "2026-11-01")],
@@ -424,9 +428,63 @@ describe("partitionDashboard", () => {
       profile(),
       now,
     );
-    expect(result.plans).toEqual([]);
+    expect(result.plans).toHaveLength(1);
+    expect(result.plans[0]?.entry).toBeNull();
+    expect(result.plans[0]).toMatchObject({ plan: { catalog_slug: "ghost" } });
+    expect(result.done).toHaveLength(1);
+    expect(result.done[0]?.entry).toBeNull();
+    expect(result.done[0]).toMatchObject({ completion: { catalog_slug: "exam" } });
+    expect(result.tiers[1]).toEqual([]);
+  });
+
+  it("shows a plan and a completion on the same missing-entry slug once, in plans", () => {
+    const result = partitionDashboard(
+      recs([]),
+      [plan("ghost", "2026-11-01")],
+      [done("ghost", "2025-10-01")],
+      [],
+      profile(),
+      now,
+    );
+    expect(result.plans).toHaveLength(1);
+    expect(result.plans[0]).toMatchObject({ plan: { catalog_slug: "ghost" }, entry: null });
     expect(result.done).toEqual([]);
-    expect(slugsOf(result.tiers[1])).toEqual(["exam"]);
+  });
+
+  it("lets a plan with no entry hide its tier and maybe items", () => {
+    const result = partitionDashboard(
+      recs([exam], { maybe: [exam] }),
+      [plan("exam", "2026-11-01")],
+      [],
+      [],
+      profile(),
+      now,
+    );
+    expect(result.plans).toHaveLength(1);
+    expect(result.plans[0]?.entry).toBeNull();
+    expect(result.tiers[1]).toEqual([]);
+    expect(result.maybe).toEqual([]);
+  });
+
+  it("keeps a long-past completion with no entry in done: never due again", () => {
+    const result = partitionDashboard(recs([exam]), [], [done("exam", "2000-01-01")], [], profile(), now);
+    expect(result.done).toHaveLength(1);
+    expect(result.done[0]?.entry).toBeNull();
+    expect(result.lastDone.size).toBe(0);
+    expect(result.tiers[1]).toEqual([]);
+  });
+
+  it("sorts a plan with no entry among the others by date", () => {
+    const entries = [entry({ slug: "earlier" }), entry({ slug: "later" })];
+    const result = partitionDashboard(
+      recs([]),
+      [plan("later", "2026-12-01"), plan("ghost", "2026-11-15"), plan("earlier", "2026-11-01")],
+      [],
+      entries,
+      profile(),
+      now,
+    );
+    expect(result.plans.map(({ plan: p }) => p.catalog_slug)).toEqual(["earlier", "ghost", "later"]);
   });
 
   describe("interval by age", () => {
@@ -447,7 +505,7 @@ describe("partitionDashboard", () => {
     it("uses the base interval below the override's age: still done, due 2028-09-01", () => {
       const result = partitionDashboard(recs([byAge], { age: 35 }), [], [completion], [byAge], profile(), now);
       expect(result.done).toHaveLength(1);
-      expect(result.done[0].nextDue).toBe("2028-09-01");
+      expect(withEntry(result.done)[0].nextDue).toBe("2028-09-01");
       expect(result.tiers[1]).toEqual([]);
     });
   });

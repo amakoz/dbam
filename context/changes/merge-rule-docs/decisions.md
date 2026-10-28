@@ -38,3 +38,9 @@
 - Options: (a) run the review skill; (b) the orchestrator reads the one-bullet diff directly.
 - Choice: (b). The orchestrator reviewed the `CLAUDE.md` diff and approved it as is; no reviewer pane was run.
 - decided-by: orchestrator
+
+## 2026-10-28 Archive warnings accepted
+
+- Question: archive despite the warnings (no `reviews/impl-review*.md`; Progress SHAs not yet in `origin/main` because the PR is not merged, so no repoint mapping exists)?
+- Choice: continue archiving without repointing; no PR-stage Progress rows are pending. The branch was already up to date with `origin/main`, so no rebase was needed (and none would change the SHAs).
+- decided-by: orchestrator

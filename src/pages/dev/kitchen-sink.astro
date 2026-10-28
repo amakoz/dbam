@@ -187,11 +187,21 @@ function fixtures(scheme: Scheme) {
     { recommendation: recommendation(tier2, 2, { kind: "months", months: 60 }) },
     { recommendation: recommendation(tier3, 3, { kind: "shared_decision" }) },
   ];
-  const doneViews: (DoneView | UnavailableDoneView)[] = [
-    { completion: completion(done.slug, "2026-06-01"), entry: done, nextDue: "2027-06-01" },
-    { completion: completion(doneOnDay.slug, "2026-09-01", FIXTURE_DATE), entry: doneOnDay, nextDue: "2028-09-01" },
-    { completion: completion(doneNoInterval.slug, null), entry: doneNoInterval, nextDue: null },
-    { completion: completion(`unavailable-done-${scheme}`, "2025-03-01"), entry: null },
+  const doneViews: { view: DoneView | UnavailableDoneView; error?: string }[] = [
+    { view: { completion: completion(done.slug, "2026-06-01"), entry: done, nextDue: "2027-06-01" } },
+    {
+      view: {
+        completion: completion(doneOnDay.slug, "2026-09-01", FIXTURE_DATE),
+        entry: doneOnDay,
+        nextDue: "2028-09-01",
+      },
+    },
+    { view: { completion: completion(doneNoInterval.slug, null), entry: doneNoInterval, nextDue: null } },
+    // Entry missing: the generic row, here in its error state (a failed undo).
+    {
+      view: { completion: completion(`unavailable-done-${scheme}`, "2025-03-01"), entry: null },
+      error: t("errors.save_failed"),
+    },
   ];
   const maybeItems: MaybeRecommendation[] = [
     { entry: maybe, missing: [[{ factor: "family_history_crc_first_degree", op: "eq", value: true }]] },
@@ -434,8 +444,8 @@ const LEGEND: readonly { state: string; status: "Shown" | "Live" | "N/A"; note: 
               </CardHeader>
               <CardContent>
                 <ul class="divide-y divide-border">
-                  {data.done.map((view) =>
-                    view.entry === null ? <UnavailableItem view={view} /> : <DoneItem view={view} />,
+                  {data.done.map(({ view, error }) =>
+                    view.entry === null ? <UnavailableItem view={view} error={error} /> : <DoneItem view={view} />,
                   )}
                 </ul>
               </CardContent>

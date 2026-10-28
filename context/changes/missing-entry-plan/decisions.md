@@ -71,3 +71,9 @@
 
 - Ran on the local stack under the DB lock: a fresh user with a mammography plan (2026-12-10) and a colonoscopy completion (2025-03), both catalog rows set to `draft`. The dashboard showed two "Badanie niedostępne" rows with their date lines; `#screening-mammography-nfz-program` resolved to the plan row; "Usuń z planów" redirected to `?saved=unplan#screening-…` with no error alert and no plan row left; "Cofnij oznaczenie" did the same (`?saved=undone`). Both rows were gone from the DB. Catalog status restored to `active`; lock released; dev server stopped. A failed-remove error on the row was not exercised (anchor-resolves branch of the plan's either/or).
 - Decided by: worker.
+
+## 2026-10-28 Impl-review triage (verdict APPROVED, 2 observations)
+
+- F1 (`data-done` on the unavailable done row): accepted, no code change. An unavailable done row carries `data-done` like `DoneItem`; tell the two apart with `data-unavailable`. Smoke's `bodyExcludes: "data-done"` / `"data-plan"` steps use no missing-entry records, so they are unaffected.
+- F2 (error path unchecked, 2.5 PR note open): fixed. The kitchen-sink unavailable done fixture now passes `error={t("errors.save_failed")}`, so the alert renders in the committed shots; confirmed once in light and dark. The "Manual check 2.5 run locally" entry above is pasted into the PR description.
+- Decided by: orchestrator (findings), worker (applied).

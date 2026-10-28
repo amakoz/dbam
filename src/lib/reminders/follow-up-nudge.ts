@@ -1,4 +1,5 @@
-import { MAX_BATCH_SIZE, sendEmailBatch } from "@/lib/email";
+import { MAX_BATCH_SIZE } from "@/lib/email-budget";
+import { sendEmailBatch } from "@/lib/email";
 import { errorDetails, errorName } from "@/lib/observability";
 import { createReminderClient } from "@/lib/reminders/admin-client";
 import { batchKey } from "@/lib/reminders/batch-key";

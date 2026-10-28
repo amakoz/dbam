@@ -707,30 +707,32 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [x] 1.1 npm test passes with the three job test files and no other src file changed
-- [x] 1.2 npm run lint passes with no errors in the new files
-- [x] 1.3 npx astro check passes
-- [x] 1.4 A deliberate mark/send swap fails the guard and is reverted before commit
-- [x] 1.6 A deliberate removal of the dry-run return fails the guard and is reverted before commit
-- [x] 1.7 A deliberate send to REMINDER_TEST_TO fails the guard and is reverted before commit
-- [x] 1.8 A deliberate wrapped error in the catch fails the guard and is reverted before commit
-- [x] 1.9 A deliberate message in the failed line fails the guard and is reverted before commit
-- [x] 1.10 A deliberate key-prefix change fails the guard and is reverted before commit
-- [x] 1.11 A deliberate client call above the gate fails the guard and is reverted before commit
+- [x] 1.1 npm test passes with the three job test files and no other src file changed — 3599ba2
+- [x] 1.2 npm run lint passes with no errors in the new files — 3599ba2
+- [x] 1.3 npx astro check passes — 3599ba2
+- [x] 1.4 A deliberate mark/send swap fails the guard and is reverted before commit — 3599ba2
+- [x] 1.6 A deliberate removal of the dry-run return fails the guard and is reverted before commit — 3599ba2
+- [x] 1.7 A deliberate send to REMINDER_TEST_TO fails the guard and is reverted before commit — 3599ba2
+- [x] 1.8 A deliberate wrapped error in the catch fails the guard and is reverted before commit — 3599ba2
+- [x] 1.9 A deliberate message in the failed line fails the guard and is reverted before commit — 3599ba2
+- [x] 1.10 A deliberate key-prefix change fails the guard and is reverted before commit — 3599ba2
+- [x] 1.11 A deliberate client call above the gate fails the guard and is reverted before commit — 3599ba2
 - [x] 1.12 The SITE build baseline is recorded in decisions.md
+      — 3599ba2
 
 #### Manual
 
 - [x] 1.5 Reviewer confirms the pinned sent-transcript email copy is today's pl and en text with no exam name
+      — 3599ba2
 
 ### Phase 2: Move MAX_BATCH_SIZE into email-budget.ts
 
 #### Automated
 
-- [ ] 2.1 npm test passes with the phase 1 test files unchanged
-- [ ] 2.2 npm run lint and npx astro check pass
-- [ ] 2.3 email-budget.ts imports nothing from astro:*
-- [ ] 2.4 A deliberate MAX_BATCH_SIZE of 99 fails the nudge budget-250 case and is reverted before commit
+- [x] 2.1 npm test passes with the phase 1 test files unchanged
+- [x] 2.2 npm run lint and npx astro check pass
+- [x] 2.3 email-budget.ts imports nothing from astro:*
+- [x] 2.4 A deliberate MAX_BATCH_SIZE of 99 fails the nudge budget-250 case and is reverted before commit
 
 ### Phase 3: Add the pure runner and the production deps
 

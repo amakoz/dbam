@@ -81,7 +81,7 @@ This plan works guard-first:
 - **SD-2:** the SQL recipient-predicate copies. Also no migrations or SQL of any kind.
 - **TD-6:** the inconsistent batch cap. Fixing it changes RPC arguments, which would break transcript equality.
 - **TD-4:** type-linking the event names to `ReminderJob`.
-- **TD-5:** a job list in the chain or a fourth job (see `follow-ups/td-5-job-list.md`).
+- **TD-5:** a job list in the chain or a fourth job (see `context/archive/2026-10-27-reminders-refactor/follow-ups/td-5-job-list.md`).
 - **Changes to `chain.ts`, `worker.ts`, `failure-alert.ts`, `observability.ts`, `email.ts`'s send logic, `wrangler.jsonc` or the CI dry-run step.**
 - **Changes to log event names, log fields, key prefixes, email copy or i18n keys.**
 - **Test-plan Phase 2** ("Reminder recipient integration", DB-level). It complements this unit-level harness and stays separate.
@@ -89,7 +89,7 @@ This plan works guard-first:
 
 ## Implementation Approach
 
-**Guard first.** Phase 1 adds characterization tests that are green on today's code by construction, and proves with a break matrix that they catch a break in each invariant class. Every later phase must leave those test files byte-identical and green, and carries its own deliberate break.
+**Guard first.** Phase 1 adds characterization tests that are green on today's code by construction, and proves with a break matrix that they catch a break in each invariant class. Every later phase must leave those test files byte-identical and green, and carries its own deliberate break. The reference commit for "unchanged since phase 1" (every success criterion and Progress row that says so) is **780f23a**, which tightened the `failed`-line assertions after the PR A impl-review (F1); diff against it, not against the phase 1 commit 3599ba2.
 
 **Then the moves, one phase per PR from phase 3 on** (Migration Notes give the rollback unit):
 
@@ -421,7 +421,7 @@ The first job moves onto the runner. It is the simplest, with one select step an
 **Contract**: After `npm run build`, over the whole server output under `dist/`:
 
 - `https://dbam.amadeuszkozlowski.workers.dev` is present;
-- `import.meta.env.SITE` is absent;
+- `import.meta.env.SITE` is absent apart from the vendor hit recorded in decisions.md (SITE build baseline);
 - the URL is present in the chunk that holds `reminderDeps` (found by grepping `dist/` for `dbam-appointment-reminder` or the `reminderDeps` body). Astro inlines the URL into many chunks, so the whole-output presence check alone is always true (plan re-check R2).
 
 The result must equal the phase 1 baseline. If it differs, stop the phase: do not ship it, and record a decision in `decisions.md` before continuing.
@@ -692,10 +692,10 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 ## References
 
-- Research: `context/changes/reminders-refactor/research.md` (Lenses 1–3; invariants I1–I14; spike results)
-- Plan review: `context/changes/reminders-refactor/plan-review.md` (F1–F7, all decided)
+- Research: `context/archive/2026-10-27-reminders-refactor/research.md` (Lenses 1–3; invariants I1–I14; spike results)
+- Plan review: `context/archive/2026-10-27-reminders-refactor/plan-review.md` (F1–F7, all decided)
 - Parent research: `context/archive/2026-10-27-reminders-research/research.md` (TD-1, TD-2, TD-3, TD-7, TD-8)
-- Decisions: `context/changes/reminders-refactor/decisions.md`
+- Decisions: `context/archive/2026-10-27-reminders-refactor/decisions.md`
 - Patterns: `src/lib/reminders/chain.ts:4-21` (injection), `src/lib/reminders/nudge-message.ts` (pure builder), `src/lib/email-budget.ts` (pure constant), `src/lib/email.test.ts:3-8` (`astro:env` mock)
 - Lessons: `context/foundation/lessons.md` ("Grep gates are heuristics; privacy tests are the guard")
 
@@ -717,22 +717,20 @@ There is no data or schema migration. Every phase is TypeScript only.
 - [x] 1.9 A deliberate message in the failed line fails the guard and is reverted before commit — 3599ba2
 - [x] 1.10 A deliberate key-prefix change fails the guard and is reverted before commit — 3599ba2
 - [x] 1.11 A deliberate client call above the gate fails the guard and is reverted before commit — 3599ba2
-- [x] 1.12 The SITE build baseline is recorded in decisions.md
-      — 3599ba2
+- [x] 1.12 The SITE build baseline is recorded in decisions.md — 3599ba2
 
 #### Manual
 
-- [x] 1.5 Reviewer confirms the pinned sent-transcript email copy is today's pl and en text with no exam name
-      — 3599ba2
+- [x] 1.5 Reviewer confirms the pinned sent-transcript email copy is today's pl and en text with no exam name — 3599ba2
 
 ### Phase 2: Move MAX_BATCH_SIZE into email-budget.ts
 
 #### Automated
 
-- [x] 2.1 npm test passes with the phase 1 test files unchanged
-- [x] 2.2 npm run lint and npx astro check pass
-- [x] 2.3 email-budget.ts imports nothing from astro:*
-- [x] 2.4 A deliberate MAX_BATCH_SIZE of 99 fails the nudge budget-250 case and is reverted before commit
+- [x] 2.1 npm test passes with the phase 1 test files unchanged — 4d0012f
+- [x] 2.2 npm run lint and npx astro check pass — 4d0012f
+- [x] 2.3 email-budget.ts imports nothing from astro:* — 4d0012f
+- [x] 2.4 A deliberate MAX_BATCH_SIZE of 99 fails the nudge budget-250 case and is reverted before commit — 4d0012f
 
 ### Phase 3: Add the pure runner and the production deps
 
@@ -749,7 +747,7 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 - [ ] 4.1 npm test passes with appointment.test.ts unchanged since phase 1
 - [ ] 4.2 npm run lint and npx astro check pass
-- [ ] 4.3 npm run build succeeds and the whole-output SITE check matches the phase 1 baseline
+- [ ] 4.3 npm run build succeeds and the whole-output SITE check matches the phase 1 baseline (import.meta.env.SITE absent apart from the vendor hit recorded in decisions.md)
 - [ ] 4.4 appointment.ts has no console call and no direct sendEmailBatch call
 - [ ] 4.5 A deliberate runner break fails runner.test.ts and appointment.test.ts and is reverted before commit
 

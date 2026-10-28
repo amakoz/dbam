@@ -22,7 +22,7 @@
   - `grep -rl "import.meta.env.SITE" dist/` → **1 file**, `dist/server/chunks/dist_*.mjs`. The hit is Astro's own deprecation warning text ("Use import.meta.env.SITE instead"), not our code. In our code the expression is **absent**.
   - The job code sits in `dist/server/entry.mjs` (`dbam-appointment-reminder` at line ~490). The URL is inlined there as `const site = "https://dbam.amadeuszkozlowski.workers.dev"` at three sites (lines ~536, 827, 915), one per job's builder.
 - Consequence for phase 4: the plan's "expression absent" check will see exactly this one vendor hit. Phase 4 passes when that is still the only hit (the same file, the same warning text) and the URL is still inlined into `entry.mjs` where `reminderDeps` ends up. Any other hit, or a `new URL(..., undefined)`-shaped site, fails the baseline.
-- decided-by: worker (plan item says to record the baseline; the interpretation of the vendor hit is mine).
+- decided-by: orchestrator (confirmed in the PR A impl-review triage, F3; the worker proposed the vendor-hit reading). Phase 4 §3 and row 4.3 of `plan.md` now carry the same exception.
 
 ## 2026-10-28 Characterization harness: design choices (plan phase 1)
 
@@ -31,3 +31,13 @@
 - Log lines are compared as parsed objects; the catalog's plain-text `console.error` is kept raw and asserted in the due test.
 - Email copy is pinned from `src/i18n/{pl,en}.ts` by hand (written before running), not copied from output; sha256 batch keys were computed independently with `node`.
 - decided-by: worker
+
+## 2026-10-28 PR A impl-review triage
+
+Review: `impl-review.md` (PR A, phases 1–2). Decided by the orchestrator; applied by the worker.
+
+- **F1 — Fix A.** The `failed` line is now pinned with `toEqual` in the rows that lacked it: appointment and nudge missing-id; due claim error, Resend 500 and missing-id. The due invalid-candidate row had the same gap and got the same assertion (one more than the review listed). The expected lines were written from the code and went green at the first run. **Reference commit for "unchanged since phase 1": `780f23a`.** Later phases diff the three job test files and `transcript.test-helper.ts` against it, not against 3599ba2. The helper is unchanged since 3599ba2. `plan.md` ("Guard first") says so.
+- **F2 — left open.** Row 1.5 stays as it is. A reviewer pane is checking the pinned email copy independently; the orchestrator will send its verdict, and who confirmed is recorded then.
+- **F3 — confirmed.** The `SITE` reinterpretation is now `decided-by: orchestrator`. Phase 4 §3 and row 4.3 carry: "absent apart from the vendor hit recorded in decisions.md (SITE build baseline)".
+- **F4 — fixed.** Progress SHAs sit at the end of their row lines (1.12, 1.5, 2.4) and the blank line before `### Phase 3` is back. A regex bug of mine caused it (a `[^ ]` matched the newline).
+- **F5 — fixed.** The four references to the pre-archive folder point at `context/archive/2026-10-27-reminders-refactor/…` (research, plan-review, decisions, and `follow-ups/td-5-job-list.md`). The archive was not touched.

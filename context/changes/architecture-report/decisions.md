@@ -44,3 +44,10 @@
 - Applied: report §7 is now an answer table, §5 notes D-01 and D-04 as intended, §8 adds the B-04 fix, a catalog-lifecycle CI guard and a PRD reword. The checklist drops the two items these answers settle (appointment claim vs catalog status, Exam vs first-time-eligibility ranking) and asks the owner to confirm §7.
 - Worker reading (inference): the forward-only rule (Q-02) also rules out the draft case of Q-01. Q-07's answer does not cover `zalecenia` (B-06), so that half stays open.
 - Decided by: owner (answers); worker (how they were written into the report).
+
+## 2026-10-28 Owner approval
+
+- Question: is the F-15 architecture report approved for merge?
+- Choice: approved ("F-15 approved"), 2026-10-28. The worker drafted the report, as the owner decided on 2026-10-27 (worker drafts, owner edits). The owner made no edits in this worktree.
+- Evidence: `context/foundation/architecture-report.md` at 4a6deb4.
+- Decided by: owner.

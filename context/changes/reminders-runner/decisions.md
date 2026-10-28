@@ -74,3 +74,17 @@ Review: `impl-review.md`, section "PR B — phase 3" (APPROVED, two low-impact w
 - **F1 — fixed.** PR A was squash-merged as 8410cdb, so the phase 3 branch still carried PR A's five pre-squash commits. `git rebase --onto origin/main 8bf4efb feat/reminders-runner-p3` (the branch had never been pushed) moved it onto `main`. `git diff --stat origin/main...HEAD` lists only phase 3 files: `runner.ts`, `runner.test.ts`, `deps.ts`, the `eslint.config.js` line, and `plan.md`, `decisions.md`, `impl-review.md`. The rebase gave the phase 3 commit a new SHA: `44d25d5` (it was `bdff91e`); Progress rows 3.1–3.4 carry the new one.
 - **F2 — fixed.** The reference for "unchanged since phase 1" is now `8410cdb`, the squash commit of #99 on `main`; `plan.md` ("Guard first") and the phase 3 gate note above say so. The Progress SHAs `14f1302` (phase 1) and `ea0cc9c` (phase 2) were squashed into 8410cdb and stay in the rows as history. `dc62600`, the earlier guard reference, is likewise squashed into 8410cdb. Entries in `impl-review.md` that name pre-squash SHAs (including `bdff91e`) are the review's record and were left as written.
 - **Branching rule for the remaining phases.** Start each next phase branch from `origin/main` after its predecessor merges; do not stack phase branches.
+
+## 2026-10-28 Phase 4 gate notes (appointment job on the runner)
+
+- **SITE gate, against the phase 1 baseline.** After `npm run build`: the URL is present in 20 files, as in the baseline; `import.meta.env.SITE` is still in exactly one file, `dist/server/chunks/dist_CXvK08EP.mjs`, with the same Astro deprecation text (the vendor hit recorded above); and the URL is inlined in the chunk that holds `reminderDeps` (`dist/server/entry.mjs:438`, `site: "https://dbam.amadeuszkozlowski.workers.dev"`). The appointment builder's own `const site = …` literal is gone; the two others (due, nudge) remain until phases 5 and 6. Result equals the baseline, so the phase continues.
+- **Guard.** `appointment.test.ts`, the other two job tests and the helper are unchanged since 8410cdb and pass on the refactored job. The appointment transcript, the `failed` lines and the key are identical.
+- **Break.** Moving the mark above the dry-run check in `runner.ts` failed `runner.test.ts` ("resolves `dry-run` … never marks") and `appointment.test.ts` ("claims, sends nothing and marks nothing on a dry run"); restored exactly from the staged tree.
+- **Signature.** `runAppointmentReminders` is no longer `async`: it returns the runner's promise, so `reminderDeps()` runs before the runner's `try`. It only binds references and reads the inlined `SITE`, so it cannot throw; the old `async` wrapper had nothing to await.
+- **Manual row 4.6 stays open.** It needs the next 10:00 Warsaw production run after deploy, and it gates phase 5.
+- decided-by: worker
+
+## 2026-10-28 PR C (phase 4) rebased onto main
+
+- Phase 3 merged as e64dc3c (#100). The phase 4 branch was rebased with `git rebase --onto origin/main feat/reminders-runner-p3 feat/reminders-runner-p4` (never pushed). `git diff --stat origin/main...HEAD` lists only phase 4 files: `appointment.ts`, one `eslint.config.js` line, and `plan.md`, `decisions.md`, `impl-review.md`. The phase 4 commit is now `2450540` (it was `2dacbb5`); Progress rows 4.1–4.5 carry the new SHA. The review's own text keeps the pre-rebase SHA. The guard reference stays `8410cdb`.
+- decided-by: worker

@@ -54,7 +54,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | F-18 | merge-rule-docs      | (foundation) `CLAUDE.md` states the temporary orchestrator-merge rule and how to switch back                         | —             | MS-04    | done   |
 | S-11 | en-copy-terms        | an English-language user reads "screening" for a catalog item and "exam" for their own, consistently                 | —             | MS-05    | ready  |
 | F-19 | pure-module-tests    | (foundation) the remaining pure modules have unit tests                                                              | F-17          | MS-06    | done   |
-| F-20 | db-check-constraints | (foundation) the app-only date, age and consent rules are also database check constraints, covered by database tests | —             | MS-07    | ready  |
+| F-20 | db-check-constraints | (foundation) the app-only date, age and consent rules are also database check constraints, covered by database tests | —             | MS-07    | done   |
 
 ## Baseline
 
@@ -136,7 +136,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** A constraint that existing production rows violate fails the CI `migrate` job and blocks every deploy; a date window relative to "today" cannot be a plain check constraint. The plan must check existing data first and pick a form that validates new writes only where needed.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -231,3 +231,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **F-17: (foundation) `catalog:check` fails on a backward status move (anything other than draft → active → retired), the allowed transitions are documented in `catalog/README.md`, and CI prints a warning (never a failure, never hiding the entry from users) for every entry past its `next_review_due`. Covers backlog B-14 and B-15 in one change.** — Archived 2026-10-28 → `context/archive/2026-10-28-catalog-check-guards/`. Lesson: —.
 - **F-18: (foundation) `CLAUDE.md` states that, while production is a test environment, the orchestrator may merge green PRs, and how the owner switches back to human-only merges.** — Archived 2026-10-28 → `context/archive/2026-10-28-merge-rule-docs/`. Lesson: —.
 - **F-19: (foundation) the pure modules backlog B-11 lists (password policy, profile-form parsing and pack-years, error-code mapping, the catalog scripts, and the date and format helpers tested only indirectly today) have colocated unit tests in the existing runner.** — Archived 2026-10-28 → `context/archive/2026-10-28-pure-module-tests/`. Lesson: —.
+- **F-20: (foundation) an additive migration mirrors the past-date window, the age floor and the consent version — today enforced only in the API routes — as database check constraints, with database tests for each. Covers backlog B-17.** — Archived 2026-10-28 → `context/archive/2026-10-28-db-check-constraints/`. Lesson: —.

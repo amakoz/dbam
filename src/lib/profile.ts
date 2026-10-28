@@ -2,7 +2,9 @@ import type { MessageKey } from "@/i18n";
 import type { Database } from "@/lib/database.types";
 
 // Validation for the onboarding/profile form, shared by the React island (before submit) and `POST /api/profile`
-// (authoritative). Bounds mirror the `profiles` check constraints in supabase/migrations.
+// (authoritative). Bounds mirror the `profiles` check constraints in supabase/migrations; the age floor and the
+// smoking-vs-age rule are also enforced by the `validate_profile` trigger (app_rule_checks), which uses the Warsaw
+// year so it is never stricter than this code. Change both together.
 
 export const SEX_VALUES = ["female", "male"] as const;
 export type Sex = (typeof SEX_VALUES)[number];

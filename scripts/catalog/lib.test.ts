@@ -4,15 +4,25 @@ import { describe, expect, it } from "vitest";
 import type { CatalogEntry } from "@/lib/catalog/schema";
 
 import {
+  displayPath,
+  ENTRIES_DIR,
+  entryFilePath,
   findBackwardMoves,
+  findDeletedSlugs,
   findReviewWarnings,
+  formatIssuePath,
   formatReviewWarnings,
   listSnapshots,
   loadEntries,
   MIGRATIONS_DIR,
+  parseSnapshotSlugs,
   parseSnapshotStatuses,
   renderReviewSummary,
   renderSnapshotSql,
+  REPO_ROOT,
+  SNAPSHOT_HEADER,
+  snapshotFileName,
+  validateEntry,
   type ReviewWarning,
   type Snapshot,
 } from "./lib";
@@ -240,6 +250,132 @@ describe("renderReviewSummary", () => {
         `- \`${B}\`: missing on an active entry`,
         "",
       ].join("\n"),
+    );
+  });
+});
+
+describe("displayPath and entryFilePath", () => {
+  it("shows a repo-relative path with forward slashes", () => {
+    expect(displayPath(path.join(REPO_ROOT, "catalog", "x.json"))).toBe("catalog/x.json");
+  });
+
+  it("puts an entry file in the entries directory", () => {
+    expect(entryFilePath("x")).toBe(path.join(ENTRIES_DIR, "x.json"));
+  });
+});
+
+describe("formatIssuePath", () => {
+  it.each([
+    { issuePath: [], expected: "(entry)" },
+    { issuePath: ["eligibility", 0, "requires", 1, "factor"], expected: "eligibility[0].requires[1].factor" },
+    { issuePath: [0, "slug"], expected: "[0].slug" },
+  ])("$issuePath → $expected", ({ issuePath, expected }) => {
+    expect(formatIssuePath(issuePath)).toBe(expected);
+  });
+});
+
+describe("validateEntry", () => {
+  it("accepts a valid entry whose slug matches the file name", () => {
+    expect(validateEntry("label", A, structuredClone(BASE_A))).toEqual({ ok: true, entry: BASE_A });
+  });
+
+  it("rejects a slug that does not match the file name", () => {
+    expect(validateEntry("label", "other", structuredClone(BASE_A))).toEqual({
+      ok: false,
+      problems: [`label: slug: "${A}" does not match the file name (expected "other")`],
+    });
+  });
+
+  it("prefixes every schema problem with the file label", () => {
+    const result = validateEntry("label", "x", {});
+    expect(result.ok).toBe(false);
+    const problems = result.ok ? [] : result.problems;
+    expect(problems.length).toBeGreaterThan(0);
+    for (const problem of problems) expect(problem.startsWith("label: ")).toBe(true);
+  });
+});
+
+describe("renderSnapshotSql", () => {
+  it("throws on an empty list", () => {
+    expect(() => renderSnapshotSql([])).toThrow("no entries to render");
+  });
+
+  it("starts with the generated-file header", () => {
+    expect(renderSnapshotSql([BASE_A]).split("\n").slice(0, SNAPSHOT_HEADER.length)).toEqual(SNAPSHOT_HEADER);
+  });
+
+  it("doubles single quotes and keeps backslashes and $$ literal", () => {
+    expect(renderSnapshotSql([entry(BASE_A, { name_pl: "O'Brien \\ $$" })])).toContain("\n    'O''Brien \\ $$',\n");
+  });
+
+  it("renders jsonb columns as quoted JSON cast to jsonb", () => {
+    const json = JSON.stringify(BASE_A.eligibility).replaceAll("'", "''");
+    expect(renderSnapshotSql([BASE_A])).toContain(`\n    '${json}'::jsonb,\n`);
+  });
+
+  it("throws on a NUL character, which Postgres text cannot store", () => {
+    expect(() => renderSnapshotSql([entry(BASE_A, { name_pl: "a\0b" })])).toThrow("NUL character");
+  });
+
+  it("throws on a non-integer number", () => {
+    expect(() => renderSnapshotSql([entry(BASE_A, { evidence_level: 1.5 })])).toThrow(
+      "evidence_level: expected an integer",
+    );
+  });
+
+  it("is byte-identical whatever the input order", () => {
+    expect(renderSnapshotSql([BASE_B, BASE_A])).toBe(renderSnapshotSql([BASE_A, BASE_B]));
+  });
+
+  it("never updates the slug on conflict", () => {
+    const sql = renderSnapshotSql([BASE_A]);
+    expect(sql).toContain("  name_pl = excluded.name_pl");
+    expect(sql).not.toContain("slug = excluded.slug");
+  });
+});
+
+describe("parseSnapshotSlugs", () => {
+  it("returns null without a manifest", () => {
+    expect(parseSnapshotSlugs("insert into public.screening_catalog (slug) values ('x');\n")).toBeNull();
+  });
+
+  it("reads back the sorted slugs the generator listed", () => {
+    expect(parseSnapshotSlugs(renderSnapshotSql([BASE_B, BASE_A]))).toEqual([A, B].sort());
+  });
+
+  it("ignores a manifest-like line inside entry text", () => {
+    const sql = renderSnapshotSql([entry(BASE_A, { name_pl: "x\n-- catalog-slug: injected" }), BASE_B]);
+    expect(parseSnapshotSlugs(sql)).toEqual([A, B].sort());
+  });
+});
+
+describe("findDeletedSlugs", () => {
+  const snapshots = [snapshot("20990101000000", [BASE_A, BASE_B]), snapshot("20990102000000", [BASE_A, BASE_B])];
+
+  it("finds nothing when every shipped slug has a file", () => {
+    expect(findDeletedSlugs([A, B], snapshots)).toEqual([]);
+  });
+
+  it("reports a deleted slug once, naming the first snapshot that shipped it", () => {
+    expect(findDeletedSlugs([A], snapshots)).toEqual([
+      `catalog/entries/${B}.json: missing, but ${SNAP_1} shipped it; ` +
+        `restore the file and set "status": "retired" instead of deleting it`,
+    ]);
+  });
+
+  it("reports a snapshot without a manifest", () => {
+    const handEdited = { file: path.join(MIGRATIONS_DIR, "20990103000000_screening_catalog_snapshot.sql"), body: "" };
+    expect(findDeletedSlugs([A, B], [handEdited])).toEqual([
+      `supabase/migrations/20990103000000_screening_catalog_snapshot.sql: no "-- catalog-slug:" manifest; ` +
+        "snapshots must not be hand-edited",
+    ]);
+  });
+});
+
+describe("snapshotFileName", () => {
+  it("stamps the UTC time to the second", () => {
+    expect(snapshotFileName(new Date("2026-01-02T03:04:05.678Z"))).toBe(
+      "20260102030405_screening_catalog_snapshot.sql",
     );
   });
 });

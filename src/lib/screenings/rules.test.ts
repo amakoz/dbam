@@ -7,6 +7,7 @@ import {
   addMonths,
   addYears,
   anchorMonth,
+  isIsoDate,
   nextDueMonth,
   parseDoneForm,
   parsePlanForm,
@@ -146,6 +147,25 @@ describe("addYears", () => {
     { day: "2024-02-29", n: 4, expected: "2028-02-29" },
   ])("addYears($day, $n) → $expected (Feb 29 rolls to Mar 1 in a non-leap year)", ({ day, n, expected }) => {
     expect(addYears(day, n)).toBe(expected);
+  });
+});
+
+describe("isIsoDate", () => {
+  it.each([
+    { value: "2026-12-31", expected: true, note: "a real date" },
+    { value: "2028-02-29", expected: true, note: "Feb 29 in a leap year" },
+    { value: "2026-02-29", expected: false, note: "Feb 29 in a non-leap year" },
+    { value: "2026-02-30", expected: false, note: "no such day" },
+    { value: "2026-04-31", expected: false, note: "April has 30 days" },
+    { value: "2026-13-01", expected: false, note: "month 13" },
+    { value: "2026-00-10", expected: false, note: "month 0" },
+    { value: "2026-01-00", expected: false, note: "day 0" },
+    { value: "2026-1-01", expected: false, note: "unpadded month" },
+    { value: " 2026-01-01", expected: false, note: "leading space" },
+    { value: "2026-01-01T00:00", expected: false, note: "a time part" },
+    { value: "", expected: false, note: "blank" },
+  ])("isIsoDate($value) → $expected ($note)", ({ value, expected }) => {
+    expect(isIsoDate(value)).toBe(expected);
   });
 });
 

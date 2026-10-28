@@ -47,6 +47,10 @@
 - **What:** from 2026-12-01 the Free plan allows 0.5 GB/day with 7-day retention, and logging stops at the cap until 00:00 UTC.
 - **Next:** _Human:_ re-check log volume after S-06/S-07 add traffic; the README's "Errors and alerts" section has the numbers.
 
+### B-18 Validate the consent version check
+
+- **What / Next:** F-20 left `health_data_consents_version_format` `NOT VALID`; _Human:_ run the read-only query, then _Agent:_ one `VALIDATE` migration — see `context/archive/2026-10-28-db-check-constraints/follow-ups/validate-consent.md`.
+
 ## P3
 
 ### B-12 Hard guard for error-message reads

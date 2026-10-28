@@ -31,3 +31,10 @@
 - Local `main` is stale (3cdd464), so `git diff --stat main` showed 5+/3- lines of unrelated drift. Compared against `HEAD` instead: `CLAUDE.md | 1 insertion, 1 deletion`, the one bullet.
 - The orchestrator said to implement without asking, so the worker checked manual rows 1.4 and 1.5 itself: the new bullet names who merges (orchestrator, land script), when (policy file value, missing file = human-only), that workers and other agents never run `gh pr merge`, and the switch-back; it is about 700 characters. impl-review can overrule.
 - decided-by: worker
+
+## 2026-10-28 No impl-review pane for a single docs bullet
+
+- Question: run a reviewer pane for /10x-impl-review?
+- Options: (a) run the review skill; (b) the orchestrator reads the one-bullet diff directly.
+- Choice: (b). The orchestrator reviewed the `CLAUDE.md` diff and approved it as is; no reviewer pane was run.
+- decided-by: orchestrator

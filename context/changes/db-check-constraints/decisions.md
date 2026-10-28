@@ -64,3 +64,10 @@
 - F4 (no forward-fix story): accepted — Migration Notes gain the forward-fix and "why triggers" lines; the PR says why triggers, not CHECKs.
 - F5 (follow-up location): accepted — `follow-ups/validate-consent.md`, listed in the PR; a one-line `backlog.md` entry in the archive commit.
 - decided-by: orchestrator
+
+## 2026-10-28 Implementation notes
+
+- Gate 1.4: two more literal dates in `screening_records.test.sql` (`:157`, `:268`, statements that match zero rows) were also made relative, so the grep heuristic is clean; behaviour unchanged.
+- Break checks: a plan trigger that skips every UPDATE turned cases 6–7 red; dropping the +1 day upper slack turned case 5 red; dropping the day rule turned 18–19 red (run in one rolled-back transaction against the local stack). A malformed `HEALTH_DATA_CONSENT_VERSION` turned both `consent.test.ts` cases red.
+- Progress 2.4 (owner runs the read-only production query) stays open: it needs production, so it is the PR's "Manual checks for the human" item. `change.md` is set to `implemented` with that one row pending.
+- decided-by: worker

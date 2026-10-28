@@ -119,7 +119,10 @@ export interface PlanInput {
   appointment_date: string | null;
 }
 
-/** The Plan form: an optional appointment date from `today` (Warsaw) up to two years ahead, both inclusive. */
+/**
+ * The Plan form: an optional appointment date from `today` (Warsaw) up to two years ahead, both inclusive. The
+ * `validate_screening_plan` trigger (app_rule_checks) mirrors this one day looser on each side; change both together.
+ */
 export function parsePlanForm(form: FormData, today: string): ParseResult<PlanInput> {
   const slug = slugField(form);
   if (!slug) return { ok: false, error: "errors.invalid_request" };
@@ -141,7 +144,8 @@ export interface DoneInput {
 
 /**
  * The Done form: `done_month` (1–12) and `done_year` (4 digits), both blank or both set. When set, the month must lie
- * between January of the birth year and `currentMonth` (Warsaw, `YYYY-MM-01`), both inclusive.
+ * between January of the birth year and `currentMonth` (Warsaw, `YYYY-MM-01`), both inclusive. The
+ * `validate_screening_completion` trigger (app_rule_checks) mirrors both bounds; change both together.
  */
 export function parseDoneForm(form: FormData, currentMonth: string, birthYear: number): ParseResult<DoneInput> {
   const slug = slugField(form);

@@ -94,9 +94,9 @@ Add the status-chain guard and the review-date warning as pure functions in `scr
 - `findReviewWarnings(entries: readonly CatalogEntry[], today: string): ReviewWarning[]`. `today` is `YYYY-MM-DD`. Only `status === "active"` entries are checked. `overdue` means `next_review_due < today` (string comparison of ISO dates); `missing` means `next_review_due` is null or undefined. The result is sorted by slug.
 - `formatReviewWarnings(warnings: readonly ReviewWarning[], github: boolean): string[]`. The returned lines go to stdout.
   - One line per warning: `warning: catalog/entries/<slug>.json: next_review_due: review overdue since <due>; re-review and set a new stamp`, or `… next_review_due: missing on an active entry; set a review date`.
-  - When `github` is true, also exactly one `::warning title=Catalog review due::<n> active catalog entr(y|ies) need review: <slug, slug, …>`.
+  - When `github` is true, also exactly one `::warning title=Catalog review due::<n> active catalog entries need review: <slug, slug, …>` (singular for one: `1 active catalog entry needs review: <slug>`).
   - An empty list returns `[]`.
-- `renderReviewSummary(warnings): string`: a Markdown list for `$GITHUB_STEP_SUMMARY` (heading plus one bullet per entry).
+- `renderReviewSummary(warnings): string`: a Markdown list for `$GITHUB_STEP_SUMMARY` (heading plus one bullet per entry); `[]` renders an empty string.
 - Output carries only slugs and ISO dates, never entry free text, so workflow-command injection is impossible.
 
 #### 3. Unit tests
@@ -162,7 +162,7 @@ Make `catalog:check` fail on backward moves and print review warnings, make `cat
   - Allowed: draft → active, active → retired, draft → retired; an unchanged status is always allowed.
   - A new slug may start with any status.
   - Refused: active → draft, retired → active, retired → draft. `catalog:check` and `catalog:migration` refuse these, comparing against every committed snapshot.
-  - Retired is final. Undoing a wrong retirement is an owner decision outside this tooling; the check has no override.
+  - Retired is final and the check has no override. Reversing a wrong retirement needs a code change to the guard in `scripts/catalog/lib.ts`, recorded as an owner decision.
   - Keep the "Never delete an entry" paragraph unchanged.
 - Add a short "Review dates" note: `catalog:check` warns, never fails, for each active entry past its `next_review_due` or without one. Under CI that is one annotation plus a step-summary list. Users still see the entry.
 - Shipping changes, step 2: mention the warnings.
@@ -179,7 +179,7 @@ Make `catalog:check` fail on backward moves and print review warnings, make `cat
 
 - `npm test`, `npm run lint` and `npx astro check` pass
 - `npm run catalog:check` exits 0 on the committed tree and prints `0 review warning(s)`
-- Demotion break: set `catalog/entries/colonoscopy-nfz-program.json` to `"status": "draft"`. `npm run catalog:check` exits 1 with the `moves back from "active"` message for that file, and `npm run catalog:migration` exits 1 without writing a file. Restore with `git checkout -- catalog/entries`.
+- Demotion break: set `catalog/entries/colonoscopy-nfz-program.json` to `"status": "draft"`. `npm run catalog:check` exits 1 with the `moves back from "active"` message for that file, and `npm run catalog:migration` exits 1 without writing a file. In the same break, also set another active entry's `next_review_due` to `2026-01-01`: `catalog:check` still prints its `warning:` line, and the exit code is 1 because of the demotion alone (the warning is not listed among the problems). Restore with `git checkout -- catalog/entries`.
 - Overdue break: set one active entry's `next_review_due` to `2026-01-01` and run `npm run catalog:migration`. Then `GITHUB_ACTIONS=true GITHUB_STEP_SUMMARY=<scratch file> npm run catalog:check` exits 0, prints one `warning:` line and exactly one `::warning` line, and writes the summary file. Restore: delete the generated snapshot and run `git checkout -- catalog/entries`. `git status` is clean afterwards.
 - `npx prettier --check catalog/README.md CLAUDE.md` passes
 
@@ -222,7 +222,11 @@ Make `catalog:check` fail on backward moves and print review warnings, make `cat
 - `formatReviewWarnings`:
   - `[]` → `[]`;
   - `github: false` → no line starts with `::`;
-  - 19 warnings with `github: true` → exactly one `::warning` line plus 19 `warning:` lines.
+  - 19 warnings with `github: true` → exactly one `::warning` line ("19 active catalog entries need review") plus 19 `warning:` lines;
+  - 1 warning with `github: true` → the singular "1 active catalog entry needs review".
+- `renderReviewSummary`:
+  - one heading plus one bullet per warning, naming the slug and its due date or "missing";
+  - `[]` → empty string.
 
 ### Integration Tests:
 

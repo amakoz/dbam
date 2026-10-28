@@ -54,6 +54,7 @@ For each slug, walk its statuses through the snapshots (oldest first) and then i
 ## Open Risks & Assumptions
 
 - The 10-annotation cap is community-documented, not in GitHub's docs; the design stays under it either way.
+- Retired is final and the check has no override: reversing a wrong retirement needs a code change to the guard, recorded as an owner decision (documented in `catalog/README.md`).
 - A demoting snapshot that somehow reached production could never be fixed by editing, since snapshots are immutable. None exists, and the migration guard prevents new ones.
 
 ## Success Criteria (Summary)

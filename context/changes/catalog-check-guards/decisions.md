@@ -43,3 +43,12 @@
 - `catalog:migration` refuses a backward move too, so a demoting snapshot is never generated.
 - Tests: the new pure functions get a colocated `scripts/catalog/lib.test.ts` now. F-19 extends the same file later with tests for the rest of the scripts.
 - decided-by: worker
+
+## 2026-10-28 Plan-review triage (verdict SOUND, 2 observations)
+
+- F1 (no path to undo a wrong retirement): fix. The README Lifecycle section names the escape path: a reversal needs a code change to the guard in `scripts/catalog/lib.ts`, recorded as an owner decision. The check stays override-free.
+- F2 (test gaps in the warning output): fix.
+  - New unit cases: `renderReviewSummary` (heading plus bullets, and `[]`) and the singular `formatReviewWarnings` form ("1 active catalog entry needs review").
+  - Break check 2.3 also sets a past `next_review_due` on another active entry and asserts that the `warning:` line prints while the exit code is 1 because of the demotion alone.
+  - The Progress row 2.3 title is kept (titles are immutable); the Phase 2 criterion carries the addition.
+- decided-by: orchestrator

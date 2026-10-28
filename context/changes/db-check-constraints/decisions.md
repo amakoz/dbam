@@ -77,3 +77,9 @@
 - F1 (deliverables outside the diff): accepted — (a) the PR body explains why triggers, not CHECKs, lists `follow-ups/validate-consent.md` and asks the owner to run the read-only query soon after merge; (b) the archive commit adds a one-line `context/foundation/backlog.md` entry for the VALIDATE follow-up.
 - F2 (row 1.6 ticked by the implementer): accepted — `plan.md` Phase 1 cites `impl-review.md` F2 as the evidence for Progress 1.6.
 - decided-by: orchestrator
+
+## 2026-10-28 Archive with a PR-stage manual row open
+
+- `/10x-archive` warned: Progress 2.4 (owner runs the read-only production consent query) is pending, 0 automated / 1 manual; the review sits at `impl-review.md` (declares phases 1, 2) rather than `reviews/`; the phase SHAs are not in `origin/main` yet (no PR), so nothing is repointed.
+- Choice: continue archiving. The PR's "Manual checks for the human" carries 2.4, with the query inline.
+- decided-by: orchestrator

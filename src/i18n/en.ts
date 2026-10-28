@@ -136,6 +136,8 @@ export const en: Record<MessageKey, string> = {
     "Optional — leave it blank if you don't have a date yet. Dbam doesn't book anything: enter the date you arrange with the clinic.",
   "dashboard.screenings.plan.submit": "Add to my plans",
   "dashboard.screenings.plan.submitPlanned": "Save date",
+  "dashboard.screenings.unavailable.name": "Exam not available",
+  "dashboard.screenings.unavailable.note": "This exam isn't available in the app right now.",
   "dashboard.screenings.plan.date": "Appointment: {date}",
   "dashboard.screenings.plan.noDate": "Date not set yet",
   "dashboard.screenings.plan.remove": "Remove from plans",

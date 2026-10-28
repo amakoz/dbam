@@ -197,6 +197,12 @@ export interface PlanView<E extends RuleEntry = CatalogEntry> {
   awaitingConfirmation: boolean;
 }
 
+/** A plan whose catalog entry is missing (draft or failed validation): kept so the user can still see and remove it. */
+export interface UnavailablePlanView {
+  plan: ScreeningPlan;
+  entry: null;
+}
+
 /** The completion fields the due-again rules read; the cron passes the SQL anchor in both date fields. */
 type DueCompletion = Pick<ScreeningCompletion, "catalog_slug" | "last_done_month" | "updated_at">;
 
@@ -207,11 +213,23 @@ export interface DoneView<C extends DueCompletion = ScreeningCompletion, E exten
   nextDue: string | null;
 }
 
+/** A done record whose catalog entry is missing: kept so the user can still see and undo it; never due again. */
+export interface UnavailableDoneView<C extends DueCompletion = ScreeningCompletion> {
+  completion: C;
+  entry: null;
+}
+
 export interface DashboardPartition<C extends DueCompletion = ScreeningCompletion, E extends RuleEntry = CatalogEntry> {
-  /** Dated plans by date ascending (so plans awaiting confirmation come first), then undated plans (oldest first). */
-  plans: PlanView<E>[];
-  /** Done records that are not due again yet (or have no fixed interval), without the ones that have a plan. */
-  done: DoneView<C, E>[];
+  /**
+   * Dated plans by date ascending (so plans awaiting confirmation come first), then undated plans (oldest first).
+   * A plan whose entry is missing is kept as a "no entry" view.
+   */
+  plans: (PlanView<E> | UnavailablePlanView)[];
+  /**
+   * Done records that are not due again yet (or have no fixed interval), without the ones that have a plan. A record
+   * whose entry is missing is kept as a "no entry" view and is never due again.
+   */
+  done: (DoneView<C, E> | UnavailableDoneView<C>)[];
   /** The recommendations without exams that have a plan or a not-yet-due done record. */
   tiers: Record<Tier, Recommendation<E>[]>;
   maybe: MaybeRecommendation<E>[];
@@ -224,7 +242,8 @@ export interface DashboardPartition<C extends DueCompletion = ScreeningCompletio
  * a plan wins over a done record, and a not-yet-due done record wins over the tier.
  *
  * `entries` must hold the catalog entry of every plan and done record (active or retired); a record whose entry is
- * missing (e.g. it failed validation) is skipped. Intervals come from `resolveInterval` with the current profile, so a
+ * missing (e.g. it is a draft or failed validation) is kept as a "no entry" view in `plans` or `done`, so a user's
+ * plan never disappears; it still takes its exam's one place. Intervals come from `resolveInterval` with the current profile, so a
  * done record keeps its place when the exam is no longer recommended.
  */
 export function partitionDashboard<C extends DueCompletion = ScreeningCompletion, E extends RuleEntry = CatalogEntry>(
@@ -243,10 +262,13 @@ export function partitionDashboard<C extends DueCompletion = ScreeningCompletion
     for (const { entry } of recommendations.tiers[tier]) tierBySlug.set(entry.slug, tier);
   }
 
-  const planViews: PlanView<E>[] = [];
+  const planViews: (PlanView<E> | UnavailablePlanView)[] = [];
   for (const plan of plans) {
     const entry = entryBySlug.get(plan.catalog_slug);
-    if (!entry) continue;
+    if (!entry) {
+      planViews.push({ plan, entry: null });
+      continue;
+    }
     const date = plan.appointment_date;
     planViews.push({
       plan,
@@ -267,11 +289,15 @@ export function partitionDashboard<C extends DueCompletion = ScreeningCompletion
   });
   const planned = new Set(plans.map((plan) => plan.catalog_slug));
 
-  const done: DoneView<C, E>[] = [];
+  const done: (DoneView<C, E> | UnavailableDoneView<C>)[] = [];
   const dueAgain = new Map<string, C>();
   for (const completion of completions) {
+    if (planned.has(completion.catalog_slug)) continue;
     const entry = entryBySlug.get(completion.catalog_slug);
-    if (!entry || planned.has(completion.catalog_slug)) continue;
+    if (!entry) {
+      done.push({ completion, entry: null });
+      continue;
+    }
     const nextDue = nextDueMonth(completion, resolveInterval(entry, profile, recommendations.age));
     if (nextDue === null || nextDue > currentMonth) {
       done.push({ completion, entry, nextDue });
@@ -279,7 +305,7 @@ export function partitionDashboard<C extends DueCompletion = ScreeningCompletion
       dueAgain.set(completion.catalog_slug, completion);
     }
   }
-  const hidden = new Set([...planned, ...done.map(({ entry }) => entry.slug)]);
+  const hidden = new Set([...planned, ...done.map(({ completion }) => completion.catalog_slug)]);
 
   const tiers: Record<Tier, Recommendation<E>[]> = { 1: [], 2: [], 3: [] };
   const lastDone = new Map<string, C>();

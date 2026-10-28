@@ -212,11 +212,11 @@ Not applicable: no schema or data change. Rollback is a plain Worker revert.
 
 #### Automated
 
-- [ ] 1.1 Unit tests pass, including the rewritten F-08 case and the new missing-entry cases: `npm test`
-- [ ] 1.2 Type check passes: `npx astro check`
-- [ ] 1.3 Lint passes: `npm run lint`
-- [ ] 1.4 Hardcoded-value check passes over the dashboard and recommendations components: `npm run ui:check`
-- [ ] 1.5 Build passes: `npm run build`
+- [x] 1.1 Unit tests pass, including the rewritten F-08 case and the new missing-entry cases: `npm test`
+- [x] 1.2 Type check passes: `npx astro check`
+- [x] 1.3 Lint passes: `npm run lint`
+- [x] 1.4 Hardcoded-value check passes over the dashboard and recommendations components: `npm run ui:check`
+- [x] 1.5 Build passes: `npm run build`
 
 ### Phase 2: Kitchen-sink sample and visual check
 

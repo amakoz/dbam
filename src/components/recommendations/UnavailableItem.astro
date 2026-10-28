@@ -1,0 +1,70 @@
+---
+import { CircleAlert } from "lucide-react";
+import SavedNote from "@/components/recommendations/SavedNote.astro";
+import { SAVED_ROW_CLASS, type SavedFeedback } from "@/components/recommendations/saved";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { createT } from "@/i18n";
+import { describeLastDone, formatDay } from "@/lib/screenings/format";
+import type { UnavailableDoneView, UnavailablePlanView } from "@/lib/screenings/rules";
+
+// A plan or done record whose catalog entry is missing (a draft, or one that failed validation): a generic "exam not
+// available" row that keeps the record's own date line and offers only remove or undo, so the user's plan never
+// disappears. No name, tier or date panel: those need the entry. Never names the reason the entry is missing.
+
+interface Props {
+  view: UnavailablePlanView | UnavailableDoneView;
+  /** Translated error of the last attempt on this exam. */
+  error?: string | null;
+  /** Translated confirmation when this exam was just removed or undone; highlights the row. */
+  saved?: SavedFeedback | null;
+}
+
+const { view, error, saved } = Astro.props;
+const { locale } = Astro.locals;
+const t = createT(locale);
+
+const isPlan = "plan" in view;
+const slug = isPlan ? view.plan.catalog_slug : view.completion.catalog_slug;
+const date = isPlan ? view.plan.appointment_date : null;
+const name = t("dashboard.screenings.unavailable.name");
+const dateLine = isPlan
+  ? date
+    ? t("dashboard.screenings.plan.date", { date: formatDay(date, locale) })
+    : t("dashboard.screenings.plan.noDate")
+  : describeLastDone(view.completion, t, locale);
+---
+
+<li
+  id={`screening-${slug}`}
+  data-plan={isPlan ? "" : undefined}
+  data-done={isPlan ? undefined : ""}
+  data-unavailable
+  data-slug={slug}
+  data-appointment={isPlan ? (date ?? "") : undefined}
+  data-saved={saved?.tone}
+  class:list={["-mx-3 scroll-mt-4 px-3 py-4", saved ? SAVED_ROW_CLASS[saved.tone] : "first:pt-0 last:pb-0"]}
+>
+  <h3 class="font-semibold text-foreground">{name}</h3>
+  {saved && <SavedNote saved={saved} />}
+  <p class="mt-1 text-sm text-muted-foreground tabular-nums">{dateLine}</p>
+  <p class="mt-1 text-sm text-muted-foreground">{t("dashboard.screenings.unavailable.note")}</p>
+
+  {error && (
+    <Alert variant="destructive" className="mt-3">
+      <CircleAlert aria-hidden="true" />
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>
+  )}
+
+  <form method="POST" action="/api/screenings" class="mt-3">
+    <input type="hidden" name="intent" value={isPlan ? "unplan" : "undone"} />
+    <input type="hidden" name="slug" value={slug} />
+    <Button type="submit" variant="outline" size="sm">
+      {isPlan ? t("dashboard.screenings.plan.remove") : t("dashboard.screenings.done.undo")}
+      <span class="sr-only">
+        : {name}, {dateLine}
+      </span>
+    </Button>
+  </form>
+</li>

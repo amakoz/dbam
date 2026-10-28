@@ -1,7 +1,7 @@
 ---
 change_id: merge-rule-docs
 title: CLAUDE.md states the temporary orchestrator-merges-when-green rule
-status: implementing
+status: implemented
 created: 2026-10-28
 updated: 2026-10-28
 archived_at: null

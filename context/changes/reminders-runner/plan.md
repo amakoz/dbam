@@ -89,7 +89,7 @@ This plan works guard-first:
 
 ## Implementation Approach
 
-**Guard first.** Phase 1 adds characterization tests that are green on today's code by construction, and proves with a break matrix that they catch a break in each invariant class. Every later phase must leave those test files byte-identical and green, and carries its own deliberate break. The reference commit for "unchanged since phase 1" (every success criterion and Progress row that says so) is **dc62600**, which tightened the `failed`-line assertions after the PR A impl-review (F1); diff against it, not against the phase 1 commit 14f1302.
+**Guard first.** Phase 1 adds characterization tests that are green on today's code by construction, and proves with a break matrix that they catch a break in each invariant class. Every later phase must leave those test files byte-identical and green, and carries its own deliberate break. The reference commit for "unchanged since phase 1" (every success criterion and Progress row that says so) is **8410cdb** (PR #99 squash-merged on `main`, which holds the `failed`-line assertions tightened after the PR A impl-review, F1); diff against it. The Progress SHAs 14f1302 (phase 1) and ea0cc9c (phase 2) were squashed into 8410cdb and are no longer on `main`.
 
 **Then the moves, one phase per PR from phase 3 on** (Migration Notes give the rollback unit):
 
@@ -736,10 +736,10 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [x] 3.1 npm test passes including runner.test.ts with the phase 1 test files unchanged — bdff91e
-- [x] 3.2 runner.test.ts has no astro:* mock and passes — bdff91e
-- [x] 3.3 npm run lint and npx astro check pass — bdff91e
-- [x] 3.4 A deliberate mark before the dry-run check fails runner.test.ts and is reverted before commit — bdff91e
+- [x] 3.1 npm test passes including runner.test.ts with the phase 1 test files unchanged — 44d25d5
+- [x] 3.2 runner.test.ts has no astro:* mock and passes — 44d25d5
+- [x] 3.3 npm run lint and npx astro check pass — 44d25d5
+- [x] 3.4 A deliberate mark before the dry-run check fails runner.test.ts and is reverted before commit — 44d25d5
 
 ### Phase 4: Appointment job on the runner
 

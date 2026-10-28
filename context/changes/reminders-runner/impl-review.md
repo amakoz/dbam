@@ -151,7 +151,7 @@ Later PRs append one section per phase below this one.
 - **Location**: branch `feat/reminders-runner-p3` (parent chain 14f1302 → … → 8bf4efb)
 - **Detail**: #99 was squash-merged (8410cdb has the single parent a3d4b7e), but bdff91e still descends from PR A's 5 original commits, so `git merge-base --is-ancestor 8410cdb bdff91e` fails. A PR opened from this branch would list those 5 commits again and show 16 files against main. The phase 3 change itself is only 6 files, and its content is identical to `8410cdb..bdff91e`. `decisions.md` ("Phase 3 built on a local branch") already plans the rebase. The branch has no upstream and isn't on origin, so rebasing is allowed.
 - **Fix**: Before opening PR B, run `git rebase --onto origin/main 8bf4efb feat/reminders-runner-p3`, then confirm `git diff --stat origin/main...HEAD` lists only the phase 3 files.
-- **Decision**: PENDING
+- **Decision**: Fixed (rebased onto origin/main; the diff lists only phase 3 files)
 
 #### F2 — The guard reference and the phase 1–2 SHAs point at commits that aren't on main
 
@@ -161,4 +161,4 @@ Later PRs append one section per phase below this one.
 - **Location**: context/changes/reminders-runner/plan.md:92, plan.md Progress rows 1.x/2.x, decisions.md (F1 triage, phase 3 gate notes)
 - **Detail**: The plan names dc62600 as the reference for "unchanged since phase 1", which phases 4–8 diff against, and Progress cites 14f1302 and ea0cc9c. The squash merge left all three off main (`git merge-base --is-ancestor dc62600 origin/main` fails). They survive only in this worktree and in GitHub's PR refs, so later phase workers on a fresh worktree will run `git diff dc62600 -- …` against an unknown revision. The guard files at 8410cdb are byte-identical to dc62600 (verified).
 - **Fix**: In `plan.md` "Guard first" and in `decisions.md`, repoint the reference to 8410cdb (#99 on main), and note that the Progress SHAs 14f1302 and ea0cc9c were squashed into 8410cdb. Ship that with PR B.
-- **Decision**: PENDING
+- **Decision**: Fixed (reference repointed to 8410cdb; the squash is noted in plan.md and decisions.md)

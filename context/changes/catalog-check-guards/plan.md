@@ -257,10 +257,10 @@ No migration and no snapshot. Entry files and `renderSnapshotSql` stay untouched
 
 #### Automated
 
-- [ ] 1.1 `npm test` passes, including the new `scripts/catalog/lib.test.ts`
-- [ ] 1.2 `npm run lint` passes with no errors in `scripts/catalog/`
-- [ ] 1.3 `npx astro sync && npx astro check` reports 0 errors
-- [ ] 1.4 `npm run catalog:check` still exits 0 (CLI unchanged in this phase)
+- [x] 1.1 `npm test` passes, including the new `scripts/catalog/lib.test.ts`
+- [x] 1.2 `npm run lint` passes with no errors in `scripts/catalog/`
+- [x] 1.3 `npx astro sync && npx astro check` reports 0 errors
+- [x] 1.4 `npm run catalog:check` still exits 0 (CLI unchanged in this phase)
 
 ### Phase 2: Wire the guards into the CLIs and document them
 

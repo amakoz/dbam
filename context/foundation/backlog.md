@@ -25,19 +25,7 @@
   - confirm the failure email really arrives.
 - **Source:** #81 description; `context/archive/2026-10-06-error-tracking/plan.md` Progress 3.3–3.7.
 
-### B-03 `CLAUDE.md` merge rule is out of date
-
-- **What:** `CLAUDE.md` says merging to `main` is human-only. Since 2026-10-06 the owner lets the orchestrator merge green PRs while production is a test environment. Agents that read only `CLAUDE.md` get conflicting instructions.
-- **Next:** _Agent:_ a docs PR that states the temporary rule and how to revert it. _Human:_ switch it back when production is ready for users.
-
 ## P2
-
-### B-04 A plan with a missing catalog entry hides its screening
-
-- **Confirmed bug by the owner (2026-10-28, Q-02):** a user's plan must never disappear.
-- **What:** `partitionDashboard` skips a plan whose catalog entry is missing, but `planned` is built from all plans (`src/lib/screenings/rules.ts:257`). Such a plan still hides that screening's tier item (`:271`) and its completion (`:263`). F-08 pinned the current behaviour without changing it.
-- **Next:** _Agent:_ fix it and update the F-08 test's expectation.
-- **Source:** `context/archive/2026-10-06-recurrence-unit-tests/follow-ups/missing-entry-plan.md`.
 
 ### B-05 F-04 MCP approval in worker sessions
 
@@ -59,31 +47,7 @@
 - **What:** from 2026-12-01 the Free plan allows 0.5 GB/day with 7-day retention, and logging stops at the cap until 00:00 UTC.
 - **Next:** _Human:_ re-check log volume after S-06/S-07 add traffic; the README's "Errors and alerts" section has the numbers.
 
-### B-14 Catalog entries move forward only
-
-- **What:** `status` moves only draft → active → retired. Today the snapshot upsert overwrites `status` with no transition check, so an active → draft change silently hides every user's plan and done record for that entry.
-- **Next:** _Agent:_ `catalog:check` refuses backward moves; document the allowed transitions in `catalog/README.md`.
-- **Source:** Q-02 (owner, 2026-10-28); drift D-02 in `context/domain/domain-distillation.md`.
-
-### B-15 Flag catalog entries past `next_review_due` in CI
-
-- **What:** the date is stored and validated, but nothing signals an entry past it. Owner decision: flag it to the owner, do not hide the entry from users.
-- **Next:** _Agent:_ a `catalog:check` warning in CI for entries past `next_review_due`.
-- **Source:** Q-06 (owner, 2026-10-28); drift D-08.
-
-### B-16 Unify EN copy: screening vs exam
-
-- **What:** EN copy mixes "screening", "exam" and "test" (`src/i18n/en.ts:76,128,132`). Owner decision: "screening" is the catalog item, "exam" is the user's own; PL "zalecenia" stays. B-01 (URL privacy) and B-06 (PRD testing line) do not cover copy, so this is a separate item.
-- **Next:** _Agent:_ audit `en.ts` against that rule and fix the strings; add a glossary line if useful.
-- **Source:** Q-07 (owner, 2026-10-28).
-
 ## P3
-
-### B-11 Unit tests for the remaining pure modules
-
-- **What:** not yet covered: `password.ts`, `parseProfileForm`/`packYears`, `errors.ts`, `auth-errors.ts`, `scripts/catalog/*`, and `isIsoDate`, `screeningFormBounds`, `formatDay`, `formatMonth` directly.
-- **Next:** _Agent:_ a foundation slice reusing the F-03 runner. Candidate cases are in the archived plans.
-- **Source:** "What We're NOT Doing" in `context/archive/2026-10-05-unit-test-suite/plan.md` and `context/archive/2026-10-06-recurrence-unit-tests/plan.md`.
 
 ### B-12 Hard guard for error-message reads
 
@@ -94,12 +58,6 @@
 
 - **What:** no English-locale pass, no withdrawn or error onboarding variants, no CI artifact (the kitchen sink returns 404 under CI's preview server).
 - **Next:** _Agent:_ extend when a UI change needs it.
-
-### B-17 Mirror app-only date/age rules as DB check constraints
-
-- **What:** the past-date window, the age floor and the consent version are enforced only in the API routes. RLS limits a direct write to the user's own rows, and no browser client ships the URL/key, so the owner accepts this for now (Q-05). Optional hardening.
-- **Next:** _Agent:_ optional; additive migration with check constraints plus a pgTAP case.
-- **Source:** Q-05 (owner, 2026-10-28).
 
 ## Before public launch
 
@@ -122,3 +80,9 @@ Owner answers of 2026-10-28 that wait for the launch gate (roadmap Open Roadmap 
 - B-01 Health data in Cloudflare invocation-log URLs: done as roadmap F-09 (owner-approved 2026-10-06). The screening slug moved from the `/dashboard` redirect query to a short-lived `HttpOnly` flash cookie; the URL keeps only the `?saved=`/`?error=` code and the `#screening-<slug>` fragment. Change: `context/archive/2026-10-06-redirect-query-privacy/`. Still open, human, non-blocking: after deploy, check in Workers Observability that new `/dashboard` invocation entries carry no `slug=` (and whether the query string is kept at all).
 - B-08 Usage limit and interruptions in orchestrated runs: done in the local orchestrator skill (a `spawn-worker.sh wait` subcommand), recorded in `context/changes/agent-docs-mcp/decisions.md`.
 - B-10 Noisy SHA write-back commits: fixed by the worker protocol (bookkeeping is committed with the phase), recorded in `context/changes/agent-docs-mcp/decisions.md`.
+- B-03 `CLAUDE.md` merge rule is out of date: became roadmap F-18 (`merge-rule-docs`), M-03, 2026-10-28.
+- B-04 A plan with a missing catalog entry hides its screening: became roadmap S-10 (`missing-entry-plan`), M-03, 2026-10-28.
+- B-11 Unit tests for the remaining pure modules: became roadmap F-19 (`pure-module-tests`), M-03, 2026-10-28.
+- B-14 Catalog entries move forward only and B-15 Flag catalog entries past `next_review_due` in CI: became one roadmap item, F-17 (`catalog-check-guards`), M-03, 2026-10-28.
+- B-16 Unify EN copy: screening vs exam: became roadmap S-11 (`en-copy-terms`), M-03, 2026-10-28.
+- B-17 Mirror app-only date/age rules as DB check constraints: became roadmap F-20 (`db-check-constraints`), M-03, 2026-10-28.

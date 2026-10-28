@@ -1,212 +1,180 @@
 ---
 project: Dbam
-version: 5
+version: 6
 status: draft
 created: 2026-09-26
 updated: 2026-10-28
 prd_version: 3
-main_goal: speed
-top_blocker: time
-milestone_id: quality-and-architecture-evidence
-milestone_seq: 2
+main_goal: quality
+top_blocker: none
+milestone_id: hardening-the-screening-loop
+milestone_seq: 3
 milestone_status: open
 ---
 
 # Roadmap: Dbam
 
-> Derived from the owner's milestone description (anchors MS-01–MS-08 below) + auto-researched codebase baseline. M-01 was derived from `context/foundation/prd.md` (v3); see `## Milestone History`.
+> Derived from the owner's milestone description (anchors MS-01–MS-07 below), `context/foundation/backlog.md`, the archived F-13 plan (`context/archive/2026-10-27-reminders-refactor/plan.md`) and `context/domain/domain-distillation.md`, + auto-researched codebase baseline. M-01 was derived from `context/foundation/prd.md` (v3), M-02 from an owner description; see `## Milestone History`.
 > Edit-in-place; the next milestone continues this file. Archive only when an independent roadmap replaces it.
-> Items below are listed in dependency order. The "At a glance" table is the index. IDs continue from M-01 (F-01–F-09 and S-01–S-07 are in `## Done`).
+> Items below are listed in dependency order. The "At a glance" table is the index. IDs continue from M-02 (F-01–F-15 and S-01–S-09 are in `## Done`).
 
 ## Milestone
 
-**M-02: Quality and architecture evidence** — Status: open
+**M-03: Hardening the screening loop** — Status: open
 
-- **Intent:** The shipped screening loop is guarded by a risk-first test plan and a browser-level suite that exercises it the way a user does; the codebase gets a written architecture review (map, feature research, refactoring plan, domain notes, two-page report); and every pull request gets an automated AI code review from CI at no model cost.
-- **Source materials:** user description (anchors below), recorded 2026-10-27 after an audit of `origin/main` at `0d065e6`.
+- **Intent:** The reminder pipeline runs on one tested runner, no user plan or catalog entry vanishes silently, and the remaining guard and copy gaps are closed. The PRD is unchanged (v3).
+- **Source materials:** user description (anchors below), recorded 2026-10-28, drawing on `context/foundation/backlog.md`, `context/archive/2026-10-27-reminders-refactor/plan.md` and `context/domain/domain-distillation.md`.
 - **Done when:** every F-NN and S-NN below is `done`.
 - **Scope anchors:**
-  - MS-01: A test-plan document names the product's top business risks and maps each one to test layers and quality gates.
-  - MS-02: At least one automated suite drives the running app through a browser, as a user would, and guards a concrete risk named in the test plan; it runs in CI.
-  - MS-03: A repository map documents the codebase's business capabilities, hot and frozen areas, structure, risk zones and unknowns.
-  - MS-04: One feature is researched end to end with the map as input, ending in a feature overview and a technical-debt section whose structural claims are verified.
-  - MS-05: A guard-first, phased, independently reversible refactoring plan exists for one debt item found in MS-04 (plan only; implementing it is not required).
-  - MS-06: Domain notes under `context/domain/` name the ubiquitous language, subdomains, invariants and model-vs-code drift.
-  - MS-07: A two-page architecture report combines MS-03–MS-06 in the owner's own words, defensible line by line.
-  - MS-08: Every pull request to `main` gets an AI code review from a visible CI job that leaves a review comment on the PR, using a no-cost model provider.
+  - MS-01: The three reminder jobs (appointment reminders, due-screening reminders, follow-up nudges) run on one shared, tested claim → send → mark runner, as planned in F-13, shipped one PR per plan phase.
+  - MS-02: A user's plan never disappears: a plan whose catalog entry is missing never hides its screening or its completion.
+  - MS-03: A catalog entry cannot silently move backwards or go stale: `catalog:check` refuses a backward status move (only draft → active → retired) and CI flags an entry past its next review date without hiding it from users.
+  - MS-04: `CLAUDE.md` states the temporary rule that the orchestrator merges green PRs and how to switch back to human-only merges.
+  - MS-05: English copy uses "screening" for the catalog item and "exam" for the user's own; Polish copy ("zalecenia") stays as it is.
+  - MS-06: The remaining pure modules have unit tests.
+  - MS-07: The date, age and consent rules that only the app enforces today are mirrored as database check constraints, added without breaking existing rows, with database tests.
 
 ## Vision recap
 
-Adults 30+ in Poland forget or postpone age-appropriate screenings because nothing prompts them when they become eligible, so exams silently lapse and treatable conditions go undetected. Dbam turns a short profile into an importance-labeled list of due screenings and keeps reminding the user from recommendation → appointment date → confirmed completion → next due date. M-01 shipped that loop; M-02 makes it provably safe to change.
+Adults 30+ in Poland forget or postpone age-appropriate screenings because nothing prompts them when they become eligible, so exams silently lapse and treatable conditions go undetected. Dbam turns a short profile into an importance-labeled list of due screenings and keeps reminding the user from recommendation → appointment date → confirmed completion → next due date. M-01 shipped that loop, M-02 made it provably safe to change; M-03 hardens it where the architecture review found gaps.
 
 ## North star
 
-**S-08: the core screening loop is guarded by a browser-level suite tied to a test-plan risk** — the only mandatory item in this milestone with no existing evidence; with `main_goal: speed` and a fixed external deadline, it goes first.
+**S-10: a plan whose catalog entry is missing still shows its screening and its completion** — the only owner-confirmed bug in this milestone and the one user-visible guarantee in its intent ("no user plan vanishes silently"); with `main_goal: quality` it goes first, alongside the long F-16 chain.
 
 > "North star" here means the smallest end-to-end slice whose successful delivery proves the milestone works. It is placed as early as its prerequisites allow; the other items only add value once it is in place.
 
 ## At a glance
 
-| ID   | Change ID           | Outcome (user can …)                                                                                                      | Prerequisites          | PRD refs | Status |
-| ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- | -------- | ------ |
-| F-10 | test-plan           | (foundation) a test plan ranks the top business risks and maps each to test layers and quality gates                      | —                      | MS-01    | done   |
-| S-08 | e2e-core-loop       | the sign-up → onboarding → due list → plan → confirm path is exercised in a real browser in CI, guarding a test-plan risk | F-10                   | MS-02    | done   |
-| S-09 | ai-code-review      | every pull request to `main` gets an AI review comment from a visible CI job, at no model cost                            | —                      | MS-08    | done   |
-| F-11 | repo-map            | (foundation) a repository map shows capabilities, hot areas, structure, risk zones and unknowns                           | —                      | MS-03    | done   |
-| F-12 | reminders-research  | (foundation) the reminder pipeline is researched end to end with the map as input, with a verified technical-debt section | F-11                   | MS-04    | done   |
-| F-13 | reminders-refactor  | (foundation) a guard-first, phased refactoring plan exists for one reminder-pipeline debt item                            | F-12                   | MS-05    | done   |
-| F-14 | domain-distillation | (foundation) domain notes name the ubiquitous language, subdomains, invariants and model-vs-code drift                    | —                      | MS-06    | done   |
-| F-15 | architecture-report | (foundation) a two-page architecture report combines the map, feature research, refactoring plan and domain notes         | F-11, F-12, F-13, F-14 | MS-07    | done   |
-
-## Streams
-
-Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
-
-| Stream | Theme               | Chain                                     | Note                                                                             |
-| ------ | ------------------- | ----------------------------------------- | -------------------------------------------------------------------------------- |
-| A      | Risk-first testing  | `F-10` → `S-08`                           | The mandatory gap; goes first under `main_goal: speed`.                          |
-| B      | AI code review      | `S-09`                                    | Standalone; once merged, it also reviews every later PR in this milestone.       |
-| C      | Architecture review | `F-11` → `F-12` → `F-13`; `F-14` → `F-15` | Read-only documents; `F-14` runs alongside the map chain and joins it at `F-15`. |
+| ID   | Change ID            | Outcome (user can …)                                                                                                 | Prerequisites | PRD refs | Status   |
+| ---- | -------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | -------- |
+| F-16 | reminders-runner     | (foundation) the three reminder jobs run on one shared, tested claim → send → mark runner                            | —             | MS-01    | ready    |
+| S-10 | missing-entry-plan   | a user whose plan's catalog entry is missing still sees that screening and its completion                            | —             | MS-02    | ready    |
+| F-17 | catalog-check-guards | (foundation) `catalog:check` refuses backward status moves and warns in CI on entries past their review date         | —             | MS-03    | ready    |
+| F-18 | merge-rule-docs      | (foundation) `CLAUDE.md` states the temporary orchestrator-merge rule and how to switch back                         | —             | MS-04    | ready    |
+| S-11 | en-copy-terms        | an English-language user reads "screening" for a catalog item and "exam" for their own, consistently                 | —             | MS-05    | ready    |
+| F-19 | pure-module-tests    | (foundation) the remaining pure modules have unit tests                                                              | F-17          | MS-06    | proposed |
+| F-20 | db-check-constraints | (foundation) the app-only date, age and consent rules are also database check constraints, covered by database tests | —             | MS-07    | ready    |
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-10-27` (auto-researched on `origin/main` at `0d065e6`, user-confirmed).
+What's already in place in the codebase as of `2026-10-28` (auto-researched on `origin/main` at `e556258`).
 Items below assume these are present and do NOT re-scaffold them.
 
 - **Frontend:** present — Astro 7 SSR + React 19 islands, Tailwind 4 tokens, shadcn/ui; dashboard, onboarding and profile views (`src/pages/`), design-system check (`npm run ui:check`).
-- **Backend / API:** present — form endpoints for auth, consent, profile, screenings (plan/unplan/done/undone/confirm) and reminders (`src/pages/api/`), all redirect-shaped.
-- **Data:** present — Supabase migrations with RLS per user (`supabase/migrations/`), catalog snapshots from `catalog/entries/`.
+- **Backend / API:** present — form endpoints for auth, consent, profile, screenings and reminders (`src/pages/api/`), all redirect-shaped.
+- **Data:** present — Supabase migrations with per-user RLS (`supabase/migrations/`), catalog snapshots from `catalog/entries/`.
 - **Auth:** present — Supabase email/password, `PROTECTED_ROUTES` in `src/middleware.ts`, per-user RLS covered by pgTAP.
-- **Deploy / infra:** present — Cloudflare Workers at a public `workers.dev` URL, cron triggers for reminders and nudges, CI (`ci`, `smoke`) gating `migrate` + `deploy` on `main`.
-- **Observability:** present — structured error events in Workers Logs, failure email for reminder runs (F-07).
-- **Tests:** partial — Vitest unit tests (catalog rules, recurrence, reminders), pgTAP access-rule tests, an HTTP-level smoke run of the main flows; Playwright is installed only for screenshots (`npm run ui:shots`), with no browser assertions. There is no test-plan document.
-- **Architecture docs:** partial — per-change `research.md` in `context/archive/`; no repository map, no `context/domain/`, no architecture report.
-- **PR review:** partial — the `/10x-impl-review` agent runs locally inside the change chain; no CI job reviews pull requests.
+- **Deploy / infra:** present — Cloudflare Workers, cron triggers for reminders and nudges, CI (`ci`, `smoke`) gating `migrate` + `deploy` on `main`.
+- **Observability:** present — structured error events in Workers Logs, failure email for reminder runs (F-07); its production checks are still open (backlog B-02, human).
+- **Tests:** partial — Vitest unit tests over catalog, screenings, email and reminders modules, pgTAP access-rule tests, HTTP smoke, a Playwright browser suite (`tests/e2e/`) and a risk-first test plan (`context/foundation/test-plan.md`); the pure modules listed in backlog B-11 and the reminder jobs themselves have no tests.
+- **Architecture docs:** present — repository map, reminder-pipeline research, refactoring plan, domain map and glossary, architecture report (M-02).
+- **PR review:** present — advisory AI review job on every PR (`.github/workflows/ai-review.yml`).
 
 ## Foundations
 
-### F-10: Test plan
+### F-16: Reminder jobs on one shared runner
 
-- **Outcome:** (foundation) a test plan ranks the product's top 5–7 business risks (mined from the PRD, this roadmap and the archived changes) and maps each risk to classic test layers and agent-side quality gates, naming which existing suites already cover it and which risk needs a browser-level suite.
-- **Change ID:** test-plan
+- **Outcome:** (foundation) the archived F-13 plan is implemented: characterization tests pin today's three jobs, a pure claim → send → mark runner with production dependencies replaces their copied loop, and the appointment and due builders are extracted. Shipped as 7 PRs from one change folder, one per plan phase as the plan's Migration Notes require: phases 1+2 together, then 3, 4, 5, 6, 7 and 8 each alone. Done when the last phase merges and the change is archived.
+- **Change ID:** reminders-runner
 - **PRD refs:** MS-01
-- **Unlocks:** S-08 (which risk the browser suite guards); quality gates for every later change
+- **Unlocks:** a tested reminder pipeline for every later reminder change (the backlog's appointment-budget and catalog-status drift, D-01/D-05, both land in these jobs)
 - **Prerequisites:** —
-- **Parallel with:** S-09, F-11, F-14
+- **Parallel with:** S-10, F-17, F-18, S-11, F-19, F-20
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Strategy only — it must cite existing unit, pgTAP and smoke coverage instead of re-planning it, or the rollout duplicates work already in CI.
-- **Status:** done
+- **Risk:** Every merge deploys to the production cron, so each phase is its own rollback unit; the characterization tests (phases 1+2) land first and must stay green through every later phase. It touches only the reminder modules, so it runs beside every other item.
+- **Status:** ready
 
-### F-11: Repository map
+### F-17: Catalog check guards
 
-- **Outcome:** (foundation) a repository map, organised by business capability (onboarding and consent, recommendations, exam records, reminders and nudges, catalog curation), ranks areas by criticality and change activity, and lists risk zones, a first-day reading list and explicit unknowns.
-- **Change ID:** repo-map
+- **Outcome:** (foundation) `catalog:check` fails on a backward status move (anything other than draft → active → retired), the allowed transitions are documented in `catalog/README.md`, and CI prints a warning (never a failure, never hiding the entry from users) for every entry past its `next_review_due`. Covers backlog B-14 and B-15 in one change.
+- **Change ID:** catalog-check-guards
 - **PRD refs:** MS-03
-- **Unlocks:** F-12 (the map is research input), F-15
+- **Unlocks:** F-19 (the catalog-script tests cover the new guards once); closes drift D-02 and D-08
 - **Prerequisites:** —
-- **Parallel with:** F-10, S-09, F-14
+- **Parallel with:** F-16, S-10, F-18, S-11, F-20
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** A single-owner repo has a thin "people" signal; the map should say so as an unknown instead of inventing ownership.
-- **Status:** done
+- **Risk:** The transition check needs the previous status of each entry; reading it from the wrong baseline would either block legitimate first activations or let a demotion through. The review-date warning must stay advisory so a stale date never blocks a deploy.
+- **Status:** ready
 
-### F-12: Reminder pipeline research
+### F-18: Merge rule in CLAUDE.md
 
-- **Outcome:** (foundation) the reminder pipeline (scheduled run → candidate selection → send chain → email, across appointment reminders, due-screening reminders and nudges) is traced end to end with the map as input, with test-coverage gaps, blast radius and a technical-debt section whose structural claims are confirmed or refuted by AST queries.
-- **Change ID:** reminders-research
+- **Outcome:** (foundation) `CLAUDE.md` states that, while production is a test environment, the orchestrator may merge green PRs, and how the owner switches back to human-only merges. Covers backlog B-03.
+- **Change ID:** merge-rule-docs
 - **PRD refs:** MS-04
-- **Unlocks:** F-13, F-15
-- **Prerequisites:** F-11
-- **Parallel with:** F-14
-- **Blockers:** —
-- **Unknowns:**
-  - Is the reminder pipeline the right feature? It is the area that grew most in M-01 (three jobs on one cron path); if the map ranks another capability hotter, switch to it before research starts. — Owner: user. Block: no.
-- **Risk:** Research-only; it must not drift into fixing what it finds.
-- **Status:** done
-
-### F-13: Reminder pipeline refactoring plan
-
-- **Outcome:** (foundation) one debt item from F-12 is explored through three read-only lenses (current shape, decision history, migration feasibility), the options are ranked and verified, and the chosen option becomes a guard-first, phased, independently reversible plan with characterization tests as the safety harness.
-- **Change ID:** reminders-refactor
-- **PRD refs:** MS-05
-- **Unlocks:** F-15
-- **Prerequisites:** F-12
-- **Parallel with:** F-14
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** The plan is the deliverable; implementing it is parked so it cannot destabilise the production reminder runs before the milestone closes.
-- **Status:** done
-
-### F-14: Domain distillation
-
-- **Outcome:** (foundation) `context/domain/` holds a domain map (ubiquitous language with sources in docs and code, subdomains classified as core / supporting / generic, aggregate candidates and their invariants with enforcement status, model-vs-code drift, a ranked fix list) and a compact glossary for agents.
-- **Change ID:** domain-distillation
-- **PRD refs:** MS-06
-- **Unlocks:** F-15; a shared vocabulary for later changes
+- **Unlocks:** consistent merge instructions for every agent that reads only `CLAUDE.md`
 - **Prerequisites:** —
-- **Parallel with:** F-10, S-09, F-11, F-12, F-13
+- **Parallel with:** F-16, S-10, F-17, S-11, F-19, F-20
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** The Polish domain terms (badanie, przesiew, termin) and their English code names must both appear in the glossary, or agents keep translating them inconsistently.
-- **Status:** done
+- **Risk:** Docs-only, but it sits beside the hard rule "never run `gh pr merge`" — the wording must make clear which agent may merge and that workers still never do.
+- **Status:** ready
 
-### F-15: Architecture report
+### F-19: Unit tests for the remaining pure modules
 
-- **Outcome:** (foundation) a two-page architecture report summarises the map, the feature research, the refactoring plan and the domain notes, written and checked by the owner so every claim can be defended.
-- **Change ID:** architecture-report
-- **PRD refs:** MS-07
-- **Unlocks:** the milestone's closing review
-- **Prerequisites:** F-11, F-12, F-13, F-14
-- **Parallel with:** S-08, S-09
-- **Blockers:**
-  - The report-generation prompt is not part of the installed toolkit packs (checked 2026-10-27); take it from the lesson page or write the report from the four artifacts by hand.
+- **Outcome:** (foundation) the pure modules backlog B-11 lists (password policy, profile-form parsing and pack-years, error-code mapping, the catalog scripts, and the date and format helpers tested only indirectly today) have colocated unit tests in the existing runner.
+- **Change ID:** pure-module-tests
+- **PRD refs:** MS-06
+- **Unlocks:** a safety net for later changes to those modules
+- **Prerequisites:** F-17
+- **Parallel with:** F-16, S-10, F-18, S-11, F-20
+- **Blockers:** —
 - **Unknowns:** —
-- **Risk:** A one-shot generated report is easy to produce and hard to defend; the owner edits it after reading the four inputs.
-- **Status:** done
+- **Risk:** Sequenced after F-17 because both edit the catalog scripts; writing their tests before the guards land would mean rewriting them. Tests pin current behaviour only — a bug they reveal goes to the backlog, not into this change.
+- **Status:** proposed
+
+### F-20: Database check constraints for app-only rules
+
+- **Outcome:** (foundation) an additive migration mirrors the past-date window, the age floor and the consent version — today enforced only in the API routes — as database check constraints, with database tests for each. Covers backlog B-17.
+- **Change ID:** db-check-constraints
+- **PRD refs:** MS-07
+- **Unlocks:** a database that rejects a direct write the API would refuse
+- **Prerequisites:** —
+- **Parallel with:** F-16, S-10, F-17, F-18, S-11, F-19
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** A constraint that existing production rows violate fails the CI `migrate` job and blocks every deploy; a date window relative to "today" cannot be a plain check constraint. The plan must check existing data first and pick a form that validates new writes only where needed.
+- **Status:** ready
 
 ## Slices
 
-### S-08: Browser-level suite for the core loop
+### S-10: A plan with a missing catalog entry stays visible
 
-- **Outcome:** a browser-level suite, run in CI against a local build and local Supabase, signs up a fresh user, completes onboarding, sees the due list, plans an exam and confirms it, and asserts the business outcome at each step, guarding the risk F-10 ranks highest among those that cross auth, routing, API and database. It fails when that risk materialises.
-- **Change ID:** e2e-core-loop
+- **Outcome:** a user whose plan points to a catalog entry the dashboard cannot load still sees that screening's tier item and its completion; the plan never hides them. The F-08 test's expectation is updated to the fixed behaviour. Covers backlog B-04.
+- **Change ID:** missing-entry-plan
 - **PRD refs:** MS-02
-- **Prerequisites:** F-10
-- **Parallel with:** S-09, F-11, F-12, F-13, F-14
-- **Blockers:** —
-- **Unknowns:**
-  - Which risk does the suite guard? F-10 decides; the expected candidates are "a completed exam is lost or not rescheduled" and "one user sees another user's health data". — Owner: user. Block: no.
-- **Risk:** It must never run against production (it signs up users, like the full smoke run), and the CI job must not slow the `smoke` gate enough to push deploys past the post-deploy retry window.
-- **Status:** done
-
-### S-09: AI code review in CI
-
-- **Outcome:** every pull request to `main` triggers a visible CI job that sends the PR title, body and diff to a review agent, which posts a scored review comment on the PR (and an `ai-cr:passed` / `ai-cr:failed` label). The job logs show the review, and the model provider costs nothing.
-- **Change ID:** ai-code-review
-- **PRD refs:** MS-08
 - **Prerequisites:** —
-- **Parallel with:** F-10, S-08, F-11, F-12, F-13, F-14, F-15
-- **Blockers:**
-  - The owner creates a free model-provider account and adds its API key as a repository secret. — Owner: user.
-- **Unknowns:**
-  - Resolved (2026-10-27): GitHub Models (free through the workflow token) was retired on 2026-07-30, and CodeRabbit runs outside CI, so it shows no pipeline job. Default: a no-cost model through OpenRouter (`:free` variants: 20 requests/min, 50/day without purchased credits, enough for one review per PR). The model is a job input, so a Gemini free-tier key is a drop-in fallback.
-  - Is the review a merge gate or advisory? Default: advisory label only, because free models are rate-limited and can be unavailable, and a provider outage must not block a release. — Owner: user. Block: no.
-- **Risk:** Free providers may log prompts. The repo is public, so the diff is already public; the job must still never send secrets, `.env` files or generated files. Fork PRs get no secrets, so the job skips them cleanly instead of failing.
-- **Status:** done
+- **Parallel with:** F-16, F-17, F-18, S-11, F-19, F-20
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** The dashboard partition rule decides where every exam shows; the fix must keep "each exam shows in one place" for every other plan, so the existing partition tests stay the guard.
+- **Status:** ready
+
+### S-11: English copy says "screening" and "exam" consistently
+
+- **Outcome:** an English-language user reads "screening" for a catalog item and "exam" for their own planned or done one, everywhere in the app; Polish copy is unchanged. Covers backlog B-16.
+- **Change ID:** en-copy-terms
+- **PRD refs:** MS-05
+- **Prerequisites:** —
+- **Parallel with:** F-16, S-10, F-17, F-18, F-19, F-20
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Copy only, but strings pinned by the wording tests or asserted by the e2e suite change with it; update those in the same change.
+- **Status:** ready
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID           | Suggested issue title                                | Ready for `/10x-plan` | Notes                                                          |
-| ---------- | ------------------- | ---------------------------------------------------- | --------------------- | -------------------------------------------------------------- |
-| F-10       | test-plan           | Risk-first test plan with quality gates              | yes                   | Run `/10x-test-plan` (writes the plan, then drives its phases) |
-| S-08       | e2e-core-loop       | Browser E2E suite for the core screening loop in CI  | no                    | Needs F-10; `/10x-e2e-setup`, then `/10x-e2e`                  |
-| S-09       | ai-code-review      | AI code review job on every PR (free model)          | yes                   | Run `/10x-new ai-code-review`, then research → plan            |
-| F-11       | repo-map            | Repository map by business capability                | yes                   | Run `/10x-repo-map`                                            |
-| F-12       | reminders-research  | Feature research: reminder pipeline, with map        | no                    | Needs F-11                                                     |
-| F-13       | reminders-refactor  | Refactoring plan for one reminder-pipeline debt item | no                    | Needs F-12                                                     |
-| F-14       | domain-distillation | Domain distillation and agent glossary               | yes                   | Run `/10x-domain-distillation`                                 |
-| F-15       | architecture-report | Two-page architecture report                         | no                    | Needs F-11–F-14                                                |
+| Roadmap ID | Change ID            | Suggested issue title                                      | Ready for `/10x-plan` | Notes                                                                               |
+| ---------- | -------------------- | ---------------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------- |
+| F-16       | reminders-runner     | Implement the reminder-runner refactoring plan (F-13)      | yes                   | Plan exists in the archive; 7 PRs (phases 1+2, then 3–8 each alone). Pair with S-10 |
+| S-10       | missing-entry-plan   | A plan with a missing catalog entry must not hide its exam | yes                   | North star; parallel with F-16                                                      |
+| F-17       | catalog-check-guards | `catalog:check`: forward-only status, review-date warning  | yes                   | Pair with F-20                                                                      |
+| F-18       | merge-rule-docs      | `CLAUDE.md`: temporary orchestrator-merge rule             | yes                   | Docs-only; fits any gap                                                             |
+| S-11       | en-copy-terms        | EN copy: "screening" vs "exam"                             | yes                   | —                                                                                   |
+| F-19       | pure-module-tests    | Unit tests for the remaining pure modules                  | no                    | Needs F-17                                                                          |
+| F-20       | db-check-constraints | DB check constraints for app-only date/age/consent rules   | yes                   | Pair with F-17; takes the shared DB lock                                            |
 
 ## Open Roadmap Questions
 
@@ -221,16 +189,17 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Medicine tracker** — Why parked: PRD §Non-Goals, separate domain, deferred to v2+.
 - **In-app appointment booking** — Why parked: PRD §Non-Goals; the app only records a date the user enters.
 - **Family / shared accounts** — Why parked: PRD §Non-Goals; single user per account for v1.
-- **Optional follow-up profiling (FR-010)** — Why parked: nice-to-have; `main_goal: speed` keeps the milestone on must-have FRs only.
+- **Optional follow-up profiling (FR-010)** — Why parked: nice-to-have; M-01 kept to must-have FRs under `main_goal: speed`, and no later milestone has taken it up.
 - **AI at runtime (LLM-generated recommendations, "ask about this exam" chatbot)** — Why parked: research decision; rules are deterministic and the profile is never sent to an AI model. A chatbot is v2 and would get only the exam ID.
 - **AI PR review bot (CodeRabbit)** — Why parked: owner decision (2026-10-05); superseded on 2026-10-27 by S-09, a review job inside CI, because CodeRabbit runs as a GitHub app outside the pipeline and shows no CI job or logs.
 - **Automated post-deploy verification of the reminder dispatch path** (#57) — Why parked: user decision (2026-09-29, F-02). With many PRs merging, a `deploy` step that sends a real email on every `main` deploy is noise, and cron changes take up to 15 min to propagate, which is longer than the current post-deploy retry window. Revisit once reminders reach real users. Likely shape: a secret-protected trigger endpoint the `deploy` job calls, or a send-log check. See `context/changes/reminder-dispatch-path/research.md` §E.
-- **Implementing the reminder-pipeline refactoring (F-13)** — Why parked: M-02 delivers the plan only (MS-05); running it against production reminder jobs belongs in a later milestone, through `/10x-implement`.
 - **Shared AI-toolkit package on a registry** — Why parked: an alternative to S-09 for showing team-level AI tooling; one of the two is enough for MS-08-style evidence, and S-09 reuses the existing CI.
+- **F-07 production checks (backlog B-02)** — Why parked: owner decision (2026-10-28); dashboard and production steps only a human can do, so they stay a backlog item, not a slice.
 
 ## Milestone History
 
 - **M-01: First screening loop** (`first-screening-loop`) — closed 2026-10-27. A user signs up, consents, sees due screenings by importance tier, plans and confirms exams, and gets opt-in reminders and nudges that keep the cycle going (F-01–F-09, S-01–S-07, all done; source: `context/foundation/prd.md` v3, every must-have FR covered).
+- **M-02: Quality and architecture evidence** (`quality-and-architecture-evidence`) — closed 2026-10-28. The core loop is guarded by a risk-first test plan and a browser-level suite in CI, every PR gets an advisory no-cost AI review, and the codebase has a repository map, reminder-pipeline research, a refactoring plan, a domain map and a two-page architecture report (F-10–F-15, S-08, S-09, all done; source: owner description, anchors MS-01–MS-08).
 
 ## Done
 

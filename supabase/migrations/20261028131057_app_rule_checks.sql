@@ -24,7 +24,7 @@
 -- on production data. A NOT VALID check is still evaluated on every UPDATE of an old row, so a malformed
 -- consent_version already in production would make that user's withdraw_health_data_consent fail (its UPDATE of
 -- withdrawn_at re-checks the row) until the row is rewritten. The owner runs a read-only query after merge; the remedy
--- and the later VALIDATE are in context/changes/db-check-constraints/follow-ups/validate-consent.md.
+-- and the later VALIDATE are in context/archive/2026-10-28-db-check-constraints/follow-ups/validate-consent.md.
 
 -- ---------------------------------------------------------------------------------------------------------------
 -- Plans: appointment date from yesterday to two years and a day ahead (Warsaw)

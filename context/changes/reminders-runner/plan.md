@@ -759,10 +759,10 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [ ] 5.1 npm test passes with follow-up-nudge.test.ts unchanged since phase 1
-- [ ] 5.2 npm run lint and npx astro check pass
-- [ ] 5.3 follow-up-nudge.ts has no console call
-- [ ] 5.4 A deliberate runner break fails runner.test.ts, appointment.test.ts and follow-up-nudge.test.ts and is reverted before commit
+- [x] 5.1 npm test passes with follow-up-nudge.test.ts unchanged since phase 1
+- [x] 5.2 npm run lint and npx astro check pass
+- [x] 5.3 follow-up-nudge.ts has no console call
+- [x] 5.4 A deliberate runner break fails runner.test.ts, appointment.test.ts and follow-up-nudge.test.ts and is reverted before commit
 
 #### Manual
 

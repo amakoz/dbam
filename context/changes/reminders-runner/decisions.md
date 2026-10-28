@@ -88,3 +88,13 @@ Review: `impl-review.md`, section "PR B — phase 3" (APPROVED, two low-impact w
 
 - Phase 3 merged as e64dc3c (#100). The phase 4 branch was rebased with `git rebase --onto origin/main feat/reminders-runner-p3 feat/reminders-runner-p4` (never pushed). `git diff --stat origin/main...HEAD` lists only phase 4 files: `appointment.ts`, one `eslint.config.js` line, and `plan.md`, `decisions.md`, `impl-review.md`. The phase 4 commit is now `2450540` (it was `2dacbb5`); Progress rows 4.1–4.5 carry the new SHA. The review's own text keeps the pre-rebase SHA. The guard reference stays `8410cdb`.
 - decided-by: worker
+
+## 2026-10-28 Phase 5 gate notes (follow-up nudge on the runner)
+
+- **Built ahead of the gate, on a local branch.** The plan says to start phase 5 only after the phase 4 production check (row 4.6) has passed. At the orchestrator's request phase 5 is built and committed locally on `feat/reminders-runner-p5` (off `feat/reminders-runner-p4`) and is **not pushed**; PR D must not open until row 4.6 has passed on the deployed PR C. The rebase rule for the remaining phases is unchanged: start each phase branch from `origin/main` after its predecessor merges.
+- **Guard.** The three job tests and the helper are unchanged since 8410cdb and pass on the refactored job.
+- **Break.** Moving the mark above the dry-run check in `runner.ts` failed `runner.test.ts`, `appointment.test.ts` and `follow-up-nudge.test.ts` (one dry-run case each); restored exactly from the staged tree.
+- **`p_limit` and the budget.** The spec's `select` receives `budget: number | undefined`, and the runner has already skipped a run with `budget <= 0`, so the nudge `select` reads `Math.min(budget ?? 0, MAX_BATCH_SIZE)`. The `?? 0` is unreachable when the runner calls it with a number; the claim arguments are otherwise exactly today's (TD-6 stays).
+- **Build.** The whole-output `SITE` check still equals the baseline (`import.meta.env.SITE` only in the vendor hit), and the nudge builder's own `const site = …` literal is gone from `entry.mjs`; only the due job's remains.
+- **Manual row 5.5 stays open.** It needs the next 10:00 Warsaw production run after deploy and gates phase 6.
+- decided-by: worker

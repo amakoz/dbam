@@ -82,10 +82,10 @@ Docs only; no unit tests. Prettier is the only automated gate (it also runs in l
 #### Automated
 
 - [x] 1.1 Prettier accepts the file: `npx prettier --check CLAUDE.md` — f4d8d17
-- [x] 1.2 The deploy and Workers Builds sentences are unchanged: `grep -c "Cloudflare Workers Builds is disconnected, so never reconnect it" CLAUDE.md` prints 1
+- [x] 1.2 The deploy and Workers Builds sentences are unchanged: `grep -c "Cloudflare Workers Builds is disconnected, so never reconnect it" CLAUDE.md` prints 1 — f4d8d17
 - [x] 1.3 Only the one bullet changed: `git diff --stat main -- CLAUDE.md` shows `CLAUDE.md` as the only changed tracked file besides `context/changes/merge-rule-docs/` — f4d8d17
 
 #### Manual
 
 - [x] 1.4 A reader who sees only `CLAUDE.md` can tell who may merge, when, how, that workers still may not, and how to switch back — f4d8d17
-- [x] 1.5 The bullet is no more than about six lines long in the rendered file
+- [x] 1.5 The bullet is no more than about six lines long in the rendered file — f4d8d17

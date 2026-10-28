@@ -1,7 +1,7 @@
 ---
 change_id: catalog-check-guards
 title: catalog:check refuses backward status moves and warns on overdue reviews
-status: planned
+status: plan_reviewed
 created: 2026-10-28
 updated: 2026-10-28
 archived_at: null

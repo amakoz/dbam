@@ -29,7 +29,7 @@ Persona scope note: the underlying population is broad ("individuals broadly, ac
 
 ### Primary
 
-- The end-to-end v1 flow works: a user signs up, completes onboarding, receives personalized screening recommendations from their profile data, can mark an exam as already handled (which schedules the next due date by its repeat interval), and receives an opt-in reminder when a screening becomes due.
+- The end-to-end v1 flow works: a user signs up, completes onboarding, receives personalized screening recommendations from their profile data, can mark an exam as already handled (which schedules the next due date by its repeat interval), and receives an opt-in reminder when a screening becomes due again (repeat exams; a screening the user becomes eligible for appears on the dashboard). Owner-approved clarification, 2026-10-28 (Q-03 in `context/domain/domain-distillation.md`).
 
 ### Secondary
 

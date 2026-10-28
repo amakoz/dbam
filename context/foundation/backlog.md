@@ -34,8 +34,9 @@
 
 ### B-04 A plan with a missing catalog entry hides its screening
 
+- **Confirmed bug by the owner (2026-10-28, Q-02):** a user's plan must never disappear.
 - **What:** `partitionDashboard` skips a plan whose catalog entry is missing, but `planned` is built from all plans (`src/lib/screenings/rules.ts:257`). Such a plan still hides that screening's tier item (`:271`) and its completion (`:263`). F-08 pinned the current behaviour without changing it.
-- **Next:** _Human:_ decide whether this is a bug. If so, an _agent_ fixes it and the F-08 test's expectation is updated.
+- **Next:** _Agent:_ fix it and update the F-08 test's expectation.
 - **Source:** `context/archive/2026-10-06-recurrence-unit-tests/follow-ups/missing-entry-plan.md`.
 
 ### B-05 F-04 MCP approval in worker sessions
@@ -58,6 +59,24 @@
 - **What:** from 2026-12-01 the Free plan allows 0.5 GB/day with 7-day retention, and logging stops at the cap until 00:00 UTC.
 - **Next:** _Human:_ re-check log volume after S-06/S-07 add traffic; the README's "Errors and alerts" section has the numbers.
 
+### B-14 Catalog entries move forward only
+
+- **What:** `status` moves only draft → active → retired. Today the snapshot upsert overwrites `status` with no transition check, so an active → draft change silently hides every user's plan and done record for that entry.
+- **Next:** _Agent:_ `catalog:check` refuses backward moves; document the allowed transitions in `catalog/README.md`.
+- **Source:** Q-02 (owner, 2026-10-28); drift D-02 in `context/domain/domain-distillation.md`.
+
+### B-15 Flag catalog entries past `next_review_due` in CI
+
+- **What:** the date is stored and validated, but nothing signals an entry past it. Owner decision: flag it to the owner, do not hide the entry from users.
+- **Next:** _Agent:_ a `catalog:check` warning in CI for entries past `next_review_due`.
+- **Source:** Q-06 (owner, 2026-10-28); drift D-08.
+
+### B-16 Unify EN copy: screening vs exam
+
+- **What:** EN copy mixes "screening", "exam" and "test" (`src/i18n/en.ts:76,128,132`). Owner decision: "screening" is the catalog item, "exam" is the user's own; PL "zalecenia" stays. B-01 (URL privacy) and B-06 (PRD testing line) do not cover copy, so this is a separate item.
+- **Next:** _Agent:_ audit `en.ts` against that rule and fix the strings; add a glossary line if useful.
+- **Source:** Q-07 (owner, 2026-10-28).
+
 ## P3
 
 ### B-11 Unit tests for the remaining pure modules
@@ -75,6 +94,20 @@
 
 - **What:** no English-locale pass, no withdrawn or error onboarding variants, no CI artifact (the kitchen sink returns 404 under CI's preview server).
 - **Next:** _Agent:_ extend when a UI change needs it.
+
+### B-17 Mirror app-only date/age rules as DB check constraints
+
+- **What:** the past-date window, the age floor and the consent version are enforced only in the API routes. RLS limits a direct write to the user's own rows, and no browser client ships the URL/key, so the owner accepts this for now (Q-05). Optional hardening.
+- **Next:** _Agent:_ optional; additive migration with check constraints plus a pgTAP case.
+- **Source:** Q-05 (owner, 2026-10-28).
+
+## Before public launch
+
+Owner answers of 2026-10-28 that wait for the launch gate (roadmap Open Roadmap Question 2; `roadmap.md` is not edited here):
+
+- **Q-04** appointment-reminder cap of 92 users/day: accepted for now; revisit before launch (paid Resend plan or rotate order).
+- **Q-09** medical reviewer, DPIA, MDR memo: no public launch planned, gate items not started.
+- **Q-10** re-consent on a material consent-text change and consent proof after account deletion: deferred to the launch gate (legal advice then).
 
 ## Done
 

@@ -1,10 +1,10 @@
 ---
 change_id: pure-module-tests
 title: Unit tests for the remaining pure modules (F-19)
-status: impl_reviewed
+status: archived
 created: 2026-10-28
 updated: 2026-10-28
-archived_at: null
+archived_at: 2026-10-28T12:41:35Z
 ---
 
 ## Notes

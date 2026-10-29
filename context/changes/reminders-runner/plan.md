@@ -753,16 +753,16 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Manual
 
-- [ ] 4.6 Next 10:00 Warsaw run after deploy logs the appointment-reminder line with unchanged fields and no error line
+- [x] 4.6 Next 10:00 Warsaw run after deploy logs the appointment-reminder line with unchanged fields and no error line — 5fa7716
 
 ### Phase 5: Follow-up nudge job on the runner
 
 #### Automated
 
-- [ ] 5.1 npm test passes with follow-up-nudge.test.ts unchanged since phase 1
-- [ ] 5.2 npm run lint and npx astro check pass
-- [ ] 5.3 follow-up-nudge.ts has no console call
-- [ ] 5.4 A deliberate runner break fails runner.test.ts, appointment.test.ts and follow-up-nudge.test.ts and is reverted before commit
+- [x] 5.1 npm test passes with follow-up-nudge.test.ts unchanged since phase 1 — 0d5cfed
+- [x] 5.2 npm run lint and npx astro check pass — 0d5cfed
+- [x] 5.3 follow-up-nudge.ts has no console call — 0d5cfed
+- [x] 5.4 A deliberate runner break fails runner.test.ts, appointment.test.ts and follow-up-nudge.test.ts and is reverted before commit — 0d5cfed
 
 #### Manual
 

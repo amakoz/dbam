@@ -98,3 +98,11 @@ Review: `impl-review.md`, section "PR B — phase 3" (APPROVED, two low-impact w
 - **Build.** The whole-output `SITE` check still equals the baseline (`import.meta.env.SITE` only in the vendor hit), and the nudge builder's own `const site = …` literal is gone from `entry.mjs`; only the due job's remains.
 - **Manual row 5.5 stays open.** It needs the next 10:00 Warsaw production run after deploy and gates phase 6.
 - decided-by: worker
+
+## 2026-10-29 Row 4.6 confirmed by the owner; PR D rebased onto main
+
+- **Row 4.6 (appointment job on the runner, production).** The owner confirmed that after the 2026-10-29 10:00 Warsaw run, Workers Logs show the `appointment-reminder` line with unchanged fields and no `error` line. PR C (phase 4) was deployed as 5fa7716 (#102). Row 4.6 is marked done with that SHA, which unblocks phase 5 (PR D).
+- **Rebase.** PR C merged, so `feat/reminders-runner-p5` (never pushed) was rebased with `git rebase --onto origin/main feat/reminders-runner-p4 feat/reminders-runner-p5`. `git diff --stat origin/main...HEAD` lists only phase 5 files: `follow-up-nudge.ts`, one `eslint.config.js` line, and `plan.md`, `decisions.md`, `impl-review.md`. The phase 5 commit is now `0d5cfed` (it was `4140ba4`); Progress rows 5.1-5.4 carry the new SHA. The review's own text keeps the pre-rebase SHA.
+- **Migrations.** This PR changes none, so the pgTAP suite was not part of its gates (CI's `smoke` job runs it on every PR).
+- **Slip, for the record.** An unquoted heredoc in my first attempt let the shell run the backticked commands in this very entry: a second, stray `git rebase` (aborted with `git rebase --abort`; the branch was left exactly as after the first rebase) and one `npx supabase test db` run without taking the DB lock. The pgTAP run is transaction-scoped and no lock was held by anyone; the gate results of that attempt were discarded and every gate was re-run on the clean tree.
+- decided-by: orchestrator (the owner's confirmation of 4.6); worker (the rebase).

@@ -14,7 +14,7 @@ Reword 15 keys in `src/i18n/en.ts` so that English copy says "screening" for a c
 
 ## Desired End State
 
-An English-language user reads "screening" wherever the app talks about a catalog item: the home page, tiers, details, the "may apply" block, the plans empty state, consent purpose and errors. They read "exam" wherever it talks about their own planned or done item: the status line, done rows, the undo confirmation, consent data, the withdrawal text and the due-again email. No English message uses "test". A unit test fails if any of the 15 keys drifts back. Polish messages are byte-identical to `main`.
+An English-language user reads "screening" wherever the app talks about a catalog item: the home page, tiers, details, the "may apply" block, the plans empty state, consent purpose and errors. They read "exam" wherever it talks about their own planned or done item: the status line, done rows, the undo confirmation, consent data, the withdrawal text and the due-again email. This holds for the dictionary, `src/i18n/en.ts`: no message there uses "test". Catalog names and summaries (`catalog/entries/*.json`, e.g. "HPV HR test", "Eye examination for glaucoma") keep their procedure words by decision. A unit test fails if any of the 15 changed keys, or any key research found already compliant, drifts back. Polish messages are byte-identical to `main`.
 
 ### Key Discoveries:
 
@@ -37,7 +37,7 @@ One phase. The copy, the consent version bump, the pinned email test and the new
 
 ### Overview
 
-Reword the 15 keys, bump the consent version, update the pinned email test, add the term-rule test, and rename the glossary row.
+Reword the 15 keys, bump the consent version, update the pinned email test, add the term-rule test, and rename "open exams" in the glossary and the distillation map.
 
 ### Changes Required:
 
@@ -87,21 +87,24 @@ Reword the 15 keys, bump the consent version, update the pinned email test, add 
 
 **Intent**: Fail when an English message drifts back to the wrong term. The test checks the rule, not the exact wording.
 
-**Contract**: Uses `createT("en")` (or the `en` record) and covers three cases:
+**Contract**: Reads values from the `en` record (`import { en } from "@/i18n/en"`), so plural keys need no `t.plural`. It covers three cases:
 
-- each catalog-item key above (S) contains `screening` and does not match `/\bexams?\b/i`;
-- each user's-own key above (E, every plural suffix) matches `/\bexams?\b/i` and does not contain `screening`;
-- no value in the English dictionary matches `/\btests?\b/i`.
+- each catalog-item key (S) matches `/\bscreenings?\b/i` and does not match `/\bexams?\b/i`;
+- each user's-own key (E, every plural suffix) matches `/\bexams?\b/i` and does not match `/\bscreenings?\b/i`;
+- no value in the `en` record matches `/\btests?\b/i`.
 
-Keys are listed in two `as const` arrays typed as `MessageKey`, so a renamed key fails the type check.
+Keys are listed in two `as const` arrays typed as `MessageKey`, so a renamed key fails the type check. The arrays hold the 15 changed keys above (S/E as marked) and the keys research found already compliant (`research.md`, "Keys that already follow the rule"), every plural suffix included:
 
-#### 5. Glossary row
+- S, already compliant: `home.title`, `home.subtitle`, `home.features.profile.description`, `home.features.tiers.description`, `home.note`, `dashboard.status.open_{one,few,many,other}`, `dashboard.recommendations.disclaimer`, `dashboard.recommendations.empty`, `dashboard.screenings.plan.legend`, `onboarding.consent.intro`, `onboarding.consent.voluntary`, `onboarding.consent.checkbox`, `onboarding.profile.intro`, `profile.intro`, `profile.form.sexHint`.
+- E, already compliant: `dashboard.screenings.unavailable.name`, `dashboard.screenings.unavailable.note`, `dashboard.screenings.confirm.prompt`, `dashboard.screenings.done.monthLabel`, `profile.reminders.disclosure`, `email.followUpNudge.subject`, `email.followUpNudge.schedule_{one,few,many,other}`, `errors.invalid_done_date`, `errors.appointment_not_passed`. The other `email.followUpNudge.*` keys (greeting, `confirm_*`, dashboard, opt-out) name no item and stay out of the arrays.
 
-**File**: `context/domain/glossary.md`
+#### 5. Glossary row and distillation term
 
-**Intent**: Rename the row at `:63` from "open exams" to "open screenings", so the glossary matches the UI and the rule.
+**Files**: `context/domain/glossary.md`, `context/domain/domain-distillation.md`
 
-**Contract**: First column becomes `open screenings — PL **czeka na Twoją decyzję**`. The definition reads "Screenings still in a tier, with no plan or current done record." Code term and "avoid" columns stay unchanged.
+**Intent**: Rename "open exams" to "open screenings" in the glossary and in the distillation map it is built from, so the two agree and the next `/10x-domain-distillation` run doesn't bring "open exams" back.
+
+**Contract**: Glossary row at `:63`: first column becomes `open screenings — PL **czeka na Twoją decyzję**`, and the definition reads "Screenings still in a tier, with no plan or current done record." Code term and "avoid" columns stay unchanged. Distillation `:71`: T-41's term becomes "open screenings (awaiting decision)". Its ID and other columns stay unchanged.
 
 ### Success Criteria:
 
@@ -116,9 +119,9 @@ Keys are listed in two `as const` arrays typed as `MessageKey`, so a renamed key
 
 #### Manual Verification:
 
-- With `lang=en` on a local dev server (`npx astro dev --host 127.0.0.1 --port $DBAM_PORT`), the home page, onboarding consent step, dashboard (tiers, details, "may apply" block, plans, done rows, undo confirmation) and profile withdrawal text read "screening" for catalog items and "exam" for the user's own
+- With `lang=en` on a local dev server (`npx astro dev --host 127.0.0.1 --port $DBAM_PORT`), the home page, onboarding consent step, dashboard (tiers, details, "may apply" block, plans, done rows, undo confirmation) and profile withdrawal text read "screening" for catalog items and "exam" for the user's own; catalog names and summaries keep their procedure words ("HPV HR test", "eye examination") by decision
 
-**Implementation Note**: Production checks go to the PR's Manual checks list, not to this phase: after deploy, read the English home page and a signed-in English dashboard (read-only), and confirm a new consent row records version `2026-10-29`.
+**Implementation Note**: Production checks go to the PR's Manual checks list, not to this phase: after deploy, read the English home page and a signed-in English dashboard (read-only), and confirm a new consent row records version `2026-10-29`. Catalog names and summaries there keep their procedure words ("HPV HR test", "eye examination") by decision; that is not a failure.
 
 ---
 
@@ -126,7 +129,7 @@ Keys are listed in two `as const` arrays typed as `MessageKey`, so a renamed key
 
 ### Unit Tests:
 
-- `src/i18n/terms.test.ts`: per-key term rule for the 15 keys (all plural suffixes), plus no "test(s)" anywhere in English.
+- `src/i18n/terms.test.ts`: per-key term rule for the 15 changed keys and the already-compliant keys (all plural suffixes), case-insensitive both ways, plus no "test(s)" anywhere in `en`.
 - `src/lib/reminders/due-screening.test.ts`: the English due-again transcript with the new subject and body.
 - Existing `consent.test.ts` checks the new version's format.
 
@@ -170,4 +173,4 @@ No schema change. The consent version bump affects only new consent rows. A cons
 
 #### Manual
 
-- [ ] 1.7 With `lang=en` on a local dev server, home, onboarding consent, dashboard and profile withdrawal read "screening" for catalog items and "exam" for the user's own
+- [ ] 1.7 With `lang=en` on a local dev server, home, onboarding consent, dashboard and profile withdrawal read "screening" for catalog items and "exam" for the user's own; catalog names and summaries keep their procedure words by decision

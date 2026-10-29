@@ -58,3 +58,11 @@
 
 - `/10x-plan` asks to flip S-11 to `planning`; skipped per the worker protocol (only `/10x-archive` sets `done`).
 - Decided by: orchestrator (protocol)
+
+## 2026-10-29 Plan review triage (`plan-review.md`)
+
+- F1 (end state reads wider than scope): accepted. The end state says "no message in `src/i18n/en.ts` uses 'test'". Check 1.7 and the PR manual-checks note say catalog names and summaries keep procedure words by decision.
+- F2 (guard covers only the 15 changed keys): accepted. The guard arrays also hold the research's already-compliant keys, with every plural suffix. `email.followUpNudge` greeting, `confirm_*`, dashboard and opt-out name no item and stay out. All 32 already-compliant keys were checked against today's `en.ts` with a throwaway vitest run, and all pass.
+- F3 (case-sensitive "screening" check): accepted. `/\bscreenings?\b/i` both ways; values read from the `en` record.
+- F4 (`domain-distillation.md` keeps "open exams"): accepted. T-41 is renamed to "open screenings (awaiting decision)", and the file is added to plan §5.
+- Decided by: orchestrator

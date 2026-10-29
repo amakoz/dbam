@@ -13,20 +13,20 @@ All English UI copy is in `src/i18n/en.ts`. 15 keys break the rule: six say "tes
 
 ## Desired End State
 
-An English-language user reads "screening" for catalog items (tiers, details, "may apply", plans empty state, consent purpose, errors) and "exam" for their own (status line, done rows, undo, consent data, withdrawal text, due-again email). No English message says "test". A unit test keeps the rule from drifting back.
+An English-language user reads "screening" for catalog items (tiers, details, "may apply", plans empty state, consent purpose, errors) and "exam" for their own (status line, done rows, undo, consent data, withdrawal text, due-again email). No message in `src/i18n/en.ts` says "test"; catalog names and summaries keep their procedure words ("HPV HR test") by decision. A unit test keeps the rule from drifting back, for the changed keys and the ones already compliant.
 
 ## Key Decisions Made
 
-| Decision                                  | Choice                                                          | Why (1 sentence)                                                                                    | Source          |
-| ----------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | --------------- |
-| Which keys change                         | The 15 keys in the research table                               | Classified by where each key renders: tier rows are catalog items, plans/done/emails are the user's | Research        |
-| "Plan this screening" (B-16 cites `:132`) | Keep                                                            | It renders on a tier row, before any plan exists                                                    | Research        |
-| Due-again email                           | Reword to "exam(s)"; update `due-screening.test.ts`             | Its items are the user's done exams due again                                                       | Orchestrator    |
-| Catalog JSON English text                 | Out of scope, no follow-up                                      | "test"/"examination" there are procedure names; no misuse found                                     | Orchestrator    |
-| Glossary "open exams" row                 | Rename to "open screenings"                                     | Matches the UI and the rule                                                                         | Orchestrator    |
-| Consent version                           | Bump to `2026-10-29`                                            | `consent.ts` requires a bump on any `onboarding.consent.*` change; existing consents stay valid     | Research / Plan |
-| Regression guard                          | New `src/i18n/terms.test.ts`: per-key term check + no "test(s)" | Checks the rule, not the wording                                                                    | Plan            |
-| Phases                                    | One                                                             | Copy, version and tests must change together to keep the suite green                                | Plan            |
+| Decision                                  | Choice                                                                                                                   | Why (1 sentence)                                                                                    | Source          |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- | --------------- |
+| Which keys change                         | The 15 keys in the research table                                                                                        | Classified by where each key renders: tier rows are catalog items, plans/done/emails are the user's | Research        |
+| "Plan this screening" (B-16 cites `:132`) | Keep                                                                                                                     | It renders on a tier row, before any plan exists                                                    | Research        |
+| Due-again email                           | Reword to "exam(s)"; update `due-screening.test.ts`                                                                      | Its items are the user's done exams due again                                                       | Orchestrator    |
+| Catalog JSON English text                 | Out of scope, no follow-up                                                                                               | "test"/"examination" there are procedure names; no misuse found                                     | Orchestrator    |
+| Glossary "open exams" row                 | Rename to "open screenings" in the glossary and distillation T-41                                                        | Matches the UI and the rule                                                                         | Orchestrator    |
+| Consent version                           | Bump to `2026-10-29`                                                                                                     | `consent.ts` requires a bump on any `onboarding.consent.*` change; existing consents stay valid     | Research / Plan |
+| Regression guard                          | New `src/i18n/terms.test.ts`: case-insensitive per-key term check over changed and already-compliant keys + no "test(s)" | Checks the rule, not the wording                                                                    | Plan            |
+| Phases                                    | One                                                                                                                      | Copy, version and tests must change together to keep the suite green                                | Plan            |
 
 ## Scope
 
@@ -36,7 +36,7 @@ An English-language user reads "screening" for catalog items (tiers, details, "m
 - `HEALTH_DATA_CONSENT_VERSION` bump
 - `due-screening.test.ts` English expectation
 - new `src/i18n/terms.test.ts`
-- glossary row rename
+- "open screenings" rename in the glossary and `domain-distillation.md` T-41
 
 **Out of scope:**
 
@@ -68,4 +68,4 @@ Copy-only change through the existing dictionary. Emails render from the same ke
 
 - English users see "screening" for catalog items and "exam" for their own on every page and in the due-again email.
 - `npm test`, lint, `astro check` and build pass; `pl.ts` is unchanged.
-- PR manual check after deploy: the English home page and dashboard read correctly, and a new consent row records version `2026-10-29`.
+- PR manual check after deploy: the English home page and dashboard read correctly, and a new consent row records version `2026-10-29`; catalog procedure words ("HPV HR test") are expected, not a failure.

@@ -80,3 +80,9 @@
 - F1 (row 1.7 ticked without a recorded read-through): accepted. Row 1.7 is back to `- [ ]` with no SHA; the English copy read-through, with the catalog-names note, is listed under the PR's Manual checks. The worker's own local read (home, consent, dashboard, undo, withdrawal text in `lang=en`) is a smoke-level check, not the human judgement the row asks for.
 - F2 (T-42 quotes the old no-interval copy): accepted. T-42's EN cell in `domain-distillation.md` now reads "This exam has no set interval" (EN:157). `context/domain/evidence/*.md` stay as dated historical evidence.
 - Decided by: orchestrator
+
+## 2026-10-29 Archive with manual row 1.7 open
+
+- Question: `/10x-archive` warns that row 1.7 (manual English read-through) is pending and that no report sits under `reviews/`.
+- Choice: continue archiving. The PR's "Manual checks for the human" list covers row 1.7, and `impl-review.md` (change-folder root, `Reviewed phases: 1`) covers phase 1. Both warnings are expected.
+- Decided by: orchestrator (pre-authorised for PR-stage manual rows)

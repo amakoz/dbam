@@ -1,7 +1,7 @@
 ---
 change_id: en-copy-terms
 title: English copy says "screening" for catalog items and "exam" for the user's own
-status: preparing
+status: planned
 created: 2026-10-29
 updated: 2026-10-29
 archived_at: null

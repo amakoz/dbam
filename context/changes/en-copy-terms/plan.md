@@ -173,4 +173,4 @@ No schema change. The consent version bump affects only new consent rows. A cons
 
 #### Manual
 
-- [x] 1.7 With `lang=en` on a local dev server, home, onboarding consent, dashboard and profile withdrawal read "screening" for catalog items and "exam" for the user's own; catalog names and summaries keep their procedure words by decision — 7b73e01
+- [x] 1.7 With `lang=en` on a local dev server, home, onboarding consent, dashboard and profile withdrawal read "screening" for catalog items and "exam" for the user's own; catalog names and summaries keep their procedure words by decision

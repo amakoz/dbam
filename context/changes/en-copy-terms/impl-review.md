@@ -38,7 +38,7 @@
 - **Location**: context/changes/en-copy-terms/plan.md, Progress row 1.7
 - **Detail**: Row 1.7 (read the English home, consent, dashboard and withdrawal copy on a local dev server) is `- [x] … — 7b73e01`. Neither `decisions.md`, `change.md` nor the commit messages record a dev-server run or what was read. The SHA points at the code commit, which a human-judgement row cannot be evidence for. The orchestrator says this row stays open for the PR's manual checks, so ticking it here would mark as verified something nobody looked at.
 - **Fix**: Change row 1.7 back to `- [ ]`, keep its title, drop the SHA, and list the read-through, including the catalog-names note, under the PR's Manual checks.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED
 
 ### F2 — Distillation T-42 still quotes the old no-interval copy
 
@@ -48,4 +48,4 @@
 - **Location**: context/domain/domain-distillation.md:72
 - **Detail**: The change renamed T-41 to keep the map in step with the glossary. The next row, T-42, still gives the EN word as `"This screening has no set interval" (EN:155)`, but `en.ts:157` now reads "This exam has no set interval…". That quote now shows the rule broken in the very map that defines it. The `context/domain/evidence/*.md` files also quote old copy ("About the test", "time for a preventive screening"), but they are dated run evidence and should stay as they are.
 - **Fix**: Change T-42's EN cell to `"This exam has no set interval" (EN:157)`, in the same kind of edit as T-41.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED

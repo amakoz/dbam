@@ -74,3 +74,9 @@
 - Choice: (b). The code diff is 6 files of copy, tests and docs; the worker protocol limits sub-agents to larger changes.
 - Evidence: `git diff --stat origin/main...HEAD`; `impl-review.md` Evidence.
 - Decided by: worker
+
+## 2026-10-29 Impl review triage (`impl-review.md`)
+
+- F1 (row 1.7 ticked without a recorded read-through): accepted. Row 1.7 is back to `- [ ]` with no SHA; the English copy read-through, with the catalog-names note, is listed under the PR's Manual checks. The worker's own local read (home, consent, dashboard, undo, withdrawal text in `lang=en`) is a smoke-level check, not the human judgement the row asks for.
+- F2 (T-42 quotes the old no-interval copy): accepted. T-42's EN cell in `domain-distillation.md` now reads "This exam has no set interval" (EN:157). `context/domain/evidence/*.md` stay as dated historical evidence.
+- Decided by: orchestrator

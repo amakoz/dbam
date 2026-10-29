@@ -1,9 +1,11 @@
 // AI review runner: the entry point of the advisory `AI review` workflow (.github/workflows/ai-review.yml).
 // Zero dependencies on purpose. Run: node scripts/ai-review/run.mjs from a checkout of the PR merge commit (fetch-depth 2).
 // Reads the PR event, diffs only the files core.mjs allows, asks a free OpenRouter model (or any OpenAI-compatible
-// endpoint) for a scored review, then upserts one sticky PR comment and an ai-cr:* label. The rules live in the pure
-// core.mjs; this file is the I/O. Provider trouble keeps the job green ("review unavailable"); a broken GitHub call
-// (permissions, token) exits 1 so the wiring failure is visible. Never required: see the workflow header.
+// endpoint) for a scored review, then writes it to the job log and step summary and sets an ai-cr:* label. No PR
+// comment on purpose: every new comment emails the PR's participants, labels do not. The rules live in the pure
+// core.mjs; this file is the I/O. Provider trouble keeps the job green ("review unavailable", labels unchanged); a
+// broken GitHub call (permissions, token) exits 1 so the wiring failure is visible. Never required: see the workflow
+// header.
 
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
@@ -11,7 +13,6 @@ import { appendFileSync, readFileSync } from "node:fs";
 import {
   DIFF_BUDGET,
   LABELS,
-  MARKER,
   buildMessages,
   isBinaryPatch,
   parseNameStatus,
@@ -196,17 +197,6 @@ async function githubOk(method, path, body, okStatuses) {
   return json;
 }
 
-async function upsertComment(number, body) {
-  for (let page = 1; ; page++) {
-    const path = `/repos/${repo}/issues/${number}/comments?per_page=100&page=${page}`;
-    const comments = await githubOk("GET", path, undefined, [200]);
-    const mine = comments.find((c) => c.user?.login === "github-actions[bot]" && c.body?.startsWith(MARKER));
-    if (mine) return githubOk("PATCH", `/repos/${repo}/issues/comments/${mine.id}`, { body }, [200]);
-    if (comments.length < 100) break;
-  }
-  return githubOk("POST", `/repos/${repo}/issues/${number}/comments`, { body }, [201]);
-}
-
 async function applyLabels(number, score) {
   for (const label of Object.values(LABELS)) {
     await githubOk("POST", `/repos/${repo}/labels`, label, [201, 422]);
@@ -261,15 +251,13 @@ async function main() {
     }
   }
 
-  const comment = result
+  const report = result
     ? renderComment({ result, model: usedModel, headSha, selection })
     : renderUnavailable({ reason, headSha, selection });
-  logUntrusted(comment);
-  summary(comment);
+  logUntrusted(report);
+  summary(report);
 
-  const number = Number(pr.number);
-  await upsertComment(number, comment);
-  if (result) await applyLabels(number, result.score);
+  if (result) await applyLabels(Number(pr.number), result.score);
 }
 
 try {

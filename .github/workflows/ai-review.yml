@@ -1,8 +1,10 @@
 name: AI review
 
 # Advisory only: this job is NOT a required check (branch protection requires `ci` and `smoke` only) and must never be
-# added to them. A provider outage, rate limit or unparseable answer is reported in the PR comment and leaves the job
-# green; only a broken GitHub call (permissions, token) turns it red.
+# added to them. The review goes to the job log and step summary; the PR gets only an ai-cr:* label, never a comment
+# (every new comment emails the PR's participants). A provider outage, rate limit or unparseable answer is reported in
+# the step summary, leaves the labels unchanged and the job green; only a broken GitHub call (permissions, token) turns
+# it red.
 #
 # Fork PRs: scripts/ai-review/run.mjs skips them as a convenience. The security boundary is GitHub's fork policy for
 # the `pull_request` event (no secrets, read-only token, approval for first-time contributors); never switch this

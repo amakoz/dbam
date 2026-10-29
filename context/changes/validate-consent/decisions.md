@@ -82,3 +82,13 @@
   `42704` (re-create it from `20261028131057_app_rule_checks.sql:151-153` first). The migration header and plan.md
   Migration Notes now say both. Comment-only; the migration has not reached production, so the file may still change.
 - **Decided by:** orchestrator (delegated fix), worker (applied)
+
+## 2026-10-29 Archive warnings
+
+- **Question:** archive with open warnings?
+- **Warnings:** Progress rows 1.5 and 1.6 (manual) are pending; `reviews/impl-review*.md` is absent because the
+  review sits at the change root as `impl-review.md` (it covers phase 1, the only phase; the archived F-20 change
+  keeps its reviews at the root too).
+- **Choice:** continue. The PR's "Manual checks for the human" covers rows 1.5 (optional extra check, not a merge
+  gate) and 1.6, and neither is ticked without evidence. The review file is not moved.
+- **Decided by:** orchestrator (delegated), worker (logged)

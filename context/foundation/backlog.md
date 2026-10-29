@@ -47,10 +47,6 @@
 - **What:** from 2026-12-01 the Free plan allows 0.5 GB/day with 7-day retention, and logging stops at the cap until 00:00 UTC.
 - **Next:** _Human:_ re-check log volume after S-06/S-07 add traffic; the README's "Errors and alerts" section has the numbers.
 
-### B-18 Validate the consent version check
-
-- **What / Next:** F-20 left `health_data_consents_version_format` `NOT VALID`; _Human:_ run the read-only query, then _Agent:_ one `VALIDATE` migration — see `context/archive/2026-10-28-db-check-constraints/follow-ups/validate-consent.md`.
-
 ## P3
 
 ### B-12 Hard guard for error-message reads
@@ -90,3 +86,4 @@ Owner answers of 2026-10-28 that wait for the launch gate (roadmap Open Roadmap 
 - B-14 Catalog entries move forward only and B-15 Flag catalog entries past `next_review_due` in CI: became one roadmap item, F-17 (`catalog-check-guards`), M-03, 2026-10-28.
 - B-16 Unify EN copy: screening vs exam: became roadmap S-11 (`en-copy-terms`), M-03, 2026-10-28.
 - B-17 Mirror app-only date/age rules as DB check constraints: became roadmap F-20 (`db-check-constraints`), M-03, 2026-10-28.
+- B-18 Validate the consent version check: done in change `validate-consent` (2026-10-29) with `supabase/migrations/20261029172839_validate_consent_version_check.sql`.

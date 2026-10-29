@@ -57,3 +57,20 @@
   `20261028131057_app_rule_checks.sql:23-27` and `:148`; the comment above `HEALTH_DATA_CONSENT_VERSION` in
   `src/lib/consent.ts` names both migrations (comment-only app edit, now allowed in What We're NOT Doing).
 - **Decided by:** orchestrator
+
+## 2026-10-29 Shared local stack keeps the validated constraint (plan review F2)
+
+- **Question:** the gates applied the new migration to the shared local Supabase; what about other worktrees?
+- **Options:** (A) note and report it; (B) restore the stack by hand after the gate run.
+- **Choice:** (A). Until this PR lands, any other worktree still on `main`'s `app_rules.test.sql` fails the one
+  `convalidated = false` assertion in `npx supabase test db`; it clears after that worktree merges `origin/main`.
+- **Evidence:** gates 1.1–1.3 ran green on 2026-10-29; `migration up` applied `20261029172839` cleanly, types unchanged.
+- **Decided by:** orchestrator (plan review), worker (logged)
+
+## 2026-10-29 Deliberate-break check skipped
+
+- **Question:** run the deliberate-break check for the flipped assertion?
+- **Choice:** skipped. Breaking it means un-validating the constraint on the shared stack by hand SQL (rejected in
+  F2). The assertion reads the same `convalidated` query that `main` pinned as `false` before the migration, so it
+  flips with the migration by construction.
+- **Decided by:** worker

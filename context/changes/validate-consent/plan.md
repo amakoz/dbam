@@ -168,10 +168,10 @@ note §2 (rewrite the row with the owner, record it), then re-run the job.
 
 #### Automated
 
-- [ ] 1.1 Migration applies to the local stack under the DB lock: `npx supabase migration up`
-- [ ] 1.2 All pgTAP files pass, including the flipped assertion: `npx supabase test db`
-- [ ] 1.3 Generated types unchanged after `npm run db:types`: `git diff --exit-code src/lib/database.types.ts`
-- [ ] 1.4 Changed Markdown is formatted: `npx prettier --check context/foundation/backlog.md context/changes/validate-consent/*.md`
+- [x] 1.1 Migration applies to the local stack under the DB lock: `npx supabase migration up`
+- [x] 1.2 All pgTAP files pass, including the flipped assertion: `npx supabase test db`
+- [x] 1.3 Generated types unchanged after `npm run db:types`: `git diff --exit-code src/lib/database.types.ts`
+- [x] 1.4 Changed Markdown is formatted: `npx prettier --check context/foundation/backlog.md context/changes/validate-consent/*.md`
 
 #### Manual
 

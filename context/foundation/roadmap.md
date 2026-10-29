@@ -3,7 +3,7 @@ project: Dbam
 version: 6
 status: draft
 created: 2026-09-26
-updated: 2026-10-28
+updated: 2026-10-29
 prd_version: 3
 main_goal: quality
 top_blocker: none
@@ -52,7 +52,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 | S-10 | missing-entry-plan   | a user whose plan's catalog entry is missing still sees that screening and its completion                            | —             | MS-02    | done   |
 | F-17 | catalog-check-guards | (foundation) `catalog:check` refuses backward status moves and warns in CI on entries past their review date         | —             | MS-03    | done   |
 | F-18 | merge-rule-docs      | (foundation) `CLAUDE.md` states the temporary orchestrator-merge rule and how to switch back                         | —             | MS-04    | done   |
-| S-11 | en-copy-terms        | an English-language user reads "screening" for a catalog item and "exam" for their own, consistently                 | —             | MS-05    | ready  |
+| S-11 | en-copy-terms        | an English-language user reads "screening" for a catalog item and "exam" for their own, consistently                 | —             | MS-05    | done   |
 | F-19 | pure-module-tests    | (foundation) the remaining pure modules have unit tests                                                              | F-17          | MS-06    | done   |
 | F-20 | db-check-constraints | (foundation) the app-only date, age and consent rules are also database check constraints, covered by database tests | —             | MS-07    | done   |
 
@@ -162,7 +162,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Copy only, but strings pinned by the wording tests or asserted by the e2e suite change with it; update those in the same change.
-- **Status:** ready
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -232,3 +232,4 @@ Items below assume these are present and do NOT re-scaffold them.
 - **F-18: (foundation) `CLAUDE.md` states that, while production is a test environment, the orchestrator may merge green PRs, and how the owner switches back to human-only merges.** — Archived 2026-10-28 → `context/archive/2026-10-28-merge-rule-docs/`. Lesson: —.
 - **F-19: (foundation) the pure modules backlog B-11 lists (password policy, profile-form parsing and pack-years, error-code mapping, the catalog scripts, and the date and format helpers tested only indirectly today) have colocated unit tests in the existing runner.** — Archived 2026-10-28 → `context/archive/2026-10-28-pure-module-tests/`. Lesson: —.
 - **F-20: (foundation) an additive migration mirrors the past-date window, the age floor and the consent version — today enforced only in the API routes — as database check constraints, with database tests for each. Covers backlog B-17.** — Archived 2026-10-28 → `context/archive/2026-10-28-db-check-constraints/`. Lesson: —.
+- **S-11: an English-language user reads "screening" for a catalog item and "exam" for their own planned or done one, everywhere in the app; Polish copy is unchanged. Covers backlog B-16.** — Archived 2026-10-29 → `context/archive/2026-10-29-en-copy-terms/`. Lesson: —.

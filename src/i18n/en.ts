@@ -27,15 +27,15 @@ export const en: Record<MessageKey, string> = {
     "Screenings in three groups: “Important — schedule now”, “Worth planning” and “Talk to your doctor”.",
   "home.features.track.title": "Plan it, tick it off",
   "home.features.track.description":
-    "Save the appointment date or mark a screening as done — it comes back to the list when it is due again.",
+    "Save the appointment date or mark an exam as done — it comes back to the list when it is due again.",
   "home.note":
     "Dbam does not diagnose — it suggests which screenings are worth doing. Other users never see your data.",
 
   "dashboard.title": "Dashboard",
-  "dashboard.status.plans_one": "{count} planned screening",
-  "dashboard.status.plans_few": "{count} planned screenings",
-  "dashboard.status.plans_many": "{count} planned screenings",
-  "dashboard.status.plans_other": "{count} planned screenings",
+  "dashboard.status.plans_one": "{count} planned exam",
+  "dashboard.status.plans_few": "{count} planned exams",
+  "dashboard.status.plans_many": "{count} planned exams",
+  "dashboard.status.plans_other": "{count} planned exams",
   "dashboard.status.open_one": "{count} screening awaiting your decision",
   "dashboard.status.open_few": "{count} screenings awaiting your decision",
   "dashboard.status.open_many": "{count} screenings awaiting your decision",
@@ -53,7 +53,7 @@ export const en: Record<MessageKey, string> = {
   "dashboard.recommendations.tier.2": "Worth planning",
   "dashboard.recommendations.tier.3": "Talk to your doctor",
   "dashboard.recommendations.tier.3.note":
-    "These tests have possible benefits as well as possible harms. It's worth deciding whether to have them together with your doctor.",
+    "These screenings have possible benefits as well as possible harms. It's worth deciding whether to have them together with your doctor.",
   "dashboard.recommendations.empty":
     "Based on your profile, none of the screenings on our list are due for you right now. The list covers only selected preventive screenings, so talk to your POZ (primary care) doctor about what you need.",
   "dashboard.recommendations.howOften": "How often: {interval}",
@@ -73,7 +73,7 @@ export const en: Record<MessageKey, string> = {
   "dashboard.recommendations.badge.referralRequired": "Referral needed",
   "dashboard.recommendations.badge.noReferral": "No referral needed",
   "dashboard.recommendations.details.toggle": "Details",
-  "dashboard.recommendations.details.about": "About the test",
+  "dashboard.recommendations.details.about": "About the screening",
   "dashboard.recommendations.details.howToAccess": "How to get it",
   "dashboard.recommendations.details.why": "Why it's on your list",
   "dashboard.recommendations.details.sources": "Sources",
@@ -118,14 +118,14 @@ export const en: Record<MessageKey, string> = {
   "dashboard.recommendations.factor.prior_cancer": "you have had cancer in the past",
   "dashboard.recommendations.factor.hysterectomy": "you have had a hysterectomy (removal of the uterus)",
   "dashboard.recommendations.factor.questionnaire_flags_risk":
-    "the program's health questionnaire (e.g. Moje Zdrowie) points you to this test",
+    "the program's health questionnaire (e.g. Moje Zdrowie) points you to this screening",
   "dashboard.recommendations.maybe.heading": "May apply to you — ask your POZ doctor",
   "dashboard.recommendations.maybe.intro":
-    "These tests depend on details we don't ask about. If the condition next to a test applies to you, ask your POZ (primary care) doctor about it.",
+    "These screenings depend on details we don't ask about. If the condition next to a screening applies to you, ask your POZ (primary care) doctor about it.",
   "dashboard.recommendations.maybe.if": "If {conditions}.",
 
   "dashboard.screenings.plans.heading": "Your plans",
-  "dashboard.screenings.plans.empty": "Nothing planned yet. Choose “Plan or mark done” on an exam to add it here.",
+  "dashboard.screenings.plans.empty": "Nothing planned yet. Choose “Plan or mark done” on a screening to add it here.",
   "dashboard.screenings.done.heading": "Done",
   "dashboard.screenings.panel.toggle": "Plan or mark done",
   "dashboard.screenings.panel.togglePlanned": "Change the date or mark done",
@@ -154,7 +154,7 @@ export const en: Record<MessageKey, string> = {
   "dashboard.screenings.done.markedIn": "Marked done in {month}",
   "dashboard.screenings.done.dueAgain": "Due again: {month}",
   "dashboard.screenings.done.noInterval":
-    "This screening has no set interval — talk to your doctor about when to repeat it.",
+    "This exam has no set interval — talk to your doctor about when to repeat it.",
   "dashboard.screenings.done.undo": "Undo",
   "dashboard.screenings.tierBadge.1": "Important",
   "dashboard.screenings.tierBadge.2": "Worth planning",
@@ -162,7 +162,7 @@ export const en: Record<MessageKey, string> = {
   "dashboard.screenings.saved.plan": "Saved to your plans.",
   "dashboard.screenings.saved.unplan": "Removed from your plans.",
   "dashboard.screenings.saved.done": "Marked as done.",
-  "dashboard.screenings.saved.undone": "The screening is no longer marked as done.",
+  "dashboard.screenings.saved.undone": "The exam is no longer marked as done.",
   "dashboard.screenings.saved.confirm": "Confirmed and marked as done.",
   "dashboard.reminders.hint": "Want an email before your appointment? Turn on reminders in your profile.",
 
@@ -173,10 +173,10 @@ export const en: Record<MessageKey, string> = {
     "To show you the preventive screenings you're eligible for, Dbam needs to store a few details about your health. This is special-category data (GDPR Art. 9), so we need your explicit consent.",
   "onboarding.consent.dataHeading": "What data",
   "onboarding.consent.data":
-    "Your year of birth, sex at birth and smoking history, and — if you add them — the screenings you plan (with appointment dates) and the ones you mark as done (with the month of the last exam).",
+    "Your year of birth, sex at birth and smoking history, and — if you add them — the exams you plan (with appointment dates) and the ones you mark as done (with the month of the last exam).",
   "onboarding.consent.purposeHeading": "What for",
   "onboarding.consent.purpose":
-    "Only to show which screening tests you're eligible for and when. The app does not diagnose anything. We don't share this data with other users or third parties, and we never send it to AI models.",
+    "Only to show which screenings you're eligible for and when. The app does not diagnose anything. We don't share this data with other users or third parties, and we never send it to AI models.",
   "onboarding.consent.storageHeading": "Where it's stored",
   "onboarding.consent.storage": "In a Supabase database on servers in the European Union (Frankfurt, Germany).",
   "onboarding.consent.withdrawHeading": "Withdrawing consent",
@@ -197,7 +197,7 @@ export const en: Record<MessageKey, string> = {
   "profile.withdraw.heading": "Withdrawing consent",
   "profile.withdraw.intro": "You can withdraw your consent to storing your health data at any time.",
   "profile.withdraw.deleted":
-    "We then immediately delete your health data: your year of birth, sex at birth and smoking history, your planned screenings with their appointment dates, and the screenings you marked as done. Email reminders are switched off too. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
+    "We then immediately delete your health data: your year of birth, sex at birth and smoking history, your planned exams with their appointment dates, and the exams you marked as done. Email reminders are switched off too. The data may remain in database backups for a limited time, after which it is removed from them automatically.",
   "profile.withdraw.kept":
     "We keep only a record of when, under which version and in which language consent was given and withdrawn, as proof that we processed your data lawfully. Your account stays active.",
   "profile.withdraw.checkbox": "I understand that my health data will be deleted.",
@@ -306,16 +306,16 @@ export const en: Record<MessageKey, string> = {
   "email.appointmentReminder.optOut": "Don't want these reminders? Turn them off in your profile: {url}",
 
   // Due-screening reminder email (plain text). Never name an exam: only a count.
-  "email.dueScreeningReminder.subject": "Dbam: time for a preventive screening",
+  "email.dueScreeningReminder.subject": "Dbam: time to repeat a preventive exam",
   "email.dueScreeningReminder.greeting": "Hello,",
   "email.dueScreeningReminder.body_one":
-    "The recommended interval since one of your preventive screenings has passed. It's time to repeat it.",
+    "The recommended interval since one of your preventive exams has passed. It's time to repeat it.",
   "email.dueScreeningReminder.body_few":
-    "The recommended interval since {count} of your preventive screenings has passed. It's time to repeat them.",
+    "The recommended interval since {count} of your preventive exams has passed. It's time to repeat them.",
   "email.dueScreeningReminder.body_many":
-    "The recommended interval since {count} of your preventive screenings has passed. It's time to repeat them.",
+    "The recommended interval since {count} of your preventive exams has passed. It's time to repeat them.",
   "email.dueScreeningReminder.body_other":
-    "The recommended interval since {count} of your preventive screenings has passed. It's time to repeat them.",
+    "The recommended interval since {count} of your preventive exams has passed. It's time to repeat them.",
   "email.dueScreeningReminder.dashboard": "See which ones in your Dbam dashboard: {url}",
   "email.dueScreeningReminder.optOut": "Don't want these reminders? Turn them off in your profile: {url}",
 
@@ -361,7 +361,7 @@ export const en: Record<MessageKey, string> = {
   "errors.invalid_done_date":
     "Enter both the month and the year of the last exam, or leave both blank. The date can't be in the future.",
   "errors.screening_not_available":
-    "This exam isn't on your recommendations list right now. Refresh the page and try again.",
+    "This screening isn't on your recommendations list right now. Refresh the page and try again.",
   "errors.reminders_failed": "We couldn't save your reminder setting. Please try again.",
   "errors.appointment_not_passed":
     "The day of this appointment hasn't come yet. You can confirm the exam on the day of the visit or later.",

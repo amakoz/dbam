@@ -291,11 +291,11 @@ describe("runDueScreeningReminders", () => {
               {
                 from: "Dbam <reminders@example.com>",
                 to: ["bob@example.com"],
-                subject: "Dbam: time for a preventive screening",
+                subject: "Dbam: time to repeat a preventive exam",
                 text: [
                   "Hello,",
                   "",
-                  "The recommended interval since 2 of your preventive screenings has passed. It's time to repeat them.",
+                  "The recommended interval since 2 of your preventive exams has passed. It's time to repeat them.",
                   "",
                   "See which ones in your Dbam dashboard: https://dbam.example/dashboard",
                   "",

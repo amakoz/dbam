@@ -164,13 +164,13 @@ No schema change. The consent version bump affects only new consent rows. A cons
 
 #### Automated
 
-- [ ] 1.1 Unit tests pass, including the new `src/i18n/terms.test.ts` and the updated `due-screening.test.ts`: `npm test`
-- [ ] 1.2 Lint passes: `npm run lint`
-- [ ] 1.3 Type and template check passes: `npx astro check`
-- [ ] 1.4 `src/i18n/pl.ts` is unchanged: `git diff --quiet origin/main -- src/i18n/pl.ts`
-- [ ] 1.5 No English message uses "test": covered by `terms.test.ts`, and `grep -nE '\btests?\b' src/i18n/en.ts` returns nothing
-- [ ] 1.6 Build succeeds: `npm run build`
+- [x] 1.1 Unit tests pass, including the new `src/i18n/terms.test.ts` and the updated `due-screening.test.ts`: `npm test`
+- [x] 1.2 Lint passes: `npm run lint`
+- [x] 1.3 Type and template check passes: `npx astro check`
+- [x] 1.4 `src/i18n/pl.ts` is unchanged: `git diff --quiet origin/main -- src/i18n/pl.ts`
+- [x] 1.5 No English message uses "test": covered by `terms.test.ts`, and `grep -nE '\btests?\b' src/i18n/en.ts` returns nothing
+- [x] 1.6 Build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 1.7 With `lang=en` on a local dev server, home, onboarding consent, dashboard and profile withdrawal read "screening" for catalog items and "exam" for the user's own; catalog names and summaries keep their procedure words by decision
+- [x] 1.7 With `lang=en` on a local dev server, home, onboarding consent, dashboard and profile withdrawal read "screening" for catalog items and "exam" for the user's own; catalog names and summaries keep their procedure words by decision

@@ -8,7 +8,7 @@ import type { Profile } from "@/lib/profile";
 // Format: the change date; add a `.N` suffix for a second change on the same day. The database refuses any other shape
 // (`health_data_consents_version_format`: added by supabase/migrations/20261028131057_app_rule_checks.sql, validated
 // by supabase/migrations/20261029172839_validate_consent_version_check.sql).
-export const HEALTH_DATA_CONSENT_VERSION = "2026-09-30";
+export const HEALTH_DATA_CONSENT_VERSION = "2026-10-29";
 
 export type OnboardingState = "needs_consent" | "needs_profile" | "complete";
 

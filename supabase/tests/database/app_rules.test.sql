@@ -226,8 +226,8 @@ select lives_ok(
 
 reset role;
 select is(
-  (select convalidated from pg_constraint where conname = 'health_data_consents_version_format'), false,
-  'the consent version check is NOT VALID (existing rows not yet validated)'
+  (select convalidated from pg_constraint where conname = 'health_data_consents_version_format'), true,
+  'the consent version check is validated (existing rows checked)'
 );
 
 -- --- Function grants ---------------------------------------------------------------------------------------------

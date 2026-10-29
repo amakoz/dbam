@@ -1,10 +1,10 @@
 ---
 change_id: validate-consent
 title: Validate the consent version check left NOT VALID by F-20
-status: impl_reviewed
+status: archived
 created: 2026-10-29
 updated: 2026-10-29
-archived_at: null
+archived_at: 2026-10-29T17:33:33Z
 ---
 
 ## Notes

@@ -3,9 +3,13 @@
 -- 23-27 and 148) that still call the check NOT VALID.
 --
 -- Safe now: since F-20 reached production (#106, 2026-10-28) the check refuses every new malformed consent_version
--- for all roles, and the owner's read-only production query found zero older ones on 2026-10-29. VALIDATE fails
--- (23514) and so fails the CI `migrate` job only if the constraint was dropped or altered by hand in production; the
--- remedy is in context/archive/2026-10-28-db-check-constraints/follow-ups/validate-consent.md. It takes only a
--- SHARE UPDATE EXCLUSIVE lock, so reads and row writes continue. Additive: a Worker rollback is unaffected.
+-- for all roles, and the owner's read-only production query found zero older ones on 2026-10-29. VALIDATE can fail
+-- (and so fail the CI `migrate` job) only if the constraint was changed by hand in production:
+--   - 23514: it was dropped and re-added NOT VALID over malformed rows. Remedy: §2 of
+--     context/archive/2026-10-28-db-check-constraints/follow-ups/validate-consent.md.
+--   - 42704: it no longer exists. Re-create it from 20261028131057_app_rule_checks.sql:151-153 first, then re-run
+--     the job.
+-- It takes only a SHARE UPDATE EXCLUSIVE lock, so reads and row writes continue. Additive: a Worker rollback is
+-- unaffected.
 
 alter table public.health_data_consents validate constraint health_data_consents_version_format;

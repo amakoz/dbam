@@ -74,3 +74,11 @@
   F2). The assertion reads the same `convalidated` query that `main` pinned as `false` before the migration, so it
   flips with the migration by construction.
 - **Decided by:** worker
+
+## 2026-10-29 Impl review triage (`impl-review.md`, verdict APPROVED)
+
+- **F1 (observation) migration header names the wrong error for a dropped constraint:** accepted. A hand-altered
+  check re-added `NOT VALID` gives `23514` (remedy: follow-up note §2); a constraint that no longer exists gives
+  `42704` (re-create it from `20261028131057_app_rule_checks.sql:151-153` first). The migration header and plan.md
+  Migration Notes now say both. Comment-only; the migration has not reached production, so the file may still change.
+- **Decided by:** orchestrator (delegated fix), worker (applied)

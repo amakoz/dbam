@@ -148,10 +148,14 @@ worktree has applied a later one.
 
 A CHECK constraint, even `NOT VALID`, is enforced for every role on every INSERT and UPDATE. Since F-20's migration
 reached production (#106, 2026-10-28) no malformed `consent_version` can be written, and the owner's 2026-10-29 query
-found zero older ones. `VALIDATE` can therefore fail only if the constraint was dropped or altered by hand in
-production. If it does, it raises `23514`, `migrate` fails and `deploy` does not run; the Worker stays on the
-previous version, and a red `migrate` on `main` blocks every later deploy until it is fixed. Remedy: the follow-up
-note §2 (rewrite the row with the owner, record it), then re-run the job.
+found zero older ones. `VALIDATE` can therefore fail only if the constraint was changed by hand in production, and
+then `migrate` fails and `deploy` does not run; the Worker stays on the previous version, and a red `migrate` on
+`main` blocks every later deploy until it is fixed. Two outcomes:
+
+- `23514`: the check was dropped and re-added `NOT VALID` over malformed rows. Remedy: the follow-up note §2 (rewrite
+  the row with the owner, record it), then re-run the job.
+- `42704`: the constraint no longer exists. Re-create it from `20261028131057_app_rule_checks.sql:151-153` first, then
+  re-run the job.
 
 ## References
 

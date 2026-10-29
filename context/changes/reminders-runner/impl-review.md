@@ -207,3 +207,47 @@ Later PRs append one section per phase below this one.
 ### Findings
 
 None.
+
+## PR D — phase 5
+
+- **Plan**: context/changes/reminders-runner/plan.md
+- **Scope**: Phase 5 of 8 (PR D, local branch `feat/reminders-runner-p5`, commit 4140ba4 vs its parent). Manual row 5.5 (the next production run) is open by design. PR D ships only after row 4.6 has passed on the deployed PR C (plan phase 5 overview; `decisions.md`, "Phase 5 gate notes").
+- **Reviewed phases**: 5
+- **Date**: 2026-10-28
+- **Verdict**: APPROVED
+- **Findings**: 0 critical, 0 warnings, 0 observations
+
+### Verdicts
+
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | PASS    |
+| Scope Discipline    | PASS    |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | PASS    |
+
+### Verification run by the reviewer
+
+- **Scope.** The commit touches only the planned `src/lib/reminders/follow-up-nudge.ts` and the one `eslint.config.js` line (the nudge entry removed; the due and runner entries kept), plus `plan.md` and `decisions.md`. `runner.ts`, `deps.ts`, `chain.ts`, `worker.ts`, `appointment.ts` and the due job are untouched.
+- **Spec.** `followUpNudgeJob` keeps the planned values:
+  - event `follow-up-nudge` and prefix `dbam-follow-up-nudge`;
+  - claim arguments `p_today: warsawToday(now)`, `p_schedule_after: SCHEDULE_NUDGE_AFTER_DAYS`, `p_confirm_after: CONFIRM_NUDGE_AFTER_DAYS` and `p_limit: Math.min(budget ?? 0, MAX_BATCH_SIZE)`, so TD-6 stays;
+  - claim error `ReminderDatabaseError("claim", code)`;
+  - ids from `nudge_ids`, `message: buildNudgeMessage` and the mark RPC `mark_follow_up_nudges_sent`.
+
+  The call is `runClaimSendMark(followUpNudgeJob, run, budget, reminderDeps())`. The local `log` helper is gone. `FollowUpNudgeOutcome` is an alias of `ReminderOutcome`. The signature `runFollowUpNudges(run, { budget })` is unchanged in shape.
+
+- **The `?? 0`.** It can't be reached: the runner returns before `select` when `budget <= 0`, and `chain.ts` always passes a number. The budget-250 and budget-7 cases pin the claim limit (`p_limit` 100 and 7).
+- **Not `async`.** As in phase 4, `reminderDeps()` runs outside the runner's `try`, and that is safe for the same reason (PR C section).
+- **Gates:**
+  - 5.1: `npm test` passes, 21 files and 409 tests. The 3 job tests and the helper are byte-identical to 8410cdb.
+  - 5.2: `npm run lint` exits 0. `npx astro check` reports 0 errors.
+  - 5.3: `follow-up-nudge.ts` has no `console.` call.
+  - 5.4 re-run: a mark before the dry-run check in `runner.ts` fails 2 tests each in `runner.test.ts`, `appointment.test.ts` and `follow-up-nudge.test.ts`. Reverted.
+- **Bookkeeping.** Rows 5.1–5.4 are `[x]` in the commit. Their SHA write-back is in the working tree, uncommitted, as the worker protocol allows.
+
+### Findings
+
+None.

@@ -66,3 +66,11 @@
 - F3 (case-sensitive "screening" check): accepted. `/\bscreenings?\b/i` both ways; values read from the `en` record.
 - F4 (`domain-distillation.md` keeps "open exams"): accepted. T-41 is renamed to "open screenings (awaiting decision)", and the file is added to plan §5.
 - Decided by: orchestrator
+
+## 2026-10-29 Impl review: inline, no sub-agents
+
+- Question: dispatch the skill's two review sub-agents?
+- Options: (a) two sub-agents; (b) inline review.
+- Choice: (b). The code diff is 6 files of copy, tests and docs; the worker protocol limits sub-agents to larger changes.
+- Evidence: `git diff --stat origin/main...HEAD`; `impl-review.md` Evidence.
+- Decided by: worker

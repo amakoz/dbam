@@ -306,3 +306,52 @@ None.
 - **Detail**: The plan names 8410cdb as the reference for "unchanged since phase 1". S-11 (6f6cec2, #110), a separate change on `main`, rewrote 2 pinned English lines in `due-screening.test.ts`, the subject and the body, to follow the copy change in `src/i18n/en.ts`. `git diff 8410cdb 2910b8b -- <guard files>` is therefore not empty, though row 6.1 is `[x]`. The phase 6 commit itself leaves every guard file untouched, and `decisions.md` ("Phase 6 gate notes") explains the gap. But the plan still sends phases 7 and 8 to diff against 8410cdb, and phase 8 moves exactly the builder whose copy those 2 lines pin. The edit by another change is legitimate: the transcript pins real copy, so a copy change has to update it.
 - **Fix**: In `plan.md` "Guard first", move the reference to 6f6cec2 (S-11 on `main`, which holds the updated English due copy), with a one-line reason. Note in `decisions.md` that any later copy change on `main` moves the reference the same way.
 - **Decision**: Fix A (accepted). `plan.md` "Guard first" now names 6f6cec2 as the reference, with the reason; `decisions.md` records that a later copy change on `main` moves it the same way.
+
+## PR F — phase 7
+
+- **Plan**: context/changes/reminders-runner/plan.md
+- **Scope**: Phase 7 of 8 (PR F, branch `feat/reminders-runner-p7`, commit 3efc25f vs its parent c08fb4b, which is `origin/main`). The phase has no Manual rows; the three-line production check is row 8.5.
+- **Reviewed phases**: 7
+- **Guard reference**: 6f6cec2
+- **Date**: 2026-11-01
+- **Verdict**: APPROVED
+- **Findings**: 0 critical, 0 warnings, 0 observations
+
+### Verdicts
+
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | PASS    |
+| Scope Discipline    | PASS    |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | PASS    |
+
+### Verification run by the reviewer
+
+- **Scope.** The commit touches the 2 planned new files (`appointment-message.ts`, `appointment-message.test.ts`), the planned import edit in `appointment.ts`, and `plan.md` and `decisions.md`. `eslint.config.js`, the runner, deps, chain, worker, the other jobs and every guard file are untouched.
+- **Move.** `buildAppointmentMessage(row, site)` is the old private `buildMessage` with only its name and row type changed: the same locale resolution, `Intl.ListFormat` conjunction, plural key, link URLs and subject.
+  - The module is pure. It imports `@/i18n`, `formatDay` (whose `@/i18n` import is type-only) and a type-only `BatchEmailMessage`; `astro:` appears only in the header comment.
+  - `AppointmentRow` is minimal (`email`, `locale`, `appointment_dates`, `reminder_ids`), in the manner of `NudgeRow`.
+  - `appointment.ts` uses it as the spec's `message` and keeps `APPOINTMENT_REMINDER_LEAD_DAYS`, as the plan requires.
+- **Builder test.** It covers everything in the plan's list for phase 7:
+  - pl and en copy as full texts;
+  - pl plural forms one, few and many, and en one and other;
+  - the 3-date conjunction in both locales;
+  - links built from `site`;
+  - the `de` locale falling back to pl;
+  - a leaky row (slug, name, user id) that never reaches the subject or text.
+
+  It has 0 `vi.mock` calls, which proves the module needs no `astro:*` mock.
+
+- **Gates:**
+  - 7.1: `npm test` passes, 30 files and 663 tests. The 3 job tests and the helper are byte-identical to the guard reference 6f6cec2.
+  - 7.2: `npm run lint` exits 0, `npx astro check` reports 0 errors, and `npm run build` exits 0.
+  - 7.3: `appointment-message.ts` has no `astro:*` import.
+  - 7.4 re-run: a slug line appended to the builder's text fails 3 tests in `appointment-message.test.ts` (both full-copy cases and the no-exam-name case) and the `sent` transcript in `appointment.test.ts`. Reverted.
+- **Bookkeeping.** Rows 7.1–7.4 are `[x]` in the commit. Their SHA write-back is in the working tree, uncommitted, as the worker protocol allows.
+
+### Findings
+
+None. No `### F<n>` entries for this section.

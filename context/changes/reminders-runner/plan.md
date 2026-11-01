@@ -787,10 +787,10 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [x] 7.1 npm test passes including appointment-message.test.ts with the phase 1 test files unchanged
-- [x] 7.2 npm run lint, npx astro check and npm run build pass
-- [x] 7.3 appointment-message.ts imports nothing from astro:*
-- [x] 7.4 A deliberate slug in the appointment builder fails its test and the appointment sent transcript and is reverted before commit
+- [x] 7.1 npm test passes including appointment-message.test.ts with the phase 1 test files unchanged — 3efc25f
+- [x] 7.2 npm run lint, npx astro check and npm run build pass — 3efc25f
+- [x] 7.3 appointment-message.ts imports nothing from astro:* — 3efc25f
+- [x] 7.4 A deliberate slug in the appointment builder fails its test and the appointment sent transcript and is reverted before commit — 3efc25f
 
 ### Phase 8: Extract the due-screening builder (7b)
 

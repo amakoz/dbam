@@ -156,3 +156,10 @@ Review: `impl-review.md`, section "PR E — phase 6" (APPROVED, one low-impact w
 - **Break.** Appending a slug to the builder's text failed 3 cases in `due-screening-message.test.ts` and the due `sent` transcript in `due-screening.test.ts`; the file was restored exactly from the staged tree.
 - **Left open.** Row 8.5 (the production check of all three job lines) and, by the owner decision above, rows 6.6 and 6.7 go to the final PR's Manual checks. Because they stay open, `change.md` keeps `status: impl_reviewed`; it flips to `implemented` once they are confirmed.
 - decided-by: worker
+
+## 2026-11-01 PR G (phase 8) impl-review triage
+
+Review: `impl-review.md`, section "PR G — phase 8" (one observation about docs). Decided by the orchestrator; applied by the worker.
+
+- **F1 — Fix A, shipped in this PR.** `README.md` (Scheduled jobs) now says the three jobs share `src/lib/reminders/runner.ts` and that `src/lib/reminders/deps.ts` binds the real client, sender and site. `CLAUDE.md` "Testing Guidelines" names the job transcript tests (`src/lib/reminders/*.test.ts`) and the rule that a copy change on `main` edits the `sent` transcripts. No other doc text changed.
+- decided-by: orchestrator

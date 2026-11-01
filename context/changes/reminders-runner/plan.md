@@ -89,7 +89,7 @@ This plan works guard-first:
 
 ## Implementation Approach
 
-**Guard first.** Phase 1 adds characterization tests that are green on today's code by construction, and proves with a break matrix that they catch a break in each invariant class. Every later phase must leave those test files byte-identical and green, and carries its own deliberate break. The reference commit for "unchanged since phase 1" (every success criterion and Progress row that says so) is **8410cdb** (PR #99 squash-merged on `main`, which holds the `failed`-line assertions tightened after the PR A impl-review, F1); diff against it. The Progress SHAs 14f1302 (phase 1) and ea0cc9c (phase 2) were squashed into 8410cdb and are no longer on `main`.
+**Guard first.** Phase 1 adds characterization tests that are green on today's code by construction, and proves with a break matrix that they catch a break in each invariant class. Every later phase must leave those test files byte-identical and green, and carries its own deliberate break. The reference commit for "unchanged since phase 1" (every success criterion and Progress row that says so) is **6f6cec2** (S-11 on `main`, #110: it follows the English due copy change by rewriting 2 pinned lines in `due-screening.test.ts`; before it the reference was 8410cdb, the squash of PR #99, which holds the `failed`-line assertions tightened after the PR A impl-review, F1); diff against it. The Progress SHAs 14f1302 (phase 1) and ea0cc9c (phase 2) were squashed into 8410cdb and are no longer on `main`.
 
 **Then the moves, one phase per PR from phase 3 on** (Migration Notes give the rollback unit):
 
@@ -772,11 +772,11 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [x] 6.1 npm test passes with due-screening.test.ts unchanged since phase 1
-- [x] 6.2 due.perf.test.ts passes unchanged
-- [x] 6.3 npm run lint and npx astro check pass
-- [x] 6.4 npm run build succeeds
-- [x] 6.5 A deliberate runner break fails runner.test.ts and all three job test files and is reverted before commit
+- [x] 6.1 npm test passes with due-screening.test.ts unchanged since phase 1 — 2910b8b
+- [x] 6.2 due.perf.test.ts passes unchanged — 2910b8b
+- [x] 6.3 npm run lint and npx astro check pass — 2910b8b
+- [x] 6.4 npm run build succeeds — 2910b8b
+- [x] 6.5 A deliberate runner break fails runner.test.ts and all three job test files and is reverted before commit — 2910b8b
 
 #### Manual
 

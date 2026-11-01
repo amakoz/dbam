@@ -123,3 +123,11 @@ Review: `impl-review.md`, section "PR B — phase 3" (APPROVED, two low-impact w
 - **Break.** Moving the mark above the dry-run check in `runner.ts` failed `runner.test.ts` and the dry-run case of each of the three job test files; restored exactly from the staged tree.
 - **Manual rows 6.6 and 6.7 stay open** (the owner's production check after deploy: the `due-screening-reminder` line and its CPU time). They go into the PR's Manual checks.
 - decided-by: worker
+
+## 2026-11-01 PR E (phase 6) impl-review triage
+
+Review: `impl-review.md`, section "PR E — phase 6" (APPROVED, one low-impact warning about plan bookkeeping). Decided by the orchestrator; applied by the worker.
+
+- **F1 — Fix A.** The guard reference for "unchanged since phase 1" moves from 8410cdb to **6f6cec2** (S-11 on `main`, #110). S-11 rewrote 2 pinned English lines in `due-screening.test.ts` to follow the copy change in `src/i18n/en.ts`, so the diff against 8410cdb is no longer empty. The three job tests and the helper are unchanged against 6f6cec2. `plan.md` ("Guard first") says so, with the reason.
+- **Rule for later copy changes.** The `sent` transcripts pin real email copy, so a copy change on `main` legitimately edits them. Any later such change moves the reference to its commit on `main` the same way, and the phase's gate note says so.
+- decided-by: orchestrator

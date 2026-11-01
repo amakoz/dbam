@@ -355,3 +355,70 @@ None.
 ### Findings
 
 None. No `### F<n>` entries for this section.
+
+## PR G — phase 8
+
+- **Plan**: context/changes/reminders-runner/plan.md
+- **Scope**: Phase 8 of 8 (PR G, branch `feat/reminders-runner-p8`, commit 0ae9368 vs its parent 466eff8, which is `origin/main`), plus a completeness check of the whole change against the plan's Desired End State. Rows 6.6, 6.7 and 8.5 are open by the owner's decision (`decisions.md`, 2026-11-01): the production checks move to this PR's Manual checks.
+- **Reviewed phases**: 8
+- **Guard reference**: 6f6cec2
+- **Date**: 2026-11-01
+- **Verdict**: APPROVED
+- **Findings**: 0 critical, 0 warnings, 1 observation
+
+### Verdicts
+
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | PASS    |
+| Scope Discipline    | PASS    |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | PASS    |
+
+### Verification run by the reviewer — phase 8
+
+- **Scope.** The commit touches the 2 planned new files (`due-screening-message.ts`, `due-screening-message.test.ts`), the planned import edit in `due-screening.ts`, and `plan.md` and `decisions.md`. Nothing else.
+- **Move.** `buildDueScreeningMessage(row, site)` is the old private `buildMessage` with only its name and row type changed: the same keys, the plural on `reminder_ids.length`, the link URLs and the subject. `DueScreeningRow` is minimal (`email`, `locale`, `reminder_ids`). The module imports `@/i18n` and a type-only `BatchEmailMessage`; `astro:` appears only in its header comment.
+- **Builder test.** It covers everything in the plan's list for phase 8, with 0 `vi.mock` calls:
+  - pl and en copy as full texts;
+  - pl plurals one, few and many, and en one and other;
+  - links built from `site`;
+  - the `de` locale falling back to pl;
+  - a leaky row (slug, name, due month) whose values never reach the subject or text.
+- **Gates:**
+  - 8.1: `npm test` passes, 31 files and 674 tests. The 3 job tests and the helper are byte-identical to 6f6cec2.
+  - 8.2: `npm run lint` exits 0, `npx astro check` reports 0 errors, and `npm run build` exits 0.
+  - 8.3: `due-screening-message.ts` has no `astro:*` import.
+  - 8.4 re-run: a slug line appended to the builder's text fails 3 tests in `due-screening-message.test.ts` and the `sent` transcript in `due-screening.test.ts`. Reverted.
+
+### Completeness of the whole change (Desired End State)
+
+- **One skeleton.** `runner.ts` holds it and imports no `astro:*`. `runner.test.ts` covers it without an `astro:*` mock.
+- **Each job is only a spec plus one runner call.** `appointment.ts`, `due-screening.ts` and `follow-up-nudge.ts` each hold a spec and one `runClaimSendMark(…, reminderDeps())` call. None has a `console.` call, a direct `sendEmailBatch(` call or an `import.meta.env` read. The `no-console` allow-list names `runner.ts` and no job file.
+- **Exported names unchanged.** `runAppointmentReminders`, `runDueScreeningReminders`, `runFollowUpNudges`, `APPOINTMENT_REMINDER_LEAD_DAYS` and the three `…Outcome` types (now aliases of `ReminderOutcome`) are all still exported. Across all 7 of this change's commits on `main` plus 0ae9368, the only non-`context/` files touched are:
+  - `email-budget.ts` and `email.ts` (phase 2);
+  - the reminder job, runner, deps, builder and test files;
+  - `eslint.config.js`.
+
+  `worker.ts`, `chain.ts`, `failure-alert.ts`, `observability.ts`, `wrangler.jsonc`, CI, migrations, i18n, `roadmap.md` and `README.md` are untouched, so the plan's "What We're NOT Doing" boundaries held. The S-11 test edit came from another change; see PR E F1.
+
+- **Builders.** All 3 builders now live in pure modules with unit tests, including the no-exam-name rule, and take `(row, site)`: `buildAppointmentMessage`, `buildDueScreeningMessage` and the existing `buildNudgeMessage`.
+- **Guard.** The phase 1 test files are byte-identical to the reference 6f6cec2 at the end of the change. Every phase carried its own deliberate break, and this review re-ran each one.
+- **`SITE`.** The build still matches the phase 1 baseline:
+  - the URL is in 20 files;
+  - `import.meta.env.SITE` appears only as the Astro vendor text in `dist/server/chunks/dist_C3-kYRvb.mjs`;
+  - exactly one `site: "https://…"` literal remains in `entry.mjs`, the one in `reminderDeps`.
+- **Progress.** 44 of 47 rows are `[x]`. The 3 open rows, 6.6, 6.7 and 8.5, are production checks the owner moved to this PR. Rows 4.6 and 5.5 passed in production, on the owner's confirmation recorded in `decisions.md`.
+- **Earlier findings.** Every finding from PRs A, B and E has a recorded Decision; PRs C, D and F had none.
+
+### F1 — The docs don't point at the runner or the new job-test guard
+
+- **Severity**: 💡 OBSERVATION
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Pattern Consistency
+- **Location**: README.md:255-296 (reminder jobs), CLAUDE.md "Testing Guidelines"
+- **Detail**: README still describes the three reminder jobs file by file (`appointment.ts`, `due-screening.ts`, `follow-up-nudge.ts`, `nudge-message.ts`), with no mention that the claim → send → mark skeleton now lives in `src/lib/reminders/runner.ts` and is wired by `deps.ts`. CLAUDE.md's "Testing Guidelines" list of unit-test areas doesn't name the job characterization tests or the runner tests. Nothing is wrong today, and the README's promise at :358 ("outcome lines keep their shape") still holds. But the next agent adding a reminder job (TD-5) won't find the runner from the docs. The plan didn't require a docs change, so this is not drift.
+- **Fix**: Add one sentence to the README reminder section naming `runner.ts` and `deps.ts`, and one entry to CLAUDE.md's Testing Guidelines naming the job transcript tests (`src/lib/reminders/*.test.ts`) and the rule that a copy change on `main` edits the `sent` transcripts. Ship it in this PR or as a follow-up.
+- **Decision**: Fix A, shipped in PR G. One sentence in the README reminder section names `runner.ts` and `deps.ts`; one sentence in CLAUDE.md "Testing Guidelines" names the job transcript tests (`src/lib/reminders/*.test.ts`) and the rule that a copy change on `main` edits the `sent` transcripts.

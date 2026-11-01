@@ -3,7 +3,7 @@ project: Dbam
 version: 6
 status: draft
 created: 2026-09-26
-updated: 2026-10-29
+updated: 2026-11-01
 prd_version: 3
 main_goal: quality
 top_blocker: none
@@ -17,6 +17,8 @@ milestone_status: open
 > Derived from the owner's milestone description (anchors MS-01–MS-07 below), `context/foundation/backlog.md`, the archived F-13 plan (`context/archive/2026-10-27-reminders-refactor/plan.md`) and `context/domain/domain-distillation.md`, + auto-researched codebase baseline. M-01 was derived from `context/foundation/prd.md` (v3), M-02 from an owner description; see `## Milestone History`.
 > Edit-in-place; the next milestone continues this file. Archive only when an independent roadmap replaces it.
 > Items below are listed in dependency order. The "At a glance" table is the index. IDs continue from M-02 (F-01–F-15 and S-01–S-09 are in `## Done`).
+
+- **F-16: (foundation) the three reminder jobs run on one shared, tested claim → send → mark runner** — Archived 2026-11-01 → `context/archive/2026-10-28-reminders-runner/`. Lesson: —.
 
 ## Milestone
 
@@ -48,7 +50,7 @@ Adults 30+ in Poland forget or postpone age-appropriate screenings because nothi
 
 | ID   | Change ID            | Outcome (user can …)                                                                                                 | Prerequisites | PRD refs | Status |
 | ---- | -------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | ------ |
-| F-16 | reminders-runner     | (foundation) the three reminder jobs run on one shared, tested claim → send → mark runner                            | —             | MS-01    | ready  |
+| F-16 | reminders-runner     | (foundation) the three reminder jobs run on one shared, tested claim → send → mark runner                            | —             | MS-01    | done   |
 | S-10 | missing-entry-plan   | a user whose plan's catalog entry is missing still sees that screening and its completion                            | —             | MS-02    | done   |
 | F-17 | catalog-check-guards | (foundation) `catalog:check` refuses backward status moves and warns in CI on entries past their review date         | —             | MS-03    | done   |
 | F-18 | merge-rule-docs      | (foundation) `CLAUDE.md` states the temporary orchestrator-merge rule and how to switch back                         | —             | MS-04    | done   |
@@ -84,7 +86,7 @@ Items below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Every merge deploys to the production cron, so each phase is its own rollback unit; the characterization tests (phases 1+2) land first and must stay green through every later phase. It touches only the reminder modules, so it runs beside every other item.
-- **Status:** ready
+- **Status:** done
 
 ### F-17: Catalog check guards
 

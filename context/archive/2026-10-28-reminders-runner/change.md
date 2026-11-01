@@ -1,10 +1,10 @@
 ---
 change_id: reminders-runner
 title: Run the three reminder jobs on one shared, tested claim-send-mark runner
-status: impl_reviewed
+status: archived
 created: 2026-10-28
 updated: 2026-11-01
-archived_at: null
+archived_at: 2026-11-01T15:53:03Z
 ---
 
 ## Notes

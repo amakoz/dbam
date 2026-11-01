@@ -131,3 +131,12 @@ Review: `impl-review.md`, section "PR E — phase 6" (APPROVED, one low-impact w
 - **F1 — Fix A.** The guard reference for "unchanged since phase 1" moves from 8410cdb to **6f6cec2** (S-11 on `main`, #110). S-11 rewrote 2 pinned English lines in `due-screening.test.ts` to follow the copy change in `src/i18n/en.ts`, so the diff against 8410cdb is no longer empty. The three job tests and the helper are unchanged against 6f6cec2. `plan.md` ("Guard first") says so, with the reason.
 - **Rule for later copy changes.** The `sent` transcripts pin real email copy, so a copy change on `main` legitimately edits them. Any later such change moves the reference to its commit on `main` the same way, and the phase's gate note says so.
 - decided-by: orchestrator
+
+## 2026-11-01 Phase 7 gate notes (appointment builder extracted)
+
+- **Move.** `buildAppointmentMessage(row, site)` now lives in `appointment-message.ts`, verbatim from the job's private `buildMessage`. Its row type is a minimal `AppointmentRow` (`email`, `locale`, `appointment_dates`, `reminder_ids`), which the claimed row satisfies structurally. `appointment.ts` imports it as the spec's `message`; `APPOINTMENT_REMINDER_LEAD_DAYS` stays there. The module imports `@/i18n`, `formatDay` and a type from `@/lib/email`: no `astro:*`, and the test has no `vi.mock`.
+- **Guard.** The three job tests and the helper are unchanged against the reference 6f6cec2 (`git diff` empty) and pass; the appointment `sent` transcript is byte-identical.
+- **Builder test.** The expected texts in `appointment-message.test.ts` (pl and en, the date conjunction, plurals) were written from `src/i18n/{pl,en}.ts` before running, and went green on the first run. It covers the no-exam-name rule with a leaky row (slug, name, user id).
+- **Break.** Appending a slug to the builder's text failed 3 cases in `appointment-message.test.ts` and the appointment `sent` transcript in `appointment.test.ts`; `appointment-message.ts` was restored exactly from the staged tree.
+- **Build.** `npm run build` succeeds. No Manual rows in this phase; the three-line production check is row 8.5.
+- decided-by: worker

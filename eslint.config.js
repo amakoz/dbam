@@ -81,7 +81,6 @@ const workerLogsConfig = defineConfig({
     "src/lib/failure-alert.ts",
     "src/lib/heartbeat.ts",
     "src/lib/observability.ts",
-    "src/lib/reminders/due-screening.ts",
     "src/lib/reminders/runner.ts",
   ],
   rules: { "no-console": "off" },

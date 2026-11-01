@@ -251,3 +251,58 @@ None.
 ### Findings
 
 None.
+
+## PR E — phase 6
+
+- **Plan**: context/changes/reminders-runner/plan.md
+- **Scope**: Phase 6 of 8 (PR E, branch `feat/reminders-runner-p6`, commit 2910b8b vs its parent 6f6cec2, which is `origin/main`). Manual rows 6.6 and 6.7 (the production line and its CPU time) are open by design and go into the PR's Manual checks.
+- **Reviewed phases**: 6
+- **Date**: 2026-11-01
+- **Verdict**: APPROVED (1 low-impact warning, about plan bookkeeping, not code)
+- **Findings**: 0 critical, 1 warning, 0 observations
+
+### Verdicts
+
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | WARNING |
+| Scope Discipline    | PASS    |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | PASS    |
+
+### Verification run by the reviewer
+
+- **Scope.** The commit touches only the planned `src/lib/reminders/due-screening.ts` and the one `eslint.config.js` line. After it, the allow-list names `runner.ts` and no job file, as phase 6 §2 requires. It also touches `plan.md`, `decisions.md` and `change.md` (`updated` only). No test file, and none of `runner.ts`, `deps.ts`, `chain.ts`, `worker.ts` or the other two jobs.
+- **Select.** `dueScreeningJob.select` keeps today's order and arguments:
+  - candidates (`p_today`, `p_limit: DUE_CANDIDATE_LIMIT`), `parseCandidateRows`, `getActiveRuleCatalog(client)`, `collectClaimItems(…, budget)`, then the claim (`{ ...item }` spread with its comment);
+  - error steps `candidates` and `claim`.
+
+  The three `none` exits return `{ rows: [], fields: { candidates: n } }` (0 on no candidates, `candidates.length` on nothing due), and an empty claim returns `{ rows: claimed, … }`. The runner's single `none` exit then logs the same line as before.
+
+- **Spec.** Event `due-screening-reminder`, prefix `dbam-due-screening-reminder`, ids from `reminder_ids`, mark RPC `mark_due_screening_reminders_sent`. `buildMessage(row, site)` is otherwise byte-identical. The local `log` helper is gone. `DueScreeningOutcome` is an alias of `ReminderOutcome`. `budget ?? 0` can't be reached, as in phase 5.
+- **Not `async`.** As in phases 4 and 5, `reminderDeps()` runs outside the runner's `try`, and that is safe (PR C section).
+- **Gates:**
+  - 6.1: `npm test` passes, 29 files and 651 tests.
+  - 6.2: `due.perf.test.ts` passes unchanged. The due job has no zod import and no `Intl.Collator`.
+  - 6.3: `npm run lint` exits 0. `npx astro check` reports 0 errors.
+  - 6.4: `npm run build` exits 0. The `SITE` check equals the baseline:
+    - the URL is in 20 files;
+    - `import.meta.env.SITE` appears only as Astro's `getStaticPaths` deprecation text (`dist/server/chunks/dist_C3-kYRvb.mjs:6305`);
+    - the only `site:` literal in `entry.mjs` is `reminderDeps` (:438), and no job keeps its own `const site`.
+  - 6.5 re-run: a mark before the dry-run check in `runner.ts` fails 2 tests in each of `runner.test.ts` and the 3 job test files. Reverted.
+  - Guard: the 3 job tests and the helper are unchanged against `origin/main` and untouched by this commit. Against 8410cdb, see F1.
+- **Bookkeeping.** Row 5.5 is `[x] — 87c499f`, on the owner's production confirmation recorded in `decisions.md` (2026-11-01, decided-by orchestrator). Rows 6.1–6.5 are `[x]`, with their SHA write-back in the working tree.
+
+### Findings
+
+#### F1 — The guard reference 8410cdb no longer matches `due-screening.test.ts` on main
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Plan Adherence
+- **Location**: context/changes/reminders-runner/plan.md:92 (“Guard first”), Progress rows 6.1, 7.1 and 8.1
+- **Detail**: The plan names 8410cdb as the reference for "unchanged since phase 1". S-11 (6f6cec2, #110), a separate change on `main`, rewrote 2 pinned English lines in `due-screening.test.ts`, the subject and the body, to follow the copy change in `src/i18n/en.ts`. `git diff 8410cdb 2910b8b -- <guard files>` is therefore not empty, though row 6.1 is `[x]`. The phase 6 commit itself leaves every guard file untouched, and `decisions.md` ("Phase 6 gate notes") explains the gap. But the plan still sends phases 7 and 8 to diff against 8410cdb, and phase 8 moves exactly the builder whose copy those 2 lines pin. The edit by another change is legitimate: the transcript pins real copy, so a copy change has to update it.
+- **Fix**: In `plan.md` "Guard first", move the reference to 6f6cec2 (S-11 on `main`, which holds the updated English due copy), with a one-line reason. Note in `decisions.md` that any later copy change on `main` moves the reference the same way.
+- **Decision**: Fix A (accepted). `plan.md` "Guard first" now names 6f6cec2 as the reference, with the reason; `decisions.md` records that a later copy change on `main` moves it the same way.

@@ -1,10 +1,9 @@
-import { createT, resolveLocale } from "@/i18n";
 import { getActiveRuleCatalog } from "@/lib/catalog/read";
 import type { Database } from "@/lib/database.types";
-import type { BatchEmailMessage } from "@/lib/email";
 import { collectClaimItems, parseCandidateRows } from "@/lib/reminders/candidates";
 import type { ReminderRun } from "@/lib/reminders/chain";
 import { reminderDeps } from "@/lib/reminders/deps";
+import { buildDueScreeningMessage } from "@/lib/reminders/due-screening-message";
 import { ReminderDatabaseError } from "@/lib/reminders/errors";
 import { runClaimSendMark, type ClaimSendMarkJob, type ReminderOutcome } from "@/lib/reminders/runner";
 import { DUE_CANDIDATE_LIMIT } from "@/lib/screenings/due";
@@ -58,7 +57,7 @@ const dueScreeningJob: ClaimSendMarkJob<ClaimedReminder> = {
     return { rows: claimed, fields: { candidates: candidates.length } };
   },
   ids: (row) => row.reminder_ids,
-  message: buildMessage,
+  message: buildDueScreeningMessage,
   mark: "mark_due_screening_reminders_sent",
 };
 
@@ -68,20 +67,4 @@ export function runDueScreeningReminders(
   { budget }: { budget: number },
 ): Promise<{ outcome: DueScreeningOutcome; sent: number }> {
   return runClaimSendMark(dueScreeningJob, run, budget, reminderDeps());
-}
-
-/** Only a count, a dashboard link and an opt-out link: never an exam name. */
-function buildMessage(row: ClaimedReminder, site: string): BatchEmailMessage {
-  const t = createT(resolveLocale(row.locale));
-  const text = [
-    t("email.dueScreeningReminder.greeting"),
-    "",
-    t.plural("email.dueScreeningReminder.body", row.reminder_ids.length),
-    "",
-    t("email.dueScreeningReminder.dashboard", { url: new URL("/dashboard", site).href }),
-    "",
-    t("email.dueScreeningReminder.optOut", { url: new URL("/profile#reminders", site).href }),
-    "",
-  ].join("\n");
-  return { to: row.email, subject: t("email.dueScreeningReminder.subject"), text };
 }

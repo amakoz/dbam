@@ -140,3 +140,19 @@ Review: `impl-review.md`, section "PR E — phase 6" (APPROVED, one low-impact w
 - **Break.** Appending a slug to the builder's text failed 3 cases in `appointment-message.test.ts` and the appointment `sent` transcript in `appointment.test.ts`; `appointment-message.ts` was restored exactly from the staged tree.
 - **Build.** `npm run build` succeeds. No Manual rows in this phase; the three-line production check is row 8.5.
 - decided-by: worker
+
+## 2026-11-01 Owner decision: finalize without waiting on production checks
+
+- Question: phase 8 follows the plan's rule that each passing production check gates the next job phase (rows 4.6, 5.5 and 6.6/6.7). Row 6.6/6.7 (the `due-screening-reminder` line and its CPU time after #111) has not run yet.
+- Choice: the owner decided to finalize the change without waiting on production checks. Rows 6.6 and 6.7 stay open in `plan.md` and move to the final PR's Manual checks, together with row 8.5. This overrides the plan's "each passing check gates the next job phase" for phase 8 only.
+- Evidence: the three job phases (4, 5, 6) are merged, 4.6 and 5.5 passed in production, and phase 8 moves only a builder verbatim into a pure module (no change to the runner or the job's select).
+- decided-by: owner (relayed by the orchestrator)
+
+## 2026-11-01 Phase 8 gate notes (due-screening builder extracted)
+
+- **Move.** `buildDueScreeningMessage(row, site)` now lives in `due-screening-message.ts`, verbatim from the job's private `buildMessage`. Its row type is a minimal `DueScreeningRow` (`email`, `locale`, `reminder_ids`), which the claimed row satisfies structurally. `due-screening.ts` imports it as the spec's `message`. The module imports only `@/i18n` and a type from `@/lib/email`: no `astro:*`, and its test has no `vi.mock`.
+- **Guard.** The three job tests and the helper are unchanged against the reference 6f6cec2 (`git diff` empty) and pass; the due `sent` transcript is byte-identical.
+- **Builder test.** The expected pl and en texts in `due-screening-message.test.ts` were written from `src/i18n/{pl,en}.ts` before running, and went green on the first run. It also covers plurals, links, the locale fallback and the no-exam-name rule with a leaky row (slug, name, due month).
+- **Break.** Appending a slug to the builder's text failed 3 cases in `due-screening-message.test.ts` and the due `sent` transcript in `due-screening.test.ts`; the file was restored exactly from the staged tree.
+- **Left open.** Row 8.5 (the production check of all three job lines) and, by the owner decision above, rows 6.6 and 6.7 go to the final PR's Manual checks. Because they stay open, `change.md` keeps `status: impl_reviewed`; it flips to `implemented` once they are confirmed.
+- decided-by: worker

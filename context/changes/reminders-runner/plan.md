@@ -796,10 +796,10 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Automated
 
-- [ ] 8.1 npm test passes including due-screening-message.test.ts with the phase 1 test files unchanged
-- [ ] 8.2 npm run lint, npx astro check and npm run build pass
-- [ ] 8.3 due-screening-message.ts imports nothing from astro:*
-- [ ] 8.4 A deliberate slug in the due builder fails its test and the due sent transcript and is reverted before commit
+- [x] 8.1 npm test passes including due-screening-message.test.ts with the phase 1 test files unchanged
+- [x] 8.2 npm run lint, npx astro check and npm run build pass
+- [x] 8.3 due-screening-message.ts imports nothing from astro:*
+- [x] 8.4 A deliberate slug in the due builder fails its test and the due sent transcript and is reverted before commit
 
 #### Manual
 

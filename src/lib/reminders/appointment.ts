@@ -1,11 +1,10 @@
-import { createT, resolveLocale } from "@/i18n";
 import type { Database } from "@/lib/database.types";
-import { REMINDER_EMAIL_DAILY_BUDGET, type BatchEmailMessage } from "@/lib/email";
+import { REMINDER_EMAIL_DAILY_BUDGET } from "@/lib/email";
+import { buildAppointmentMessage } from "@/lib/reminders/appointment-message";
 import { reminderDeps } from "@/lib/reminders/deps";
 import { ReminderDatabaseError } from "@/lib/reminders/errors";
 import { runClaimSendMark, type ClaimSendMarkJob, type ReminderOutcome } from "@/lib/reminders/runner";
 import type { ReminderRun } from "@/lib/reminders/chain";
-import { formatDay } from "@/lib/screenings/format";
 import { warsawToday } from "@/lib/screenings/rules";
 
 // Appointment reminder job run by the Worker's Cron Trigger (`scheduled()` in src/worker.ts) on the daily 10:00 Warsaw
@@ -38,7 +37,7 @@ const appointmentJob: ClaimSendMarkJob<ClaimedReminder> = {
     return { rows: data };
   },
   ids: (row) => row.reminder_ids,
-  message: buildMessage,
+  message: buildAppointmentMessage,
   mark: "mark_appointment_reminders_sent",
 };
 
@@ -47,23 +46,4 @@ export function runAppointmentReminders(
   run: ReminderRun,
 ): Promise<{ outcome: AppointmentReminderOutcome; sent: number }> {
   return runClaimSendMark(appointmentJob, run, undefined, reminderDeps());
-}
-
-function buildMessage(row: ClaimedReminder, site: string): BatchEmailMessage {
-  const locale = resolveLocale(row.locale);
-  const t = createT(locale);
-  const dates = new Intl.ListFormat(locale, { style: "long", type: "conjunction" }).format(
-    row.appointment_dates.map((date) => formatDay(date, locale)),
-  );
-  const text = [
-    t("email.appointmentReminder.greeting"),
-    "",
-    t.plural("email.appointmentReminder.body", row.reminder_ids.length, { dates }),
-    "",
-    t("email.appointmentReminder.dashboard", { url: new URL("/dashboard", site).href }),
-    "",
-    t("email.appointmentReminder.optOut", { url: new URL("/profile#reminders", site).href }),
-    "",
-  ].join("\n");
-  return { to: row.email, subject: t("email.appointmentReminder.subject"), text };
 }

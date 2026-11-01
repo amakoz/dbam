@@ -766,17 +766,17 @@ There is no data or schema migration. Every phase is TypeScript only.
 
 #### Manual
 
-- [ ] 5.5 Next 10:00 Warsaw run after deploy logs the follow-up-nudge line with unchanged fields and no error line
+- [x] 5.5 Next 10:00 Warsaw run after deploy logs the follow-up-nudge line with unchanged fields and no error line — 87c499f
 
 ### Phase 6: Due-screening job on the runner
 
 #### Automated
 
-- [ ] 6.1 npm test passes with due-screening.test.ts unchanged since phase 1
-- [ ] 6.2 due.perf.test.ts passes unchanged
-- [ ] 6.3 npm run lint and npx astro check pass
-- [ ] 6.4 npm run build succeeds
-- [ ] 6.5 A deliberate runner break fails runner.test.ts and all three job test files and is reverted before commit
+- [x] 6.1 npm test passes with due-screening.test.ts unchanged since phase 1
+- [x] 6.2 due.perf.test.ts passes unchanged
+- [x] 6.3 npm run lint and npx astro check pass
+- [x] 6.4 npm run build succeeds
+- [x] 6.5 A deliberate runner break fails runner.test.ts and all three job test files and is reverted before commit
 
 #### Manual
 

@@ -1,13 +1,12 @@
 import { createT, resolveLocale } from "@/i18n";
-import type { Database } from "@/lib/database.types";
-import { sendEmailBatch, type BatchEmailMessage } from "@/lib/email";
 import { getActiveRuleCatalog } from "@/lib/catalog/read";
-import { errorDetails, errorName } from "@/lib/observability";
-import { createReminderClient } from "@/lib/reminders/admin-client";
-import { batchKey } from "@/lib/reminders/batch-key";
+import type { Database } from "@/lib/database.types";
+import type { BatchEmailMessage } from "@/lib/email";
 import { collectClaimItems, parseCandidateRows } from "@/lib/reminders/candidates";
+import type { ReminderRun } from "@/lib/reminders/chain";
+import { reminderDeps } from "@/lib/reminders/deps";
 import { ReminderDatabaseError } from "@/lib/reminders/errors";
-import { isDailySendRun } from "@/lib/schedule";
+import { runClaimSendMark, type ClaimSendMarkJob, type ReminderOutcome } from "@/lib/reminders/runner";
 import { DUE_CANDIDATE_LIMIT } from "@/lib/screenings/due";
 import { warsawToday } from "@/lib/screenings/rules";
 
@@ -16,36 +15,20 @@ import { warsawToday } from "@/lib/screenings/rules";
 // again because its repeat interval has elapsed. The database narrows the search to candidate users
 // (`get_due_screening_candidates`: a superset of what is due, with the minimal rule inputs and the SQL anchor month);
 // `dueScreeningItems` decides with the dashboard's own rules; `claim_due_screening_reminders` re-checks live data and
-// records one ledger row per completion cycle. One email per user goes out in one Resend batch, then the rows are
-// marked sent. A failed send leaves them unsent for the next run, and a retry of the same run reuses the batch key, so
-// Resend deduplicates it. With EMAIL_DRY_RUN=true nothing is sent and nothing is marked. Emails and logs never name an
-// exam, a due month or an address: logs carry counts and error names only.
+// records one ledger row per completion cycle. The shared runner (src/lib/reminders/runner.ts) sends one email per user in
+// one Resend batch, then marks the rows sent. Emails and logs never name an exam, a due month or an address: logs carry
+// counts and error names only.
 
-export type DueScreeningOutcome = "none" | "skipped" | "dry-run" | "sent";
+export type DueScreeningOutcome = ReminderOutcome;
 
 type ClaimedReminder = Database["public"]["Functions"]["claim_due_screening_reminders"]["Returns"][number];
 
-/** `budget` is how many emails this run may still send today; `sent` is how many Resend accepted. */
-export async function runDueScreeningReminders(
-  { cron, scheduledTime }: { cron: string; scheduledTime: number },
-  { budget }: { budget: number },
-): Promise<{ outcome: DueScreeningOutcome; sent: number }> {
-  const scheduledAt = new Date(scheduledTime).toISOString();
-  try {
-    if (!isDailySendRun(cron, scheduledTime)) {
-      log({ outcome: "skipped", cron, scheduledAt });
-      return { outcome: "skipped", sent: 0 };
-    }
-    if (budget <= 0) {
-      log({ outcome: "skipped", cron, scheduledAt, reason: "no-budget" });
-      return { outcome: "skipped", sent: 0 };
-    }
-
-    const now = new Date(scheduledTime);
+const dueScreeningJob: ClaimSendMarkJob<ClaimedReminder> = {
+  event: "due-screening-reminder",
+  keyPrefix: "dbam-due-screening-reminder",
+  select: async (client, { now, budget }) => {
     const today = warsawToday(now);
-    const supabase = createReminderClient();
-
-    const { data, error } = await supabase.rpc("get_due_screening_candidates", {
+    const { data, error } = await client.rpc("get_due_screening_candidates", {
       p_today: today,
       p_limit: DUE_CANDIDATE_LIMIT,
     });
@@ -54,18 +37,17 @@ export async function runDueScreeningReminders(
     }
     const candidates = parseCandidateRows(data);
     if (candidates.length === 0) {
-      log({ outcome: "none", cron, scheduledAt, candidates: 0, due: 0, sent: 0 });
-      return { outcome: "none", sent: 0 };
+      return { rows: [], fields: { candidates: 0 } };
     }
 
-    const catalog = await getActiveRuleCatalog(supabase);
-    const { items } = collectClaimItems(candidates, catalog, now, budget);
+    const catalog = await getActiveRuleCatalog(client);
+    // The runner has already skipped a run without budget, so `budget` is a number here.
+    const { items } = collectClaimItems(candidates, catalog, now, budget ?? 0);
     if (items.length === 0) {
-      log({ outcome: "none", cron, scheduledAt, candidates: candidates.length, due: 0, sent: 0 });
-      return { outcome: "none", sent: 0 };
+      return { rows: [], fields: { candidates: candidates.length } };
     }
 
-    const { data: claimed, error: claimError } = await supabase.rpc("claim_due_screening_reminders", {
+    const { data: claimed, error: claimError } = await client.rpc("claim_due_screening_reminders", {
       p_today: today,
       // Spread into plain objects: supabase-js types the argument as `Json`, which an interface does not satisfy.
       p_items: items.map((item) => ({ ...item })),
@@ -73,46 +55,24 @@ export async function runDueScreeningReminders(
     if (claimError) {
       throw new ReminderDatabaseError("claim", claimError.code);
     }
-    if (claimed.length === 0) {
-      log({ outcome: "none", cron, scheduledAt, candidates: candidates.length, due: 0, sent: 0 });
-      return { outcome: "none", sent: 0 };
-    }
+    return { rows: claimed, fields: { candidates: candidates.length } };
+  },
+  ids: (row) => row.reminder_ids,
+  message: buildMessage,
+  mark: "mark_due_screening_reminders_sent",
+};
 
-    const ids = claimed.flatMap((row) => row.reminder_ids);
-    const result = await sendEmailBatch({
-      messages: claimed.map((row) => buildMessage(row)),
-      idempotencyKey: await batchKey("dbam-due-screening-reminder", ids),
-    });
-    if ("dryRun" in result) {
-      // Marks nothing, so local and CI runs never consume reminders.
-      log({ outcome: "dry-run", cron, scheduledAt, candidates: candidates.length, due: claimed.length, sent: 0 });
-      return { outcome: "dry-run", sent: 0 };
-    }
-
-    const marked = await supabase.rpc("mark_due_screening_reminders_sent", { p_ids: ids });
-    if (marked.error) {
-      throw new ReminderDatabaseError("mark", marked.error.code);
-    }
-    log({
-      outcome: "sent",
-      cron,
-      scheduledAt,
-      candidates: candidates.length,
-      due: claimed.length,
-      sent: result.ids.length,
-    });
-    return { outcome: "sent", sent: result.ids.length };
-  } catch (error) {
-    // The error name and the whitelisted details only (src/lib/observability.ts), never `message`.
-    log({ outcome: "failed", cron, scheduledAt, error: errorName(error), ...errorDetails(error) });
-    throw error;
-  }
+/** `budget` is how many emails this run may still send today; `sent` is how many Resend accepted. */
+export function runDueScreeningReminders(
+  run: ReminderRun,
+  { budget }: { budget: number },
+): Promise<{ outcome: DueScreeningOutcome; sent: number }> {
+  return runClaimSendMark(dueScreeningJob, run, budget, reminderDeps());
 }
 
 /** Only a count, a dashboard link and an opt-out link: never an exam name. */
-function buildMessage(row: ClaimedReminder): BatchEmailMessage {
+function buildMessage(row: ClaimedReminder, site: string): BatchEmailMessage {
   const t = createT(resolveLocale(row.locale));
-  const site = import.meta.env.SITE;
   const text = [
     t("email.dueScreeningReminder.greeting"),
     "",
@@ -124,8 +84,4 @@ function buildMessage(row: ClaimedReminder): BatchEmailMessage {
     "",
   ].join("\n");
   return { to: row.email, subject: t("email.dueScreeningReminder.subject"), text };
-}
-
-function log(fields: Record<string, string | number>): void {
-  console.log(JSON.stringify({ event: "due-screening-reminder", ...fields }));
 }

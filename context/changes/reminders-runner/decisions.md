@@ -106,3 +106,20 @@ Review: `impl-review.md`, section "PR B — phase 3" (APPROVED, two low-impact w
 - **Migrations.** This PR changes none, so the pgTAP suite was not part of its gates (CI's `smoke` job runs it on every PR).
 - **Slip, for the record.** An unquoted heredoc in my first attempt let the shell run the backticked commands in this very entry: a second, stray `git rebase` (aborted with `git rebase --abort`; the branch was left exactly as after the first rebase) and one `npx supabase test db` run without taking the DB lock. The pgTAP run is transaction-scoped and no lock was held by anyone; the gate results of that attempt were discarded and every gate was re-run on the clean tree.
 - decided-by: orchestrator (the owner's confirmation of 4.6); worker (the rebase).
+
+## 2026-11-01 Row 5.5 confirmed by the owner; phase 6 branch
+
+- **Row 5.5 (follow-up nudge on the runner, production).** The owner confirmed on 2026-11-01 that the 10:00 Warsaw run after PR D logged the `follow-up-nudge` line with unchanged fields and no `error` line. PR D (phase 5) is merged as 87c499f (#107). Row 5.5 is marked done with that SHA, which unblocks phase 6.
+- **Branch.** `feat/reminders-runner-p6` starts from `origin/main` (6f6cec2), as the branching rule says.
+- decided-by: orchestrator (the owner's confirmation of 5.5); worker (the branch).
+
+## 2026-11-01 Phase 6 gate notes (due-screening job on the runner)
+
+- **Guard.** `due-screening.test.ts`, the other two job tests and the helper are unchanged against `origin/main` and pass on the refactored job. Against the reference commit 8410cdb, `due-screening.test.ts` differs by 2 lines: that is S-11 (#110, English copy wording on `main`), not this change.
+- **Select.** The three `none` exits collapse into the runner's one exit with `fields: { candidates: n }`, and the lines are identical (`candidates` sits between `scheduledAt` and `due`). The candidates → parse → catalog → decide → claim order and arguments are as before. As in phase 5, `budget ?? 0` is unreachable: the runner has already skipped a run with `budget <= 0`.
+- **Signature.** `runDueScreeningReminders` is no longer `async` (as phase 4's job): it returns the runner's promise, and `reminderDeps()` only binds references.
+- **Perf.** `due.perf.test.ts` passes unchanged. No zod or `Intl.Collator` added (I12).
+- **Build.** `import.meta.env.SITE` is still in exactly one file (the vendor hit), the URL is in 20 files as in the baseline, and the only `site: "https://…"` literal left in `entry.mjs` is `reminderDeps` (line 438); no job builder has its own `const site` literal now.
+- **Break.** Moving the mark above the dry-run check in `runner.ts` failed `runner.test.ts` and the dry-run case of each of the three job test files; restored exactly from the staged tree.
+- **Manual rows 6.6 and 6.7 stay open** (the owner's production check after deploy: the `due-screening-reminder` line and its CPU time). They go into the PR's Manual checks.
+- decided-by: worker

@@ -163,3 +163,11 @@ Review: `impl-review.md`, section "PR G — phase 8" (one observation about docs
 
 - **F1 — Fix A, shipped in this PR.** `README.md` (Scheduled jobs) now says the three jobs share `src/lib/reminders/runner.ts` and that `src/lib/reminders/deps.ts` binds the real client, sender and site. `CLAUDE.md` "Testing Guidelines" names the job transcript tests (`src/lib/reminders/*.test.ts`) and the rule that a copy change on `main` edits the `sent` transcripts. No other doc text changed.
 - decided-by: orchestrator
+
+## 2026-11-01 Archive with rows 6.6, 6.7 and 8.5 open
+
+- **Warnings at archive.** `/10x-archive` warned that 3 manual Progress rows are open: 6.6 and 6.7 (the `due-screening-reminder` line and its CPU time after #111) and 8.5 (the three job lines after the last deploy). All are production checks.
+- **Decision.** The owner decided on 2026-11-01 to finalize without waiting on production checks (see "Owner decision: finalize without waiting on production checks" above), and PR G covers the three rows in its Manual checks for the human. Archived with them open; the plan keeps them `[ ]`.
+- **SHA history.** Eight Progress suffixes (14f1302, ea0cc9c, 44d25d5, 2450540, 2910b8b, 0ae9368, 0d5cfed, 3efc25f) are pre-squash commits that are not in `origin/main` @ 466eff8, because every PR was squash-merged; 5fa7716 and 87c499f are the squash commits and are in `main`. Archived **without repointing**: the plan is left byte-for-byte as the phases wrote it, and nobody approved rewriting suffixes per PR. The squash commits are named in this file and in the PR titles (`F-16 PR A … G`).
+- **Review location.** The impl-review reports sit in `impl-review.md` at the change root, one section per PR, covering phases 1–8 (`Reviewed phases` in each).
+- decided-by: orchestrator (the owner's 2026-11-01 decision); worker (archiving without repointing)

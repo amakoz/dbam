@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 const RUNNER = fileURLToPath(new URL("./run.mjs", import.meta.url));
+const MARKER = "<!-- ai-code-review -->";
 const API_KEY = "sk-or-test-key-4567";
 const GH_TOKEN = "ghs_testtoken1234";
 const DEFAULT_MODEL = "poolside/laguna-s-2.1:free";
@@ -48,6 +49,9 @@ let githubHandler: Handler;
 let tmpDirs: string[];
 
 function defaultGithub(req: Recorded): Reply {
+  if (req.method === "GET" && req.url.includes("/comments")) return { status: 200, body: [] };
+  if (req.method === "POST" && req.url.endsWith("/comments")) return { status: 201, body: { id: 1 } };
+  if (req.method === "PATCH") return { status: 200, body: { id: 1 } };
   if (req.method === "POST" && req.url.endsWith("/repos/o/r/labels")) return { status: 201, body: {} };
   if (req.method === "POST" && req.url.endsWith("/labels")) return { status: 200, body: [] };
   if (req.method === "DELETE") return { status: 404, body: { message: "Label does not exist" } };
@@ -190,7 +194,8 @@ async function run(
 
 const providerRequests = () => requests.filter((r) => r.url.startsWith("/chat/completions"));
 const githubRequests = () => requests.filter((r) => !r.url.startsWith("/chat/completions"));
-const commentRequests = () => requests.filter((r) => r.url.includes("/comments"));
+const commentPosts = () => requests.filter((r) => r.method === "POST" && r.url === "/repos/o/r/issues/7/comments");
+const labelRequests = () => requests.filter((r) => r.url.includes("/labels"));
 
 /** Lines printed outside every ::stop-commands:: block: the only lines the runner may use as workflow commands. */
 function outsideBlocks(stdout: string): string[] {
@@ -208,7 +213,7 @@ function outsideBlocks(stdout: string): string[] {
 }
 
 describe("runner", () => {
-  it("reviews allowed files only, writes the review to the summary and sets the passed label, no comment", async () => {
+  it("reviews allowed files only, posts a marker comment and the passed label", async () => {
     const result = await run();
     expect(result.code).toBe(0);
 
@@ -220,12 +225,15 @@ describe("runner", () => {
     for (const secret of [SENTINELS.env, SENTINELS.lock, SENTINELS.types]) expect(payload).not.toContain(secret);
     expect(sent.models).toEqual([DEFAULT_MODEL, "openrouter/free"]);
 
-    expect(commentRequests()).toHaveLength(0);
-    expect(result.summary).toContain("8/10 · passed");
-    expect(result.summary).toContain("vendor/served-model:free");
-    expect(result.summary).toContain("0123456");
-    expect(result.summary).toContain(".env");
-    expect(result.summary).not.toContain(SENTINELS.env);
+    const posts = commentPosts();
+    expect(posts).toHaveLength(1);
+    const comment = (JSON.parse(posts[0].body) as { body: string }).body;
+    expect(comment.startsWith(MARKER)).toBe(true);
+    expect(comment).toContain("8/10 · passed");
+    expect(comment).toContain("vendor/served-model:free");
+    expect(comment).toContain("0123456");
+    expect(comment).toContain(".env");
+    expect(comment).not.toContain(SENTINELS.env);
 
     const labelCreates = requests.filter((r) => r.method === "POST" && r.url === "/repos/o/r/labels");
     expect(labelCreates).toHaveLength(2);
@@ -236,6 +244,26 @@ describe("runner", () => {
     );
     expect(result.stdout).toContain("8/10");
     expect(result.summary).toContain("8/10");
+  });
+
+  it("edits the existing bot comment and ignores a human comment with the marker", async () => {
+    githubHandler = (req) => {
+      if (req.method === "GET" && req.url.includes("/comments")) {
+        return {
+          status: 200,
+          body: [
+            { id: 5, user: { login: "someone" }, body: `${MARKER} human spoof` },
+            { id: 9, user: { login: "github-actions[bot]" }, body: `${MARKER}\nold review` },
+          ],
+        };
+      }
+      return defaultGithub(req);
+    };
+    const result = await run();
+    expect(result.code).toBe(0);
+    expect(commentPosts()).toHaveLength(0);
+    const patches = requests.filter((r) => r.method === "PATCH");
+    expect(patches.map((p) => p.url)).toEqual(["/repos/o/r/issues/comments/9"]);
   });
 
   it("labels a low score as failed and removes the passed label", async () => {
@@ -258,12 +286,14 @@ describe("runner", () => {
     ["an answer without a score", review("Looks good to me."), {}],
   ];
 
-  it.each(unavailable)("stays green and leaves the PR alone: %s", async (_name, handler, env) => {
+  it.each(unavailable)("stays green and leaves labels alone: %s", async (_name, handler, env) => {
     if (handler) providerHandler = handler;
     const result = await run({ env });
     expect(result.code).toBe(0);
-    expect(result.summary).toContain("review unavailable:");
-    expect(githubRequests()).toHaveLength(0);
+    const posts = commentPosts();
+    expect(posts).toHaveLength(1);
+    expect((JSON.parse(posts[0].body) as { body: string }).body).toContain("review unavailable:");
+    expect(labelRequests()).toHaveLength(0);
     if (!env.AI_REVIEW_API_KEY && "AI_REVIEW_API_KEY" in env) expect(providerRequests()).toHaveLength(0);
   });
 
@@ -282,13 +312,13 @@ describe("runner", () => {
     const result = await run({ repo });
     expect(result.code).toBe(0);
     expect(providerRequests()).toHaveLength(0);
-    expect(result.summary).toContain("review unavailable:");
-    expect(githubRequests()).toHaveLength(0);
+    expect((JSON.parse(commentPosts()[0].body) as { body: string }).body).toContain("review unavailable:");
+    expect(labelRequests()).toHaveLength(0);
   });
 
-  it("exits 1 with an ::error:: line outside any stop-commands block when GitHub refuses the label", async () => {
+  it("exits 1 with an ::error:: line outside any stop-commands block when GitHub refuses the comment", async () => {
     githubHandler = (req) =>
-      req.method === "POST" && req.url === "/repos/o/r/labels"
+      req.method === "POST" && req.url.endsWith("/comments")
         ? { status: 403, body: { message: "Resource not accessible by integration" } }
         : defaultGithub(req);
     const result = await run();
@@ -296,7 +326,7 @@ describe("runner", () => {
     expect(
       outsideBlocks(result.stdout).some((l) => l.startsWith("::error::GitHub API POST") && l.endsWith("403")),
     ).toBe(true);
-    expect(requests.some((r) => r.url === "/repos/o/r/issues/7/labels")).toBe(false);
+    expect(labelRequests()).toHaveLength(0);
   });
 
   it("sends `model` instead of `models` when the fallback list is empty", async () => {
@@ -336,7 +366,7 @@ describe("runner", () => {
     providerHandler = () => ({ status: 401, body: { error: { message: `Invalid key ${API_KEY}` } } });
     const first = await run();
     expect(first.code).toBe(0);
-    expect(first.summary).toContain("HTTP 401");
+    expect((JSON.parse(commentPosts()[0].body) as { body: string }).body).toContain("HTTP 401");
     leaks(first);
 
     requests = [];
@@ -350,7 +380,7 @@ describe("runner", () => {
     providerHandler = review(`Looks fine, key ${API_KEY}, token ${GH_TOKEN}`);
     const third = await run();
     expect(third.code).toBe(0);
-    expect(third.summary).toContain("review unavailable:");
+    expect((JSON.parse(commentPosts()[0].body) as { body: string }).body).toContain("review unavailable:");
     expect(third.stdout).toContain("Looks fine");
     leaks(third);
   });
@@ -376,8 +406,9 @@ describe("runner", () => {
     const log = readFileSync(trace, "utf8");
     expect(log).toContain("a-big.ts");
     expect(log).not.toContain("b-late.ts");
-    expect(result.summary).toContain("Omitted files (1)");
-    expect(result.summary).toContain("src/b-late.ts");
-    expect(result.summary).toContain("1 truncated");
+    const comment = (JSON.parse(commentPosts()[0].body) as { body: string }).body;
+    expect(comment).toContain("Omitted files (1)");
+    expect(comment).toContain("src/b-late.ts");
+    expect(comment).toContain("1 truncated");
   });
 });

@@ -1,126 +1,170 @@
 ---
 artifact: architecture-report
-created: 2026-10-27
-updated: 2026-10-28
-status: draft (worker draft, owner edits and approves before merge)
-head: 1e5d891
-inputs: repo-map, reminders-research (F-12), reminders-refactor (F-13), domain-distillation (F-14), test-plan, tests/e2e
+track: 10xArchitect (module 4)
+updated: 2026-11-03
+repository: amakoz/dbam @ c9d5685
 ---
 
 # Architecture report: Dbam
 
-Source keys: **RM** `context/map/repo-map.md` · **RR** `context/archive/2026-10-27-reminders-research/research.md` · **RP** / **PB** `context/archive/2026-10-27-reminders-refactor/plan.md` / `plan-brief.md` · **DD** `context/domain/domain-distillation.md` · **GL** `context/domain/glossary.md` · **TP** `context/foundation/test-plan.md`. `RM:110` means line 110. _Inference_ marks a conclusion that no input states.
+**Sources** (all from one repository, `amakoz/dbam`):
 
-## 1. The system
+- **L2, repository map:** `context/map/repo-map.md`, taken at `159e566`.
+- **L3, feature research:** `context/archive/2026-10-27-reminders-research/research.md`, taken at `8529cc8`.
+- **L4, refactoring plan:** `context/archive/2026-10-27-reminders-refactor/plan.md` and `plan-brief.md`. Its implementation is in `context/archive/2026-10-28-reminders-runner/`.
+- **L5, domain notes:** `context/domain/domain-distillation.md` and `glossary.md` (taken at `74c2d16`), and `anti-corruption-layer.md`.
+- **ast-grep checks of the structural claims:** `context/foundation/architecture-report-verification.md`.
 
-Dbam reminds adults in Poland about preventive screenings (badania profilaktyczne). A user gives health-data consent (`health_data_consents`) and fills in a health profile (`profiles`). The rule engine (`recommend()`) then matches the curated screening catalog (`screening_catalog`) to that profile and shows a tiered dashboard (Panel). The user records each exam as a plan (`screening_plans`) or as done (`screening_completions`), and the Worker's daily `scheduled()` handler sends reminder emails (RM:15; GL:39-60; RR:78). A merge to `main` runs `ci` and `smoke`, then `migrate`, then `deploy`, with no approval step (`.github/workflows/ci.yml:124-164`).
+## 1. The project
 
-## 2. Capabilities and couplings
+**Dbam** reminds adults in Poland to do their preventive screenings (badania profilaktyczne). It is live at https://dbam.amadeuszkozlowski.workers.dev.
 
-There are nine capabilities, and the buzz sits in the dashboard core loop (RM:84-94):
+- **Stack:** Astro 7 SSR with React 19 islands, Tailwind 4 and shadcn/ui. Supabase provides Postgres, Auth and row-level security. The app runs on Cloudflare Workers with a daily cron and sends email through Resend. GitHub Actions CI runs unit, pgTAP, HTTP smoke and Playwright E2E tests.
+- **Scale:**
+  - about 7,900 lines of application code and 6,400 lines of tests;
+  - 15 migrations and 20 catalog entries;
+  - 86 commits and 82 PRs since 2026-09-24, from one maintainer.
 
-- **exam-records** is the one later changes keep reopening: friction H (RM:87).
-- **recommendations** is the busiest, with 16 commits (RM:88).
-- **reminders** draws the most planning attention and has the widest reach (RM:86).
+## 2. Repository map (L2)
 
-The couplings that matter:
+The map combines three views:
 
-- exam-records ↔ recommendations is a capability-level import loop (11 + 5 edges), kept by hand (RM:110).
-- reminders reaches into the tables of exam-records, onboarding-consent and catalog through SQL that imports and lint cannot see (RM:111-113). F-12 confirmed these edges from the live catalog (RR:312).
-- An exam-records migration redefines `withdraw_health_data_consent()`, a function that onboarding-consent owns (RM:113).
-- `database.types.ts` has to change in step with migrations, and no CI step checks it (RM:117). The password policy lives in three places, and one of them is outside git (RM:119).
+- **Territory:** git history, 61 commits over 5 weeks.
+- **Structure:** an import graph from the TypeScript compiler, with `rg` for SQL, where coverage is low.
+- **People:** git and `gh`, covering 58 PRs.
 
-One person authored and merged every commit, and none of the 58 PRs has a review (RM:224, :265).
+What it shows:
 
-## 3. Risk zones
+- **Where change concentrates:** the dashboard core loop. Exam records is the area later changes keep reopening. Recommendations is the busiest area (16 commits), and the two depend on each other (11 + 5 import edges).
+- **Risk zone 1, the reminder pipeline:** the only code that runs unattended with the service-role key, outside RLS. It emails real people and reads three other areas' tables through SQL that neither imports nor lint can see.
+- **Risk zone 2, exam records:** `src/lib/screenings/rules.ts` has the most dependants of any business file (9), and `api/screenings.ts` is the largest endpoint.
+- **Looks risky, isn't:** CI churn (one deploy campaign), translations (lockstep, guarded by the type check) and generated types all look busy. Their activity is mechanical, so the map leaves them out of the risk zones.
+- **Entry points:**
+  - `src/pages/dashboard.astro`, the product on one page;
+  - `src/middleware.ts`, access control for every route;
+  - `scheduled()` in `src/worker.ts`, the cron.
+- **Unknowns:**
+  - people: no second maintainer, no human reviews, no medical owner for the catalog;
+  - what a schema change breaks in the reminder SQL;
+  - whether withdrawing consent clears the reminder tables.
 
-1. **Reminder pipeline.** It is the only code that runs unattended with the service-role key, outside RLS. It emails real people and depends on other capabilities' schemas (RM:126-128).
-2. **Exam records.** `src/lib/screenings/rules.ts` has 9 dependants, the most of any business file, and `api/screenings.ts` is the fattest endpoint (RM:161-178).
-3. **Watch list.** onboarding-consent: `profile.ts` has 8 dependants, and `consent.ts`, `profile.ts` and `middleware.ts` have no unit tests. catalog-curation: no medical owner is visible (RM:200-207).
+## 3. Feature analysis (L3): the reminder pipeline
 
-## 4. The reminder pipeline (F-12, F-13)
+**Why this feature:** it is risk zone 1 of the map, and two of the map's unknowns point straight at it.
 
-**Trace.** The cron fires at `0 8,9 * * *` UTC, and `isDailySendRun` lets only the 10:00 Warsaw run through (`wrangler.jsonc:16`; RR:46). `runReminderChain` then runs the appointment reminder (przypomnienie o wizycie), the due-again reminder (czas na badanie profilaktyczne) and the nudge (przypomnienie o planowanych badaniach), in that order, on one 92-email daily email budget (`REMINDER_EMAIL_DAILY_BUDGET`) (RR:47-48; GL:71-76). Each job runs gate → claim RPC → one Resend batch with an idempotency key → mark RPC. Recipient selection and dedupe live in 7 `SECURITY DEFINER` functions that only `service_role` can call (RR:49-51). If one job fails, every later job has zero budget for that day (RR:84).
+**Overview:** the cron fires twice a day, and `schedule.ts` lets only the 10:00 Warsaw run through. `runReminderChain` then runs three jobs in order (appointment reminder, due-again reminder, follow-up nudge) on a shared budget of 92 emails a day. State changes in the database, not in TypeScript. A `SECURITY DEFINER` claim function selects the recipients and inserts ledger rows. Then one Resend batch goes out with an idempotency key, and a mark function stamps the rows as sent. Each job returns its sent count, which reduces the next job's budget, so if one job fails, the later jobs send nothing that day.
 
-**Debt.** F-12 checked 17 structural claims with AST or catalog queries: 15 confirmed and 2 refuted (RR:63). The ones that matter:
+**Technical debt:** 17 structural claims, 15 confirmed and 2 refuted. The TypeScript claims were checked with AST queries through the TypeScript compiler API, and the SQL claims with read-only Postgres catalog queries. I re-checked the key ones with **ast-grep 0.39.5** and confirmed every zero with grep. One pattern undercounted: it found 8 `.rpc()` call sites where grep found 9, and the corrected pattern also finds 9.
 
-- **TD-1:** the claim → send → mark skeleton is copied by hand into all three runners (RR:261).
-- **TD-7, TD-8:** two of the three email builders are inline. No unit test imports any job, the worker, the send gate, the heartbeat or the alert (RR:267-268).
-- **SD-1:** Postgres records 0 dependencies from the reminder functions to the tables they read, so a column rename succeeds and fails only at run time (RR:272).
-- **SD-2, SD-3:** the consent and opt-in predicates are copied 8 times each. The copies have already drifted: the appointment claim lacks the active-entry check (RR:273-274).
-- **Withdrawal (TP risk #5):** withdrawal clears all three ledgers, but only through FK cascades. No pgTAP test asserts that `due_screening_reminders` is empty after a withdrawal (RR:52-54, :185).
-- **Refuted:** the generated types are not stale for RPC names (TD-10), and only `src/worker.ts` imports the pipeline, so the boundary holds (TD-9) (RR:269-270).
+- **TD-1 (ast-grep: 3 `sendEmailBatch` calls, one per job):** the claim → send → mark sequence was copied by hand into all three jobs. So were three private `log` helpers (`appointment.ts:102`, `due-screening.ts:129`, `follow-up-nudge.ts:80`).
+- **TD-7 and TD-8 (ast-grep: 2 inline `buildMessage`, 1 exported builder):** two of the three email builders could not be tested, and only `worker.ts` imported the jobs. That is a test gap in code that emails real people.
+- **SD-1 and SD-2 (catalog query):** Postgres records 0 dependencies from the reminder functions to their tables, so a column rename passes migration and fails only at run time. The consent and opt-in conditions are copied 8 times each, and they have already drifted (SD-3).
 
-**Chosen refactor (F-13): TD-1 + TD-7 + TD-8.**
+**Looks like debt, isn't:** every RPC name in the generated types is current (TD-10), and only `worker.ts` imports the pipeline (TD-9).
 
-- **How:** characterization tests first (invariants I1–I15, proved by a break matrix), then one pure `runClaimSendMark` runner with the client, sender and site injected, then the two builders in their own modules. 8 phases, one PR per phase from phase 3 on (PB:32-38; RP:90-105).
-- **Why:** the largest confirmed duplication, TypeScript only (a Worker rollback reverts it), and no migration or answer to SD-3 needed (PB:32). A spike runner matched today's transcript in 42 of 42 scenarios (PB:19).
-- **Rejected:** an SQL helper for SD-2, which needs a production migration that a rollback does not undo (RR:286-288).
-- **Status:** parked until M-02 closes (RP:13). A rollback restores code, not data (RP:690).
+**Still unknown:** whether two send runs can overlap in production (SD-6).
 
-## 5. Domain model (F-14)
+## 4. Refactoring plan (L4)
 
-The **Core** is two subdomains: screening recommendation, and screening follow-through (plan → appointment date → confirm or done → due again). **Supporting:** catalog curation, consent and profile, reminder dispatch. **Generic:** accounts, email, observability, i18n (DD:112-118).
+**Shape and intent:** each job is a Transaction Script, which is the right size for three small jobs, so only the copied skeleton should go. Earlier plans and PRs show the copies were shortcuts. S-06 "mirrors `appointment.ts`" and S-07 says "Copy S-04, not S-06", and no change ever rejected a shared runner. So this is accidental complexity, safe to remove.
 
-**Implicit Exam aggregate.** The user's exam (badanie) has no type in code. Its identity is `(user_id, catalog_slug)`, spread across `screening_plans`, `screening_completions`, three ledgers and the read rule `partitionDashboard` (DD:21; GL:51). It ranks #1 because three drift rows and backlog item B-04 all land on it (DD:244, :255).
+**Options, ranked:**
 
-**Top drift:**
+- **(A) Characterization tests:** the guard, kept as step one.
+- **(B) A shared runner:** chosen.
+- **(C) Injection per job:** rejected, because it costs the same churn without removing the duplication.
 
-- **D-01:** appointment reminders go out for plans whose catalog entry is retired or back in draft. Nudges and due-again reminders require `active` (DD:215). _Inference:_ this is the same finding as SD-3, found on its own by two inputs. The owner says the retired case is intended (§7, Q-01).
-- **D-02:** a catalog snapshot can move an active entry back to draft, which silently hides users' records for it (DD:216).
-- **D-03:** "mark done" is two separate PostgREST calls. If the delete fails, both rows stay and the user sees `save_failed` (DD:217; `src/pages/api/screenings.ts:150-163`).
-- **D-04:** a screening a user becomes eligible for for the first time gets no reminder, and the PRD sentence reads either way (DD:218). The owner says this is intended: repeat exams only (§7, Q-03).
+**Target shape:**
 
-The word `due` has five meanings in code and `badanie` has two (DD:98-99). This report uses the glossary terms.
+- One pure `runClaimSendMark(spec, run, budget, deps)` in `runner.ts` owns the gates, sending, the dry-run stop, marking and logging.
+- Each job becomes a small spec. The database client, sender and site URL are injected through `deps.ts`, and the builders become pure modules.
+- Job names and signatures stay the same, so `worker.ts` and `chain.ts` don't change.
+- A spike runner reproduced the current output in 42 of 42 scenarios.
 
-## 6. Verification in place
+**Path:** guard first, then branch by abstraction. Characterization tests pin invariants I1–I15. The runner lands unused, then the jobs move to it one PR at a time.
 
-| Layer                       | What it covers                                                                                               | Where                                      |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
-| Unit                        | 14 Vitest files: catalog and screening rules, the chain, candidates, the nudge message, email, observability | `src/**/*.test.ts`; TP:84                  |
-| pgTAP                       | 7 suites: RLS, grants, withdrawal and the ledgers                                                            | `supabase/tests/database/`; `ci.yml:53-54` |
-| HTTP smoke and cron dry run | The dry run asserts only `"outcome":"ok"` and never reaches a mark RPC                                       | RR:61; `ci.yml:72-87`                      |
-| E2E (S-08)                  | Playwright: seed, the core loop (plan → confirm → next due), and isolation (a second user sees nothing)      | `tests/e2e/*.spec.ts`; `ci.yml:107-109`    |
-| Post-deploy                 | Health check and read-only smoke                                                                             | `ci.yml:169-193`                           |
+**Deliberately not doing:**
 
-**Gap:** no layer runs the TypeScript jobs against a real database. TP Phase 2 has not started (RR:227; TP:71).
+- the SQL copies (SD-2), which need a migration that a Worker rollback does not undo;
+- the product question (SD-3);
+- TD-4, TD-5 and TD-6 (the batch cap would change the RPC arguments);
+- any change to the chain, the log names or the email copy.
 
-**Stale doc:** TP §3 still lists Phase 1 as "change opened", but `roadmap.md:53` marks S-08 done (TP:70).
+| #   | Phase                                     | Verification                                                                                        |
+| --- | ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| 1   | Characterization tests of the three jobs  | Auto: tests, plus a break matrix over 7 invariant classes. Manual: review of the pinned email copy  |
+| 2   | Move `MAX_BATCH_SIZE` to a pure module    | Auto                                                                                                |
+| 3   | Pure runner and deps, not used yet        | Auto: runner tests                                                                                  |
+| 4–6 | Appointment, nudge, then due job → runner | Auto: phase 1 tests unchanged, plus a deliberate break. Manual: next 10:00 production log unchanged |
+| 7–8 | Extract the appointment and due builders  | Auto: copy and privacy tests, plus a deliberate break. Manual (phase 8): all three jobs unchanged   |
 
-## 7. Owner answers (2026-10-28)
+**Outcome:** implemented as 7 PRs (#99–#113, 2026-10-28 to 2026-11-01), each of which can be rolled back on its own. ast-grep on `main` finds:
 
-The owner answered the DD questions on 2026-10-28 (`context/archive/2026-10-27-architecture-report/decisions.md`). The consequences are the worker's reading of each answer (inference).
+- 3 `runClaimSendMark` calls;
+- 0 copied `log` helpers;
+- 3 exported builders;
+- `sendEmailBatch` only injected (`deps.ts:9`).
 
-| Q    | Question                                             | Answer                                                      | Consequence                                     |
-| ---- | ---------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------- |
-| Q-01 | Appointment reminders for a retired entry? (DD:261)  | Keep them; intended                                         | D-01 / SD-3 is closed as intended behaviour     |
-| Q-02 | Can catalog entries move backwards? B-04? (DD:262)   | Forward-only moves; B-04 is a bug                           | D-02 needs a guard; B-04 needs a fix (§8)       |
-| Q-03 | "Becomes due" includes first time? (DD:263)          | Repeat exams only; first-time eligibility is dashboard-only | D-04 is a PRD wording fix, not a missing email  |
-| Q-04 | Lose appointment reminders above ~92/day? (DD:264)   | Accepted for now; revisit before launch                     | D-05 stays as an accepted risk                  |
-| Q-05 | Browser reaches Supabase REST directly? (DD:265)     | Accepted for now; revisit before launch                     | DD ranking #8 waits for launch                  |
-| Q-06 | Entry past `next_review_due`? (DD:266)               | Flag it in CI                                               | D-08 needs a CI check (§8)                      |
-| Q-07 | Words for catalog item vs user's exam? (DD:267)      | "screening" vs "exam"                                       | Matches GL:17, :51; `zalecenia` left unanswered |
-| Q-08 | Appointment and due-again email on one day? (DD:268) | Acceptable                                                  | Cross-job overlap closed                        |
-| Q-09 | Medical sign-off and launch gate? (DD:269)           | No launch planned                                           | Q-04, Q-05 and Q-10 wait for a launch decision  |
-| Q-10 | Re-consent and consent proof? (DD:270)               | Deferred to the launch gate                                 | —                                               |
+The production log checks after phases 4 and 5 passed. The checks after phases 6 and 8 are still open.
 
-**Still open:** SD-6, whether two send runs can overlap in production (RR:340).
+## 5. The domain, DDD view (L5)
 
-## 8. What to do next
+**Ubiquitous language:**
 
-1. Un-park F-13 once M-02 closes, starting with phase 1 (RP:13; PB:90).
-2. Run TP Phase 2, recipient integration, including a withdrawal sweep over every table with `user_id` (SD-5) (RR:289-290; TP:71).
-3. Name the Exam aggregate, make mark-done atomic and fix B-04 (Q-02). Done when a failed mark-done leaves no plan beside its done record (DD:244).
-4. Guard the catalog lifecycle in CI (Q-02, Q-06). Done when `catalog:check` refuses a backward status move and flags an entry past `next_review_due` (DD:248).
-5. Reword `prd.md:32` to say repeat exams only (Q-03, D-04).
-6. _Inference, not in any plan yet:_ add a CI diff of `database.types.ts` (RM:117, :272).
+- a **screening** is a catalog entry;
+- an **exam** is the user's own badanie (plan → appointment date → done or confirmed);
+- the **tier** is the importance level, 1 to 3;
+- **due again** means a repeat exam whose interval has passed;
+- a **reminder** is about a date, while a **nudge** prompts the next step.
 
-## Owner review: check these first
+Of 50 core and supporting terms, 4 have no counterpart in code, and the most important missing one is the exam itself. In Polish, `badanie` means both screening and exam, and in code `due` has five meanings.
 
-- [ ] One person authored and merged everything, with no human review (RM:224, :265).
-- [ ] Withdrawal clears the ledgers only through cascades, with no test for `due_screening_reminders` (RR:52-54).
-- [ ] §7 records your 2026-10-28 answers as you meant them, especially the consequences for Q-01 (D-01 closed) and Q-03 (D-04 becomes a PRD wording fix).
-- [ ] Mark done is two calls (`src/pages/api/screenings.ts:150-163`).
-- [ ] The budget is 92, and a failed job zeroes the later jobs (`src/lib/email-budget.ts:9`; RR:84).
-- [ ] The F-13 choice and its parking match your intent (PB:32; RP:13).
-- [ ] TP §3 Phase 1 status should read done (TP:70).
+**Drift between the model and the code:**
+
+- **D-01:** appointment reminders go out for retired entries. This is intended.
+- **D-02:** a catalog snapshot could hide users' records. Fixed by F-17.
+- **D-03:** "mark done" is two separate writes. Still open.
+- **B-04:** a missing catalog entry hid the user's exam. Fixed by S-10.
+
+**Invariant #1 and its aggregate:** for every (user, screening) pair, the stored rows place the exam in exactly one place. It belongs to the implicit **Exam** aggregate, whose identity is `(user_id, catalog_slug)`. It ranks first on all three axes:
+
+- **How central it is:** it sits in the Core subdomain.
+- **How spread out it is:** across the route handler, two SQL functions, three ledgers and `partitionDashboard`.
+- **How weakly it is enforced:** only declared. "Mark done deletes the plan" is two PostgREST calls.
+
+**Anti-corruption layer:**
+
+- **Already isolated:** Resend sits behind an adapter, since `email.ts` is the only file that calls its API. Supabase Auth errors are translated in one place, `auth-errors.ts`.
+- **The leak:** Supabase's query builder appears in 3 layers. That is 9 calls in 5 API routes (5 of them in `api/screenings.ts`), 7 in the read modules and 5 in the reminder jobs, all counted with ast-grep.
+- **Proposal:** an `ExamRepository` port with a Supabase adapter, in which `markDone` is one atomic RPC.
+- **Done when:** `.from()` and `.rpc()` no longer appear in `src/pages`.
+
+## 6. Decisions that are mine
+
+The agents traced, measured and ranked; I decided what the code could not:
+
+- **Retired entries:** I kept appointment reminders for them, although the domain analysis flagged this as drift, because the reminder is about the user's own booked visit.
+- **What "becomes due" means:** I narrowed the PRD to repeat exams. First-time eligibility shows on the dashboard, with no email.
+- **Catalog status:** I made it forward-only and treated B-04 as a bug, because a user's plan must never disappear.
+- **The refactor:** the agent's ranking was a proposal; at the planning gate I chose the TypeScript-only refactor over the SQL helper, because a rollback undoes code but not a migration. I shipped it one PR per phase, with a production check between the job phases.
+- **Launch-time risks:** I accepted the 92-email daily cap and direct REST access for now. I moved them, with medical sign-off and re-consent, to a launch gate, because no public launch is planned.
+
+## 7. Next steps
+
+**From this work:**
+
+1. Test reminder recipients against a real database, including a consent-withdrawal sweep (test-plan Phase 2, SD-5).
+2. Build the `ExamRepository` port, which makes mark-done atomic (D-03).
+3. Write an additive migration for SD-1 and SD-2.
+4. Add a CI check on `database.types.ts`.
+5. Close the two remaining production checks from the refactor.
+
+**Parked on the roadmap, in pickup order:**
+
+1. F-07 production checks.
+2. The launch gate: medical sign-off, a data-protection impact assessment (DPIA) and re-consent.
+3. A post-deploy reminder check.
+4. Optional follow-up profiling (FR-010).
+5. AI at runtime and AI-assisted catalog updates.
+6. A shared AI-toolkit package.
+7. The PRD non-goals: an NFZ queue-watcher, a medicine tracker, booking and family accounts.

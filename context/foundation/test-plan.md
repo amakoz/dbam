@@ -65,12 +65,12 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                     | Goal (one line)                                                                                                  | Risks covered        | Test types                 | Status        | Change folder |
-| --- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------- | ------------- | ------------- |
-| 1   | Browser E2E for the core loop  | Prove a fresh user can finish the loop in a real browser with correct results, and a second user sees none of it | #2, #4, #1 (browser) | e2e                        | change opened | e2e-core-loop |
-| 2   | Reminder recipient integration | Prove each job selects exactly the right recipients once, and an empty run sends nothing                         | #3, #5               | integration                | not started   | —             |
-| 3   | Isolation and privacy sweep    | Prove forged-identifier writes change nothing and no output path carries identifiable data                       | #1, #6               | integration + unit + pgTAP | not started   | —             |
-| 4   | Quality-gates wiring           | Make the e2e suite a required check and turn the gates into agent hooks                                          | cross-cutting        | gates + hooks              | not started   | —             |
+| #   | Phase name                     | Goal (one line)                                                                                                  | Risks covered        | Test types                 | Status      | Change folder                               |
+| --- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------- | ----------- | ------------------------------------------- |
+| 1   | Browser E2E for the core loop  | Prove a fresh user can finish the loop in a real browser with correct results, and a second user sees none of it | #2, #4, #1 (browser) | e2e                        | done        | `context/archive/2026-10-27-e2e-core-loop/` |
+| 2   | Reminder recipient integration | Prove each job selects exactly the right recipients once, and an empty run sends nothing                         | #3, #5               | integration                | not started | —                                           |
+| 3   | Isolation and privacy sweep    | Prove forged-identifier writes change nothing and no output path carries identifiable data                       | #1, #6               | integration + unit + pgTAP | not started | —                                           |
+| 4   | Quality-gates wiring           | Make the e2e suite a required check and turn the gates into agent hooks                                          | cross-cutting        | gates + hooks              | not started | —                                           |
 
 ## 4. Stack
 
